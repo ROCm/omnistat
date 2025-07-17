@@ -11,6 +11,7 @@
    introduction
    installation/index
    grafana
+   metrics
    sites
    developer/developers
 ```
