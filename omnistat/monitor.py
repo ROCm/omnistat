@@ -93,9 +93,7 @@ class Monitor:
         self.runtimeConfig["collector_power_capping"] = config["omnistat.collectors"].getboolean(
             "enable_power_cap", False
         )
-        self.runtimeConfig["collector_vcn"] = config["omnistat.collectors"].getboolean(
-            "enable_vcn", False
-        )
+        self.runtimeConfig["collector_vcn"] = config["omnistat.collectors"].getboolean("enable_vcn", False)
 
         self.runtimeConfig["collector_enable_rocprofiler"] = config["omnistat.collectors"].getboolean(
             "enable_rocprofiler", False
