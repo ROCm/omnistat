@@ -106,12 +106,18 @@ class AMDSMI(Collector):
 
     def get_gpu_metrics(self, device):
         """Make GPU metric query and return dict of tracked metrics"""
+        simple = {}
+        source = {}
 
-        tracked_metrics = {}
         result = smi.amdsmi_get_gpu_metrics_info(device)
-        for smiName, metricName in self.__metricMapping.items():
-            tracked_metrics[metricName] = result[smiName]
-        return tracked_metrics
+
+        for metricName, smiName in self.__metricMapping.items():
+            simple[metricName] = result[smiName]
+
+        for metricName, smiName in self.__sourceMetricMapping.items():
+            source[metricName] = result[smiName]
+
+        return simple, source
 
     def registerMetrics(self):
         """Query number of devices and register metrics of interest"""
@@ -243,32 +249,31 @@ class AMDSMI(Collector):
                 self.__prefix + "temperature_memory_celsius", "HBM Temperature (C)", labelnames=["card", "location"]
             )
 
-        # Define mapping from amdsmi variable names to omnistat metric, incuding units where appropriate
+        # Define mapping from omnistat metric to amdsmi variable names, incuding units where appropriate
         self.__metricMapping = {
             # core GPU metric definitions
-            "average_gfx_activity": "utilization_percentage",
-            "average_uclk_frequency": "mclk_clock_mhz",
-            "average_umc_activity": "vram_busy_percentage",
+            "utilization_percentage": "average_gfx_activity",
+            "vram_busy_percentage": "average_umc_activity",
         }
 
         # additional mappings: depending on architecture, amdsmi reports clock frequencies and socket power
         # via different keys - check here to determine metric availability and log the source as a label
-        metric_check = {}
-        metric_check["sclk_clock_mhz"] = ["average_gfxclk_frequency", "current_gfxclk"]
-        metric_check["average_socket_power_watts"] = ["average_socket_power", "current_socket_power"]
-        metric_check["mclk_clock_mhz"] = ["average_uclk_frequency", "current_uclk"]
+        self.__sourceMetricMapping = {}
+        metric_check = {
+            "sclk_clock_mhz": ["average_gfxclk_frequency", "current_gfxclk"],
+            "average_socket_power_watts": ["average_socket_power", "current_socket_power"],
+            "mclk_clock_mhz": ["average_uclk_frequency", "current_uclk"],
+        }
 
         dev0 = self.__devices[0]
         metrics = smi.amdsmi_get_gpu_metrics_info(dev0)
-        self.__source_labels = {}
 
         for desired_metric in metric_check:
             found = None
-            for key in metric_check[desired_metric]:
-                if is_positive_int(metrics[key]):
-                    self.__metricMapping[key] = desired_metric
-                    self.__source_labels[desired_metric] = key
-                    found = key
+            for source_metric in metric_check[desired_metric]:
+                if is_positive_int(metrics[source_metric]):
+                    self.__sourceMetricMapping[desired_metric] = source_metric
+                    found = source_metric
                     break
             if not found:
                 logging.error("--> Unable to determine valid data for %s" % desired_metric)
@@ -282,7 +287,7 @@ class AMDSMI(Collector):
 
         # Register remaining metrics of interest available from get_gpu_metrics()
         for idx, device in enumerate(self.__devices):
-            metrics = self.get_gpu_metrics(device)
+            metrics, _ = self.get_gpu_metrics(device)
             for metric in metrics:
                 metric_name = self.__prefix + metric
                 # add Gauge metric only once
@@ -321,14 +326,16 @@ class AMDSMI(Collector):
             guid = self.__guidMapping[idx]
 
             #  stats available via get_gpu_metrics
-            metrics = self.get_gpu_metrics(device)
+            metrics, source_metrics = self.get_gpu_metrics(device)
 
             for metricName, value in metrics.items():
                 metric = self.__GPUMetrics[self.__prefix + metricName]
-                if metricName in self.__source_labels:
-                    metric.labels(card=cardId, source=self.__source_labels[metricName]).set(value)
-                else:
-                    metric.labels(card=cardId).set(value)
+                metric.labels(card=cardId).set(value)
+
+            for metricName, value in source_metrics.items():
+                metric = self.__GPUMetrics[self.__prefix + metricName]
+                source = self.__sourceMetricMapping[metricName]
+                metric.labels(card=cardId, source=source).set(value)
 
             # additional gpu memory-related stats
             device_total_vram = smi.amdsmi_get_gpu_memory_total(device, smi.AmdSmiMemoryType.VRAM)
