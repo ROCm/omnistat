@@ -1,6 +1,6 @@
 [Unit]
 Description=Prometheus exporter for HPC/GPU oriented metrics
-Documentation=https://amdresearch.github.io/omnistat/
+Documentation=https://rocm.github.io/omnistat/
 Requires=network-online.target
 After=network-online.target
 

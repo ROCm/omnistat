@@ -1,6 +1,6 @@
-[![Documentation](https://github.com/AMDResearch/omnistat/actions/workflows/docs.yml/badge.svg)](https://amdresearch.github.io/omnistat/)
-[![System mode](https://github.com/AMDResearch/omnistat/actions/workflows/test.yml/badge.svg)](https://github.com/AMDResearch/omnistat/actions/workflows/test.yml)
-[![User mode - Push](https://github.com/AMDResearch/omnistat/actions/workflows/test-user-push.yml/badge.svg)](https://github.com/AMDResearch/omnistat/actions/workflows/test-user-push.yml)
+[![Documentation](https://github.com/ROCm/omnistat/actions/workflows/docs.yml/badge.svg)](https://rocm.github.io/omnistat/)
+[![System mode](https://github.com/ROCm/omnistat/actions/workflows/test.yml/badge.svg)](https://github.com/ROCm/omnistat/actions/workflows/test.yml)
+[![User mode - Push](https://github.com/ROCm/omnistat/actions/workflows/test-user-push.yml/badge.svg)](https://github.com/ROCm/omnistat/actions/workflows/test-user-push.yml)
 
 
 # Omnistat
@@ -43,11 +43,11 @@ basis with SLURM entirely in user-space.
 
 
 For more information on available features and installation steps
-please refer to the online [documentation](https://amdresearch.github.io/omnistat/).
+please refer to the online [documentation](https://rocm.github.io/omnistat/).
 
---- 
+---
 Omnistat is an AMD open source research project and is not supported
 as part of the ROCm software stack. We welcome contributions and
-feedback from the community. 
+feedback from the community.
 
 Licensing information can be found in the [LICENSE](LICENSE) file.

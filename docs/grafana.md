@@ -20,21 +20,21 @@ collected.
 
 - *RMS* dashboards provide integration with *Resource Managers* like
   SLURM.
-  - [Global Dashboard](https://github.com/AMDResearch/omnistat/blob/main/grafana/json-models/system/rms-global.json):
+  - [Global Dashboard](https://github.com/ROCm/omnistat/blob/main/grafana/json-models/system/rms-global.json):
     provides an overview of the system, cluster-level telemetry for allocated
     and unallocated nodes, RAS counters, and job indices.
-  - [Node Dashboard](https://github.com/AMDResearch/omnistat/blob/main/grafana/json-models/system/rms-node.json):
+  - [Node Dashboard](https://github.com/ROCm/omnistat/blob/main/grafana/json-models/system/rms-node.json):
     job allocation timeline and detailed metrics for a single node in the
     cluster.
-  - [Job Dashboard](https://github.com/AMDResearch/omnistat/blob/main/grafana/json-models/system/rms-job.json):
+  - [Job Dashboard](https://github.com/ROCm/omnistat/blob/main/grafana/json-models/system/rms-job.json):
     provides detailed time-series data, load distribution, and other metrics for
     a single job.
 
 - *Standalone* dashboards are meant to work without a resource manager.
-  - [Global Dashboard](https://github.com/AMDResearch/omnistat/blob/main/grafana/json-models/system/standalone-global.json):
+  - [Global Dashboard](https://github.com/ROCm/omnistat/blob/main/grafana/json-models/system/standalone-global.json):
     provides an overview of the system, cluster-level telemetry, and RAS
     counters.
-  - [Node Dashboard](https://github.com/AMDResearch/omnistat/blob/main/grafana/json-models/system/standalone-node.json):
+  - [Node Dashboard](https://github.com/ROCm/omnistat/blob/main/grafana/json-models/system/standalone-node.json):
     detailed metrics for a single node in the cluster.
 
 

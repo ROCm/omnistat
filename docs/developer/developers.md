@@ -6,7 +6,7 @@
    :maxdepth: 4
 ```
 
-The core telemetry collection facilities within Omnistat are oriented around GPU metrics. However, Omnistat is designed with extensibility in mind and adopts an object oriented approach using [abstract base classes](https://docs.python.org/3/library/abc.html) in Python to facilitate implementation of multiple data collectors. This functionality allows developers to extend Omnistat to add custom data collectors relatively easily by instantiating additional instances of the `Collector` class highlighted below. 
+The core telemetry collection facilities within Omnistat are oriented around GPU metrics. However, Omnistat is designed with extensibility in mind and adopts an object oriented approach using [abstract base classes](https://docs.python.org/3/library/abc.html) in Python to facilitate implementation of multiple data collectors. This functionality allows developers to extend Omnistat to add custom data collectors relatively easily by instantiating additional instances of the `Collector` class highlighted below.
 
 ```eval_rst
 .. code-block:: python
@@ -48,7 +48,7 @@ We prefer to always embed the metric units directly into the name of the metric 
 
 ### Add runtime config option for new collector
 
-To begin enabling optional support for this new collector, let's first add a runtime option that can be queried during initialization to decide whether to enable the collector or not.  This requires changes to the initialization method of the `Monitor` class of Omnistat housed within the [monitor.py](https://github.com/AMDResearch/omnistat/blob/main/omnistat/monitor.py) source file. The code snippet below highlights addition of this new runtime option called `enable_uptime` that defaults to `False` (meaning, not enabled by default).
+To begin enabling optional support for this new collector, let's first add a runtime option that can be queried during initialization to decide whether to enable the collector or not.  This requires changes to the initialization method of the `Monitor` class of Omnistat housed within the [monitor.py](https://github.com/ROCm/omnistat/blob/main/omnistat/monitor.py) source file. The code snippet below highlights addition of this new runtime option called `enable_uptime` that defaults to `False` (meaning, not enabled by default).
 
 ```eval_rst
 .. code-block:: python
@@ -65,7 +65,7 @@ To begin enabling optional support for this new collector, let's first add a run
 
 ### Implement the uptime data collector
 
-Next, let's implement the actual data collection mechanism. Recall that we simply need to implement two methods leveraging the `Collector` base class provided by Omnistat and the code listing below shows a complete working example.  Note that Omnistat data collectors leverage the Python [prometheus client](https://github.com/prometheus/client_python) to define Gauge metrics. In this example, we include a `kernel` label for the `node_uptime_secs` metric that is determined from `/proc/version` during initialization. The node uptime is determined from `/proc/uptime` and is updated on every call to `updateMetrics()`.  
+Next, let's implement the actual data collection mechanism. Recall that we simply need to implement two methods leveraging the `Collector` base class provided by Omnistat and the code listing below shows a complete working example.  Note that Omnistat data collectors leverage the Python [prometheus client](https://github.com/prometheus/client_python) to define Gauge metrics. In this example, we include a `kernel` label for the `node_uptime_secs` metric that is determined from `/proc/version` during initialization. The node uptime is determined from `/proc/uptime` and is updated on every call to `updateMetrics()`.
 
 ```eval_rst
 .. literalinclude:: collector_uptime.py
@@ -76,7 +76,7 @@ Next, let's implement the actual data collection mechanism. Recall that we simpl
 
 ### Register the new collector
 
-Assuming the raw data collector code from the previous step has been stored locally as `omnistat/collector_uptime.py` file, the final step is to register the new collector when the runtime option is enabled.  This modification also needs to amend the initialization method for the `Monitor` class residing in [monitor.py](https://github.com/AMDResearch/omnistat/blob/main/omnistat/monitor.py) with the changes necessary highlighted below.
+Assuming the raw data collector code from the previous step has been stored locally as `omnistat/collector_uptime.py` file, the final step is to register the new collector when the runtime option is enabled.  This modification also needs to amend the initialization method for the `Monitor` class residing in [monitor.py](https://github.com/ROCm/omnistat/blob/main/omnistat/monitor.py) with the changes necessary highlighted below.
 
 ```eval_rst
 .. code-block:: python

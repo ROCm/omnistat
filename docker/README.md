@@ -16,7 +16,7 @@ connect Grafana and Victoria Metrics, and pre-load two dashboards:
 
 For more information on how to use this Docker Compose environment, please
 refer to the [Exploring results with a local Docker
-environment](https://amdresearch.github.io/omnistat/installation/user-mode.html#exploring-results-locally).
+environment](https://rocm.github.io/omnistat/installation/user-mode.html#exploring-results-locally).
 
 section of the documentation.
 

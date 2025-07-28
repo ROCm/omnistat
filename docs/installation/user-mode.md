@@ -26,7 +26,7 @@ path accessible from all nodes.
 
 1. Download and expand latest release version.
    ```shell-session
-   [user@login]$ REPO=https://github.com/AMDResearch/omnistat
+   [user@login]$ REPO=https://github.com/ROCm/omnistat
    [user@login]$ curl -OLJ ${REPO}/archive/refs/tags/v{__VERSION__}.tar.gz
    [user@login]$ tar xfz omnistat-{__VERSION__}.tar.gz
    ```
@@ -53,7 +53,7 @@ directory of the release.
 
 ## Configuring user-mode Omnistat
 
-For user-mode execution, Omnistat includes additional options in the `[omnistast.usermode]` section of the runtime configuration file. A portion of the [default](https://github.com/AMDResearch/omnistat/blob/main/omnistat/config/omnistat.default) config file is highlighted below with the lines in yellow indicating settings to confirm or customize for your local environment.
+For user-mode execution, Omnistat includes additional options in the `[omnistast.usermode]` section of the runtime configuration file. A portion of the [default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default) config file is highlighted below with the lines in yellow indicating settings to confirm or customize for your local environment.
 
 ```eval_rst
 .. code-block:: ini
@@ -152,7 +152,7 @@ other metrics. The following steps outline the general process to visualize user
 1. Download the latest Omnistat release and proceed to the `docker` directory
    within Omnistat.
    ```shell-session
-   [user@login]$ REPO=https://github.com/AMDResearch/omnistat
+   [user@login]$ REPO=https://github.com/ROCm/omnistat
    [user@login]$ curl -OLJ ${REPO}/archive/refs/tags/v{__VERSION__}.tar.gz
    [user@login]$ tar xfz omnistat-{__VERSION__}.tar.gz
    [user@login]$ cd omnistat-v{__VERSION__}/docker

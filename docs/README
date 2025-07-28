@@ -1,7 +1,7 @@
 This subdirectory houses the input markup for Omnistat documentation using
 Sphinx. The results are published automatically via a CI trigger at:
 
-https://amdresearch.github.io/omnistat/
+https://rocm.github.io/omnistat/
 
 You can build a local copy of the documentation in this directory using
 "make html" assuming you have the necessary sphinx dependencies installed.

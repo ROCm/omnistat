@@ -29,7 +29,7 @@ To begin, we download the Omnistat software and install necessary Python depende
 
 1. Download and expand latest release version.
    ```shell-session
-   [omnidc@login]$ REPO=https://github.com/AMDResearch/omnistat
+   [omnidc@login]$ REPO=https://github.com/ROCm/omnistat
    [omnidc@login]$ curl -OLJ ${REPO}/archive/refs/tags/v{__VERSION__}.tar.gz
    [omnidc@login]$ tar xfz omnistat-{__VERSION__}.tar.gz
    ```
@@ -41,7 +41,7 @@ To begin, we download the Omnistat software and install necessary Python depende
    ```
 
 <!-- ```{note}
-Omnistat can also be installed as a Python package. How cool is that? Add more snazzy text here to get folks pointed in the 
+Omnistat can also be installed as a Python package. How cool is that? Add more snazzy text here to get folks pointed in the
 right direction.
 ``` -->
 
@@ -56,7 +56,7 @@ At this point, we can verify basic functionality of the data collector and launc
 
 1. Clone repository.
    ```
-   $ git clone https://github.com/AMDResearch/omnistat.git
+   $ git clone https://github.com/ROCm/omnistat.git
    ```
 
 2. Create a virtual environment, with Python 3.8, 3.9, or 3.10.
@@ -89,7 +89,7 @@ At this point, we can verify basic functionality of the data collector and launc
 <!-- ### Configure client -->
 
 Launching the data collector client as described above will use a set of default
-configuration options housed within an [omnistat/config/omnistat.default](https://github.com/AMDResearch/omnistat/blob/main/omnistat/config/omnistat.default) file including use of port `8001` for the Prometheus client. If all went well, example output from running `omnistat-monitor` is highlighted below:
+configuration options housed within an [omnistat/config/omnistat.default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default) file including use of port `8001` for the Prometheus client. If all went well, example output from running `omnistat-monitor` is highlighted below:
 
 ```shell-session
 Reading configuration from /home1/omnidc/omnistat/omnistat/config/omnistat.default
@@ -142,7 +142,7 @@ Once local functionality has been established, you can terminate the interactive
 
 ### Enable systemd service
 
-Now that the software is installed under a dedicated user and basic functionality has been confirmed, the data collector can be enabled for permanent service. The recommended approach for this is to leverage `systemd` and an example service file named [omnistat.service](https://github.com/AMDResearch/omnistat/blob/main/omnistat.service) is included in the distribution. The contents of the file are shown below with four lines highlighted in yellow that are most likely to require local customization.
+Now that the software is installed under a dedicated user and basic functionality has been confirmed, the data collector can be enabled for permanent service. The recommended approach for this is to leverage `systemd` and an example service file named [omnistat.service](https://github.com/ROCm/omnistat/blob/main/omnistat.service) is included in the distribution. The contents of the file are shown below with four lines highlighted in yellow that are most likely to require local customization.
 
 <!-- * `User` set to the local Linux user created to run Omnistat
 * `OMNISTAT_DIR` set to the local path where you downloaded the source tree
@@ -348,7 +348,7 @@ Note that this recipe assumes existence of a dedicated non-root user to run the 
 
     [Unit]
     Description=Prometheus exporter for HPC/GPU oriented metrics
-    Documentation=https://amdresearch.github.io/omnistat/
+    Documentation=https://rocm.github.io/omnistat/
     Requires=network-online.target
     After=network-online.target
 
