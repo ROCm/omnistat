@@ -314,3 +314,26 @@ class TestQuery:
                         assert (
                             value == nostep_gpu_value
                         ), f"Unexpected {metric} sample value at position {i} in {job.time_series[metric][gpu_id]['values']}"
+
+    def test_pdf(self):
+        job_id = uuid.uuid4()
+        duration = 60
+        interval = 1.0
+        num_nodes = 2
+        gpu_values = [100] * num_nodes
+        output = f"/tmp/{job_id}.pdf"
+
+        trace = TraceGenerator(duration, interval, job_id, num_nodes)
+        trace.add_constant_load("all", num_nodes, gpu_values)
+        metrics = trace.generate()
+
+        push_to_victoria_metrics(metrics, URL)
+
+        query = QueryMetrics(interval, job_id, configfile=CONFIG_FILE)
+        query.find_job_info()
+        query.gather_data(saveTimeSeries=True)
+        query.generate_pdf(output)
+
+        pdf = Path(output)
+        assert pdf.exists(), f"Unable to generate PDF"
+        pdf.unlink()
