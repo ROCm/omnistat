@@ -39,11 +39,49 @@
 
 **Collector**: `enable_rms`
 <br/>
-**Collector options**: `enable_annotations = True`
+**Collector options**: `enable_annotations`
 
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
 | `rmsjob_annotations`    | User-provided annotations. Labels: `jobid`, `marker`. |
+
+
+## RAS
+
+RAS (Reliability, Availability, Serviceability) metrics provide information
+about ECC errors in different GPU blocks. There are three types of ECC errors:
+- Correctable: Single-bit errors that are automatically corrected by the hardware. These do not cause data corruption or affect functionality.
+- Uncorrectable: Multi-bit errors that cannot be corrected by the hardware. These can lead to data corruption and system instability.
+- Deferred: Multi-bit errors that cannot be corrected by the hardware but can be flagged or isolated. These need to be handled to ensure data integrity and system stability.
+
+**Collectors**: `enable_rocm_smi` or `enable_amd_smi`, `enable_ras_ecc`
+
+| GPU Metric                               | Description                          |
+| :--------------------------------------- | :----------------------------------- |
+| `rocm_ras_umc_correctable_count`         | Correctable errors in the Unified Memory Controller. |
+| `rocm_ras_sdma_correctable_count`        | Correctable errors in the Synchronous Data Memory Access. |
+| `rocm_ras_gfx_correctable_count`         | Correctable errors in the Graphics Processing Unit. |
+| `rocm_ras_mmhub_correctable_count`       | Correctable errors in the Memory Management Hub. |
+| `rocm_ras_pcie_bif_correctable_count`    | Correctable errors in the PCIe Bifurcation. |
+| `rocm_ras_hdp_correctable_count`         | Correctable errors in the Host Data Path. |
+| `rocm_ras_xgmi_wafl_correctable_count`   | Correctable errors in the External Global Memory Interconnect. |
+| `rocm_ras_umc_uncorrectable_count`       | Uncorrectable errors in the Unified Memory Controller. |
+| `rocm_ras_sdma_uncorrectable_count`      | Uncorrectable errors in the Synchronous Data Memory Access. |
+| `rocm_ras_gfx_uncorrectable_count`       | Uncorrectable errors in the Graphics Processing Unit. |
+| `rocm_ras_mmhub_uncorrectable_count`     | Uncorrectable errors in the Memory Management Hub. |
+| `rocm_ras_pcie_bif_uncorrectable_count`  | Uncorrectable errors in the PCIe Bifurcation. |
+| `rocm_ras_hdp_uncorrectable_count`       | Uncorrectable errors in the Host Data Path. |
+| `rocm_ras_xgmi_wafl_uncorrectable_count` | Uncorrectable errors in the External Global Memory Interconnect. |
+| `rocm_ras_umc_deferred_count`            | Deferred[^deferred] errors in the Unified Memory Controller. |
+| `rocm_ras_sdma_deferred_count`           | Deferred[^deferred] errors in the Synchronous Data Memory Access.  |
+| `rocm_ras_gfx_deferred_count`            | Deferred[^deferred] errors in the Graphics Processing Unit. |
+| `rocm_ras_mmhub_deferred_count`          | Deferred[^deferred] errors in the Memory Management Hub. |
+| `rocm_ras_pcie_bif_deferred_count`       | Deferred[^deferred] errors in the PCIe Bifurcation. |
+| `rocm_ras_hdp_deferred_count`            | Deferred[^deferred] errors in the Host Data Path. |
+| `rocm_ras_xgmi_wafl_deferred_count`      | Deferred[^deferred] errors in the External Global Memory Interconnect. |
+
+[^deferred]: Deferred RAS ECC counts are only availble with `enable_amd_smi`,
+  and not with `enable_rocm_smi`.
 
 
 ## Network
