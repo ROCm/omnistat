@@ -108,7 +108,7 @@ about ECC errors in different GPU blocks. There are three types of ECC errors:
 | `rocm_ras_hdp_deferred_count`            | Deferred[^deferred] errors in the Host Data Path. |
 | `rocm_ras_xgmi_wafl_deferred_count`      | Deferred[^deferred] errors in the External Global Memory Interconnect. |
 
-[^deferred]: Deferred RAS ECC counts are only availble with `enable_amd_smi`,
+[^deferred]: Deferred RAS ECC counts are only available with `enable_amd_smi`,
   and not with `enable_rocm_smi`.
 
 
