@@ -1,5 +1,14 @@
 # Metrics
 
+This document provides a comprehensive list of the metrics collected by
+Omnistat. The metrics are organized into two main categories:
+
+- **Node-level metrics**: These are reported once per node and are presented
+  in tables with the heading "Node Metric".
+- **GPU-level metrics**: These are reported for each individual GPU on a node
+  and include a `card` label to distinguish between them. They are presented
+  in tables with the heading "GPU Metric".
+
 ```eval_rst
 .. toctree::
    :glob:
@@ -7,6 +16,12 @@
 ```
 
 ## ROCm
+
+Essential metrics for monitoring AMD GPUs, covering utilization, memory usage,
+power consumption, frequencies, and temperature.  These metrics can be
+collected using the ROCm System Management Interface (ROCm SMI) or the AMD
+System Management Interface (AMD SMI) and are fundamental for assessing GPU
+health and performance.
 
 **Collector**: `enable_rocm_smi` or `enable_amd_smi`
 
@@ -25,10 +40,14 @@
 | `rocm_temperature_celsius`        | GPU temperature (°C). Labels: `location`. |
 | `rocm_temperature_memory_celsius` | Memory temperature (°C). Labels: `location`. |
 
+
 ## Resource Manager
 
-**Collector**: `enable_rms`
+The resource manager metrics link system-level monitoring data with specific
+jobs running on the system. This is essential for attributing resource usage
+to individual users or applications.
 
+**Collector**: `enable_rms`
 
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
@@ -36,6 +55,11 @@
 
 
 ## Annotations
+
+Users can add application-level context to Omnistat data using the
+`omnistat-annotate` tool. This is useful for marking specific events or phases
+within an application, such as the start and end of a computation, making it
+easier to correlate performance data with application behavior.
 
 **Collector**: `enable_rms`
 <br/>
@@ -50,9 +74,13 @@
 
 RAS (Reliability, Availability, Serviceability) metrics provide information
 about ECC errors in different GPU blocks. There are three types of ECC errors:
-- Correctable: Single-bit errors that are automatically corrected by the hardware. These do not cause data corruption or affect functionality.
-- Uncorrectable: Multi-bit errors that cannot be corrected by the hardware. These can lead to data corruption and system instability.
-- Deferred: Multi-bit errors that cannot be corrected by the hardware but can be flagged or isolated. These need to be handled to ensure data integrity and system stability.
+- Correctable: Single-bit errors that are automatically corrected by the
+  hardware. These do not cause data corruption or affect functionality.
+- Uncorrectable: Multi-bit errors that cannot be corrected by the hardware.
+  These can lead to data corruption and system instability.
+- Deferred: Multi-bit errors that cannot be corrected by the hardware but can
+  be flagged or isolated. These need to be handled to ensure data integrity
+  and system stability.
 
 **Collectors**: `enable_rocm_smi` or `enable_amd_smi`, `enable_ras_ecc`
 
@@ -84,7 +112,25 @@ about ECC errors in different GPU blocks. There are three types of ECC errors:
   and not with `enable_rocm_smi`.
 
 
+## Occupancy
+
+Occupancy is a measure to help understand how the GPU's compute units (CUs)
+are being utilized. It represents the ratio of active wavefronts to the
+maximum number of wavefronts that a CU can handle simultaneously.
+
+**Collectors**: `enable_rocm_smi` or `enable_amd_smi`, `enable_cu_occupancy`
+
+| GPU Metric                    | Description                          |
+| :---------------------------- | :----------------------------------- |
+| `rocm_num_compute_units`      | Number of compute units. |
+| `rocm_compute_unit_occupancy` | Number of used compute units. |
+
+
 ## Network
+
+Network metrics provide information about data transfers for each network
+interface. Supported network types include Ethernet, Infiniband, and
+Slingshot.
 
 **Collector**: `enable_network`
 
