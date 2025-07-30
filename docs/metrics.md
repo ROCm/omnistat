@@ -88,23 +88,23 @@ about ECC errors in different GPU blocks. There are three types of ECC errors:
 | GPU Metric                               | Description                          |
 | :--------------------------------------- | :----------------------------------- |
 | `rocm_ras_umc_correctable_count`         | Correctable errors in the Unified Memory Controller block. |
-| `rocm_ras_sdma_correctable_count`        | Correctable errors in the Synchronous Data Memory Access block. |
+| `rocm_ras_sdma_correctable_count`        | Correctable errors in the System Direct Memory Access block. |
 | `rocm_ras_gfx_correctable_count`         | Correctable errors in the Graphics Processing Unit block. |
-| `rocm_ras_mmhub_correctable_count`       | Correctable errors in the Memory Management Hub block. |
+| `rocm_ras_mmhub_correctable_count`       | Correctable errors in the Multi Media Hub block. |
 | `rocm_ras_pcie_bif_correctable_count`    | Correctable errors in the PCIe Bifurcation block. |
 | `rocm_ras_hdp_correctable_count`         | Correctable errors in the Host Data Path block. |
 | `rocm_ras_xgmi_wafl_correctable_count`   | Correctable errors in the External Global Memory Interconnect block. |
 | `rocm_ras_umc_uncorrectable_count`       | Uncorrectable errors in the Unified Memory Controller block. |
-| `rocm_ras_sdma_uncorrectable_count`      | Uncorrectable errors in the Synchronous Data Memory Access block. |
+| `rocm_ras_sdma_uncorrectable_count`      | Uncorrectable errors in the System Direct Memory Access block. |
 | `rocm_ras_gfx_uncorrectable_count`       | Uncorrectable errors in the Graphics Processing Unit block. |
-| `rocm_ras_mmhub_uncorrectable_count`     | Uncorrectable errors in the Memory Management Hub block. |
+| `rocm_ras_mmhub_uncorrectable_count`     | Uncorrectable errors in the Multi Media Hub block. |
 | `rocm_ras_pcie_bif_uncorrectable_count`  | Uncorrectable errors in the PCIe Bifurcation block. |
 | `rocm_ras_hdp_uncorrectable_count`       | Uncorrectable errors in the Host Data Path block. |
 | `rocm_ras_xgmi_wafl_uncorrectable_count` | Uncorrectable errors in the External Global Memory Interconnect block. |
 | `rocm_ras_umc_deferred_count`            | Deferred[^deferred] errors in the Unified Memory Controller block. |
-| `rocm_ras_sdma_deferred_count`           | Deferred[^deferred] errors in the Synchronous Data Memory Access block.  |
+| `rocm_ras_sdma_deferred_count`           | Deferred[^deferred] errors in the System Direct Memory Access block.  |
 | `rocm_ras_gfx_deferred_count`            | Deferred[^deferred] errors in the Graphics Processing Unit block. |
-| `rocm_ras_mmhub_deferred_count`          | Deferred[^deferred] errors in the Memory Management Hub block. |
+| `rocm_ras_mmhub_deferred_count`          | Deferred[^deferred] errors in the Multi Media Hub block. |
 | `rocm_ras_pcie_bif_deferred_count`       | Deferred[^deferred] errors in the PCIe Bifurcation block. |
 | `rocm_ras_hdp_deferred_count`            | Deferred[^deferred] errors in the Host Data Path block. |
 | `rocm_ras_xgmi_wafl_deferred_count`      | Deferred[^deferred] errors in the External Global Memory Interconnect block. |
