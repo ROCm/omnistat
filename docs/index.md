@@ -9,9 +9,9 @@
    :hidden:
 
    introduction
+   metrics
    installation/index
    grafana
-   metrics
    sites
    developer/developers
 ```
