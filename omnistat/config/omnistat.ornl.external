@@ -1,0 +1,68 @@
+#--
+# Configuration for ORNL Crusher/Frontier/Borg
+#--
+
+[omnistat.collectors]
+
+port = 8001
+enable_rocm_smi = True
+enable_amd_smi = False
+enable_ras_ecc = True
+enable_rms = True
+enable_network = True
+enable_vendor_counters = True
+
+## Path to local ROCM install to access SMI library
+rocm_path = /opt/rocm-6.4.1
+
+## List of IPs allowed to query the collector (comma separated). By
+## default, access will be restricted to the localhost (127.0.0.1).
+## Expand this value to include IP of local Prometheus server.
+allowed_ips = 127.0.0.1, 0.0.0.0
+
+[omnistat.collectors.rms]
+
+host_skip = "login.*"
+enable_annotations = True
+
+[omnistat.query]
+
+prometheus_url = http://localhost:9090
+system_name = ORNL Frontier
+
+
+#--
+# User-mode Settings
+#--
+
+[omnistat.usermode]
+
+external_victoria = True
+external_victoria_endpoint = omnistat.koomie.org
+external_victoria_port = 8440
+external_proxy=http://proxy.ccs.ornl.gov:3128/
+
+victoria_binary = /autofs/nccs-svm1_sw/crusher/amdsw/omnistat/victoria-metrics-linux-amd64-v1.109.0/victoria-metrics-prod
+victoria_datadir = /lustre/orion/%(SLURM_JOB_ACCOUNT)s/scratch/%(USER)s/omnistat/%(SLURM_JOB_ID)s
+victoria_logfile = vic_server.log
+
+#victoria_datadir = /tmp/omnistat/%(SLURM_JOB_ID)s
+#victoria_datadir = /lustre/orion/%(SLURM_JOB_ACCOUNT)s/world-shared/omnistat/%(SLURM_JOB_ID)s
+
+
+prometheus_binary = /autofs/nccs-svm1_sw/crusher/amdsw/omnistat/prometheus-2.45.1.linux-amd64/prometheus
+prometheus_datadir = /lustre/orion/%(SLURM_JOB_ACCOUNT)s/scratch/%(USER)s/omnistat/%(SLURM_JOB_ID)s
+prometheus_logfile = prom_server.log
+
+## Bind user-mode Omnistat monitor and VictoriaMetrics to specific cores.
+## Requires numactl. When these options are not set, no binding is enforced.
+##
+## Note: you can also control these settings via environment variables:
+## OMNISTAT_EXPORTER_COREBINDING, OMNISTAT_VICTORIA_COREBINDING
+
+#exporter_corebinding = 0
+#victoria_corebinding = 95
+
+## SSH key to launch user-mode Omnistat. For backward compatibility with
+## older versions of Omnistat; no longer needed with v1.5 or later.
+ssh_key = ~/.ssh/id_rsa
