@@ -24,7 +24,7 @@ Omnistat provides a set of utilities to aid cluster administrators or individual
   * ROCm driver version
   * GPU type
   * GPU vBIOS version
-#### Additional optional metrics:
+### Additional optional metrics:
 * RAS information (error counts per GPU block)
 * GPU power caps
 * GPU throttling events
