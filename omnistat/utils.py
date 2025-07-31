@@ -240,9 +240,15 @@ def get_occupancy(guid):
 
     cu_occupancy = 0
     for cu_file in list(base_path.glob(file_pattern)):
-        with open(cu_file, "r") as f:
-            data = f.read().strip()
-        cu_occupancy += int(data)
+        try:
+            with open(cu_file, "r") as f:
+                value = f.read().strip()
+            cu_occupancy += int(value)
+        except Exception:
+            # Ignore issues while reading cu_occupancy files. A common reason
+            # that triggers an exception is when the file is no longer there
+            # because the process ended.
+            pass
 
     return cu_occupancy
 
