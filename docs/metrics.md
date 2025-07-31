@@ -1,4 +1,4 @@
-# Metrics
+# Metrics Available
 
 ```eval_rst
 .. toctree::
@@ -6,19 +6,24 @@
    :maxdepth: 4
 ```
 
-This document provides a comprehensive list of the metrics collected by
-Omnistat. The metrics are organized into two main categories:
+Omnistat supports multiple embedded data collectors to aggregate a large
+collection of metrics from a variety of system sources.  Many of the available
+data collectors are optional and can be enabled via runtime configuration
+settings (e.g. via [omnistat.default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default)).  The sections and tables that follow serve to outline major data
+collector variants, their associated runtime configuration control options, and
+a comprehensive list of specific metric names defined for each collector.
 
-- **Node-level metrics**: These are reported once per node and are presented
-  in tables with the heading *Node Metric*.
+Note that Omnistat metrics generally fall into one of the two following types:
+
+- **Node-level metrics**: These are reported once per node and are designated
+ with a *Node Metric* heading.
 - **GPU-level metrics**: These are reported for each individual GPU on a node
-  and include a `card` label to distinguish between them. They are presented
-  in tables with the heading *GPU Metric*.
-
+  and include a `card` label to distinguish between them. These metric types are denoted
+  with a *GPU Metric* heading.
 
 ## ROCm
 
-Essential metrics for monitoring AMD GPUs, covering utilization, memory usage,
+This core data collector provides essential metrics for monitoring AMD Instinct(tm) GPUs covering utilization, memory usage,
 power consumption, frequencies, and temperature.  These metrics can be
 collected using the ROCm System Management Interface (ROCm SMI) or the AMD
 System Management Interface (AMD SMI) and are fundamental for assessing GPU
@@ -44,7 +49,7 @@ health and performance.
 
 ## Resource Manager
 
-The resource manager metrics link system-level monitoring data with specific
+The resource manager data collector links system-level monitoring data with specific
 jobs running on the system. This is essential for attributing resource usage
 to individual users or applications.
 
@@ -52,12 +57,12 @@ to individual users or applications.
 
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
-| `rmsjob_info`           | Resource manager information about running jobs. When a job is running, the `jobid` label is different than the empty string. Labels: `jobid`, `user`, `partition`, `nodes`, `batchflag`, `jobstep`, `type`. |
+| `rmsjob_info`           | Resource manager info metric tracking running jobs. When a job is running, the `jobid` label is different than the empty string. Labels: `jobid`, `user`, `partition`, `nodes`, `batchflag`, `jobstep`, `type`. |
 
 
 ## Annotations
 
-Users can add application-level context to Omnistat data using the
+The resource manager collector optionally allows users to add application-level context to Omnistat metrics using the
 `omnistat-annotate` tool. This is useful for marking specific events or phases
 within an application, such as the start and end of a computation, making it
 easier to correlate performance data with application behavior.
@@ -73,8 +78,10 @@ easier to correlate performance data with application behavior.
 
 ## RAS
 
-RAS (Reliability, Availability, Serviceability) metrics provide information
-about ECC errors in different GPU blocks. There are three types of ECC errors:
+The RAS (Reliability, Availability, Serviceability) collection mechanism is an
+optional capability of the ROCm data collectors and provides information
+about ECC errors in different GPU blocks. There are three types of ECC errors
+available for tracking:
 - Correctable: Single-bit errors that are automatically corrected by the
   hardware. These do not cause data corruption or affect functionality.
 - Uncorrectable: Multi-bit errors that cannot be corrected by the hardware.
@@ -115,7 +122,7 @@ about ECC errors in different GPU blocks. There are three types of ECC errors:
 
 ## Occupancy
 
-Occupancy is a measure to help understand how the GPU's compute units (CUs)
+The occupancy collection mechanism is another optional capability of the ROCm data collectors that provides insight to help understand how the GPU's compute units (CUs)
 are being utilized. It represents the ratio of active wavefronts to the
 maximum number of wavefronts that a CU can handle simultaneously.
 
@@ -129,8 +136,9 @@ maximum number of wavefronts that a CU can handle simultaneously.
 
 ## Network
 
-Network metrics provide information about data transfers for each network
-interface. Supported network types include Ethernet, Infiniband, and
+The network data collector enables metrics providing information about data
+transfers for each network interface detected in the host platform. Currently
+supported network types include Ethernet, Infiniband, and
 Slingshot.
 
 **Collector**: `enable_network`
