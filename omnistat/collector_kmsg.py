@@ -61,8 +61,16 @@ class KmsgCollector(Collector):
         ]
         self.__pattern = re.compile("|".join(re.escape(k) for k in keywords))
 
-        self.__min_severity = KmsgSeverity[min_severity]
+        try:
+            self.__min_severity = KmsgSeverity[min_severity]
+        except KeyError:
+            print(f"ERROR: Unsupported kmsg severity: {min_severity}")
+            sys.exit(4)
+
         self.__severity_count = [0 for s in range(self.__min_severity, -1, -1)]
+
+        severities = [s.name for s in KmsgSeverity if s.value <= self.__min_severity]
+        logging.info(f"--> kmsg: report messages with these severities: {', '.join(severities)}")
 
     def registerMetrics(self):
         description = "Number of kmsg events"
