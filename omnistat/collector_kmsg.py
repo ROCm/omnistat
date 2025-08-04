@@ -26,7 +26,7 @@ import logging
 import os
 import re
 import sys
-from collections import defaultdict
+from enum import IntEnum
 
 from prometheus_client import Gauge
 
@@ -34,8 +34,19 @@ import omnistat.utils as utils
 from omnistat.collector_base import Collector
 
 
+class KmsgSeverity(IntEnum):
+    EMERGENCY = 0
+    ALERT = 1
+    CRITICAL = 2
+    ERROR = 3
+    WARNING = 4
+    NOTICE = 5
+    INFO = 6
+    DEBUG = 7
+
+
 class KmsgCollector(Collector):
-    def __init__(self):
+    def __init__(self, min_severity="ERROR"):
         logging.debug("Initializing kmsg collector")
         self.__name = "omnistat_num_kmsg_events"
         self.__metric = None
@@ -49,6 +60,9 @@ class KmsgCollector(Collector):
             "radeon",
         ]
         self.__pattern = re.compile("|".join(re.escape(k) for k in keywords))
+
+        self.__min_severity = KmsgSeverity[min_severity]
+        self.__severity_count = [0 for s in range(self.__min_severity, -1, -1)]
 
     def registerMetrics(self):
         description = "Number of kmsg events"
@@ -71,18 +85,15 @@ class KmsgCollector(Collector):
     def _parse_message(self, data):
         data = data.decode("utf-8").strip()
 
-        # Default to INFO severity
-        severity = 6
-        message = data
-
-        match = re.match(r"^(\d+),(\d+),(\d+),([^;]*);(.*)$", data)
+        match = re.match(r"^(\d+),(\d+),(\d+),([^;]*);(.*)", data)
         if match:
             priority = int(match.group(1))
             severity = priority % 8
             facility = priority // 8
             message = match.group(5)
+            return severity, message
 
-        return severity, message
+        return None
 
     def _is_amdgpu(self, message):
         match = re.search(self.__pattern, message.lower())
@@ -91,15 +102,16 @@ class KmsgCollector(Collector):
     def updateMetrics(self):
         """Update registered metrics of interest"""
 
-        severity_count = defaultdict(int)
-
         # Process all new messages in the kmsg buffer.
         while True:
             try:
                 data = os.read(self.__kmsg, 8192)
-                severity, msg = self._parse_message(data)
-                if self._is_amdgpu(msg):
-                    severity_count[severity] += 1
+                result = self._parse_message(data)
+                if result == None:
+                    continue
+                severity, message = result
+                if severity <= self.__min_severity and self._is_amdgpu(message):
+                    self.__severity_count[severity] += 1
             except BrokenPipeError:
                 # Indicates messages have been overwritten in the circular
                 # buffer. Subsequent reads will return records again.
@@ -108,8 +120,7 @@ class KmsgCollector(Collector):
                 # Reached last message, nothing else to read in this sample.
                 break
 
-        if severity_count:
-            for severity, count in severity_count.items():
-                self.__metric.labels(severity=severity).set(count)
+        for severity, count in enumerate(self.__severity_count):
+            self.__metric.labels(severity=KmsgSeverity(severity).name).set(count)
 
         return
