@@ -41,6 +41,15 @@ class KmsgCollector(Collector):
         self.__metric = None
         self.__kmsg = None
 
+        # Keywords to identify AMD GPU related kernel messages; lower case.
+        keywords = [
+            "amdgpu",
+            "amd-vi",
+            "amd_iommu",
+            "radeon",
+        ]
+        self.__pattern = re.compile("|".join(re.escape(k) for k in keywords))
+
     def registerMetrics(self):
         description = "Number of kmsg events"
         self.__metric = Gauge(self.__name, description, labelnames=["severity"])
@@ -76,17 +85,8 @@ class KmsgCollector(Collector):
         return severity, message
 
     def _is_amdgpu(self, message):
-        keywords = [
-            "amdgpu",
-            "amd-vi",
-            "radeon",
-            "drm:amdgpu",
-            "amd_iommu",
-            "amd-vi",
-            "amdgpu",
-        ]
-        message = message.lower()
-        return any(keyword in message for keyword in keywords)
+        match = re.search(self.__pattern, message.lower())
+        return False if match == None else True
 
     def updateMetrics(self):
         """Update registered metrics of interest"""
