@@ -48,17 +48,12 @@ class KmsgSeverity(IntEnum):
 class KmsgCollector(Collector):
     def __init__(self, min_severity="ERROR", include_existing=False):
         logging.debug("Initializing kmsg collector")
-        self.__name = "omnistat_num_kmsg_events"
+        self.__name = "omnistat_num_driver_messages"
         self.__metric = None
         self.__kmsg = None
 
-        # Keywords to identify AMD GPU related kernel messages; lower case.
-        keywords = [
-            "amdgpu",
-            "amd-vi",
-            "amd_iommu",
-            "radeon",
-        ]
+        # Lower case keywords to identify AMD GPU related kernel messages.
+        keywords = ["amdgpu"]
         self.__pattern = re.compile("|".join(re.escape(k) for k in keywords))
 
         try:
@@ -75,8 +70,8 @@ class KmsgCollector(Collector):
         logging.info(f"--> kmsg: report {include} messages with these severities: {', '.join(severities)}")
 
     def registerMetrics(self):
-        description = "Number of kmsg events"
-        self.__metric = Gauge(self.__name, description, labelnames=["severity"])
+        description = "Number of driver messages in the kernel log buffer"
+        self.__metric = Gauge(self.__name, description, labelnames=["driver", "severity"])
         logging.info(f"--> [registered] {self.__name} -> {description} (gauge)")
 
         try:
@@ -132,6 +127,6 @@ class KmsgCollector(Collector):
                 break
 
         for severity, count in enumerate(self.__severity_count):
-            self.__metric.labels(severity=KmsgSeverity(severity).name).set(count)
+            self.__metric.labels(driver="amdgpu", severity=KmsgSeverity(severity).name).set(count)
 
         return
