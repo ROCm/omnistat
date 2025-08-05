@@ -57,16 +57,16 @@ class KmsgCollector(Collector):
         self.__pattern = re.compile("|".join(re.escape(k) for k in keywords))
 
         try:
-            self.__min_severity = KmsgSeverity[min_severity]
+            self.__severity_threshold = KmsgSeverity[min_severity]
         except KeyError:
             print(f"ERROR: Unsupported kmsg severity: {min_severity}")
             sys.exit(4)
 
-        self.__severity_count = [0 for s in range(self.__min_severity, -1, -1)]
+        self.__severity_count = [0] * (self.__severity_threshold + 1)
         self.__include_existing = include_existing
 
         include = "existing and new" if include_existing else "new"
-        severities = [s.name for s in KmsgSeverity if s.value <= self.__min_severity]
+        severities = [s.name for s in KmsgSeverity if s.value <= self.__severity_threshold]
         logging.info(f"--> kmsg: report {include} messages with these severities: {', '.join(severities)}")
 
     def registerMetrics(self):
@@ -80,13 +80,13 @@ class KmsgCollector(Collector):
                 os.lseek(self.__kmsg, 0, os.SEEK_END)
         except PermissionError:
             print("Error: Permission denied reading /dev/kmsg", file=sys.stderr)
-            return 1
+            sys.exit(4)
         except FileNotFoundError:
             print("Error: /dev/kmsg not found", file=sys.stderr)
-            return 1
+            sys.exit(4)
         except Exception as e:
             print(f"Unexpected error: {e}", file=sys.stderr)
-            return 1
+            sys.exit(4)
 
     def _parse_message(self, data):
         data = data.decode("utf-8").strip()
@@ -103,7 +103,7 @@ class KmsgCollector(Collector):
 
     def _is_amdgpu(self, message):
         match = re.search(self.__pattern, message.lower())
-        return False if match == None else True
+        return False if match is None else True
 
     def updateMetrics(self):
         """Update registered metrics of interest"""
@@ -113,10 +113,10 @@ class KmsgCollector(Collector):
             try:
                 data = os.read(self.__kmsg, 8192)
                 result = self._parse_message(data)
-                if result == None:
+                if result is None:
                     continue
                 severity, message = result
-                if severity <= self.__min_severity and self._is_amdgpu(message):
+                if severity <= self.__severity_threshold and self._is_amdgpu(message):
                     self.__severity_count[severity] += 1
             except BrokenPipeError:
                 # Indicates messages have been overwritten in the circular
