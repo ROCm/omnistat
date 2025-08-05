@@ -99,10 +99,7 @@ class Monitor:
             "enable_rocprofiler", False
         )
 
-        self.runtimeConfig["collector_enable_kmsg"] = config["omnistat.collectors"].getboolean(
-            "enable_kmsg", False
-        )
-
+        self.runtimeConfig["collector_enable_kmsg"] = config["omnistat.collectors"].getboolean("enable_kmsg", False)
 
         allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
         # convert comma-separated string into list
@@ -129,9 +126,11 @@ class Monitor:
         if config.has_option("omnistat.collectors.rocprofiler", "metrics"):
             self.runtimeConfig["rocprofiler_metrics"] = config["omnistat.collectors.rocprofiler"]["metrics"].split(",")
 
-        self.runtimeConfig["kmsg_min_severity"] = "ERROR"
-        if config.has_option("omnistat.collectors.kmsg", "min_severity"):
-            self.runtimeConfig["kmsg_min_severity"] = config["omnistat.collectors.kmsg"]["min_severity"]
+        if config.has_section("omnistat.collectors.kmsg"):
+            self.runtimeConfig["kmsg_min_severity"] = config["omnistat.collectors.kmsg"].get("min_severity", "ERROR")
+            self.runtimeConfig["kmsg_include_existing"] = config["omnistat.collectors.kmsg"].getboolean(
+                "include_existing_messages", False
+            )
 
         # defined global prometheus metrics
         self.__globalMetrics = {}
@@ -201,7 +200,9 @@ class Monitor:
         if self.runtimeConfig["collector_enable_kmsg"]:
             from omnistat.collector_kmsg import KmsgCollector
 
-            self.__collectors.append(KmsgCollector(self.runtimeConfig["kmsg_min_severity"]))
+            min_severity = self.runtimeConfig["kmsg_min_severity"]
+            include_existing = self.runtimeConfig["kmsg_include_existing"]
+            self.__collectors.append(KmsgCollector(min_severity=min_severity, include_existing=include_existing))
 
         # Initialize all metrics
         for collector in self.__collectors:
