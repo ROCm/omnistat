@@ -59,7 +59,7 @@ class KmsgCollector(Collector):
         try:
             self.__severity_threshold = KmsgSeverity[min_severity]
         except KeyError:
-            print(f"ERROR: Unsupported kmsg severity: {min_severity}")
+            logging.error(f"ERROR: Unsupported kmsg severity: {min_severity}")
             sys.exit(4)
 
         self.__severity_count = [0] * (self.__severity_threshold + 1)
@@ -79,13 +79,13 @@ class KmsgCollector(Collector):
             if not self.__include_existing:
                 os.lseek(self.__kmsg, 0, os.SEEK_END)
         except PermissionError:
-            print("Error: Permission denied reading /dev/kmsg", file=sys.stderr)
+            logging.error("Error: Permission denied reading /dev/kmsg")
             sys.exit(4)
         except FileNotFoundError:
-            print("Error: /dev/kmsg not found", file=sys.stderr)
+            logging.error("Error: /dev/kmsg not found")
             sys.exit(4)
         except Exception as e:
-            print(f"Unexpected error: {e}", file=sys.stderr)
+            logging.error(f"Unexpected error: {e}")
             sys.exit(4)
 
     def _parse_message(self, data):
@@ -95,7 +95,6 @@ class KmsgCollector(Collector):
         if match:
             priority = int(match.group(1))
             severity = priority % 8
-            facility = priority // 8
             message = match.group(5)
             return severity, message
 
@@ -103,7 +102,7 @@ class KmsgCollector(Collector):
 
     def _is_amdgpu(self, message):
         match = re.search(self.__pattern, message.lower())
-        return False if match is None else True
+        return match is not None
 
     def updateMetrics(self):
         """Update registered metrics of interest"""
