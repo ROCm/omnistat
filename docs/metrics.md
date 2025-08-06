@@ -134,6 +134,21 @@ maximum number of wavefronts that a CU can handle simultaneously.
 | `rocm_compute_unit_occupancy` | Number of used compute units. |
 
 
+## VCN
+
+The VCN (Video Core Next) collection mechanism is another optional capability
+of the ROCm data collectors that provides metrics for monitoring video
+decoding operations on AMD GPUs. GPUs may contain multiple VCN engines to
+handle parallel video decoding workloads, which can be identified with the
+`engine` label.
+
+**Collectors**: `enable_rocm_smi` or `enable_amd_smi`, `enable_vcn`
+
+| GPU Metric                            | Description                          |
+| :------------------------------------ | :----------------------------------- |
+| `rocm_decoder_utilization_percentage` | Video decoder engine utilization (%). Labels: `engine`. |
+
+
 ## Network
 
 The network data collector enables metrics providing information about data
