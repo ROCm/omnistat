@@ -722,7 +722,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 1380
+            "y": 3190
           },
           "id": 110,
           "options": {
@@ -841,7 +841,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 1380
+            "y": 3190
           },
           "id": 112,
           "options": {
@@ -965,7 +965,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 2048
+            "y": 3858
           },
           "id": 113,
           "options": {
@@ -1092,7 +1092,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 2048
+            "y": 3858
           },
           "id": 140,
           "options": {
@@ -1239,7 +1239,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 2054
+            "y": 3864
           },
           "id": 139,
           "options": {
@@ -1378,7 +1378,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1393,7 +1394,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 545
+            "y": 325
           },
           "id": 26,
           "options": {
@@ -1478,7 +1479,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 1202
+            "y": 370
           },
           "id": 6,
           "options": {
@@ -1634,7 +1635,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 1386
+            "y": 3196
           },
           "id": 102,
           "options": {
@@ -1750,7 +1751,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 1404
+            "y": 3214
           },
           "id": 109,
           "options": {
@@ -1872,7 +1873,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 547
+            "y": 2357
           },
           "id": 106,
           "options": {
@@ -1981,7 +1982,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 841
+            "y": 2651
           },
           "id": 119,
           "options": {
@@ -2104,7 +2105,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 548
+            "y": 2358
           },
           "id": 124,
           "options": {
@@ -2213,7 +2214,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 824
+            "y": 2634
           },
           "id": 125,
           "options": {
@@ -2338,7 +2339,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 289
+            "y": 2099
           },
           "id": 142,
           "options": {
@@ -2534,7 +2535,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 289
+            "y": 2099
           },
           "id": 143,
           "options": {
@@ -2728,7 +2729,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 481
+            "y": 2291
           },
           "id": 144,
           "options": {
@@ -2834,7 +2835,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 481
+            "y": 2291
           },
           "id": 145,
           "options": {
@@ -2931,7 +2932,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 489
+            "y": 2299
           },
           "id": 146,
           "options": {
@@ -3081,7 +3082,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 489
+            "y": 2299
           },
           "id": 147,
           "options": {
@@ -3188,6 +3189,231 @@
         "x": 0,
         "y": 24
       },
+      "id": 156,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMax": 100,
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 24,
+            "x": 0,
+            "y": 331
+          },
+          "id": 157,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.5.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "avg(rocm_decoder_utilization_percentage)",
+              "instant": false,
+              "legendFormat": "Decoder",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Aggregate Cluster GPU Decoder Utilization (%)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMax": 100,
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 24,
+            "x": 0,
+            "y": 340
+          },
+          "id": 159,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Name",
+              "sortDesc": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.5.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "avg by (instance) (rocm_decoder_utilization_percentage)",
+              "instant": false,
+              "legendFormat": "{{instance}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "GPU Decoder Utlization (%)",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "(.*):(.*)",
+                "renamePattern": "Node: $1"
+              }
+            }
+          ],
+          "type": "timeseries"
+        }
+      ],
+      "title": "GPU - Video",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
       "id": 36,
       "panels": [
         {
@@ -3254,7 +3480,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3333
+            "y": 5143
           },
           "id": 35,
           "options": {
@@ -3307,7 +3533,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 26
       },
       "id": 117,
       "panels": [
@@ -3362,8 +3588,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -3379,7 +3604,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 26
+            "y": 1836
           },
           "id": 118,
           "options": {
@@ -3487,7 +3712,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 194
+            "y": 2004
           },
           "id": 134,
           "options": {
@@ -3540,7 +3765,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 27
       },
       "id": 120,
       "panels": [
@@ -3609,7 +3834,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3647
+            "y": 5457
           },
           "id": 92,
           "options": {
@@ -3722,7 +3947,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3655
+            "y": 5465
           },
           "id": 135,
           "options": {
@@ -3831,7 +4056,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3655
+            "y": 5465
           },
           "id": 136,
           "options": {
@@ -3885,7 +4110,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 28
       },
       "id": 116,
       "panels": [
@@ -3938,8 +4163,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -3955,7 +4179,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 28
+            "y": 1838
           },
           "id": 121,
           "options": {
@@ -4061,8 +4285,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -4078,7 +4301,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 36
+            "y": 1846
           },
           "id": 137,
           "options": {
@@ -4171,8 +4394,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -4188,7 +4410,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 36
+            "y": 1846
           },
           "id": 138,
           "options": {
@@ -4242,7 +4464,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 29
       },
       "id": 67,
       "panels": [
@@ -4295,8 +4517,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -4312,7 +4533,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 29
+            "y": 1839
           },
           "id": 115,
           "options": {
