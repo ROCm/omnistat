@@ -1,3 +1,15 @@
+Version 1.7 (08 August 2025)
+
+  * documentation enhancements outlining data collector options and available metrics (#175)
+  * enhancement to `omnistat-query` to support filtering by annotation marker strings (#196)
+  * Grafana dashboard improvements and additions for vendor energy metrics (#203)
+  * introduction of new optional data collector to track decoder utilization (#204)
+  * fix for CU occupancy collector when underlying file is missing (#207)
+  * example kernel buffer collector added to contrib area of Omnistat to track the number and
+   severity of `amdgpu` driver messages (#209). Contrib features are intended to house tech
+   previews, experimental features that may not be fully supported in mainline Omnistat, or
+   3rd-party contributions of general interest to the community.
+
 Version 1.6 (15 July 2025)
 
   * addition of new optional data collector to track CU occupancy (#178)
