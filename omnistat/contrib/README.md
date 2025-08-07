@@ -13,3 +13,27 @@ An overview of current contrib features is highlighted below.
 
 ## GPU Driver Message Collector 
 
+The driver messages data collector monitors the Linux kernel message buffer
+(`/dev/kmsg`) for driver-related messages, particularly those from AMD GPU
+drivers. This collector helps track kernel-level events and errors that may
+impact system stability and GPU functionality. The collector can be configured
+to monitor different severity levels and can optionally include existing
+messages in the buffer at startup.
+
+> [!NOTE]
+> This collector requires root privileges or read access to `/dev/kmsg` to function properly.
+
+The collector supports filtering messages by the following kernel log severity
+levels (from most to least critical): `EMERGENCY`, `ALERT`, `CRITICAL`,
+`ERROR`, `WARNING`, `NOTICE`, `INFO`, `DEBUG`. The `min_severity`
+configuration option determines which severity levels are monitored. For
+example, setting `min_severity = WARNING` will collect messages with severity
+levels from `EMERGENCY` down to `WARNING`.
+
+**Collector**: `enable_contrib_kmsg`
+<br/>
+**Collector options**: `min_severity`, `include_existing_messages`
+
+| Node Metric                     | Description                          |
+| :------------------------------ | :----------------------------------- |
+| `omnistat_num_driver_messages`  | Number of driver messages in the kernel log buffer, counted by driver and severity level. Labels: `driver`, `severity`. |
