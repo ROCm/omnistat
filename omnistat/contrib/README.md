@@ -21,7 +21,7 @@ to monitor different severity levels and can optionally include existing
 messages in the buffer at startup.
 
 > [!NOTE]
-> This collector requires root privileges or read access to `/dev/kmsg` to function properly.
+> This collector requires read access to `/dev/kmsg` to function properly.
 
 The collector supports filtering messages by the following kernel log severity
 levels (from most to least critical): `EMERGENCY`, `ALERT`, `CRITICAL`,
@@ -37,3 +37,14 @@ levels from `EMERGENCY` down to `WARNING`.
 | Node Metric                     | Description                          |
 | :------------------------------ | :----------------------------------- |
 | `omnistat_num_driver_messages`  | Number of driver messages in the kernel log buffer, counted by driver and severity level. Labels: `driver`, `severity`. |
+
+Configuration file example with settings related to the GPU Driver Message
+Collector:
+```
+[omnistat.collectors]
+enable_contrib_kmsg = True
+
+[omnistat.collectors.contrib.kmsg]
+min_severity = ERROR
+include_existing_messages = False
+```
