@@ -293,13 +293,13 @@ class AMDSMI(Collector):
 
         # Metrics with multiple values: some metrics like vcn_activity return a list of values, one
         # for each engine. Identify valid indices during initialization to avoid validation during
-        # sampling.
+        # sampling. List metrics values are averaged at sampling time.
         self.__listMetricMapping = {}
 
         if self.__vcn_monitoring:
             # MI3xx only supports decoding, and so vcn_activity can be used as a proxy for decoding
             # utilization.
-            target_metric = "decoder_utilization_percentage"
+            target_metric = "average_decoder_utilization_percentage"
             source_metric = "vcn_activity"
             vcn_values = metrics[source_metric]
 
@@ -314,7 +314,7 @@ class AMDSMI(Collector):
                 logging.info(f"--> Identified {len(vcn_engines)} VCN engines: {vcn_engines}")
                 self.__listMetricMapping[target_metric] = (source_metric, vcn_engines)
                 metric_name = self.__prefix + target_metric
-                self.__GPUMetrics[metric_name] = Gauge(metric_name, target_metric, labelnames=["card", "engine"])
+                self.__GPUMetrics[metric_name] = Gauge(metric_name, target_metric, labelnames=["card"])
 
         # Register remaining metrics of interest available from get_gpu_metrics()
         for idx, device in enumerate(self.__devices):
@@ -371,8 +371,9 @@ class AMDSMI(Collector):
             for metricName, value in list_metrics.items():
                 metric = self.__GPUMetrics[self.__prefix + metricName]
                 _, value_indices = self.__listMetricMapping[metricName]
-                for value_index in value_indices:
-                    metric.labels(cardId, value_index).set(value[value_index])
+                values = [value[x] for x in value_indices]
+                average = sum(values) / len(values)
+                metric.labels(card=cardId).set(average)
 
             # additional gpu memory-related stats
             device_total_vram = smi.amdsmi_get_gpu_memory_total(device, smi.AmdSmiMemoryType.VRAM)

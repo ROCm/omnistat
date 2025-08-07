@@ -6012,7 +6012,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg(rocm_decoder_utilization_percentage)",
+              "expr": "avg(rocm_average_decoder_utilization_percentage)",
               "instant": false,
               "legendFormat": "Decoder",
               "range": true,
@@ -6113,7 +6113,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (instance) (rocm_decoder_utilization_percentage)",
+              "expr": "avg by (instance) (rocm_average_decoder_utilization_percentage)",
               "instant": false,
               "legendFormat": "{{instance}}",
               "range": true,

@@ -139,8 +139,7 @@ maximum number of wavefronts that a CU can handle simultaneously.
 The VCN (Video Core Next) collection mechanism is an optional capability of
 the AMD SMI data collector that provides metrics for monitoring video decoding
 operations on AMD GPUs. GPUs may contain multiple VCN engines to handle
-parallel video decoding workloads, which can be identified with the `engine`
-label.
+parallel video decoding workloads.
 
 ```{note}
 The VCN collector requires enabling the AMD SMI collector (`enable_amd_smi`).
@@ -149,9 +148,9 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 
 **Collectors**: `enable_amd_smi`, `enable_vcn`
 
-| GPU Metric                            | Description                          |
-| :------------------------------------ | :----------------------------------- |
-| `rocm_decoder_utilization_percentage` | Video decoder engine utilization (%). Labels: `engine`. |
+| GPU Metric                                    | Description                          |
+| :-------------------------------------------- | :----------------------------------- |
+| `rocm_average_decoder_utilization_percentage` | Decoder utilization averaged across all engines in the GPU (%). |
 
 
 ## Network
