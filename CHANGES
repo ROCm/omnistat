@@ -9,6 +9,7 @@ Version 1.7 (08 August 2025)
    severity of `amdgpu` driver messages (#209). Contrib features are intended to house tech
    previews, experimental features that may not be fully supported in mainline Omnistat, or
    3rd-party contributions of general interest to the community.
+  * Omnistat repository migrated to https://github.com/ROCm/omnistat
 
 Version 1.6 (15 July 2025)
 
