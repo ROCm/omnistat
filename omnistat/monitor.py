@@ -135,6 +135,9 @@ class Monitor:
             self.runtimeConfig["kmsg_include_existing"] = config["omnistat.collectors.contrib.kmsg"].getboolean(
                 "include_existing_messages", False
             )
+        else:
+            self.runtimeConfig["kmsg_min_severity"] = "ERROR"
+            self.runtimeConfig["kmsg_include_existing"] = False
 
         # defined global prometheus metrics
         self.__globalMetrics = {}
