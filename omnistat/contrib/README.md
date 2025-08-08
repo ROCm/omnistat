@@ -40,9 +40,9 @@ levels from `EMERGENCY` down to `WARNING`.
 
 Configuration file example with settings related to the GPU Driver Message
 Collector:
-```
-[omnistat.collectors]
-enable_contrib_kmsg = True
+```ini
+[omnistat.collectors.contrib]
+enable_kmsg = True
 
 [omnistat.collectors.contrib.kmsg]
 min_severity = ERROR
