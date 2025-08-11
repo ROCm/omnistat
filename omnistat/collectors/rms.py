@@ -42,7 +42,7 @@ import omnistat.utils as utils
 from omnistat.collector_base import Collector
 
 
-class RMSJob(Collector):
+class rms(Collector):
     def __init__(self, config):
         logging.debug("Initializing resource manager job data collector")
 
