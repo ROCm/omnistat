@@ -45,12 +45,19 @@ class KmsgSeverity(IntEnum):
     DEBUG = 7
 
 
-class KmsgCollector(Collector):
-    def __init__(self, min_severity="ERROR", include_existing=False):
+class kmsg(Collector):
+    def __init__(self, config):
         logging.debug("Initializing kmsg collector")
         self.__name = "omnistat_num_driver_messages"
         self.__metric = None
         self.__kmsg = None
+
+        min_severity = "ERROR"
+        include_existing = False
+        if config.has_section("omnistat.collectors.contrib.kmsg"):
+            section = config["omnistat.collectors.contrib.kmsg"]
+            min_severity = section.get("min_severity", "ERROR")
+            include_existing = section.getboolean("include_existing_messages", False)
 
         # Lower case keywords to identify AMD GPU related kernel messages.
         keywords = ["amdgpu"]

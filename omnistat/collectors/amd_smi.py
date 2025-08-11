@@ -86,9 +86,21 @@ def is_positive_int(s):
         return False
 
 
-class AMDSMI(Collector):
-    def __init__(self, runtimeConfig=None):
+class amd_smi(Collector):
+    def __init__(self, config):
         logging.debug("Initializing AMD SMI data collector")
+
+        ecc_ras = True
+        power_capping = False
+        cu_occupancy = False
+        vcn = False
+        if config.has_section("omnistat.collectors"):
+            section = config["omnistat.collectors"]
+            ecc_ras = section.getboolean("enable_ecc_ras", ecc_ras)
+            power_capping = section.getboolean("enable_power_capping", power_capping)
+            cu_occupancy = section.getboolean("enable_cu_occupancy", cu_occupancy)
+            vcn = section.getboolean("enable_vcn", vcn)
+
         self.__prefix = "rocm_"
         self.__schema = 1.0
         smi.amdsmi_init()
@@ -97,11 +109,12 @@ class AMDSMI(Collector):
         self.__devices = []
         self.__GPUMetrics = {}
         self.__metricMapping = {}
-        self.__ecc_ras_monitoring = runtimeConfig["collector_ras_ecc"]
-        self.__power_cap_monitoring = runtimeConfig["collector_power_capping"]
-        self.__cu_occupancy_monitoring = runtimeConfig["collector_cu_occupancy"]
-        self.__vcn_monitoring = runtimeConfig["collector_vcn"]
+        self.__ecc_ras_monitoring = ecc_ras
+        self.__power_cap_monitoring = power_capping
+        self.__cu_occupancy_monitoring = cu_occupancy
+        self.__vcn_monitoring = vcn
         self.__eccBlocks = {}
+
         # verify minimum version met
         check_min_version("24.7.1")
 

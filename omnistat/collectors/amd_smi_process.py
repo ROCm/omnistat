@@ -67,8 +67,8 @@ def get_gpu_processes(device):
     return result
 
 
-class AMDSMIProcess(Collector):
-    def __init__(self):
+class amd_smi_process(Collector):
+    def __init__(self, config):
         logging.debug("Initializing AMD SMI Process data collector")
         self.__prefix = "amdsmi_process_"
         amdsmi_init()

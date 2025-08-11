@@ -42,8 +42,8 @@ import omnistat.utils as utils
 from omnistat.collector_base import Collector
 
 
-class NETWORK(Collector):
-    def __init__(self, annotations=False, jobDetection=None):
+class network(Collector):
+    def __init__(self, config):
         logging.debug("Initializing network data collector")
 
         self.__prefix = "omnistat_network_"

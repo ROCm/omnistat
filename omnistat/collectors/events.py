@@ -35,8 +35,8 @@ from prometheus_client import CollectorRegistry, Gauge, generate_latest
 from omnistat.collector_base import Collector
 
 
-class ROCMEvents(Collector):
-    def __init__(self):
+class events(Collector):
+    def __init__(self, config):
         logging.debug("Initializing ROCm SMI event collector")
         self.__prefix = "rocm_"
         self.__events = []

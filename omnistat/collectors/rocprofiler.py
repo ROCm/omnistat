@@ -68,11 +68,25 @@ class rocprofiler_session_id_t(ctypes.Structure):
 
 
 class rocprofiler(Collector):
-    def __init__(self, rocm_path, metric_names):
+    def __init__(self, config):
         logging.debug("Initializing rocprofiler data collector")
 
-        if metric_names == None or len(metric_names) == 0:
-            logging.error("ERROR: Unexpected list of metrics.")
+        rocm_path = "/opt/rocm"
+        if config.has_section("omnistat.collectors"):
+            rocm_path = section.get("rocm_path", rocm_path)
+
+        if not config.has_section("omnistat.collectors.rocprofiler"):
+            logging.error("ERROR: Missing rocprofiler collector configuration.")
+            sys.exit(4)
+
+        metric_names = config["omnistat.collectors.rocprofiler"].get("metrics", None)
+        if metric_names == None:
+            logging.error("ERROR: Undefined list of rocprofiler metrics.")
+            sys.exit(4)
+
+        metric_names = metric_names.split(",")
+        if len(metric_names) == 0:
+            logging.error(f"ERROR: Empty or unexpected list of rocprofiler metrics: {metric_names}")
             sys.exit(4)
 
         hip_lib = rocm_path + "/lib/libamdhip64.so"

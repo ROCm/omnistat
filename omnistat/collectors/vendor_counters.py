@@ -42,8 +42,8 @@ import omnistat.utils as utils
 from omnistat.collector_base import Collector
 
 
-class PM_COUNTERS(Collector):
-    def __init__(self, annotations=False, jobDetection=None):
+class vendor_counters(Collector):
+    def __init__(self, config):
         logging.debug("Initializing pm_counter data collector")
 
         self.__prefix = "omnistat_vendor_"
