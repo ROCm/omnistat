@@ -43,7 +43,7 @@ from omnistat.collector_base import Collector
 
 
 class vendor_counters(Collector):
-    def __init__(self, config):
+    def __init__(self, **kwargs):
         logging.debug("Initializing pm_counter data collector")
 
         self.__prefix = "omnistat_vendor_"

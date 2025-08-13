@@ -68,23 +68,14 @@ class rocprofiler_session_id_t(ctypes.Structure):
 
 
 class rocprofiler(Collector):
-    def __init__(self, config):
+    def __init__(self, metrics, rocm_path="/opt/rocm", **kwargs):
         logging.debug("Initializing rocprofiler data collector")
 
-        rocm_path = "/opt/rocm"
-        if config.has_section("omnistat.collectors"):
-            rocm_path = section.get("rocm_path", rocm_path)
-
-        if not config.has_section("omnistat.collectors.rocprofiler"):
-            logging.error("ERROR: Missing rocprofiler collector configuration.")
-            sys.exit(4)
-
-        metric_names = config["omnistat.collectors.rocprofiler"].get("metrics", None)
-        if metric_names == None:
+        if metrics == None:
             logging.error("ERROR: Undefined list of rocprofiler metrics.")
             sys.exit(4)
 
-        metric_names = metric_names.split(",")
+        metric_names = metrics.split(",")
         if len(metric_names) == 0:
             logging.error(f"ERROR: Empty or unexpected list of rocprofiler metrics: {metric_names}")
             sys.exit(4)

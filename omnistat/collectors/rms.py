@@ -43,23 +43,18 @@ from omnistat.collector_base import Collector
 
 
 class rms(Collector):
-    def __init__(self, config):
+    def __init__(
+        self,
+        enable_annotations=False,
+        mode="file-based",
+        file="/tmp/omni_rmsjobinfo",
+        stepfile="/tmp/omni_rmsjobinfo_step",
+        **kwargs,
+    ):
         logging.debug("Initializing resource manager job data collector")
 
-        annotations = False
-        mode = "file-based"
-        file = "/tmp/omni_rmsjobinfo"
-        stepfile = "/tmp/omni_rmsjobinfo_step"
-
-        if config.has_section("omnistat.collectors.rms"):
-            section = config["omnistat.collectors.rms"]
-            annotations = section.getboolean("enable_annotations", False)
-            mode = section.get("job_detection_mode", "file-based")
-            file = section.get("job_detection_file", "/tmp/omni_rmsjobinfo")
-            stepfile = section.get("step_detection_file", f"{file}_step")
-
         self.__prefix = "rmsjob_"
-        self.__annotationsEnabled = annotations
+        self.__annotationsEnabled = enable_annotations
         self.__RMSMetrics = {}
         self.__rmsJobInfo = []
         self.__lastAnnotationLabel = None

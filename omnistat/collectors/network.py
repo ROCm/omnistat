@@ -43,7 +43,7 @@ from omnistat.collector_base import Collector
 
 
 class network(Collector):
-    def __init__(self, config):
+    def __init__(self, **kwargs):
         logging.debug("Initializing network data collector")
 
         self.__prefix = "omnistat_network_"

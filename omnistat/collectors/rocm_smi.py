@@ -167,27 +167,23 @@ class rsmi_error_count_t(ctypes.Structure):
 
 
 class rocm_smi(Collector):
-    def __init__(self, config):
+    def __init__(
+        self,
+        enable_ecc_ras=True,
+        enable_power_capping=False,
+        enable_cu_occupancy=False,
+        rocm_path="/opt/rocm",
+        **kwargs,
+    ):
         logging.debug("Initializing ROCm SMI data collector")
-
-        ecc_ras = True
-        power_capping = False
-        cu_occupancy = False
-        rocm_path = "/opt/rocm"
-        if config.has_section("omnistat.collectors"):
-            section = config["omnistat.collectors"]
-            ecc_ras = section.getboolean("enable_ecc_ras", ecc_ras)
-            power_capping = section.getboolean("enable_power_capping", power_capping)
-            cu_occupancy = section.getboolean("enable_cu_occupancy", cu_occupancy)
-            rocm_path = section.get("rocm_path", rocm_path)
 
         self.__prefix = "rocm_"
         self.__schema = 1.0
         self.__minSMIVersionRequired = (7, 0, 0)
         self.__minROCmVersion = "6.1.0"
-        self.__ecc_ras_monitoring = ecc_ras
-        self.__power_cap_monitoring = power_capping
-        self.__cu_occupancy_monitoring = cu_occupancy
+        self.__ecc_ras_monitoring = enable_ecc_ras
+        self.__power_cap_monitoring = enable_power_capping
+        self.__cu_occupancy_monitoring = enable_cu_occupancy
         self.__eccBlocks = {}
 
         # load smi runtime

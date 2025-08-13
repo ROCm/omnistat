@@ -31,6 +31,7 @@
 import configparser
 import importlib.resources
 import importlib.util
+import inspect
 import logging
 import os
 import platform
@@ -90,29 +91,40 @@ class Monitor:
         return
 
     def initMetrics(self):
-        # Locations to search for collectors. These are use as both, locations
-        # in the configuraion file and locations in the Python module
-        # hierarchy.
+        # Locations to search for collectors. These are used for both,
+        # configuration file sections and Python module hierarchy.
         locations = ["omnistat.collectors", "omnistat.collectors.contrib"]
 
-        # Configuration options starting with "enable_" under valid collector
+        # Configuration options starting with "enable_" under collector
         # locations are used to enable/disable collectors.
         pattern = r"^enable_([\w]+)$"
 
-        # Subcollectors depend on other collectors and are not initialized on
-        # their own.
+        # Subcollectors are collectors that depend on other collectors and are
+        # not initialized on their own.
         subcollectors = {"ras_ecc", "power_capping", "cu_occupancy", "vcn"}
 
         for location in locations:
             if not self.__config.has_section(location):
                 continue
 
+            # Convert configuration section to arguments to be passed to all
+            # collectors in this location when initializing them.
+            location_args = dict(self.__config[location])
+
+            # Loop over all options in a given location to find collectors
+            # that need to be initialized: identify "enable_*" options set to
+            # True that aren't subcollectors.
             for option, _ in self.__config.items(location):
                 m = re.search(pattern, option)
                 if m is None:
                     continue
 
-                enabled = self.__config[location].getboolean(option, False)
+                try:
+                    enabled = self.__config[location].getboolean(option, False)
+                except ValueError:
+                    logging.warning(f"Ignoring {option}: value is not a boolean.")
+                    continue
+
                 if not enabled:
                     continue
 
@@ -123,13 +135,65 @@ class Monitor:
                 module_name = f"{location}.{name}"
                 spec = importlib.util.find_spec(module_name)
                 if spec is None:
-                    logging.warning(f"Unable to find module: {name}")
+                    logging.warning(f"Ignoring {option}: unable to find the {module_name} module")
                     continue
+
+                module_args = {}
+                if self.__config.has_section(module_name):
+                    module_args = dict(self.__config[module_name])
+
+                # Merge location options and collector options, keeping values
+                # from the latter if there is any conflict.
+                #
+                # For example, the following configuration file:
+                #   [omnistat.collectors]
+                #   enable_rocm_smi = True
+                #   enable_rocprofiler = True
+                #   rocm_path = /opt/rocm
+                #   [omnistat.collectors.rocprofiler]
+                #   metrics = SQ_WAVES
+                #
+                # Results in the following dictionary used to initialize the
+                # rocprofiler collector:
+                #   {
+                #     enable_rocm_smi: True,
+                #     enable_rocprofiler: True,
+                #     rocm_path: "/opt/rocm",
+                #     metrics: "SQ_WAVES",
+                #   }
+                args = location_args | module_args
+
+                # Emit warning if there is a conflict between location and
+                # module options, just to be clear about the values being
+                # used.
+                conflict_options = location_args.keys() & module_args.keys()
+                for option in conflict_options:
+                    value = module_args[option]
+                    logging.warning(f"Option {option} defined twice: using {value} to initialize {name}.")
 
                 module = importlib.import_module(module_name)
                 collector_class = getattr(module, f"{name}")
                 logging.info(f"Loading {name} collector")
-                self.__collectors.append(collector_class(self.__config))
+
+                # Identify required arguments to ensure they exist in the
+                # configuration file.
+                required = set()
+                signature = inspect.signature(collector_class.__init__)
+                parameters = list(signature.parameters.values())
+                for p in parameters[1:]:
+                    if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD and p.default == inspect.Parameter.empty:
+                        required.add(p.name)
+
+                missing = required - args.keys()
+                if len(missing):
+                    logging.error(f"Missing required options to initialize {module_name}: {', '.join(missing)}")
+                    sys.exit(4)
+
+                try:
+                    self.__collectors.append(collector_class(**args))
+                except TypeError as t:
+                    logging.error(f"Failed to initialize {module_name}: {t}")
+                    sys.exit(4)
 
         # Initialize all metrics
         for collector in self.__collectors:
