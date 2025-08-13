@@ -359,20 +359,23 @@ class ROCMSMI(Collector):
             for block in rsmi_gpu_block_t:
                 # check if RAS enabled for this block
                 self.__libsmi.rsmi_dev_ecc_status_get(device, block.value, ctypes.byref(state))
-                if state.value == rsmi_ras_err_state_t.RSMI_RAS_ERR_STATE_ENABLED:
-                    # check if RAS counts available for this block
-                    ret = self.__libsmi.rsmi_dev_ecc_count_get(device, block.value, ctypes.byref(ras_counts))
-                    if ret == 0:
-                        key = block.name.removeprefix("RSMI_GPU_BLOCK_").lower()
-                        self.__eccBlocks[key] = block.value
-                        metric = self.__prefix + "ras_%s_correctable_count" % key
-                        self.registerGPUMetric(
-                            metric, "gauge", "number of correctable RAS events for %s block (count)" % key
-                        )
-                        metric = self.__prefix + "ras_%s_uncorrectable_count" % key
-                        self.registerGPUMetric(
-                            metric, "gauge", "number of uncorrectable RAS events for %s block (count)" % key
-                        )
+                if state.value != rsmi_ras_err_state_t.RSMI_RAS_ERR_STATE_ENABLED:
+                    logging.debug(f"RAS counts not enabled for block {block.name}")
+                    continue
+
+                # check if RAS counts available for this block
+                ret = self.__libsmi.rsmi_dev_ecc_count_get(device, block.value, ctypes.byref(ras_counts))
+                if ret != 0:
+                    logging.debug(f"RAS counts not available for block {block.name}")
+                    continue
+
+                key = block.name.removeprefix("RSMI_GPU_BLOCK_").lower()
+                self.__eccBlocks[key] = block.value
+                metric = self.__prefix + "ras_%s_correctable_count" % key
+                self.registerGPUMetric(metric, "gauge", "number of correctable RAS events for %s block (count)" % key)
+                metric = self.__prefix + "ras_%s_uncorrectable_count" % key
+                self.registerGPUMetric(metric, "gauge", "number of uncorrectable RAS events for %s block (count)" % key)
+
         # power cap
         if self.__power_cap_monitoring:
             self.registerGPUMetric(self.__prefix + "power_cap_watts", "gauge", "Max power cap of device (W)")
