@@ -44,17 +44,18 @@ from omnistat import utils
 
 class Monitor:
     def __init__(self, config, logFile=None):
+        logLevel = os.environ.get("OMNISTAT_LOG_LEVEL", "INFO").upper()
 
         if logFile:
             hostname = platform.node().split(".", 1)[0]
             logging.basicConfig(
                 format=f"[{hostname}: %(asctime)s] %(message)s",
-                level=logging.INFO,
+                level=logLevel,
                 filename=logFile,
                 datefmt="%H:%M:%S",
             )
         else:
-            logging.basicConfig(format="%(message)s", level=logging.INFO, stream=sys.stdout)
+            logging.basicConfig(format="%(message)s", level=logLevel, stream=sys.stdout)
 
         self.runtimeConfig = {}
 
