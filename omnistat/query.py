@@ -1196,12 +1196,14 @@ class QueryMetrics:
             (
                 "vendor",
                 ["omnistat_vendor_accel_energy_joules", " omnistat_vendor_accel_power_watts"],
-                ["instance", "card", "vendor"],
+                ["instance", "accel", "vendor"],
             ),
         ]
 
         for name, metrics, labels in exports:
-            extension = ".gpu.csv" if "card" in labels else ".csv"
+            extension = ".csv"
+            if "card" in labels or "accel" in labels:
+                extension = ".gpu.csv"
             export_file = f"{export_path}/{export_prefix}{name}{extension}"
             self.export_metrics(export_file, metrics, labels)
 
