@@ -86,9 +86,17 @@ def is_positive_int(s):
         return False
 
 
-class AMDSMI(Collector):
-    def __init__(self, runtimeConfig=None):
+class amd_smi(Collector):
+    def __init__(
+        self,
+        enable_ecc_ras=True,
+        enable_power_capping=False,
+        enable_cu_occupancy=False,
+        enable_vcn=False,
+        **kwargs,
+    ):
         logging.debug("Initializing AMD SMI data collector")
+
         self.__prefix = "rocm_"
         self.__schema = 1.0
         smi.amdsmi_init()
@@ -97,11 +105,12 @@ class AMDSMI(Collector):
         self.__devices = []
         self.__GPUMetrics = {}
         self.__metricMapping = {}
-        self.__ecc_ras_monitoring = runtimeConfig["collector_ras_ecc"]
-        self.__power_cap_monitoring = runtimeConfig["collector_power_capping"]
-        self.__cu_occupancy_monitoring = runtimeConfig["collector_cu_occupancy"]
-        self.__vcn_monitoring = runtimeConfig["collector_vcn"]
+        self.__ecc_ras_monitoring = enable_ecc_ras
+        self.__power_cap_monitoring = enable_power_capping
+        self.__cu_occupancy_monitoring = enable_cu_occupancy
+        self.__vcn_monitoring = enable_vcn
         self.__eccBlocks = {}
+
         # verify minimum version met
         check_min_version("24.7.1")
 

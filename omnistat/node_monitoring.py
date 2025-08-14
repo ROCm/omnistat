@@ -80,9 +80,9 @@ def main():
     # Enforce network restrictions
     @app.before_request
     def restrict_ips():
-        if "0.0.0.0" in monitor.runtimeConfig["collector_allowed_ips"]:
+        if "0.0.0.0" in monitor.allowed_ips:
             return
-        elif request.remote_addr not in monitor.runtimeConfig["collector_allowed_ips"]:
+        elif request.remote_addr not in monitor.allowed_ips:
             abort(403)
 
     @app.errorhandler(403)

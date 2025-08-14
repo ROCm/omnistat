@@ -42,17 +42,25 @@ import omnistat.utils as utils
 from omnistat.collector_base import Collector
 
 
-class RMSJob(Collector):
-    def __init__(self, annotations=False, jobDetection=None):
+class rms(Collector):
+    def __init__(
+        self,
+        enable_annotations=False,
+        mode="file-based",
+        file="/tmp/omni_rmsjobinfo",
+        stepfile="/tmp/omni_rmsjobinfo_step",
+        **kwargs,
+    ):
         logging.debug("Initializing resource manager job data collector")
+
         self.__prefix = "rmsjob_"
-        self.__annotationsEnabled = annotations
+        self.__annotationsEnabled = enable_annotations
         self.__RMSMetrics = {}
         self.__rmsJobInfo = []
         self.__lastAnnotationLabel = None
-        self.__rmsJobMode = jobDetection["mode"]
-        self.__rmsJobFile = jobDetection["file"]
-        self.__rmsJobStepFile = jobDetection["stepfile"]
+        self.__rmsJobMode = mode
+        self.__rmsJobFile = file
+        self.__rmsJobStepFile = stepfile
         self.__rmsJobFileTimeStamp = 0
         self.__rmsJobStepFileTimeStamp = 0
         self.__rmsAnnotationsFileTimeStamp = 0
