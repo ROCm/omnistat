@@ -108,14 +108,19 @@ After job completion, transfer the archived Omnistat data to your local machine
 for analysis using the Docker environment described in the [user-mode
 guide](installation/user-mode.md#exploring-results-locally).
 
-### Vendor Counters
+### Additional Metrics
+
+Frontier exposes an additional site‑specific collector beyond the standard set
+documented in the main [metrics](metrics) reference.
+
+#### Vendor Counters
 
 The vendor counters collector surfaces power and energy telemetry made
-available by site‑specific platform integrations (on Frontier this is the
-Cray/HPE EX `pm_counters` interface). It translates raw counter files into
-metrics that distinguish cumulative energy and instantaneous power samples for
-different components. GPU metrics from this collector are indexed using the
-`accel` label, and isn't guaranteed to match ROCm's GPU device indexing.
+available by site‑specific platform integrations (on Frontier this is the HPE
+Cray `pm_counters` interface). It translates raw counter files into metrics
+that distinguish cumulative energy and instantaneous power samples for
+different components. GPU metrics are indexed by an `accel` label; this index
+may differ from the ordering used by ROCm.
 
 **Collector**: `enable_vendor_counters`
 
