@@ -107,3 +107,28 @@ local filesystems like `/tmp`. Data can't be stored directly under Frontier's
 After job completion, transfer the archived Omnistat data to your local machine
 for analysis using the Docker environment described in the [user-mode
 guide](installation/user-mode.md#exploring-results-locally).
+
+### Vendor Counters
+
+The vendor counters collector surfaces power and energy telemetry made
+available by site‑specific platform integrations (on Frontier this is the
+Cray/HPE EX `pm_counters` interface). It translates raw counter files into
+metrics that distinguish cumulative energy and instantaneous power samples for
+different components. GPU metrics from this collector are indexed using the
+`accel` label, and isn't guaranteed to match ROCm's GPU device indexing.
+
+**Collector**: `enable_vendor_counters`
+
+| Node Metric                            | Description |
+| :------------------------------------- | :---------- |
+| `omnistat_vendor_energy_joules`        | Total node energy consumption (J). Labels: `vendor`. |
+| `omnistat_vendor_power_watts`          | Instantaneous total node power draw (W). Labels: `vendor`. |
+| `omnistat_vendor_cpu_energy_joules`    | Cumulative CPU energy (J). Labels: `vendor`. |
+| `omnistat_vendor_cpu_power_watts`      | Instantaneous CPU power (W). Labels: `vendor`. |
+| `omnistat_vendor_memory_energy_joules` | Cumulative system memory energy (J). Labels: `vendor`. |
+| `omnistat_vendor_memory_power_watts`   | Instantaneous system memory power (W). Labels: `vendor`. |
+
+| GPU Metric                             | Description |
+| :------------------------------------- | :---------- |
+| `omnistat_vendor_accel_energy_joules`  | Cumulative accelerator (GPU) energy (J) for each device. Labels: `vendor`, `accel`. |
+| `omnistat_vendor_accel_power_watts`    | Instantaneous accelerator (GPU) power (W) for each device. Labels: `vendor`, `accel`. |
