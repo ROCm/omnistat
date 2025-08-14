@@ -191,11 +191,11 @@ class AMDSMI(Collector):
                 try:
                     status = smi.amdsmi_get_gpu_ecc_status(self.__devices[0], block)
                 except smi.AmdSmiException as e:
-                    logging.debug(f"Failed to get ECC status: {e}")
+                    logging.debug(f"Failed to get {str(block)} ECC status:\n{e}")
                     continue
 
                 if status != smi.AmdSmiRasErrState.ENABLED:
-                    logging.debug(f"RAS counts not enabled")
+                    logging.debug(f"RAS counts not enabled for {str(block)}")
                     continue
 
                 # check if queryable
