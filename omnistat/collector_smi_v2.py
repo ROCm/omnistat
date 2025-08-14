@@ -186,35 +186,44 @@ class AMDSMI(Collector):
             for block in smi.AmdSmiGpuBlock:
                 if block == smi.AmdSmiGpuBlock.INVALID:
                     continue
+
                 logging.debug("Checking on %s ECC status.." % block)
-                status = smi.amdsmi_get_gpu_ecc_status(self.__devices[0], block)
-                if status == smi.AmdSmiRasErrState.ENABLED:
-                    # check if queryable
-                    try:
-                        status = smi.amdsmi_get_gpu_ecc_count(self.__devices[0], block)
-                        key = "%s" % block
-                        key = key.removeprefix("AmdSmiGpuBlock.").lower()
-                        self.__eccBlocks[key] = block
-                        metric = "ras_%s_correctable_count" % key
-                        self.__GPUMetrics[metric] = Gauge(
-                            self.__prefix + metric,
-                            "number of correctable RAS events for %s block (count)" % key,
-                            labelnames=["card"],
-                        )
-                        metric = "ras_%s_uncorrectable_count" % key
-                        self.__GPUMetrics[metric] = Gauge(
-                            self.__prefix + metric,
-                            "number of uncorrectable RAS events for %s block (count)" % key,
-                            labelnames=["card"],
-                        )
-                        metric = "ras_%s_deferred_count" % key
-                        self.__GPUMetrics[metric] = Gauge(
-                            self.__prefix + metric,
-                            "number of deferred RAS events for %s block (count)" % key,
-                            labelnames=["card"],
-                        )
-                    except:
-                        logging.debug("Skipping RAS definition for %s" % block)
+                try:
+                    status = smi.amdsmi_get_gpu_ecc_status(self.__devices[0], block)
+                except smi.AmdSmiException as e:
+                    logging.debug(f"Failed to get ECC status: {e}")
+                    continue
+
+                if status != smi.AmdSmiRasErrState.ENABLED:
+                    logging.debug(f"RAS counts not enabled")
+                    continue
+
+                # check if queryable
+                try:
+                    status = smi.amdsmi_get_gpu_ecc_count(self.__devices[0], block)
+                    key = "%s" % block
+                    key = key.removeprefix("AmdSmiGpuBlock.").lower()
+                    self.__eccBlocks[key] = block
+                    metric = "ras_%s_correctable_count" % key
+                    self.__GPUMetrics[metric] = Gauge(
+                        self.__prefix + metric,
+                        "number of correctable RAS events for %s block (count)" % key,
+                        labelnames=["card"],
+                    )
+                    metric = "ras_%s_uncorrectable_count" % key
+                    self.__GPUMetrics[metric] = Gauge(
+                        self.__prefix + metric,
+                        "number of uncorrectable RAS events for %s block (count)" % key,
+                        labelnames=["card"],
+                    )
+                    metric = "ras_%s_deferred_count" % key
+                    self.__GPUMetrics[metric] = Gauge(
+                        self.__prefix + metric,
+                        "number of deferred RAS events for %s block (count)" % key,
+                        labelnames=["card"],
+                    )
+                except:
+                    logging.debug("Skipping RAS definition for %s" % block)
 
         # Cache valid primary temperature location and register with location label
         dev0 = self.__devices[0]
