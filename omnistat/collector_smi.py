@@ -130,16 +130,6 @@ class rsmi_temperature_type_t(IntEnum):
     RSMI_TEMP_TYPE_HBM_3 = 6
 
 
-class rsmi_temperature_type_t(IntEnum):
-    RSMI_TEMP_TYPE_EDGE = 0
-    RSMI_TEMP_TYPE_JUNCTION = 1
-    RSMI_TEMP_TYPE_VRAM = 2
-    RSMI_TEMP_TYPE_HBM_0 = 3
-    RSMI_TEMP_TYPE_HBM_1 = 4
-    RSMI_TEMP_TYPE_HBM_2 = 5
-    RSMI_TEMP_TYPE_HBM_3 = 6
-
-
 class rsmi_gpu_block_t(IntEnum):
     RSMI_GPU_BLOCK_UMC = 0x0000000000000001
     RSMI_GPU_BLOCK_SDMA = 0x0000000000000002
