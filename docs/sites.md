@@ -111,15 +111,15 @@ guide](installation/user-mode.md#exploring-results-locally).
 ### Additional Metrics
 
 Frontier exposes an additional site‑specific collector beyond the standard set
-documented in the main [metrics](metrics) reference.
+documented in the main [metrics](metrics) overview.
 
 #### Vendor Counters
 
-The vendor counters collector surfaces power and energy telemetry made
-available by site‑specific platform integrations (on Frontier this is the HPE
-Cray `pm_counters` interface). It translates raw counter files into metrics
+The vendor collector ingests additional telemetry made
+possible by site‑specific platform integrations. On Frontier, this collector leverages the HPE
+Cray `pm_counters` interface and translates raw counter files into metrics
 that distinguish cumulative energy and instantaneous power samples for
-different components. GPU metrics are indexed by an `accel` label; this index
+different node-level components. Note that GPU metrics are indexed by an `accel` label and this index
 may differ from the ordering used by ROCm.
 
 **Collector**: `enable_vendor_counters`
