@@ -156,20 +156,23 @@ class Monitor:
                 # Results in the following dictionary used to initialize the
                 # rocprofiler collector:
                 #   {
-                #     enable_rocm_smi: True,
-                #     enable_rocprofiler: True,
+                #     enable_rocm_smi: "True",
+                #     enable_rocprofiler: "True",
                 #     rocm_path: "/opt/rocm",
                 #     metrics: "SQ_WAVES",
                 #   }
                 args = location_args | module_args
 
+                # Convert argument values to the appropriate type.
+                args = {k: utils.convert_type(v) for k, v in args.items()}
+
                 # Emit warning if there is a conflict between location and
                 # module options, just to be clear about the values being
                 # used.
-                conflict_options = location_args.keys() & module_args.keys()
-                for option in conflict_options:
-                    value = module_args[option]
-                    logging.warning(f"Option {option} defined twice: using {value} to initialize {name}.")
+                conflicts = location_args.keys() & module_args.keys()
+                for conflict in conflicts:
+                    value = module_args[conflict]
+                    logging.warning(f"Option {conflict} defined twice: using {value} to initialize {name}.")
 
                 module = importlib.import_module(module_name)
                 collector_class = getattr(module, f"{name}")
