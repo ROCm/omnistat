@@ -30,6 +30,8 @@
 
 import configparser
 import importlib.resources
+import importlib.util
+import inspect
 import logging
 import os
 import platform
@@ -57,162 +59,144 @@ class Monitor:
         else:
             logging.basicConfig(format="%(message)s", level=logLevel, stream=sys.stdout)
 
-        self.runtimeConfig = {}
-
-        self.runtimeConfig["collector_enable_rocm_smi"] = config["omnistat.collectors"].getboolean(
-            "enable_rocm_smi", True
-        )
-        self.runtimeConfig["collector_enable_rms"] = config["omnistat.collectors"].getboolean("enable_rms", False)
-        self.runtimeConfig["collector_enable_amd_smi"] = config["omnistat.collectors"].getboolean(
-            "enable_amd_smi", False
-        )
-        self.runtimeConfig["collector_enable_network"] = config["omnistat.collectors"].getboolean(
-            "enable_network", True
-        )
-        self.runtimeConfig["collector_enable_vendor_counters"] = config["omnistat.collectors"].getboolean(
-            "enable_vendor_counters", False
-        )
+        # convert comma-separated string with allowed IPs into list
+        allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
+        self.allowed_ips = re.split(r",\s*", allowed_ips)
+        logging.info("Allowed query IPs = %s" % self.allowed_ips)
 
         # verify only one SMI collector is enabled
-        if self.runtimeConfig["collector_enable_rocm_smi"] and self.runtimeConfig["collector_enable_amd_smi"]:
+        enable_rocm_smi = config["omnistat.collectors"].getboolean("enable_rocm_smi", True)
+        enable_amd_smi = config["omnistat.collectors"].getboolean("enable_amd_smi", False)
+        if enable_rocm_smi and enable_amd_smi:
             logging.error("")
             logging.error("[ERROR]: Only one SMI GPU data collector may be configured at a time.")
             logging.error("")
             logging.error('Please choose either "enable_rocm_smi" or "enable_amd_smi" in runtime config')
             sys.exit(1)
 
-        self.runtimeConfig["collector_enable_amd_smi_process"] = config["omnistat.collectors"].getboolean(
-            "enable_amd_smi_process", False
-        )
-        self.runtimeConfig["collector_enable_events"] = config["omnistat.collectors"].getboolean("enable_events", False)
-        self.runtimeConfig["collector_port"] = config["omnistat.collectors"].get("port", 8001)
-        self.runtimeConfig["collector_rocm_path"] = config["omnistat.collectors"].get("rocm_path", "/opt/rocm")
-        self.runtimeConfig["collector_ras_ecc"] = config["omnistat.collectors"].getboolean("enable_ras_ecc", True)
-        self.runtimeConfig["collector_cu_occupancy"] = config["omnistat.collectors"].getboolean(
-            "enable_cu_occupancy", False
-        )
-        self.runtimeConfig["collector_power_capping"] = config["omnistat.collectors"].getboolean(
-            "enable_power_cap", False
-        )
-        self.runtimeConfig["collector_vcn"] = config["omnistat.collectors"].getboolean("enable_vcn", False)
+        # allow for disablement of resource manager data collector via regex match
+        if config.has_section("omnistat.collectors.rms"):
+            host_skip = config["omnistat.collectors.rms"].get("host_skip", "login.*")
+            pattern = re.compile(utils.removeQuotes(host_skip))
+            hostname = platform.node().split(".", 1)[0]
+            if pattern.match(hostname):
+                logging.info(f"Disabling RMS collector via host_skip match ({host_skip}): {hostname}")
+                config.set("omnistat.collectors", "rms", "False")
 
-        self.runtimeConfig["collector_enable_rocprofiler"] = config["omnistat.collectors"].getboolean(
-            "enable_rocprofiler", False
-        )
-
-        allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
-        # convert comma-separated string into list
-        self.runtimeConfig["collector_allowed_ips"] = re.split(r",\s*", allowed_ips)
-        logging.info("Allowed query IPs = %s" % self.runtimeConfig["collector_allowed_ips"])
-
-        # additional RMS collector controls
-        if self.runtimeConfig["collector_enable_rms"] == True:
-            self.jobDetection = {}
-            self.runtimeConfig["rms_collector_annotations"] = config["omnistat.collectors.rms"].getboolean(
-                "enable_annotations", False
-            )
-            self.jobDetection["mode"] = config["omnistat.collectors.rms"].get("job_detection_mode", "file-based")
-            self.jobDetection["file"] = config["omnistat.collectors.rms"].get(
-                "job_detection_file", "/tmp/omni_rmsjobinfo"
-            )
-            self.jobDetection["stepfile"] = config["omnistat.collectors.rms"].get(
-                "step_detection_file", "/tmp/omni_rmsjobinfo_step"
-            )
-            if config.has_option("omnistat.collectors.rms", "host_skip"):
-                self.runtimeConfig["rms_collector_host_skip"] = config["omnistat.collectors.rms"]["host_skip"]
-
-        self.runtimeConfig["rocprofiler_metrics"] = []
-        if config.has_option("omnistat.collectors.rocprofiler", "metrics"):
-            self.runtimeConfig["rocprofiler_metrics"] = config["omnistat.collectors.rocprofiler"]["metrics"].split(",")
-
-        self.runtimeConfig["collector_contrib_enable_kmsg"] = False
-        self.runtimeConfig["kmsg_min_severity"] = "ERROR"
-        self.runtimeConfig["kmsg_include_existing"] = False
-
-        if config.has_section("omnistat.collectors.contrib"):
-            self.runtimeConfig["collector_contrib_enable_kmsg"] = config["omnistat.collectors.contrib"].getboolean(
-                "enable_kmsg", False
-            )
-
-        if config.has_section("omnistat.collectors.contrib.kmsg"):
-            self.runtimeConfig["kmsg_min_severity"] = config["omnistat.collectors.contrib.kmsg"].get(
-                "min_severity", "ERROR"
-            )
-            self.runtimeConfig["kmsg_include_existing"] = config["omnistat.collectors.contrib.kmsg"].getboolean(
-                "include_existing_messages", False
-            )
-
-        # defined global prometheus metrics
-        self.__globalMetrics = {}
+        self.__config = config
         self.__registry_global = CollectorRegistry()
-
-        # define desired collectors
         self.__collectors = []
 
-        # allow for disablement of resource manager data collector via regex match
-        if self.runtimeConfig["collector_enable_rms"]:
-            if config.has_option("omnistat.collectors.rms", "host_skip"):
-                host_skip = utils.removeQuotes(config["omnistat.collectors.rms"]["host_skip"])
-                hostname = platform.node().split(".", 1)[0]
-                p = re.compile(host_skip)
-                if p.match(hostname):
-                    self.runtimeConfig["collector_enable_rms"] = False
-                    logging.info("Disabling RMS collector via host_skip match (%s)" % host_skip)
-
-        logging.debug("Completed collector initialization (base class)")
+        logging.debug("Completed monitor initialization")
         return
 
     def initMetrics(self):
+        # Locations to search for collectors. These are used for both,
+        # configuration file sections and Python module hierarchy.
+        locations = ["omnistat.collectors", "omnistat.collectors.contrib"]
 
-        if self.runtimeConfig["collector_enable_vendor_counters"]:
-            from omnistat.collector_pm_counters import PM_COUNTERS
+        # Configuration options starting with "enable_" under collector
+        # locations are used to enable/disable collectors.
+        pattern = r"^enable_([\w]+)$"
 
-            self.__collectors.append(PM_COUNTERS())
+        # Subcollectors are collectors that depend on other collectors and are
+        # not initialized on their own.
+        subcollectors = {"ras_ecc", "power_capping", "cu_occupancy", "vcn"}
 
-        if self.runtimeConfig["collector_enable_network"]:
-            from omnistat.collector_network import NETWORK
+        for location in locations:
+            if not self.__config.has_section(location):
+                continue
 
-            self.__collectors.append(NETWORK())
+            # Convert configuration section to arguments to be passed to all
+            # collectors in this location when initializing them.
+            location_args = dict(self.__config[location])
 
-        if self.runtimeConfig["collector_enable_rocm_smi"]:
-            from omnistat.collector_smi import ROCMSMI
+            # Loop over all options in a given location to find collectors
+            # that need to be initialized: identify "enable_*" options set to
+            # True that aren't subcollectors.
+            for option, _ in self.__config.items(location):
+                m = re.search(pattern, option)
+                if m is None:
+                    continue
 
-            self.__collectors.append(ROCMSMI(runtimeConfig=self.runtimeConfig))
-        if self.runtimeConfig["collector_enable_amd_smi"]:
-            from omnistat.collector_smi_v2 import AMDSMI
+                try:
+                    enabled = self.__config[location].getboolean(option, False)
+                except ValueError:
+                    logging.warning(f"Ignoring {option}: value is not a boolean.")
+                    continue
 
-            self.__collectors.append(AMDSMI(runtimeConfig=self.runtimeConfig))
-        if self.runtimeConfig["collector_enable_amd_smi_process"]:
-            from omnistat.collector_smi_process import AMDSMIProcess
+                if not enabled:
+                    continue
 
-            self.__collectors.append(AMDSMIProcess())
-        if self.runtimeConfig["collector_enable_rms"]:
-            from omnistat.collector_rms import RMSJob
+                name = m.group(1)
+                if name in subcollectors:
+                    continue
 
-            self.__collectors.append(
-                RMSJob(
-                    annotations=self.runtimeConfig["rms_collector_annotations"],
-                    jobDetection=self.jobDetection,
-                )
-            )
-        if self.runtimeConfig["collector_enable_events"]:
-            from omnistat.collector_events import ROCMEvents
+                module_name = f"{location}.{name}"
+                spec = importlib.util.find_spec(module_name)
+                if spec is None:
+                    logging.warning(f"Ignoring {option}: unable to find the {module_name} module")
+                    continue
 
-            self.__collectors.append(ROCMEvents())
+                module_args = {}
+                if self.__config.has_section(module_name):
+                    module_args = dict(self.__config[module_name])
 
-        if self.runtimeConfig["collector_enable_rocprofiler"]:
-            from omnistat.collector_rocprofiler import rocprofiler
+                # Merge location options and collector options, keeping values
+                # from the latter if there is any conflict.
+                #
+                # For example, the following configuration file:
+                #   [omnistat.collectors]
+                #   enable_rocm_smi = True
+                #   enable_rocprofiler = True
+                #   rocm_path = /opt/rocm
+                #   [omnistat.collectors.rocprofiler]
+                #   metrics = SQ_WAVES
+                #
+                # Results in the following dictionary used to initialize the
+                # rocprofiler collector:
+                #   {
+                #     enable_rocm_smi: "True",
+                #     enable_rocprofiler: "True",
+                #     rocm_path: "/opt/rocm",
+                #     metrics: "SQ_WAVES",
+                #   }
+                args = location_args | module_args
 
-            self.__collectors.append(
-                rocprofiler(self.runtimeConfig["collector_rocm_path"], self.runtimeConfig["rocprofiler_metrics"])
-            )
+                # Convert argument values to the appropriate type.
+                args = {k: utils.convert_type(v) for k, v in args.items()}
 
-        if self.runtimeConfig["collector_contrib_enable_kmsg"]:
-            from omnistat.contrib.collector_kmsg import KmsgCollector
+                # Emit warning if there is a conflict between location and
+                # module options, just to be clear about the values being
+                # used.
+                conflicts = location_args.keys() & module_args.keys()
+                for conflict in conflicts:
+                    value = module_args[conflict]
+                    logging.warning(f"Option {conflict} defined twice: using {value} to initialize {name}.")
 
-            min_severity = self.runtimeConfig["kmsg_min_severity"]
-            include_existing = self.runtimeConfig["kmsg_include_existing"]
-            self.__collectors.append(KmsgCollector(min_severity=min_severity, include_existing=include_existing))
+                module = importlib.import_module(module_name)
+                collector_class = getattr(module, f"{name}")
+                logging.info(f"Loading {name} collector")
+
+                # Identify required arguments to ensure they exist in the
+                # configuration file.
+                required = set()
+                signature = inspect.signature(collector_class.__init__)
+                parameters = list(signature.parameters.values())
+                for p in parameters[1:]:
+                    if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD and p.default == inspect.Parameter.empty:
+                        required.add(p.name)
+
+                missing = required - args.keys()
+                if len(missing):
+                    logging.error(f"Missing required options to initialize {module_name}: {', '.join(missing)}")
+                    sys.exit(4)
+
+                try:
+                    self.__collectors.append(collector_class(**args))
+                except TypeError as t:
+                    logging.error(f"Failed to initialize {module_name}: {t}")
+                    sys.exit(4)
 
         # Initialize all metrics
         for collector in self.__collectors:

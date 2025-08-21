@@ -166,19 +166,25 @@ class rsmi_error_count_t(ctypes.Structure):
 # --
 
 
-class ROCMSMI(Collector):
-    def __init__(self, runtimeConfig=None):
+class rocm_smi(Collector):
+    def __init__(
+        self,
+        enable_ecc_ras=True,
+        enable_power_capping=False,
+        enable_cu_occupancy=False,
+        rocm_path="/opt/rocm",
+        **kwargs,
+    ):
         logging.debug("Initializing ROCm SMI data collector")
+
         self.__prefix = "rocm_"
         self.__schema = 1.0
         self.__minSMIVersionRequired = (7, 0, 0)
         self.__minROCmVersion = "6.1.0"
-        self.__ecc_ras_monitoring = runtimeConfig["collector_ras_ecc"]
-        self.__power_cap_monitoring = runtimeConfig["collector_power_capping"]
-        self.__cu_occupancy_monitoring = runtimeConfig["collector_cu_occupancy"]
+        self.__ecc_ras_monitoring = enable_ecc_ras
+        self.__power_cap_monitoring = enable_power_capping
+        self.__cu_occupancy_monitoring = enable_cu_occupancy
         self.__eccBlocks = {}
-
-        rocm_path = runtimeConfig["collector_rocm_path"]
 
         # load smi runtime
         smi_lib = rocm_path + "/lib/librocm_smi64.so"

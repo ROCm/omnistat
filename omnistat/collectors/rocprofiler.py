@@ -68,11 +68,16 @@ class rocprofiler_session_id_t(ctypes.Structure):
 
 
 class rocprofiler(Collector):
-    def __init__(self, rocm_path, metric_names):
+    def __init__(self, metrics, rocm_path="/opt/rocm", **kwargs):
         logging.debug("Initializing rocprofiler data collector")
 
-        if metric_names == None or len(metric_names) == 0:
-            logging.error("ERROR: Unexpected list of metrics.")
+        if metrics == None:
+            logging.error("ERROR: Undefined list of rocprofiler metrics.")
+            sys.exit(4)
+
+        metric_names = metrics.split(",")
+        if len(metric_names) == 0:
+            logging.error(f"ERROR: Empty or unexpected list of rocprofiler metrics: {metric_names}")
             sys.exit(4)
 
         hip_lib = rocm_path + "/lib/libamdhip64.so"

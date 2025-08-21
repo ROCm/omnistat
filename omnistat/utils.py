@@ -253,6 +253,35 @@ def get_occupancy(guid):
     return cu_occupancy
 
 
+def convert_type(input_string):
+    """
+    Convert a string to a boolean, integer, or float. If no conversion is
+    possible, return original string.
+
+    Args:
+        input_string (str): String to convert.
+
+    Returns:
+        bool, int, float, or str: Converted value or original string.
+    """
+    if input_string.lower() == "true":
+        return True
+    elif input_string.lower() == "false":
+        return False
+
+    try:
+        return int(input_string)
+    except ValueError:
+        pass
+
+    try:
+        return float(input_string)
+    except ValueError:
+        pass
+
+    return input_string
+
+
 def error(message):
     """Log an error message and exit
 

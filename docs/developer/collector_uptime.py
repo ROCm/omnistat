@@ -29,8 +29,8 @@ from prometheus_client import Gauge
 from omnistat.collector_base import Collector
 
 
-class NODEUptime(Collector):
-    def __init__(self):
+class uptime(Collector):
+    def __init__(self, **kwargs):
         logging.debug("Initializing node uptime event collector")
         self.__metrics = {}  # method storage for Prometheus metrics
         self.__kernelver = None  # method storage for kernel version

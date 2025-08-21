@@ -45,8 +45,8 @@ class KmsgSeverity(IntEnum):
     DEBUG = 7
 
 
-class KmsgCollector(Collector):
-    def __init__(self, min_severity="ERROR", include_existing=False):
+class kmsg(Collector):
+    def __init__(self, min_severity="ERROR", include_existing_messages=False, **kwargs):
         logging.debug("Initializing kmsg collector")
         self.__name = "omnistat_num_driver_messages"
         self.__metric = None
@@ -63,9 +63,9 @@ class KmsgCollector(Collector):
             sys.exit(4)
 
         self.__severity_count = [0] * (self.__severity_threshold + 1)
-        self.__include_existing = include_existing
+        self.__include_existing_messages = include_existing_messages
 
-        include = "existing and new" if include_existing else "new"
+        include = "existing and new" if include_existing_messages else "new"
         severities = [s.name for s in KmsgSeverity if s.value <= self.__severity_threshold]
         logging.info(f"--> kmsg: report {include} messages with these severities: {', '.join(severities)}")
 
@@ -76,7 +76,7 @@ class KmsgCollector(Collector):
 
         try:
             self.__kmsg = os.open("/dev/kmsg", os.O_NONBLOCK)
-            if not self.__include_existing:
+            if not self.__include_existing_messages:
                 os.lseek(self.__kmsg, 0, os.SEEK_END)
         except PermissionError:
             logging.error("Error: Permission denied reading /dev/kmsg")
