@@ -13,11 +13,11 @@ omnistat-rms-env = "omnistat.rms_env:main"
 omnistat-standalone = "omnistat.standalone:main"
 
 [build-system]
-requires = ["setuptools>=61", "wheel", "setuptools-git-versioning>=2.0,<3"]
+requires = ["setuptools>=61", "wheel", "setuptools-git-versioning>=2.0,<3", "cmake-build-extension", "cmake", "nanobind"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["omnistat", "omnistat.contrib"]
+packages = ["omnistat", "omnistat.contrib", "omnistat.rocprofiler"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
