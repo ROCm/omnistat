@@ -132,7 +132,7 @@ class rocprofiler(Collector):
 
         logging.info("--> rocprofiler initialized")
 
-    def registerMetrics(self):
+    def registerMetrics(self, config):
         metric_name = f"omnistat_rocprofiler"
         self.__metric = Gauge(metric_name, "Performance counter data from rocprofiler", labelnames=["card", "counter"])
         logging.info("--> [registered] %s (gauge)" % (metric_name))
