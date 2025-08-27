@@ -79,7 +79,12 @@ class ROCMEvents(Collector):
     # --------------------------------------------------------------------------------------
     # Required child methods
 
-    def registerMetrics(self):
+    def registerMetrics(self, config):
+        """Register metrics of interest
+
+        Args:
+            config: ConfigParser instance (not used by this collector)
+        """
 
         metricName = self.__prefix + "throttle_events"
         self.__GPUmetrics["throttle_events"] = Gauge(metricName, "# of throttling events detected", labelnames=["card"])
