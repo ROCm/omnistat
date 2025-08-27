@@ -60,8 +60,12 @@ class PM_COUNTERS(Collector):
         # metric data structure for gpu oriented
         self.__pm_files_host = []  # entries: (gauge metric, filepath, gpuindex)
 
-    def registerMetrics(self):
-        """Register metrics of interest"""
+    def registerMetrics(self, config):
+        """Register metrics of interest
+
+        Args:
+            config: ConfigParser instance (not used by this collector)
+        """
 
         definedMetrics = {}
 

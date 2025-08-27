@@ -87,7 +87,9 @@ def is_positive_int(s):
 
 
 class AMDSMI(Collector):
-    def __init__(self, runtimeConfig=None):
+
+    def initialize(self, config):
+
         logging.debug("Initializing AMD SMI data collector")
         self.__prefix = "rocm_"
         self.__schema = 1.0
@@ -97,13 +99,14 @@ class AMDSMI(Collector):
         self.__devices = []
         self.__GPUMetrics = {}
         self.__metricMapping = {}
-        self.__ecc_ras_monitoring = runtimeConfig["collector_ras_ecc"]
-        self.__power_cap_monitoring = runtimeConfig["collector_power_capping"]
-        self.__cu_occupancy_monitoring = runtimeConfig["collector_cu_occupancy"]
-        self.__vcn_monitoring = runtimeConfig["collector_vcn"]
         self.__eccBlocks = {}
         # verify minimum version met
         check_min_version("24.7.1")
+
+        self.__ecc_ras_monitoring = config["omnistat.collectors"].getboolean("enable_ras_ecc", True)
+        self.__power_cap_monitoring = config["omnistat.collectors"].getboolean("enable_power_cap", False)
+        self.__cu_occupancy_monitoring = config["omnistat.collectors"].getboolean("enable_cu_occupancy", False)
+        self.__vcn_monitoring = config["omnistat.collectors"].getboolean("enable_vcn", False)
 
     def get_gpu_metrics(self, device):
         """Make GPU metric query and return dict of tracked metrics"""
@@ -124,8 +127,14 @@ class AMDSMI(Collector):
 
         return simple_metrics, source_metrics, list_metrics
 
-    def registerMetrics(self):
-        """Query number of devices and register metrics of interest"""
+    def registerMetrics(self, config):
+        """Query number of devices and register metrics of interest
+
+        Args:
+            config (configparser.ConfigParser): Runtime configuration
+        """
+
+        self.initialize(config)
 
         devices = smi.amdsmi_get_processor_handles()
         self.__devices = devices

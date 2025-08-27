@@ -79,8 +79,12 @@ class AMDSMIProcess(Collector):
         self.process_metrics = {}
         self.c = 0
 
-    def registerMetrics(self):
-        """Query number of devices and register metrics of interest"""
+    def registerMetrics(self, config):
+        """Query number of devices and register metrics of interest
+
+        Args:
+            config: ConfigParser instance (not used by this collector)
+        """
 
         devices = amdsmi_get_processor_handles()
         self.devices = devices

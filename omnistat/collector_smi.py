@@ -167,21 +167,23 @@ class rsmi_error_count_t(ctypes.Structure):
 
 
 class ROCMSMI(Collector):
-    def __init__(self, runtimeConfig=None):
+    def initialize(self, config):
         logging.debug("Initializing ROCm SMI data collector")
         self.__prefix = "rocm_"
         self.__schema = 1.0
         self.__minSMIVersionRequired = (7, 0, 0)
         self.__minROCmVersion = "6.1.0"
-        self.__ecc_ras_monitoring = runtimeConfig["collector_ras_ecc"]
-        self.__power_cap_monitoring = runtimeConfig["collector_power_capping"]
-        self.__cu_occupancy_monitoring = runtimeConfig["collector_cu_occupancy"]
         self.__eccBlocks = {}
+        self.__GPUmetrics = {}
 
-        rocm_path = runtimeConfig["collector_rocm_path"]
+        # parse runtime config
+        self.__ecc_ras_monitoring = config["omnistat.collectors"].getboolean("enable_ras_ecc", True)
+        self.__power_cap_monitoring = config["omnistat.collectors"].getboolean("enable_power_cap", False)
+        self.__cu_occupancy_monitoring = config["omnistat.collectors"].getboolean("enable_cu_occupancy", False)
+        self.__rocm_path = config["omnistat.collectors"].get("rocm_path", "/opt/rocm")
 
         # load smi runtime
-        smi_lib = rocm_path + "/lib/librocm_smi64.so"
+        smi_lib = self.__rocm_path + "/lib/librocm_smi64.so"
         if os.path.isfile(smi_lib):
             self.__libsmi = ctypes.CDLL(smi_lib)
             logging.info("Runtime library loaded from %s" % smi_lib)
@@ -228,13 +230,17 @@ class ROCMSMI(Collector):
             logging.error("")
             sys.exit(4)
 
-        self.__GPUmetrics = {}
-
     # --------------------------------------------------------------------------------------
     # Required child methods
 
-    def registerMetrics(self):
-        """Query number of devices and register metrics of interest"""
+    def registerMetrics(self, config):
+        """Query number of devices and register metrics of interest
+
+        Args:
+            config (configparser.ConfigParser): Runtime configuration
+        """
+
+        self.initialize(config)
 
         numDevices = ctypes.c_uint32(0)
         ret = self.__libsmi.rsmi_num_monitor_devices(ctypes.byref(numDevices))
