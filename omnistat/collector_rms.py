@@ -43,16 +43,14 @@ from omnistat.collector_base import Collector
 
 
 class RMSJob(Collector):
-    def __init__(self, annotations=False, jobDetection=None):
+
+    def initialize(self, config):
+
         logging.debug("Initializing resource manager job data collector")
         self.__prefix = "rmsjob_"
-        self.__annotationsEnabled = annotations
+
         self.__RMSMetrics = {}
-        self.__rmsJobInfo = []
         self.__lastAnnotationLabel = None
-        self.__rmsJobMode = jobDetection["mode"]
-        self.__rmsJobFile = jobDetection["file"]
-        self.__rmsJobStepFile = jobDetection["stepfile"]
         self.__rmsJobFileTimeStamp = 0
         self.__rmsJobStepFileTimeStamp = 0
         self.__rmsAnnotationsFileTimeStamp = 0
@@ -60,6 +58,14 @@ class RMSJob(Collector):
         self.__resultsCached = {}
         self.__resultsStepCached = {}
         self.__annotationsCached = {}
+
+        self.__annotationsEnabled = config["omnistat.collectors.rms"].getboolean("enable_annotations", False)
+
+        self.__rmsJobMode = config["omnistat.collectors.rms"].get("job_detection_mode", "file-based")
+        self.__rmsJobFile = config["omnistat.collectors.rms"].get("job_detection_file", "/tmp/omni_rmsjobinfo")
+        self.__rmsJobStepFile = config["omnistat.collectors.rms"].get(
+            "step_detection_file", "/tmp/omni_rmsjobinfo_step"
+        )
 
         # jobMode
         if self.__rmsJobMode == "file-based":
@@ -162,8 +168,14 @@ class RMSJob(Collector):
 
         return results
 
-    def registerMetrics(self):
-        """Register metrics of interest"""
+    def registerMetrics(self, config):
+        """Register metrics of interest
+
+        Args:
+            config (configparser.ConfigParser): Runtime configuration
+        """
+
+        self.initialize(config)
 
         # alternate approach - define an info metric
         # (https://ypereirareis.github.io/blog/2020/02/21/how-to-join-prometheus-metrics-by-label-with-promql/)
