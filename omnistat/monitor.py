@@ -45,7 +45,7 @@ from omnistat import utils
 
 class Monitor:
     def __init__(self, config, logFile=None):
-        # # keep reference to the parsed ConfigParser for passing to collectors
+        # keep reference to the parsed ConfigParser for passing to collectors
         self.config = config
         logLevel = os.environ.get("OMNISTAT_LOG_LEVEL", "INFO").upper()
 
@@ -149,7 +149,7 @@ class Monitor:
         self.__globalMetrics = {}
         self.__registry_global = CollectorRegistry()
 
-        # define desired collectors
+        # define desired data collectors
         self.__collectors = []
 
         # allow for disablement of resource manager data collector via regex match
@@ -168,9 +168,9 @@ class Monitor:
     def initMetrics2(self):
         for collector in COLLECTORS:
 
-            collector_name = collector["name"]
+            runtime_option = collector["runtime_option"]
             default = collector["enabled_by_default"]
-            enabled = self.config["omnistat.collectors"].getboolean(collector_name, default)
+            enabled = self.config["omnistat.collectors"].getboolean(runtime_option, default)
 
             if enabled:
                 module = importlib.import_module(collector["file"])
