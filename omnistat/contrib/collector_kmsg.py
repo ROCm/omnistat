@@ -69,7 +69,18 @@ class KmsgCollector(Collector):
         severities = [s.name for s in KmsgSeverity if s.value <= self.__severity_threshold]
         logging.info(f"--> kmsg: report {include} messages with these severities: {', '.join(severities)}")
 
-    def registerMetrics(self):
+    def parseRuntimeConfig(self, config):
+        self.__include_existing = config.getboolean(
+            "omnistat.collectors.contrib.kmsg", "include_existing", fallback=False
+        )
+        self.__severity_threshold = KmsgSeverity[
+            config.get("omnistat.collectors.contrib.kmsg", "min_severity", fallback="ERROR")
+        ]
+
+    def registerMetrics(self, config):
+
+        self.parseRuntimeConfig(config)
+
         description = "Number of driver messages in the kernel log buffer"
         self.__metric = Gauge(self.__name, description, labelnames=["driver", "severity"])
         logging.info(f"--> [registered] {self.__name} -> {description} (gauge)")
