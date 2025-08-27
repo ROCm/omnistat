@@ -84,24 +84,24 @@ class Monitor:
             logging.error('Please choose either "enable_rocm_smi" or "enable_amd_smi" in runtime config')
             sys.exit(1)
 
-        self.runtimeConfig["collector_enable_amd_smi_process"] = config["omnistat.collectors"].getboolean(
-            "enable_amd_smi_process", False
-        )
-        self.runtimeConfig["collector_enable_events"] = config["omnistat.collectors"].getboolean("enable_events", False)
-        self.runtimeConfig["collector_port"] = config["omnistat.collectors"].get("port", 8001)
-        self.runtimeConfig["collector_rocm_path"] = config["omnistat.collectors"].get("rocm_path", "/opt/rocm")
-#        self.runtimeConfig["collector_ras_ecc"] = config["omnistat.collectors"].getboolean("enable_ras_ecc", True)
-#        self.runtimeConfig["collector_cu_occupancy"] = config["omnistat.collectors"].getboolean(
-#            "enable_cu_occupancy", False
-#        )
-#        self.runtimeConfig["collector_power_capping"] = config["omnistat.collectors"].getboolean(
-#            "enable_power_cap", False
-#        )
-#        self.runtimeConfig["collector_vcn"] = config["omnistat.collectors"].getboolean("enable_vcn", False)
+        # self.runtimeConfig["collector_enable_amd_smi_process"] = config["omnistat.collectors"].getboolean(
+        #     "enable_amd_smi_process", False
+        # )
+    #     self.runtimeConfig["collector_enable_events"] = config["omnistat.collectors"].getboolean("enable_events", False)
+    #    self.runtimeConfig["collector_port"] = config["omnistat.collectors"].get("port", 8001)
+    #    self.runtimeConfig["collector_rocm_path"] = config["omnistat.collectors"].get("rocm_path", "/opt/rocm")
+    #    self.runtimeConfig["collector_ras_ecc"] = config["omnistat.collectors"].getboolean("enable_ras_ecc", True)
+    #    self.runtimeConfig["collector_cu_occupancy"] = config["omnistat.collectors"].getboolean(
+    #        "enable_cu_occupancy", False
+    #    )
+    #    self.runtimeConfig["collector_power_capping"] = config["omnistat.collectors"].getboolean(
+    #        "enable_power_cap", False
+    #    )
+    #    self.runtimeConfig["collector_vcn"] = config["omnistat.collectors"].getboolean("enable_vcn", False)
 
-        self.runtimeConfig["collector_enable_rocprofiler"] = config["omnistat.collectors"].getboolean(
-            "enable_rocprofiler", False
-        )
+        # self.runtimeConfig["collector_enable_rocprofiler"] = config["omnistat.collectors"].getboolean(
+        #     "enable_rocprofiler", False
+        # )
 
         allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
         # convert comma-separated string into list
@@ -132,10 +132,10 @@ class Monitor:
         self.runtimeConfig["kmsg_min_severity"] = "ERROR"
         self.runtimeConfig["kmsg_include_existing"] = False
 
-        if config.has_section("omnistat.collectors.contrib"):
-            self.runtimeConfig["collector_contrib_enable_kmsg"] = config["omnistat.collectors.contrib"].getboolean(
-                "enable_kmsg", False
-            )
+        # if config.has_section("omnistat.collectors.contrib"):
+        #     self.runtimeConfig["collector_contrib_enable_kmsg"] = config["omnistat.collectors.contrib"].getboolean(
+        #         "enable_kmsg", False
+        #     )
 
         if config.has_section("omnistat.collectors.contrib.kmsg"):
             self.runtimeConfig["kmsg_min_severity"] = config["omnistat.collectors.contrib.kmsg"].get(
