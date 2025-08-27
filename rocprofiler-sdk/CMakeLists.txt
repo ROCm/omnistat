@@ -16,4 +16,4 @@ nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp)
 target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk)
 
 # Install the module to location within the Python package
-install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat/rocprofiler)
+install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)

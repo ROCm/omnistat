@@ -45,8 +45,10 @@ import sys
 
 from prometheus_client import Gauge, generate_latest
 
-import omnistat.rocprofiler
 from omnistat.collector_base import Collector
+from omnistat.rocprofiler_sdk_extension import get_samplers, initialize
+
+initialize()
 
 
 class rocprofiler_sdk(Collector):
@@ -68,7 +70,7 @@ class rocprofiler_sdk(Collector):
             counters = [counters]
 
         self.__names = []
-        self.__samplers = omnistat.rocprofiler.get_samplers()
+        self.__samplers = get_samplers()
         self.__metric = None
 
         # Assign sets of counters to each sampler, cycling through counters if
