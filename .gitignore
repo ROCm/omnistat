@@ -10,5 +10,6 @@ docker/data/*
 docker/prometheus-data/
 !docker/data/README.md
 omnistat.egg-info/
+omnistat/*.so
 test/slurm-job-user.sh
 grafana/json-models/user/
