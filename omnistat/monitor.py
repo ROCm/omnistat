@@ -87,17 +87,17 @@ class Monitor:
         # self.runtimeConfig["collector_enable_amd_smi_process"] = config["omnistat.collectors"].getboolean(
         #     "enable_amd_smi_process", False
         # )
-    #     self.runtimeConfig["collector_enable_events"] = config["omnistat.collectors"].getboolean("enable_events", False)
-    #    self.runtimeConfig["collector_port"] = config["omnistat.collectors"].get("port", 8001)
-    #    self.runtimeConfig["collector_rocm_path"] = config["omnistat.collectors"].get("rocm_path", "/opt/rocm")
-    #    self.runtimeConfig["collector_ras_ecc"] = config["omnistat.collectors"].getboolean("enable_ras_ecc", True)
-    #    self.runtimeConfig["collector_cu_occupancy"] = config["omnistat.collectors"].getboolean(
-    #        "enable_cu_occupancy", False
-    #    )
-    #    self.runtimeConfig["collector_power_capping"] = config["omnistat.collectors"].getboolean(
-    #        "enable_power_cap", False
-    #    )
-    #    self.runtimeConfig["collector_vcn"] = config["omnistat.collectors"].getboolean("enable_vcn", False)
+        #     self.runtimeConfig["collector_enable_events"] = config["omnistat.collectors"].getboolean("enable_events", False)
+        #    self.runtimeConfig["collector_port"] = config["omnistat.collectors"].get("port", 8001)
+        #    self.runtimeConfig["collector_rocm_path"] = config["omnistat.collectors"].get("rocm_path", "/opt/rocm")
+        #    self.runtimeConfig["collector_ras_ecc"] = config["omnistat.collectors"].getboolean("enable_ras_ecc", True)
+        #    self.runtimeConfig["collector_cu_occupancy"] = config["omnistat.collectors"].getboolean(
+        #        "enable_cu_occupancy", False
+        #    )
+        #    self.runtimeConfig["collector_power_capping"] = config["omnistat.collectors"].getboolean(
+        #        "enable_power_cap", False
+        #    )
+        #    self.runtimeConfig["collector_vcn"] = config["omnistat.collectors"].getboolean("enable_vcn", False)
 
         # self.runtimeConfig["collector_enable_rocprofiler"] = config["omnistat.collectors"].getboolean(
         #     "enable_rocprofiler", False
@@ -110,17 +110,17 @@ class Monitor:
 
         # additional RMS collector controls
         if self.runtimeConfig["collector_enable_rms"] == True:
-#            self.jobDetection = {}
-#            self.runtimeConfig["rms_collector_annotations"] = config["omnistat.collectors.rms"].getboolean(
-#                "enable_annotations", False
-#            )
-#            self.jobDetection["mode"] = config["omnistat.collectors.rms"].get("job_detection_mode", "file-based")
-#            self.jobDetection["file"] = config["omnistat.collectors.rms"].get(
-#                "job_detection_file", "/tmp/omni_rmsjobinfo"
-#            )
-#            self.jobDetection["stepfile"] = config["omnistat.collectors.rms"].get(
-#                "step_detection_file", "/tmp/omni_rmsjobinfo_step"
-#            )
+            #            self.jobDetection = {}
+            #            self.runtimeConfig["rms_collector_annotations"] = config["omnistat.collectors.rms"].getboolean(
+            #                "enable_annotations", False
+            #            )
+            #            self.jobDetection["mode"] = config["omnistat.collectors.rms"].get("job_detection_mode", "file-based")
+            #            self.jobDetection["file"] = config["omnistat.collectors.rms"].get(
+            #                "job_detection_file", "/tmp/omni_rmsjobinfo"
+            #            )
+            #            self.jobDetection["stepfile"] = config["omnistat.collectors.rms"].get(
+            #                "step_detection_file", "/tmp/omni_rmsjobinfo_step"
+            #            )
             if config.has_option("omnistat.collectors.rms", "host_skip"):
                 self.runtimeConfig["rms_collector_host_skip"] = config["omnistat.collectors.rms"]["host_skip"]
 
@@ -164,7 +164,7 @@ class Monitor:
 
         logging.debug("Completed collector initialization (base class)")
         return
-    
+
     def initMetrics2(self):
         for collector in COLLECTORS:
 
