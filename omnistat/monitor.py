@@ -37,10 +37,10 @@ import re
 import sys
 from pathlib import Path
 
-from omnistat.collector_definitions import COLLECTORS
 from prometheus_client import CollectorRegistry, generate_latest
 
 from omnistat import utils
+from omnistat.collector_definitions import COLLECTORS
 
 
 class Monitor:
