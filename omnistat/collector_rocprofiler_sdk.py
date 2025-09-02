@@ -48,11 +48,13 @@ from prometheus_client import Gauge, generate_latest
 from omnistat.collector_base import Collector
 from omnistat.rocprofiler_sdk_extension import get_samplers, initialize
 
+STRATEGIES = ["gpu-id", "periodic"]
+
 initialize()
 
 
 class rocprofiler_sdk(Collector):
-    def __init__(self, counters='[["GRBM_COUNT"]]'):
+    def __init__(self, counters='[["GRBM_COUNT"]]', strategy="gpu-id"):
         logging.debug("Initializing rocprofiler_sdk collector")
 
         try:
@@ -69,25 +71,58 @@ class rocprofiler_sdk(Collector):
         if not all(isinstance(i, list) for i in counters):
             counters = [counters]
 
-        self.__names = []
+        if strategy not in STRATEGIES:
+            logging.error(f"ERROR: Invalid distribution strategy: {strategy}")
+            sys.exit(4)
+
         self.__samplers = get_samplers()
         self.__metric = None
 
-        # Assign sets of counters to each sampler, cycling through counters if
-        # there are more samplers than sets of counters.
-        for i in range(len(self.__samplers)):
-            self.__names.append(counters[i % len(counters)])
-
-        try:
-            for i, sampler in enumerate(self.__samplers):
-                sampler.start(self.__names[i])
-        except Exception as e:
-            logging.error(f"ERROR: {e}")
-            sys.exit(4)
-
         logging.info(f"--> rocprofiler-sdk: number of GPUs = {len(self.__samplers)}")
-        for i, names in enumerate(self.__names):
-            logging.info(f"--> rocprofiler-sdk: GPU ID {i} counter names = {names}")
+        logging.info(f"--> rocprofiler-sdk: distribution strategy = {strategy}")
+
+        if strategy == "gpu-id":
+            self.__update_method = self.updateMetricsConstant
+
+            # Distribute a set of counters to each sampler, cycling through
+            # counters if there are more samplers than sets of counters.
+            self.__names = []
+            for i in range(len(self.__samplers)):
+                self.__names.append(counters[i % len(counters)])
+
+            try:
+                for i, sampler in enumerate(self.__samplers):
+                    sampler.start(self.__names[i])
+            except Exception as e:
+                logging.error(f"ERROR: {e}")
+                sys.exit(4)
+
+            for i, names in enumerate(self.__names):
+                logging.info(f"--> rocprofiler-sdk: GPU ID {i} counter names = {names}")
+
+        elif strategy == "periodic":
+            self.__update_method = self.updateMetricsPeriodic
+
+            # All GPUs track all counters, and we keep track of the active
+            # counter set with __current_set.
+            self.__names = counters
+            self.__current_set = 0
+
+            try:
+                # Start all available profiles so they are cached during
+                # initialization and sampling remains more stable afterwards.
+                for i in range(len(self.__names)):
+                    for sampler in self.__samplers:
+                        sampler.start(self.__names[i])
+                        sampler.stop()
+
+                for sampler in self.__samplers:
+                    sampler.start(self.__names[self.__current_set])
+            except Exception as e:
+                logging.error(f"ERROR: {e}")
+                sys.exit(4)
+
+            logging.info(f"--> rocprofiler-sdk: counter names = {self.__names}")
 
     def registerMetrics(self):
         metric_name = f"omnistat_gpu_performance_counter"
@@ -95,8 +130,29 @@ class rocprofiler_sdk(Collector):
         logging.info("--> [registered] %s (gauge)" % (metric_name))
 
     def updateMetrics(self):
+        self.__update_method()
+
+    def updateMetricsConstant(self):
         for i, sampler in enumerate(self.__samplers):
             values = sampler.sample()
             for j, name in enumerate(self.__names[i]):
                 self.__metric.labels(card=i, name=name).set(values[j])
+        return
+
+    def updateMetricsPeriodic(self):
+        for i, sampler in enumerate(self.__samplers):
+            values = sampler.sample()
+            for j, name in enumerate(self.__names[self.__current_set]):
+                self.__metric.labels(card=i, name=name).set(values[j])
+
+        self.__current_set = (self.__current_set + 1) % len(self.__names)
+
+        try:
+            for _, sampler in enumerate(self.__samplers):
+                sampler.stop()
+                sampler.start(self.__names[self.__current_set])
+        except Exception as e:
+            logging.error(f"ERROR: {e}")
+            sys.exit(4)
+
         return

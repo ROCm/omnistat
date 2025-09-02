@@ -129,9 +129,14 @@ class Monitor:
         if config.has_option("omnistat.collectors.rocprofiler", "metrics"):
             self.runtimeConfig["rocprofiler_metrics"] = config["omnistat.collectors.rocprofiler"]["metrics"].split(",")
 
-        self.runtimeConfig["rocprofiler_sdk_counters"] = '[["GRBM_COUNT"]]'
-        if config.has_option("omnistat.collectors.rocprofiler_sdk", "counters"):
-            self.runtimeConfig["rocprofiler_sdk_counters"] = config["omnistat.collectors.rocprofiler_sdk"]["counters"]
+        default_counters = '[["GRBM_COUNT"]]'
+        default_strategy = "gpu-id"
+        self.runtimeConfig["rocprofiler_sdk_counters"] = default_counters
+        self.runtimeConfig["rocprofiler_sdk_strategy"] = default_strategy
+        if config.has_section("omnistat.collectors.rocprofiler_sdk"):
+            section = config["omnistat.collectors.rocprofiler_sdk"]
+            self.runtimeConfig["rocprofiler_sdk_counters"] = section.get("counters", default_counters)
+            self.runtimeConfig["rocprofiler_sdk_strategy"] = section.get("distribution_strategy", default_strategy)
 
         self.runtimeConfig["collector_contrib_enable_kmsg"] = False
         self.runtimeConfig["kmsg_min_severity"] = "ERROR"
@@ -218,7 +223,11 @@ class Monitor:
         if self.runtimeConfig["collector_enable_rocprofiler_sdk"]:
             from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
 
-            self.__collectors.append(rocprofiler_sdk(self.runtimeConfig["rocprofiler_sdk_counters"]))
+            self.__collectors.append(
+                rocprofiler_sdk(
+                    self.runtimeConfig["rocprofiler_sdk_counters"], self.runtimeConfig["rocprofiler_sdk_strategy"]
+                )
+            )
 
         if self.runtimeConfig["collector_contrib_enable_kmsg"]:
             from omnistat.contrib.collector_kmsg import KmsgCollector
