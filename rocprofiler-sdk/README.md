@@ -32,7 +32,7 @@ BUILD_ROCPROFILER_SDK_EXTENSION=1 ~/venv/omnistat/bin/python -m pip install .
 For development or custom builds:
 ```bash
 # Install build dependencies
-pip install cmake-build-extension cmake nanobind
+pip install nanobind
 
 # Build and install in place
 cmake -S rocprofiler-sdk/ -B build/
@@ -43,7 +43,7 @@ cmake --install build/ --prefix .
 With a **`venv`** virtual environment:
 ```bash
 python3 -m venv ~/venv/omnistat
-~/venv/omnistat/bin/pip install cmake-build-extension cmake nanobind
+~/venv/omnistat/bin/pip install nanobind
 cmake -S rocprofiler-sdk/ -B build/ -DPython_EXECUTABLE=~/venv/omnistat/bin/python
 cmake --build build/
 cmake --install build/ --prefix .
