@@ -46,7 +46,12 @@ import sys
 from prometheus_client import Gauge, generate_latest
 
 from omnistat.collector_base import Collector
-from omnistat.rocprofiler_sdk_extension import get_samplers, initialize
+
+try:
+    from omnistat.rocprofiler_sdk_extension import get_samplers, initialize
+except ModuleNotFoundError as e:
+    logging.error(f"Missing ROCProfiler-SDK extension: build with installation required")
+    sys.exit(4)
 
 STRATEGIES = ["gpu-id", "periodic"]
 
