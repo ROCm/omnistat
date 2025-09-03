@@ -4,4 +4,5 @@ Flask>=2.3.2
 prometheus_client>=0.17.0
 gunicorn>=21.2.0
 packaging>=24.1
+requests
 setuptools-git-versioning>=2.0,<3
