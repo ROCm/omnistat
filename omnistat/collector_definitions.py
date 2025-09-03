@@ -50,7 +50,7 @@ COLLECTORS = [
     },
     {
         "runtime_option": "events",
-        "enabled_by_default": True,
+        "enabled_by_default": False,
         "file": "omnistat.collector_events",
         "className": "ROCMEvents",
     },
@@ -62,7 +62,7 @@ COLLECTORS = [
     },
     {
         "runtime_option": "kmsg",
-        "enabled_by_default": True,
+        "enabled_by_default": False,
         "file": "omnistat.contrib.collector_kmsg",
         "className": "KmsgCollector",
     },
