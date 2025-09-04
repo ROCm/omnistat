@@ -7,7 +7,7 @@ hardware counters from AMD GPUs directly in Python applications.
 ## Requirements
 
 - ROCm 6.4+ with ROCProfiler-SDK
-- Python 3.8+
+- Python 3.8+ with development headers
 - CMake
 - [cmake-build-extension](https://github.com/diegoferigo/cmake-build-extension)
 - [nanobind](https://github.com/wjakob/nanobind)
