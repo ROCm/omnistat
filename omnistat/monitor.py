@@ -60,29 +60,22 @@ class Monitor:
         else:
             logging.basicConfig(format="%(message)s", level=logLevel, stream=sys.stdout)
 
+        self.enforce_global_runtime_constraints(config)
         self.runtimeConfig = {}
 
-        self.runtimeConfig["collector_enable_rocm_smi"] = config["omnistat.collectors"].getboolean(
-            "enable_rocm_smi", True
-        )
+        # self.runtimeConfig["collector_enable_rocm_smi"] = config["omnistat.collectors"].getboolean(
+        #     "enable_rocm_smi", True
+        # )
         self.runtimeConfig["collector_enable_rms"] = config["omnistat.collectors"].getboolean("enable_rms", False)
-        self.runtimeConfig["collector_enable_amd_smi"] = config["omnistat.collectors"].getboolean(
-            "enable_amd_smi", False
-        )
+        # self.runtimeConfig["collector_enable_amd_smi"] = config["omnistat.collectors"].getboolean(
+        #     "enable_amd_smi", False
+        # )
         # self.runtimeConfig["collector_enable_network"] = config["omnistat.collectors"].getboolean(
         #     "enable_network", True
         # )
         # self.runtimeConfig["collector_enable_vendor_counters"] = config["omnistat.collectors"].getboolean(
         #     "enable_vendor_counters", False
         # )
-
-        # verify only one SMI collector is enabled
-        if self.runtimeConfig["collector_enable_rocm_smi"] and self.runtimeConfig["collector_enable_amd_smi"]:
-            logging.error("")
-            logging.error("[ERROR]: Only one SMI GPU data collector may be configured at a time.")
-            logging.error("")
-            logging.error('Please choose either "enable_rocm_smi" or "enable_amd_smi" in runtime config')
-            sys.exit(1)
 
         # self.runtimeConfig["collector_enable_amd_smi_process"] = config["omnistat.collectors"].getboolean(
         #     "enable_amd_smi_process", False
@@ -164,6 +157,18 @@ class Monitor:
 
         logging.debug("Completed collector initialization (base class)")
         return
+
+    def enforce_global_runtime_constraints(self, runtimeConfig):
+        # verify only one SMI collector is enabled
+        enable_rocm_smi = runtimeConfig["omnistat.collectors"].getboolean("enable_rocm_smi", True)
+        enable_amd_smi = runtimeConfig["omnistat.collectors"].getboolean("enable_amd_smi", True)
+
+        if enable_rocm_smi and enable_amd_smi:
+            logging.error("")
+            logging.error("[ERROR]: Only one SMI GPU data collector may be configured at a time.")
+            logging.error("")
+            logging.error('Please choose either "enable_rocm_smi" or "enable_amd_smi" in runtime config')
+            sys.exit(1)
 
     def initMetrics2(self):
         for collector in COLLECTORS:
