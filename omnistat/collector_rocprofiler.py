@@ -68,8 +68,14 @@ class rocprofiler_session_id_t(ctypes.Structure):
 
 
 class rocprofiler(Collector):
-    def __init__(self, rocm_path, metric_names):
+    def initialize(self, config):
         logging.debug("Initializing rocprofiler data collector")
+
+        metric_names = None
+        rocm_path = config["omnistat.collectors"].get("rocm_path", "/opt/rocm")
+
+        if config.has_option("omnistat.collectors.rocprofiler", "metrics"):
+            metric_names = config["omnistat.collectors.rocprofiler"]["metrics"].split(",")
 
         if metric_names == None or len(metric_names) == 0:
             logging.error("ERROR: Unexpected list of metrics.")
@@ -133,6 +139,13 @@ class rocprofiler(Collector):
         logging.info("--> rocprofiler initialized")
 
     def registerMetrics(self, config):
+        """Register metrics of interest
+
+        Args:
+            config (configparser.ConfigParser): Runtime configuration
+        """
+        self.initialize(config)
+
         metric_name = f"omnistat_rocprofiler"
         self.__metric = Gauge(metric_name, "Performance counter data from rocprofiler", labelnames=["card", "counter"])
         logging.info("--> [registered] %s (gauge)" % (metric_name))
