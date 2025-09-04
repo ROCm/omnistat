@@ -568,4 +568,12 @@ class HelpFormatterWide(argparse.HelpFormatter):
         super().__init__(prog, max_help_position=40)
 
 
-#        super().__init__(prog, max_help_position=40, width=120)
+# custom PrefixFilter to prepend string to log messages
+class PrefixFilter(logging.Filter):
+    def __init__(self, prefix):
+        super().__init__()
+        self.prefix = prefix
+
+    def filter(self, record):
+        record.msg = f"{self.prefix}{record.msg}"
+        return True
