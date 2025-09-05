@@ -47,6 +47,7 @@ class Monitor:
     def __init__(self, config, logFile=None):
 
         self.config = config  # cache runtime configuration
+        self.runtimeConfig = {}
 
         logLevel = os.environ.get("OMNISTAT_LOG_LEVEL", "INFO").upper()
         if logFile:
@@ -67,7 +68,6 @@ class Monitor:
         self.runtimeConfig["collector_allowed_ips"] = re.split(r",\s*", allowed_ips)
         logging.info("Allowed query IPs = %s" % self.runtimeConfig["collector_allowed_ips"])
 
-        self.runtimeConfig = {}
         self.runtimeConfig["collector_contrib_enable_kmsg"] = False
         self.runtimeConfig["kmsg_min_severity"] = "ERROR"
         self.runtimeConfig["kmsg_include_existing"] = False
