@@ -46,11 +46,17 @@ class KmsgSeverity(IntEnum):
 
 
 class KmsgCollector(Collector):
-    def __init__(self, min_severity="ERROR", include_existing=False):
+    def initialize(self, config):
         logging.debug("Initializing kmsg collector")
         self.__name = "omnistat_num_driver_messages"
         self.__metric = None
         self.__kmsg = None
+
+        include_existing = config.getboolean("omnistat.collectors.contrib.kmsg", "include_existing", fallback=False)
+        min_severity = KmsgSeverity[config.get("omnistat.collectors.contrib.kmsg", "min_severity", fallback="ERROR")]
+
+        min_severity = "ERROR"
+        include_existing = False
 
         # Lower case keywords to identify AMD GPU related kernel messages.
         keywords = ["amdgpu"]
@@ -69,17 +75,14 @@ class KmsgCollector(Collector):
         severities = [s.name for s in KmsgSeverity if s.value <= self.__severity_threshold]
         logging.info(f"--> kmsg: report {include} messages with these severities: {', '.join(severities)}")
 
-    def parseRuntimeConfig(self, config):
-        self.__include_existing = config.getboolean(
-            "omnistat.collectors.contrib.kmsg", "include_existing", fallback=False
-        )
-        self.__severity_threshold = KmsgSeverity[
-            config.get("omnistat.collectors.contrib.kmsg", "min_severity", fallback="ERROR")
-        ]
-
     def registerMetrics(self, config):
+        """Register metrics of interest
 
-        self.parseRuntimeConfig(config)
+        Args:
+            config (configparser.ConfigParser): Runtime configuration
+        """
+
+        self.initialize(config)
 
         description = "Number of driver messages in the kernel log buffer"
         self.__metric = Gauge(self.__name, description, labelnames=["driver", "severity"])
