@@ -47,7 +47,6 @@ class Monitor:
     def __init__(self, config, logFile=None):
 
         self.config = config  # cache runtime configuration
-        self.runtimeConfig = {}
 
         logLevel = os.environ.get("OMNISTAT_LOG_LEVEL", "INFO").upper()
         if logFile:
@@ -65,8 +64,8 @@ class Monitor:
 
         allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
         # convert comma-separated string into list
-        self.runtimeConfig["collector_allowed_ips"] = re.split(r",\s*", allowed_ips)
-        logging.info("Allowed query IPs = %s" % self.runtimeConfig["collector_allowed_ips"])
+        allowed_ips = re.split(r",\s*", allowed_ips)
+        logging.info("Allowed query IPs = %s" % allowed_ips)
 
         # defined global prometheus metrics
         self.__globalMetrics = {}
