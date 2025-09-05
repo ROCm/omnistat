@@ -1198,6 +1198,11 @@ class QueryMetrics:
                 ["omnistat_vendor_accel_energy_joules", " omnistat_vendor_accel_power_watts"],
                 ["instance", "accel", "vendor"],
             ),
+            (
+                "rocprofilersdk",
+                ["omnistat_gpu_performance_counter"],
+                ["instance", "card", "name"],
+            ),
         ]
 
         for name, metrics, labels in exports:

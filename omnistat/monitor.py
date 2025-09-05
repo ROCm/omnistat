@@ -100,6 +100,10 @@ class Monitor:
             "enable_rocprofiler", False
         )
 
+        self.runtimeConfig["collector_enable_rocprofiler_sdk"] = config["omnistat.collectors"].getboolean(
+            "enable_rocprofiler_sdk", False
+        )
+
         allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
         # convert comma-separated string into list
         self.runtimeConfig["collector_allowed_ips"] = re.split(r",\s*", allowed_ips)
@@ -124,6 +128,15 @@ class Monitor:
         self.runtimeConfig["rocprofiler_metrics"] = []
         if config.has_option("omnistat.collectors.rocprofiler", "metrics"):
             self.runtimeConfig["rocprofiler_metrics"] = config["omnistat.collectors.rocprofiler"]["metrics"].split(",")
+
+        default_counters = '[["GRBM_COUNT"]]'
+        default_strategy = "gpu-id"
+        self.runtimeConfig["rocprofiler_sdk_counters"] = default_counters
+        self.runtimeConfig["rocprofiler_sdk_strategy"] = default_strategy
+        if config.has_section("omnistat.collectors.rocprofiler_sdk"):
+            section = config["omnistat.collectors.rocprofiler_sdk"]
+            self.runtimeConfig["rocprofiler_sdk_counters"] = section.get("counters", default_counters)
+            self.runtimeConfig["rocprofiler_sdk_strategy"] = section.get("distribution_strategy", default_strategy)
 
         self.runtimeConfig["collector_contrib_enable_kmsg"] = False
         self.runtimeConfig["kmsg_min_severity"] = "ERROR"
@@ -205,6 +218,15 @@ class Monitor:
 
             self.__collectors.append(
                 rocprofiler(self.runtimeConfig["collector_rocm_path"], self.runtimeConfig["rocprofiler_metrics"])
+            )
+
+        if self.runtimeConfig["collector_enable_rocprofiler_sdk"]:
+            from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+            self.__collectors.append(
+                rocprofiler_sdk(
+                    self.runtimeConfig["rocprofiler_sdk_counters"], self.runtimeConfig["rocprofiler_sdk_strategy"]
+                )
             )
 
         if self.runtimeConfig["collector_contrib_enable_kmsg"]:
