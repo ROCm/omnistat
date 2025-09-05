@@ -38,7 +38,7 @@ COLLECTORS = [
     },
     {
         "runtime_option": "enable_rms",
-        "enabled_by_default": True,
+        "enabled_by_default": False,
         "file": "omnistat.collector_rms",
         "className": "RMSJob",
     },
