@@ -68,23 +68,11 @@ class Monitor:
         self.runtimeConfig["collector_allowed_ips"] = re.split(r",\s*", allowed_ips)
         logging.info("Allowed query IPs = %s" % self.runtimeConfig["collector_allowed_ips"])
 
-        self.runtimeConfig["collector_contrib_enable_kmsg"] = False
-        self.runtimeConfig["kmsg_min_severity"] = "ERROR"
-        self.runtimeConfig["kmsg_include_existing"] = False
-
-        if config.has_section("omnistat.collectors.contrib.kmsg"):
-            self.runtimeConfig["kmsg_min_severity"] = config["omnistat.collectors.contrib.kmsg"].get(
-                "min_severity", "ERROR"
-            )
-            self.runtimeConfig["kmsg_include_existing"] = config["omnistat.collectors.contrib.kmsg"].getboolean(
-                "include_existing_messages", False
-            )
-
         # defined global prometheus metrics
         self.__globalMetrics = {}
         self.__registry_global = CollectorRegistry()
 
-        # define desired data collectors
+        # initialize collection of data collectors
         self.__collectors = []
 
         logging.debug("Completed collector initialization (base class)")
@@ -113,7 +101,7 @@ class Monitor:
                     self.config["omnistat.collectors"]["enable_rms"] = "False"
                     logging.info("Disabling RMS collector via host_skip match (%s)" % host_skip)
 
-    def initMetrics2(self):
+    def initMetrics(self):
         for collector in COLLECTORS:
 
             runtime_option = collector["runtime_option"]
@@ -131,67 +119,6 @@ class Monitor:
             logging.getLogger().addFilter(prefix_filter)
             collector.registerMetrics(self.config)
             logging.getLogger().removeFilter(prefix_filter)
-
-        # Gather metrics on startup
-        for collector in self.__collectors:
-            collector.updateMetrics()
-
-    def initMetrics(self):
-
-        if self.runtimeConfig["collector_enable_vendor_counters"]:
-            from omnistat.collector_pm_counters import PM_COUNTERS
-
-            self.__collectors.append(PM_COUNTERS())
-
-        if self.runtimeConfig["collector_enable_network"]:
-            from omnistat.collector_network import NETWORK
-
-            self.__collectors.append(NETWORK())
-
-        if self.runtimeConfig["collector_enable_rocm_smi"]:
-            from omnistat.collector_smi import ROCMSMI
-
-            self.__collectors.append(ROCMSMI(runtimeConfig=self.runtimeConfig))
-        if self.runtimeConfig["collector_enable_amd_smi"]:
-            from omnistat.collector_smi_v2 import AMDSMI
-
-            self.__collectors.append(AMDSMI(runtimeConfig=self.runtimeConfig))
-        if self.runtimeConfig["collector_enable_amd_smi_process"]:
-            from omnistat.collector_smi_process import AMDSMIProcess
-
-            self.__collectors.append(AMDSMIProcess())
-        if self.runtimeConfig["collector_enable_rms"]:
-            from omnistat.collector_rms import RMSJob
-
-            self.__collectors.append(
-                RMSJob(
-                    annotations=self.runtimeConfig["rms_collector_annotations"],
-                    jobDetection=self.jobDetection,
-                )
-            )
-        if self.runtimeConfig["collector_enable_events"]:
-            from omnistat.collector_events import ROCMEvents
-
-            self.__collectors.append(ROCMEvents())
-
-        if self.runtimeConfig["collector_enable_rocprofiler"]:
-            from omnistat.collector_rocprofiler import rocprofiler
-
-            self.__collectors.append(
-                rocprofiler(self.runtimeConfig["collector_rocm_path"], self.runtimeConfig["rocprofiler_metrics"])
-            )
-
-        if self.runtimeConfig["collector_contrib_enable_kmsg"]:
-            from omnistat.contrib.collector_kmsg import KmsgCollector
-
-            min_severity = self.runtimeConfig["kmsg_min_severity"]
-            include_existing = self.runtimeConfig["kmsg_include_existing"]
-            self.__collectors.append(KmsgCollector(min_severity=min_severity, include_existing=include_existing))
-
-        # Initialize all metrics
-        for collector in self.__collectors:
-            logging.debug("\nRegistering metrics for collector: %s\n" % collector.__class__.__name__)
-            collector.registerMetrics(self.config)
 
         # Gather metrics on startup
         for collector in self.__collectors:
