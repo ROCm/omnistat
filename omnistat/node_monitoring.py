@@ -92,8 +92,7 @@ def main():
     # Initialize application in the worker after it has been forked to
     # preserve the state of the collectors.
     def post_fork(server, worker):
-        monitor.initMetrics2()
-        # monitor.initMetrics()
+        monitor.initMetrics()
         app.route("/metrics")(lambda: (monitor.updateAllMetrics(), {"Content-Type": "text/plain; charset=utf-8"}))
         app.route("/shutdown")(shutdown)
 
