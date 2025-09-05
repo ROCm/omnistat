@@ -34,8 +34,12 @@ from abc import ABC, abstractmethod
 class Collector(ABC):
     # Required methods to be implemented by child classes
     @abstractmethod
-    def registerMetrics(self):
-        """Defines desired metrics to monitor with Prometheus. Called once during initialization."""
+    def registerMetrics(self, runtimeConfig):
+        """Defines desired metrics to monitor with Omnistat data collector. Called once during initialization.
+
+        Args:
+            runtimeConfig (configparser.ConfigParser): Cached copy of runtime configuration.
+        """
         pass
 
     @abstractmethod

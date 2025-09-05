@@ -40,12 +40,15 @@ from pathlib import Path
 from prometheus_client import CollectorRegistry, generate_latest
 
 from omnistat import utils
+from omnistat.collector_definitions import COLLECTORS
 
 
 class Monitor:
     def __init__(self, config, logFile=None):
-        logLevel = os.environ.get("OMNISTAT_LOG_LEVEL", "INFO").upper()
 
+        self.config = config  # cache runtime configuration
+
+        logLevel = os.environ.get("OMNISTAT_LOG_LEVEL", "INFO").upper()
         if logFile:
             hostname = platform.node().split(".", 1)[0]
             logging.basicConfig(
@@ -57,166 +60,63 @@ class Monitor:
         else:
             logging.basicConfig(format="%(message)s", level=logLevel, stream=sys.stdout)
 
-        self.runtimeConfig = {}
+        self.enforce_global_runtime_constraints()
 
-        self.runtimeConfig["collector_enable_rocm_smi"] = config["omnistat.collectors"].getboolean(
-            "enable_rocm_smi", True
-        )
-        self.runtimeConfig["collector_enable_rms"] = config["omnistat.collectors"].getboolean("enable_rms", False)
-        self.runtimeConfig["collector_enable_amd_smi"] = config["omnistat.collectors"].getboolean(
-            "enable_amd_smi", False
-        )
-        self.runtimeConfig["collector_enable_network"] = config["omnistat.collectors"].getboolean(
-            "enable_network", True
-        )
-        self.runtimeConfig["collector_enable_vendor_counters"] = config["omnistat.collectors"].getboolean(
-            "enable_vendor_counters", False
-        )
+        allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
+        allowed_ips = re.split(r",\s*", allowed_ips)
+        logging.info("Allowed query IPs = %s" % allowed_ips)
+
+        # defined global prometheus metrics
+        self.__globalMetrics = {}
+        self.__registry_global = CollectorRegistry()
+
+        # initialize collection of data collectors
+        self.__collectors = []
+
+        logging.debug("Completed collector initialization (base class)")
+        return
+
+    def enforce_global_runtime_constraints(self):
 
         # verify only one SMI collector is enabled
-        if self.runtimeConfig["collector_enable_rocm_smi"] and self.runtimeConfig["collector_enable_amd_smi"]:
+        enable_rocm_smi = self.config["omnistat.collectors"].getboolean("enable_rocm_smi", True)
+        enable_amd_smi = self.config["omnistat.collectors"].getboolean("enable_amd_smi", True)
+
+        if enable_rocm_smi and enable_amd_smi:
             logging.error("")
             logging.error("[ERROR]: Only one SMI GPU data collector may be configured at a time.")
             logging.error("")
             logging.error('Please choose either "enable_rocm_smi" or "enable_amd_smi" in runtime config')
             sys.exit(1)
 
-        self.runtimeConfig["collector_enable_amd_smi_process"] = config["omnistat.collectors"].getboolean(
-            "enable_amd_smi_process", False
-        )
-        self.runtimeConfig["collector_enable_events"] = config["omnistat.collectors"].getboolean("enable_events", False)
-        self.runtimeConfig["collector_port"] = config["omnistat.collectors"].get("port", 8001)
-        self.runtimeConfig["collector_rocm_path"] = config["omnistat.collectors"].get("rocm_path", "/opt/rocm")
-        self.runtimeConfig["collector_ras_ecc"] = config["omnistat.collectors"].getboolean("enable_ras_ecc", True)
-        self.runtimeConfig["collector_cu_occupancy"] = config["omnistat.collectors"].getboolean(
-            "enable_cu_occupancy", False
-        )
-        self.runtimeConfig["collector_power_capping"] = config["omnistat.collectors"].getboolean(
-            "enable_power_cap", False
-        )
-        self.runtimeConfig["collector_vcn"] = config["omnistat.collectors"].getboolean("enable_vcn", False)
-
-        self.runtimeConfig["collector_enable_rocprofiler"] = config["omnistat.collectors"].getboolean(
-            "enable_rocprofiler", False
-        )
-
-        allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
-        # convert comma-separated string into list
-        self.runtimeConfig["collector_allowed_ips"] = re.split(r",\s*", allowed_ips)
-        logging.info("Allowed query IPs = %s" % self.runtimeConfig["collector_allowed_ips"])
-
-        # additional RMS collector controls
-        if self.runtimeConfig["collector_enable_rms"] == True:
-            self.jobDetection = {}
-            self.runtimeConfig["rms_collector_annotations"] = config["omnistat.collectors.rms"].getboolean(
-                "enable_annotations", False
-            )
-            self.jobDetection["mode"] = config["omnistat.collectors.rms"].get("job_detection_mode", "file-based")
-            self.jobDetection["file"] = config["omnistat.collectors.rms"].get(
-                "job_detection_file", "/tmp/omni_rmsjobinfo"
-            )
-            self.jobDetection["stepfile"] = config["omnistat.collectors.rms"].get(
-                "step_detection_file", "/tmp/omni_rmsjobinfo_step"
-            )
-            if config.has_option("omnistat.collectors.rms", "host_skip"):
-                self.runtimeConfig["rms_collector_host_skip"] = config["omnistat.collectors.rms"]["host_skip"]
-
-        self.runtimeConfig["rocprofiler_metrics"] = []
-        if config.has_option("omnistat.collectors.rocprofiler", "metrics"):
-            self.runtimeConfig["rocprofiler_metrics"] = config["omnistat.collectors.rocprofiler"]["metrics"].split(",")
-
-        self.runtimeConfig["collector_contrib_enable_kmsg"] = False
-        self.runtimeConfig["kmsg_min_severity"] = "ERROR"
-        self.runtimeConfig["kmsg_include_existing"] = False
-
-        if config.has_section("omnistat.collectors.contrib"):
-            self.runtimeConfig["collector_contrib_enable_kmsg"] = config["omnistat.collectors.contrib"].getboolean(
-                "enable_kmsg", False
-            )
-
-        if config.has_section("omnistat.collectors.contrib.kmsg"):
-            self.runtimeConfig["kmsg_min_severity"] = config["omnistat.collectors.contrib.kmsg"].get(
-                "min_severity", "ERROR"
-            )
-            self.runtimeConfig["kmsg_include_existing"] = config["omnistat.collectors.contrib.kmsg"].getboolean(
-                "include_existing_messages", False
-            )
-
-        # defined global prometheus metrics
-        self.__globalMetrics = {}
-        self.__registry_global = CollectorRegistry()
-
-        # define desired collectors
-        self.__collectors = []
-
-        # allow for disablement of resource manager data collector via regex match
-        if self.runtimeConfig["collector_enable_rms"]:
-            if config.has_option("omnistat.collectors.rms", "host_skip"):
-                host_skip = utils.removeQuotes(config["omnistat.collectors.rms"]["host_skip"])
+        # check for host exemption for RMS collector
+        if self.config["omnistat.collectors"].getboolean("enable_rms", False):
+            if self.config.has_option("omnistat.collectors.rms", "host_skip"):
+                host_skip = utils.removeQuotes(self.config["omnistat.collectors.rms"]["host_skip"])
                 hostname = platform.node().split(".", 1)[0]
                 p = re.compile(host_skip)
                 if p.match(hostname):
-                    self.runtimeConfig["collector_enable_rms"] = False
+                    self.config["omnistat.collectors"]["enable_rms"] = "False"
                     logging.info("Disabling RMS collector via host_skip match (%s)" % host_skip)
 
-        logging.debug("Completed collector initialization (base class)")
-        return
-
     def initMetrics(self):
+        for collector in COLLECTORS:
 
-        if self.runtimeConfig["collector_enable_vendor_counters"]:
-            from omnistat.collector_pm_counters import PM_COUNTERS
-
-            self.__collectors.append(PM_COUNTERS())
-
-        if self.runtimeConfig["collector_enable_network"]:
-            from omnistat.collector_network import NETWORK
-
-            self.__collectors.append(NETWORK())
-
-        if self.runtimeConfig["collector_enable_rocm_smi"]:
-            from omnistat.collector_smi import ROCMSMI
-
-            self.__collectors.append(ROCMSMI(runtimeConfig=self.runtimeConfig))
-        if self.runtimeConfig["collector_enable_amd_smi"]:
-            from omnistat.collector_smi_v2 import AMDSMI
-
-            self.__collectors.append(AMDSMI(runtimeConfig=self.runtimeConfig))
-        if self.runtimeConfig["collector_enable_amd_smi_process"]:
-            from omnistat.collector_smi_process import AMDSMIProcess
-
-            self.__collectors.append(AMDSMIProcess())
-        if self.runtimeConfig["collector_enable_rms"]:
-            from omnistat.collector_rms import RMSJob
-
-            self.__collectors.append(
-                RMSJob(
-                    annotations=self.runtimeConfig["rms_collector_annotations"],
-                    jobDetection=self.jobDetection,
-                )
-            )
-        if self.runtimeConfig["collector_enable_events"]:
-            from omnistat.collector_events import ROCMEvents
-
-            self.__collectors.append(ROCMEvents())
-
-        if self.runtimeConfig["collector_enable_rocprofiler"]:
-            from omnistat.collector_rocprofiler import rocprofiler
-
-            self.__collectors.append(
-                rocprofiler(self.runtimeConfig["collector_rocm_path"], self.runtimeConfig["rocprofiler_metrics"])
-            )
-
-        if self.runtimeConfig["collector_contrib_enable_kmsg"]:
-            from omnistat.contrib.collector_kmsg import KmsgCollector
-
-            min_severity = self.runtimeConfig["kmsg_min_severity"]
-            include_existing = self.runtimeConfig["kmsg_include_existing"]
-            self.__collectors.append(KmsgCollector(min_severity=min_severity, include_existing=include_existing))
+            runtime_option = collector["runtime_option"]
+            default = collector["enabled_by_default"]
+            enabled = self.config["omnistat.collectors"].getboolean(runtime_option, default)
+            if enabled:
+                module = importlib.import_module(collector["file"])
+                cls = getattr(module, collector["className"])
+                self.__collectors.append(cls())
 
         # Initialize all metrics
+        prefix_filter = utils.PrefixFilter("   ")
         for collector in self.__collectors:
-            collector.registerMetrics()
+            logging.info("\nRegistering metrics for collector: %s" % collector.__class__.__name__)
+            logging.getLogger().addFilter(prefix_filter)
+            collector.registerMetrics(self.config)
+            logging.getLogger().removeFilter(prefix_filter)
 
         # Gather metrics on startup
         for collector in self.__collectors:

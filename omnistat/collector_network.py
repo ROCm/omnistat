@@ -60,8 +60,12 @@ class NETWORK(Collector):
         self.__ib_rx_data_paths = {}
         self.__ib_tx_data_paths = {}
 
-    def registerMetrics(self):
-        """Register metrics of interest"""
+    def registerMetrics(self, config):
+        """Register metrics of interest
+
+        Args:
+            config: ConfigParser instance (not used by this collector)
+        """
 
         # Standard IP (/sys/class/net): store data paths to sysfs
         # statistics files for local NICs, indexed by interface ID. For
