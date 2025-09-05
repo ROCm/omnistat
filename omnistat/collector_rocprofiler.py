@@ -144,6 +144,7 @@ class rocprofiler(Collector):
         Args:
             config (configparser.ConfigParser): Runtime configuration
         """
+
         self.initialize(config)
 
         metric_name = f"omnistat_rocprofiler"
