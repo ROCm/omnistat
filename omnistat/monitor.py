@@ -63,7 +63,6 @@ class Monitor:
         self.enforce_global_runtime_constraints()
 
         allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
-        # convert comma-separated string into list
         allowed_ips = re.split(r",\s*", allowed_ips)
         logging.info("Allowed query IPs = %s" % allowed_ips)
 
