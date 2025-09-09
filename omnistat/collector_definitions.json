@@ -1,0 +1,54 @@
+{
+    "license": "MIT License. Copyright (c) 2025 Advanced Micro Devices, Inc. All Rights Reserved.",
+    "info": "Omnistat data collector definitions (metadata to support dynamic loading)",
+    "collectors": [
+        {
+            "runtime_option": "enable_rocm_smi",
+            "enabled_by_default": true,
+            "file": "omnistat.collector_smi",
+            "className": "ROCMSMI"
+        },
+        {
+            "runtime_option": "enable_amd_smi",
+            "enabled_by_default": false,
+            "file": "omnistat.collector_smi_v2",
+            "className": "AMDSMI"
+        },
+        {
+            "runtime_option": "enable_rms",
+            "enabled_by_default": false,
+            "file": "omnistat.collector_rms",
+            "className": "RMSJob"
+        },
+        {
+            "runtime_option": "enable_network",
+            "enabled_by_default": true,
+            "file": "omnistat.collector_network",
+            "className": "NETWORK"
+        },
+        {
+            "runtime_option": "enable_events",
+            "enabled_by_default": false,
+            "file": "omnistat.collector_events",
+            "className": "ROCMEvents"
+        },
+        {
+            "runtime_option": "enable_rocprofiler",
+            "enabled_by_default": false,
+            "file": "omnistat.collector_rocprofiler",
+            "className": "rocprofiler"
+        },
+        {
+            "runtime_option": "enable_kmsg",
+            "enabled_by_default": false,
+            "file": "omnistat.contrib.collector_kmsg",
+            "className": "KmsgCollector"
+        },
+        {
+            "runtime_option": "enable_vendor_counters",
+            "enabled_by_default": true,
+            "file": "omnistat.collector_pm_counters",
+            "className": "PM_COUNTERS"
+        }
+    ]
+}
