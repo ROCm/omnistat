@@ -6,49 +6,49 @@
             "runtime_option": "enable_rocm_smi",
             "enabled_by_default": true,
             "file": "omnistat.collector_smi",
-            "className": "ROCMSMI"
+            "class_name": "ROCMSMI"
         },
         {
             "runtime_option": "enable_amd_smi",
             "enabled_by_default": false,
             "file": "omnistat.collector_smi_v2",
-            "className": "AMDSMI"
+            "class_name": "AMDSMI"
         },
         {
             "runtime_option": "enable_rms",
             "enabled_by_default": false,
             "file": "omnistat.collector_rms",
-            "className": "RMSJob"
+            "class_name": "RMSJob"
         },
         {
             "runtime_option": "enable_network",
             "enabled_by_default": true,
             "file": "omnistat.collector_network",
-            "className": "NETWORK"
+            "class_name": "NETWORK"
         },
         {
             "runtime_option": "enable_events",
             "enabled_by_default": false,
             "file": "omnistat.collector_events",
-            "className": "ROCMEvents"
+            "class_name": "ROCMEvents"
         },
         {
             "runtime_option": "enable_rocprofiler",
             "enabled_by_default": false,
             "file": "omnistat.collector_rocprofiler",
-            "className": "rocprofiler"
+            "class_name": "rocprofiler"
         },
         {
             "runtime_option": "enable_kmsg",
             "enabled_by_default": false,
             "file": "omnistat.contrib.collector_kmsg",
-            "className": "KmsgCollector"
+            "class_name": "KmsgCollector"
         },
         {
             "runtime_option": "enable_vendor_counters",
             "enabled_by_default": true,
             "file": "omnistat.collector_pm_counters",
-            "className": "PM_COUNTERS"
+            "class_name": "PM_COUNTERS"
         }
     ]
 }
