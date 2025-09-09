@@ -30,6 +30,7 @@
 
 import configparser
 import importlib.resources
+import json
 import logging
 import os
 import platform
@@ -38,9 +39,7 @@ import sys
 from pathlib import Path
 
 from prometheus_client import CollectorRegistry, generate_latest
-
 from omnistat import utils
-from omnistat.collector_definitions import COLLECTORS
 
 
 class Monitor:
@@ -100,8 +99,19 @@ class Monitor:
                     logging.info("Disabling RMS collector via host_skip match (%s)" % host_skip)
 
     def initMetrics(self):
-        for collector in COLLECTORS:
 
+        # Load collector definitions
+        _json_path = os.path.join(os.path.dirname(__file__), "collector_definitions.json")
+
+        try:
+            with open(_json_path, "r") as f:
+                data = json.load(f)
+                COLLECTORS = data["collectors"]
+        except Exception as e:
+            logging.error(f"Failed to load collector definitions from file: {_json_path}: {e}")
+            sys.exit(1)
+
+        for collector in COLLECTORS:
             runtime_option = collector["runtime_option"]
             default = collector["enabled_by_default"]
             enabled = self.config["omnistat.collectors"].getboolean(runtime_option, default)
