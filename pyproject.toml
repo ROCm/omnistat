@@ -24,7 +24,7 @@ dependencies = { file = ["requirements.txt"] }
 optional-dependencies = { query = { file = ["requirements-query.txt"] } }
 
 [tool.setuptools.package-data]
-"omnistat" = ["config/omnistat.default"]
+"omnistat" = ["config/omnistat.default","collector_definitions.json"]
 
 [tool.setuptools-git-versioning]
 enabled = true
