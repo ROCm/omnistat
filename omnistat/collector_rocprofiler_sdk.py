@@ -28,14 +28,14 @@ Implements collection of hardware counters. The ROCm runtime must be
 pre-installed to use this data collector, and Omnistat must be built and
 installed with the ROCProfiler-SDK extension. This data collector gathers
 counters on a per GPU basis and exposes them using the
-"omnistat_gpu_performance_counter" metric, with individual cards and counter
-names denoted by labels. Example:
+"omnistat_hardware_counter" metric, with individual cards and counter names
+denoted by labels. Example:
 
-omnistat_gpu_performance_counter{card="0",name="SQ_WAVES"} 0.0
-omnistat_gpu_performance_counter{card="0",name="SQ_INSTS"} 0.0
-omnistat_gpu_performance_counter{card="0",name="TOTAL_64_OPS"} 0.0
-omnistat_gpu_performance_counter{card="0",name="SQ_INSTS_VALU"} 0.0
-omnistat_gpu_performance_counter{card="0",name="TA_BUSY_avr"} 0.0
+omnistat_hardware_counter{source="gpu",card="0",name="SQ_WAVES"} 0.0
+omnistat_hardware_counter{source="gpu",card="0",name="SQ_INSTS"} 0.0
+omnistat_hardware_counter{source="gpu",card="0",name="TOTAL_64_OPS"} 0.0
+omnistat_hardware_counter{source="gpu",card="0",name="SQ_INSTS_VALU"} 0.0
+omnistat_hardware_counter{source="gpu",card="0",name="TA_BUSY_avr"} 0.0
 """
 
 import json
@@ -130,9 +130,10 @@ class rocprofiler_sdk(Collector):
             logging.info(f"--> rocprofiler-sdk: counter names = {self.__names}")
 
     def registerMetrics(self):
-        metric_name = f"omnistat_gpu_performance_counter"
-        self.__metric = Gauge(metric_name, "Performance counter data from rocprofiler-sdk", labelnames=["card", "name"])
-        logging.info("--> [registered] %s (gauge)" % (metric_name))
+        metric = "omnistat_hardware_counter"
+        labels = ["source", "card", "name"]
+        self.__metric = Gauge(metric, "Performance counter data from rocprofiler-sdk", labelnames=labels)
+        logging.info(f"--> [registered] {metric} (gauge)")
 
     def updateMetrics(self):
         self.__update_method()
@@ -141,14 +142,14 @@ class rocprofiler_sdk(Collector):
         for i, sampler in enumerate(self.__samplers):
             values = sampler.sample()
             for j, name in enumerate(self.__names[i]):
-                self.__metric.labels(card=i, name=name).set(values[j])
+                self.__metric.labels("gpu", i, name).set(values[j])
         return
 
     def updateMetricsPeriodic(self):
         for i, sampler in enumerate(self.__samplers):
             values = sampler.sample()
             for j, name in enumerate(self.__names[self.__current_set]):
-                self.__metric.labels(card=i, name=name).set(values[j])
+                self.__metric.labels("gpu", i, name).set(values[j])
 
         self.__current_set = (self.__current_set + 1) % len(self.__names)
 

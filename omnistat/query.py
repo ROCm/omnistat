@@ -1200,7 +1200,7 @@ class QueryMetrics:
             ),
             (
                 "rocprofilersdk",
-                ["omnistat_gpu_performance_counter"],
+                ["omnistat_hardware_counter"],
                 ["instance", "card", "name"],
             ),
         ]
