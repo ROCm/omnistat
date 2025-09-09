@@ -118,7 +118,7 @@ class Monitor:
             enabled = self.config["omnistat.collectors"].getboolean(runtime_option, default)
             if enabled:
                 module = importlib.import_module(collector["file"])
-                cls = getattr(module, collector["className"])
+                cls = getattr(module, collector["class_name"])
                 self.__collectors.append(cls())
 
         # Initialize all metrics
