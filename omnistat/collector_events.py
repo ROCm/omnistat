@@ -22,8 +22,8 @@
 # SOFTWARE.
 # -------------------------------------------------------------------------------
 
-import configparser
 import _thread
+import configparser
 import logging
 import os
 import sys

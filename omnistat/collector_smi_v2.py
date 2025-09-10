@@ -41,8 +41,8 @@ rocm_mlck_clock_mhz{card="0"} 1200.0
 rocm_slck_clock_mhz{card="0"} 300.0
 """
 
-import logging
 import configparser
+import logging
 import statistics
 import sys
 
