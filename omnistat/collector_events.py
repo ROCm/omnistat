@@ -22,6 +22,7 @@
 # SOFTWARE.
 # -------------------------------------------------------------------------------
 
+import configparser
 import _thread
 import logging
 import os
@@ -36,7 +37,14 @@ from omnistat.collector_base import Collector
 
 
 class ROCMEvents(Collector):
-    def __init__(self):
+    def __init__(self, config: configparser.ConfigParser):
+        """
+        Initialize the ROCmEvents data collector.
+
+        Args:
+            config (configparser.ConfigParser): Cached copy of runtime configuration.
+        """
+
         logging.debug("Initializing ROCm SMI event collector")
         self.__prefix = "rocm_"
         self.__events = []
@@ -79,12 +87,8 @@ class ROCMEvents(Collector):
     # --------------------------------------------------------------------------------------
     # Required child methods
 
-    def registerMetrics(self, config):
-        """Register metrics of interest
-
-        Args:
-            config: ConfigParser instance (not used by this collector)
-        """
+    def registerMetrics(self):
+        """Register metrics of interest"""
 
         metricName = self.__prefix + "throttle_events"
         self.__GPUmetrics["throttle_events"] = Gauge(metricName, "# of throttling events detected", labelnames=["card"])
@@ -95,6 +99,7 @@ class ROCMEvents(Collector):
         return
 
     def updateMetrics(self):
+        """Update registered metrics of interest"""
         for gpu in range(self.__numGpus):
             self.__GPUmetrics["throttle_events"].labels(card=gpu).set(self.__throttle_count[gpu])
         return

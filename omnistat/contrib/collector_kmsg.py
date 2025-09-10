@@ -22,6 +22,7 @@
 # SOFTWARE.
 # -------------------------------------------------------------------------------
 
+import configparser
 import logging
 import os
 import re
@@ -46,7 +47,13 @@ class KmsgSeverity(IntEnum):
 
 
 class KmsgCollector(Collector):
-    def initialize(self, config):
+    def __init__(self, config: configparser.ConfigParser):
+        """Initialize the kmsg collector.
+
+        Args:
+            config (configparser.ConfigParser): Cached copy of runtime configuration.
+        """
+
         logging.debug("Initializing kmsg collector")
         self.__name = "omnistat_num_driver_messages"
         self.__metric = None
@@ -75,14 +82,8 @@ class KmsgCollector(Collector):
         severities = [s.name for s in KmsgSeverity if s.value <= self.__severity_threshold]
         logging.info(f"--> kmsg: report {include} messages with these severities: {', '.join(severities)}")
 
-    def registerMetrics(self, config):
-        """Register metrics of interest
-
-        Args:
-            config (configparser.ConfigParser): Runtime configuration
-        """
-
-        self.initialize(config)
+    def registerMetrics(self):
+        """Register metrics of interest"""
 
         description = "Number of driver messages in the kernel log buffer"
         self.__metric = Gauge(self.__name, description, labelnames=["driver", "severity"])

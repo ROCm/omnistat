@@ -29,7 +29,7 @@ default resulting metric is named "rmsjob_info{}" and is always published.  An
 optional "rmsjob_annotations{}" metric can be published to provide
 user-provided annotation timestamps.
 """
-
+import configparser
 import json
 import logging
 import os
@@ -44,7 +44,13 @@ from omnistat.collector_base import Collector
 
 class RMSJob(Collector):
 
-    def initialize(self, config):
+    def __init__(self, config: configparser.ConfigParser):
+        """
+        Initialize the RMSJob data collector.
+
+        Args:
+            config (configparser.ConfigParser): Cached copy of runtime configuration.
+        """
 
         logging.debug("Initializing resource manager job data collector")
         self.__prefix = "rmsjob_"
@@ -168,14 +174,8 @@ class RMSJob(Collector):
 
         return results
 
-    def registerMetrics(self, config):
-        """Register metrics of interest
-
-        Args:
-            config (configparser.ConfigParser): Runtime configuration
-        """
-
-        self.initialize(config)
+    def registerMetrics(self):
+        """Register metrics of interest"""
 
         # alternate approach - define an info metric
         # (https://ypereirareis.github.io/blog/2020/02/21/how-to-join-prometheus-metrics-by-label-with-promql/)
@@ -191,6 +191,8 @@ class RMSJob(Collector):
             logging.debug("--> Registered RMS metric = %s" % metric)
 
     def updateMetrics(self):
+        """Update registered metrics of interest"""
+
         self.__RMSMetrics["info"].clear()
         self.__RMSMetrics["annotations"].clear()
         jobEnabled = False

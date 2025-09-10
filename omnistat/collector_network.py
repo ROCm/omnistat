@@ -28,7 +28,7 @@ Implements a prometheus info metric to track network traffic data for interfaces
 exposed under /sys/class/net and /sys/class/cxi.
 """
 
-import json
+import configparser
 import logging
 import os
 import platform
@@ -43,7 +43,13 @@ from omnistat.collector_base import Collector
 
 
 class NETWORK(Collector):
-    def __init__(self, annotations=False, jobDetection=None):
+    def __init__(self, config: configparser.ConfigParser):
+        """Initialize the NETWORK data collector.
+
+        Args:
+            config (configparser.ConfigParser): Cached copy of runtime configuration.
+        """
+
         logging.debug("Initializing network data collector")
 
         self.__prefix = "omnistat_network_"
@@ -60,12 +66,8 @@ class NETWORK(Collector):
         self.__ib_rx_data_paths = {}
         self.__ib_tx_data_paths = {}
 
-    def registerMetrics(self, config):
-        """Register metrics of interest
-
-        Args:
-            config: ConfigParser instance (not used by this collector)
-        """
+    def registerMetrics(self):
+        """Register metrics of interest"""
 
         # Standard IP (/sys/class/net): store data paths to sysfs
         # statistics files for local NICs, indexed by interface ID. For
