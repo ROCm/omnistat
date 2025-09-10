@@ -42,6 +42,7 @@ rocm_slck_clock_mhz{card="0"} 300.0
 """
 
 import logging
+import configparser
 import statistics
 import sys
 
@@ -88,7 +89,12 @@ def is_positive_int(s):
 
 class AMDSMI(Collector):
 
-    def initialize(self, config):
+    def __init__(self, config: configparser.ConfigParser):
+        """Initialize the AMD SMI data collector.
+
+        Args:
+            config (configparser.ConfigParser): Cached copy of runtime configuration.
+        """
 
         logging.debug("Initializing AMD SMI data collector")
         self.__prefix = "rocm_"
@@ -127,14 +133,8 @@ class AMDSMI(Collector):
 
         return simple_metrics, source_metrics, list_metrics
 
-    def registerMetrics(self, config):
-        """Query number of devices and register metrics of interest
-
-        Args:
-            config (configparser.ConfigParser): Runtime configuration
-        """
-
-        self.initialize(config)
+    def registerMetrics(self):
+        """Query number of devices and register metrics of interest"""
 
         devices = smi.amdsmi_get_processor_handles()
         self.__devices = devices
@@ -364,6 +364,8 @@ class AMDSMI(Collector):
         return
 
     def updateMetrics(self):
+        """Update registered metrics of interest"""
+
         self.collect_data_incremental()
         return
 

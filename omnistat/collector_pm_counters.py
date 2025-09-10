@@ -28,10 +28,9 @@ Scans available telemetry in /sys/cray/pm_counters for compute node
 power-related data.
 """
 
-import json
+import configparser
 import logging
 import os
-import platform
 import re
 import sys
 from pathlib import Path
@@ -43,7 +42,13 @@ from omnistat.collector_base import Collector
 
 
 class PM_COUNTERS(Collector):
-    def __init__(self, annotations=False, jobDetection=None):
+    def __init__(self, config: configparser.ConfigParser):
+        """Initialize the PM_COUNTERS data collector.
+
+        Args:
+            config (configparser.ConfigParser): Cached copy of runtime configuration.
+        """
+
         logging.debug("Initializing pm_counter data collector")
 
         self.__prefix = "omnistat_vendor_"
@@ -60,12 +65,8 @@ class PM_COUNTERS(Collector):
         # metric data structure for gpu oriented
         self.__pm_files_host = []  # entries: (gauge metric, filepath, gpuindex)
 
-    def registerMetrics(self, config):
-        """Register metrics of interest
-
-        Args:
-            config: ConfigParser instance (not used by this collector)
-        """
+    def registerMetrics(self):
+        """Register metrics of interest"""
 
         definedMetrics = {}
 

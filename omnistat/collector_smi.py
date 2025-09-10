@@ -41,6 +41,7 @@ rocm_vram_used_percentage{card="0"} 0.0198
 rocm_utilization_percentage{card="0"} 0.0
 """
 
+import configparser
 import ctypes
 import logging
 import os
@@ -167,7 +168,13 @@ class rsmi_error_count_t(ctypes.Structure):
 
 
 class ROCMSMI(Collector):
-    def initialize(self, config):
+    def __init__(self, config: configparser.ConfigParser):
+        """Initialize the ROCm SMI data collector.
+
+        Args:
+            config (configparser.ConfigParser): Cached copy of runtime configuration.
+        """
+
         logging.debug("Initializing ROCm SMI data collector")
         self.__prefix = "rocm_"
         self.__schema = 1.0
@@ -233,14 +240,8 @@ class ROCMSMI(Collector):
     # --------------------------------------------------------------------------------------
     # Required child methods
 
-    def registerMetrics(self, config):
-        """Query number of devices and register metrics of interest
-
-        Args:
-            config (configparser.ConfigParser): Runtime configuration
-        """
-
-        self.initialize(config)
+    def registerMetrics(self):
+        """Query number of devices and register metrics of interest"""
 
         numDevices = ctypes.c_uint32(0)
         ret = self.__libsmi.rsmi_num_monitor_devices(ctypes.byref(numDevices))

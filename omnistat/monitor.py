@@ -119,14 +119,14 @@ class Monitor:
             if enabled:
                 module = importlib.import_module(collector["file"])
                 cls = getattr(module, collector["class_name"])
-                self.__collectors.append(cls())
+                self.__collectors.append(cls(config=self.config))
 
         # Initialize all metrics
         prefix_filter = utils.PrefixFilter("   ")
         for collector in self.__collectors:
             logging.info("\nRegistering metrics for collector: %s" % collector.__class__.__name__)
             logging.getLogger().addFilter(prefix_filter)
-            collector.registerMetrics(self.config)
+            collector.registerMetrics()
             logging.getLogger().removeFilter(prefix_filter)
 
         # Gather metrics on startup

@@ -68,7 +68,13 @@ class rocprofiler_session_id_t(ctypes.Structure):
 
 
 class rocprofiler(Collector):
-    def initialize(self, config):
+    def __init__(self, config: configparser.ConfigParser):
+        """Initialize the rocprofiler data collector.
+
+        Args:
+            config (configparser.ConfigParser): Cached copy of runtime configuration.
+        """
+
         logging.debug("Initializing rocprofiler data collector")
 
         metric_names = None
@@ -138,14 +144,8 @@ class rocprofiler(Collector):
 
         logging.info("--> rocprofiler initialized")
 
-    def registerMetrics(self, config):
-        """Register metrics of interest
-
-        Args:
-            config (configparser.ConfigParser): Runtime configuration
-        """
-
-        self.initialize(config)
+    def registerMetrics(self):
+        """Register metrics of interest"""
 
         metric_name = f"omnistat_rocprofiler"
         self.__metric = Gauge(metric_name, "Performance counter data from rocprofiler", labelnames=["card", "counter"])
@@ -155,6 +155,8 @@ class rocprofiler(Collector):
             self.__librocprofiler.rocprofiler_device_profiling_session_start(self.__sessions[i])
 
     def updateMetrics(self):
+        """Update registered metrics of interest"""
+
         for i in range(self.__num_gpus):
             self.__librocprofiler.rocprofiler_device_profiling_session_poll(self.__sessions[i], self.__values[i])
 

@@ -28,18 +28,24 @@
 # implemented as a child class.
 # --
 
+import configparser
 from abc import ABC, abstractmethod
 
 
 class Collector(ABC):
-    # Required methods to be implemented by child classes
-    @abstractmethod
-    def registerMetrics(self, runtimeConfig):
-        """Defines desired metrics to monitor with Omnistat data collector. Called once during initialization.
+    # Optional method(s)
+    def __init__(self, config: configparser.ConfigParser):
+        """Optional initializer for Collector.
 
         Args:
-            runtimeConfig (configparser.ConfigParser): Cached copy of runtime configuration.
+            config (configparser.ConfigParser): Cached copy of runtime configuration that can be used to further control collector behavior.
         """
+        self.runtimeConfig = config
+
+    # Required methods to be implemented by child classes
+    @abstractmethod
+    def registerMetrics(self):
+        """Defines desired metrics to monitor with Omnistat data collector. Called once during initialization."""
         pass
 
     @abstractmethod
