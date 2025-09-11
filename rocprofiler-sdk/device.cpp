@@ -207,9 +207,8 @@ std::vector<double> DeviceSampler::sample() {
     rocprofiler_sample_device_counting_service(ctx_, {}, ROCPROFILER_COUNTER_FLAG_NONE,
                                                records_.data(), &size);
 
-    // If the user is requesting non-aggregated counters, such as SQ_WAVES instead of SQ_WAVES_sum,
-    // this extension sums all records in an attempt to return a value that represents total
-    // activity.
+    // Aggregate counter records: sums all records from each counter in an
+    // attempt to return a value that represents total activity.
     rocprofiler_counter_id_t counter_id = {.handle = 0};
     for (const auto &record : records_) {
         rocprofiler_query_record_counter_id(record.id, &counter_id);
