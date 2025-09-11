@@ -59,8 +59,16 @@ initialize()
 
 
 class rocprofiler_sdk(Collector):
-    def __init__(self, counters='[["GRBM_COUNT"]]', strategy="gpu-id"):
+    def __init__(self, config):
         logging.debug("Initializing rocprofiler_sdk collector")
+
+        counters = '[["GRBM_COUNT"]]'
+        strategy = "gpu-id"
+
+        section = "omnistat.collectors.rocprofiler_sdk"
+        if config.has_section(section):
+            counters = config[section].get("counters", counters)
+            strategy = config[section].get("distribution_strategy", strategy)
 
         try:
             counters = json.loads(counters)
@@ -81,12 +89,10 @@ class rocprofiler_sdk(Collector):
             sys.exit(4)
 
         self.__samplers = get_samplers()
+        self.__strategy = strategy if len(counters) > 1 else None
         self.__metric = None
 
-        logging.info(f"--> rocprofiler-sdk: number of GPUs = {len(self.__samplers)}")
-        logging.info(f"--> rocprofiler-sdk: distribution strategy = {strategy}")
-
-        if strategy == "gpu-id":
+        if self.__strategy == "gpu-id" or self.__strategy is None:
             self.__update_method = self.updateMetricsConstant
 
             # Distribute a set of counters to each sampler, cycling through
@@ -102,10 +108,7 @@ class rocprofiler_sdk(Collector):
                 logging.error(f"ERROR: {e}")
                 sys.exit(4)
 
-            for i, names in enumerate(self.__names):
-                logging.info(f"--> rocprofiler-sdk: GPU ID {i} counter names = {names}")
-
-        elif strategy == "periodic":
+        elif self.__strategy == "periodic":
             self.__update_method = self.updateMetricsPeriodic
 
             # All GPUs track all counters, and we keep track of the active
@@ -127,9 +130,21 @@ class rocprofiler_sdk(Collector):
                 logging.error(f"ERROR: {e}")
                 sys.exit(4)
 
-            logging.info(f"--> rocprofiler-sdk: counter names = {self.__names}")
-
     def registerMetrics(self):
+        logging.info(f"Number of GPU devices = {len(self.__samplers)}")
+
+        if self.__strategy is None:
+            logging.info(f"Counters = {self.__names[0]}")
+        else:
+            logging.info(f"Distribution strategy = {self.__strategy}")
+            strategy_set_names = {
+                "gpu-id": "GPU ID",
+                "periodic": "Period",
+            }
+            set_name = strategy_set_names[self.__strategy]
+            for i, names in enumerate(self.__names):
+                logging.info(f"{set_name} {i} counters = {names}")
+
         metric = "omnistat_hardware_counter"
         labels = ["source", "card", "name"]
         self.__metric = Gauge(metric, "Performance counter data from rocprofiler-sdk", labelnames=labels)
