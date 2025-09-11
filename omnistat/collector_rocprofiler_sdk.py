@@ -53,7 +53,7 @@ except ModuleNotFoundError as e:
     logging.error(f"Missing ROCProfiler-SDK extension: build with installation required")
     sys.exit(4)
 
-STRATEGIES = ["gpu-id", "periodic"]
+SAMPLING_MODES = ["constant", "gpu-id", "periodic"]
 
 initialize()
 
@@ -71,12 +71,12 @@ class rocprofiler_sdk(Collector):
         logging.debug("Initializing rocprofiler_sdk collector")
 
         counters = '[["GRBM_COUNT"]]'
-        strategy = "gpu-id"
+        mode = "constant"
 
         section = "omnistat.collectors.rocprofiler_sdk"
         if config.has_section(section):
             counters = config[section].get("counters", counters)
-            strategy = config[section].get("distribution_strategy", strategy)
+            mode = config[section].get("sampling_mode", mode)
 
         try:
             counters = json.loads(counters)
@@ -92,15 +92,15 @@ class rocprofiler_sdk(Collector):
         if not all(isinstance(i, list) for i in counters):
             counters = [counters]
 
-        if strategy not in STRATEGIES:
-            logging.error(f"ERROR: Invalid distribution strategy: {strategy}")
+        if mode not in SAMPLING_MODES:
+            logging.error(f"ERROR: Invalid sampling mode: {mode}")
             sys.exit(4)
 
         self.__samplers = get_samplers()
-        self.__strategy = strategy if len(counters) > 1 else None
+        self.__mode = mode
         self.__metric = None
 
-        if self.__strategy == "gpu-id" or self.__strategy is None:
+        if self.__mode in ["constant", "gpu-id"]:
             self.__update_method = self.updateMetricsConstant
 
             # Distribute a set of counters to each sampler, cycling through
@@ -116,7 +116,7 @@ class rocprofiler_sdk(Collector):
                 logging.error(f"ERROR: {e}")
                 sys.exit(4)
 
-        elif self.__strategy == "periodic":
+        elif self.__mode == "periodic":
             self.__update_method = self.updateMetricsPeriodic
 
             # All GPUs track all counters, and we keep track of the active
@@ -141,18 +141,18 @@ class rocprofiler_sdk(Collector):
     def registerMetrics(self):
         """Register metrics of interest"""
         logging.info(f"Number of GPU devices = {len(self.__samplers)}")
+        logging.info(f"Sampling mode = {self.__mode}")
 
-        if self.__strategy is None:
+        if self.__mode == "constant":
             logging.info(f"Counters = {self.__names[0]}")
         else:
-            logging.info(f"Distribution strategy = {self.__strategy}")
-            strategy_set_names = {
+            sample_names = {
                 "gpu-id": "GPU ID",
                 "periodic": "Period",
             }
-            set_name = strategy_set_names[self.__strategy]
-            for i, names in enumerate(self.__names):
-                logging.info(f"{set_name} {i} counters = {names}")
+            sample_name = sample_names[self.__mode]
+            for i, counters in enumerate(self.__names):
+                logging.info(f"{sample_name} {i} counters = {counters}")
 
         metric = "omnistat_hardware_counter"
         labels = ["source", "card", "name"]
