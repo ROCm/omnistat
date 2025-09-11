@@ -60,6 +60,14 @@ initialize()
 
 class rocprofiler_sdk(Collector):
     def __init__(self, config):
+        """
+        Initialize the rocprofiler_sdk collector.
+
+        Args:
+            config (configparser.ConfigParser): Cached copy of runtime configuration.
+
+        """
+
         logging.debug("Initializing rocprofiler_sdk collector")
 
         counters = '[["GRBM_COUNT"]]'
@@ -131,6 +139,7 @@ class rocprofiler_sdk(Collector):
                 sys.exit(4)
 
     def registerMetrics(self):
+        """Register metrics of interest"""
         logging.info(f"Number of GPU devices = {len(self.__samplers)}")
 
         if self.__strategy is None:
@@ -151,6 +160,8 @@ class rocprofiler_sdk(Collector):
         logging.info(f"--> [registered] {metric} (gauge)")
 
     def updateMetrics(self):
+        """Update registered metrics of interest"""
+
         self.__update_method()
 
     def updateMetricsConstant(self):
