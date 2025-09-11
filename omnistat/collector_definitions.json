@@ -39,6 +39,12 @@
             "class_name": "rocprofiler"
         },
         {
+            "runtime_option": "enable_rocprofiler_sdk",
+            "enabled_by_default": false,
+            "file": "omnistat.collector_rocprofiler_sdk",
+            "class_name": "rocprofiler_sdk"
+        },
+        {
             "runtime_option": "enable_kmsg",
             "enabled_by_default": false,
             "file": "omnistat.contrib.collector_kmsg",
