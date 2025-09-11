@@ -1,5 +1,5 @@
-# This setup.py script is only meant to build the optional ROCProfiler-SDK
-# extension and is automatically called by pip. To extension is built only
+# This setup.py script is only when building the optional ROCProfiler-SDK
+# extension and is automatically called by pip. The extension is built only
 # when BUILD_ROCPROFILER_SDK_EXTENSION=1 is set in the environment.
 
 import os
