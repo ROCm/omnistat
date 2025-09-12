@@ -77,11 +77,11 @@ class Monitor:
         return
 
     def enforce_global_runtime_constraints(self):
+        collectors = self.config["omnistat.collectors"]
 
         # verify only one SMI collector is enabled
-        enable_rocm_smi = self.config["omnistat.collectors"].getboolean("enable_rocm_smi", True)
-        enable_amd_smi = self.config["omnistat.collectors"].getboolean("enable_amd_smi", True)
-
+        enable_rocm_smi = collectors.getboolean("enable_rocm_smi", True)
+        enable_amd_smi = collectors.getboolean("enable_amd_smi", True)
         if enable_rocm_smi and enable_amd_smi:
             logging.error("")
             logging.error("[ERROR]: Only one SMI GPU data collector may be configured at a time.")
@@ -89,8 +89,18 @@ class Monitor:
             logging.error('Please choose either "enable_rocm_smi" or "enable_amd_smi" in runtime config')
             sys.exit(1)
 
+        # verify only one rocprofiler collector is enabled
+        enable_rocprofiler_legacy = collectors.getboolean("enable_rocprofiler_legacy", False)
+        enable_rocprofiler = collectors.getboolean("enable_rocprofiler", False)
+        if enable_rocprofiler_legacy and enable_rocprofiler:
+            logging.error("")
+            logging.error("[ERROR]: Only one rocprofiler data collector may be configured at a time.")
+            logging.error("")
+            logging.error('Please choose either "enable_rocprofiler" or "enable_rocprofiler_legacy" in runtime config')
+            sys.exit(1)
+
         # check for host exemption for RMS collector
-        if self.config["omnistat.collectors"].getboolean("enable_rms", False):
+        if collectors.getboolean("enable_rms", False):
             if self.config.has_option("omnistat.collectors.rms", "host_skip"):
                 host_skip = utils.removeQuotes(self.config["omnistat.collectors.rms"]["host_skip"])
                 hostname = platform.node().split(".", 1)[0]
