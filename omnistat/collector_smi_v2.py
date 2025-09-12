@@ -112,13 +112,15 @@ class AMDSMI(Collector):
         self.__ecc_ras_monitoring = config["omnistat.collectors"].getboolean("enable_ras_ecc", True)
         self.__power_cap_monitoring = config["omnistat.collectors"].getboolean("enable_power_cap", False)
         self.__cu_occupancy_monitoring = config["omnistat.collectors"].getboolean("enable_cu_occupancy", False)
+        self.__xgmi_monitoring = config["omnistat.collectors"].getboolean("enable_xgmi", False)
         self.__vcn_monitoring = config["omnistat.collectors"].getboolean("enable_vcn", False)
 
     def get_gpu_metrics(self, device):
-        """Make GPU metric query and return dict of tracked metrics"""
+        """Make GPU metric query and return dicts of tracked metrics"""
         simple_metrics = {}
         source_metrics = {}
-        list_metrics = {}
+        avg_metrics = {}
+        sum_metrics = {}
 
         result = smi.amdsmi_get_gpu_metrics_info(device)
 
@@ -128,10 +130,13 @@ class AMDSMI(Collector):
         for metricName, smiName in self.__sourceMetricMapping.items():
             source_metrics[metricName] = result[smiName]
 
-        for metricName, (smiName, _) in self.__listMetricMapping.items():
-            list_metrics[metricName] = result[smiName]
+        for metricName, (smiName, _) in self.__sumMetricMapping.items():
+            sum_metrics[metricName] = result[smiName]
 
-        return simple_metrics, source_metrics, list_metrics
+        for metricName, (smiName, _) in self.__avgMetricMapping.items():
+            avg_metrics[metricName] = result[smiName]
+
+        return simple_metrics, source_metrics, sum_metrics, avg_metrics
 
     def registerMetrics(self):
         """Query number of devices and register metrics of interest"""
@@ -311,8 +316,26 @@ class AMDSMI(Collector):
 
         # Metrics with multiple values: some metrics like vcn_activity return a list of values, one
         # for each engine. Identify valid indices during initialization to avoid validation during
-        # sampling. List metrics values are averaged at sampling time.
-        self.__listMetricMapping = {}
+        # sampling. At sampling time, these metrics can be accumulated or averaged.
+        self.__sumMetricMapping = {}
+        self.__avgMetricMapping = {}
+
+        if self.__xgmi_monitoring:
+            for flow in ["read", "write"]:
+                target_metric = f"xgmi_total_{flow}_kilobytes"
+                source_metric = f"xgmi_{flow}_data_acc"
+                xgmi_values = metrics[source_metric]
+
+                xgmi_links = []
+                for i, value in enumerate(xgmi_values):
+                    if isinstance(value, int):
+                        xgmi_links.append(i)
+
+                logging.info(f"--> Identified {len(xgmi_links)} XGMI {flow} links")
+                if len(xgmi_links) > 0:
+                    self.__sumMetricMapping[target_metric] = (source_metric, xgmi_links)
+                    metric_name = self.__prefix + target_metric
+                    self.__GPUMetrics[metric_name] = Gauge(metric_name, target_metric, labelnames=["card"])
 
         if self.__vcn_monitoring:
             # MI3xx only supports decoding, and so vcn_activity can be used as a proxy for decoding
@@ -330,13 +353,13 @@ class AMDSMI(Collector):
 
             if len(vcn_engines) > 0:
                 logging.info(f"--> Identified {len(vcn_engines)} VCN engines: {vcn_engines}")
-                self.__listMetricMapping[target_metric] = (source_metric, vcn_engines)
+                self.__avgMetricMapping[target_metric] = (source_metric, vcn_engines)
                 metric_name = self.__prefix + target_metric
                 self.__GPUMetrics[metric_name] = Gauge(metric_name, target_metric, labelnames=["card"])
 
         # Register remaining metrics of interest available from get_gpu_metrics()
         for idx, device in enumerate(self.__devices):
-            metrics, _, _ = self.get_gpu_metrics(device)
+            metrics, _, _, _ = self.get_gpu_metrics(device)
             for metric in metrics:
                 metric_name = self.__prefix + metric
                 # add Gauge metric only once
@@ -377,7 +400,7 @@ class AMDSMI(Collector):
             guid = self.__guidMapping[idx]
 
             #  stats available via get_gpu_metrics
-            simple_metrics, source_metrics, list_metrics = self.get_gpu_metrics(device)
+            simple_metrics, source_metrics, sum_metrics, avg_metrics = self.get_gpu_metrics(device)
 
             for metricName, value in simple_metrics.items():
                 metric = self.__GPUMetrics[self.__prefix + metricName]
@@ -388,9 +411,15 @@ class AMDSMI(Collector):
                 source = self.__sourceMetricMapping[metricName]
                 metric.labels(card=cardId, source=source).set(value)
 
-            for metricName, value in list_metrics.items():
+            for metricName, value in sum_metrics.items():
                 metric = self.__GPUMetrics[self.__prefix + metricName]
-                _, value_indices = self.__listMetricMapping[metricName]
+                _, value_indices = self.__sumMetricMapping[metricName]
+                values = [value[x] for x in value_indices]
+                metric.labels(card=cardId).set(sum(values))
+
+            for metricName, value in avg_metrics.items():
+                metric = self.__GPUMetrics[self.__prefix + metricName]
+                _, value_indices = self.__avgMetricMapping[metricName]
                 values = [value[x] for x in value_indices]
                 average = sum(values) / len(values)
                 metric.labels(card=cardId).set(average)
