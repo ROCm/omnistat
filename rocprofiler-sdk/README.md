@@ -12,24 +12,12 @@ hardware counters from AMD GPUs directly in Python applications.
 - [cmake-build-extension](https://github.com/diegoferigo/cmake-build-extension)
 - [nanobind](https://github.com/wjakob/nanobind)
 
-## Install with pip
+## Installation
 
-The extension is an **optional** Omnistat module and is disabled by default.
-It can be automatically built and installed as part of a standard Omnistat
-installation with `pip`. It can be enabled with an environment variable:
-```bash
-BUILD_ROCPROFILER_SDK_EXTENSION=1 pip install .
-```
+For standard installations of the extension as part of Omnistat, refer to the
+documentation to [build the ROCprofiler extensions](https://rocm.github.io/omnistat/installation/building-extensions.html#rocprofiler).
 
-With a **`venv`** virtual environment:
-```bash
-python3 -m venv ~/venv/omnistat
-BUILD_ROCPROFILER_SDK_EXTENSION=1 ~/venv/omnistat/bin/python -m pip install .
-```
-
-## Install with CMake
-
-For development or custom builds:
+For development and custom builds, the extension can be installed with CMake:
 ```bash
 # Install build dependencies
 pip install nanobind
@@ -50,6 +38,9 @@ cmake --install build/ --prefix .
 ```
 
 ## Example
+
+The following example shows how to use and test the extension, loading it
+directly without Omnistat's collector.
 
 ```python
 import time
@@ -77,3 +68,7 @@ for i in range(3):
 for sampler in samplers:
     sampler.stop()
 ```
+
+Refer to the documentation of the [ROCprofiler
+collector](https://rocm.github.io/omnistat/metrics.html#rocprofiler) for more
+advanced usage using Omnistat.
