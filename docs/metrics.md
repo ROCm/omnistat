@@ -134,6 +134,25 @@ maximum number of wavefronts that a CU can handle simultaneously.
 | `rocm_compute_unit_occupancy` | Number of used compute units. |
 
 
+## xGMI
+
+The xGMI (External Global Memory Interconnect) data collector provides metrics
+for monitoring the total data transferred over the GPU-to-GPU high-speed
+interconnect.
+
+```{note}
+The xGMI collector requires enabling the AMD SMI collector (`enable_amd_smi`).
+It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
+```
+
+**Collectors**: `enable_amd_smi`, `enable_xgmi`
+
+| GPU Metric                            | Description                           |
+| :------------------------------------ | :------------------------------------ |
+| `rocm_xgmi_total_read_kilobytes`      | Data read from all xGMI links (KB).   |
+| `rocm_xgmi_total_write_kilobytes`     | Data written to all xGMI links (KB).  |
+
+
 ## VCN
 
 The VCN (Video Core Next) collection mechanism is an optional capability of
