@@ -33,13 +33,13 @@
             "class_name": "ROCMEvents"
         },
         {
-            "runtime_option": "enable_rocprofiler",
+            "runtime_option": "enable_rocprofiler_legacy",
             "enabled_by_default": false,
             "file": "omnistat.collector_rocprofiler",
             "class_name": "rocprofiler"
         },
         {
-            "runtime_option": "enable_rocprofiler_sdk",
+            "runtime_option": "enable_rocprofiler",
             "enabled_by_default": false,
             "file": "omnistat.collector_rocprofiler_sdk",
             "class_name": "rocprofiler_sdk"

@@ -75,7 +75,7 @@ class rocprofiler(Collector):
             config (configparser.ConfigParser): Cached copy of runtime configuration.
         """
 
-        logging.debug("Initializing rocprofiler data collector")
+        logging.debug("Initializing legacy rocprofiler data collector")
 
         metric_names = None
         rocm_path = config["omnistat.collectors"].get("rocm_path", "/opt/rocm")

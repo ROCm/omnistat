@@ -65,18 +65,17 @@ class rocprofiler_sdk(Collector):
 
         Args:
             config (configparser.ConfigParser): Cached copy of runtime configuration.
-
         """
-
-        logging.debug("Initializing rocprofiler_sdk collector")
+        logging.debug("Initializing rocprofiler collector")
 
         counters = '[["GRBM_COUNT"]]'
         mode = "constant"
 
-        section = "omnistat.collectors.rocprofiler_sdk"
-        if config.has_section(section):
-            counters = config[section].get("counters", counters)
-            mode = config[section].get("sampling_mode", mode)
+        section_name = "omnistat.collectors.rocprofiler"
+        if config.has_section(section_name):
+            section = config[section_name]
+            counters = section.get("counters", counters)
+            mode = section.get("sampling_mode", mode)
 
         try:
             counters = json.loads(counters)
@@ -84,7 +83,16 @@ class rocprofiler_sdk(Collector):
             logging.error(f"ERROR: Decoding list of counters as JSON: {e}")
             sys.exit(4)
 
-        if not isinstance(counters, list) or len(counters) == 0:
+        # Keep backwards-compatibility with the old collector based on
+        # rocprofiler v1/v2, which used the option "metrics" formatted as a
+        # simple comma-separated list of counters.
+        if config.has_section(section_name):
+            section = config[section_name]
+            if "metrics" in section and "counters" not in section:
+                logging.error('WARNING: Converting deprecated rocprofiler option "metrics"')
+                counters = section["metrics"].split(",")
+
+        if not isinstance(counters, list) or len(counters) <= 0:
             logging.error("ERROR: Unexpected list of counters.")
             sys.exit(4)
 
@@ -94,6 +102,14 @@ class rocprofiler_sdk(Collector):
 
         if mode not in SAMPLING_MODES:
             logging.error(f"ERROR: Invalid sampling mode: {mode}")
+            sys.exit(4)
+
+        if mode == "constant" and len(counters) != 1:
+            logging.error('ERROR: "constant" sampling mode requires a single set of counters')
+            sys.exit(4)
+
+        if mode == "gpu-id" and len(counters) == 1:
+            logging.error('ERROR: "gpu-id" sampling mode requires multiple sets of counters')
             sys.exit(4)
 
         self.__samplers = get_samplers()
@@ -161,7 +177,6 @@ class rocprofiler_sdk(Collector):
 
     def updateMetrics(self):
         """Update registered metrics of interest"""
-
         self.__update_method()
 
     def updateMetricsConstant(self):
