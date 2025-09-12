@@ -5,6 +5,7 @@ enable_rocm_smi = True
 enable_amd_smi = False
 enable_ras_ecc = True
 enable_rms = False
+enable_rocprofiler = False
 enable_network = True
 enable_vendor_counters = False
 
@@ -22,6 +23,28 @@ host_skip = "login.*"
 enable_annotations = False
 job_detection_mode = file-based
 job_detection_file = /tmp/omni_rmsjobinfo
+
+[omnistat.collectors.rocprofiler]
+profile = default
+
+## Collect the number of free-running GPU cycles and the number of GPU active
+## cycles. Both counters are collected from all GPUs on every sample.
+[omnistat.collectors.rocprofiler.default]
+counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
+sampling_mode = constant
+
+## Collect total number of bytes read from and written to HBM. Both counters
+## are collected from all GPUs on every sample. Sampling these counters at the
+## same time is possible on MI2xx GPUs.
+[omnistat.collectors.rocprofiler.hbm_gfx90a]
+counters = ["FETCH_SIZE", "WRITE_SIZE"]
+sampling_mode = constant
+
+## Collect total number of bytes read from and written to HBM, assigning the
+## two counters to different GPU IDs. Requires at least 2 GPUs per node.
+[omnistat.collectors.rocprofiler.hbm]
+counters = [["FETCH_SIZE"], ["WRITE_SIZE"]]
+sampling_mode = gpu-id
 
 [omnistat.query]
 
