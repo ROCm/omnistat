@@ -173,26 +173,46 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 The ROCprofiler data collector provides access to low-level GPU hardware
 counters for in-depth performance analysis. Counters are collected by sampling
 the GPUs at the device level with minimal impact on application performance.
-The specific counters to collect can be configured with the `counters` option.
-This option accepts one or more sets of counters formatted as a JSON list. For
-example: `["FETCH_SIZE", "WRITE_SIZE"]` (a single set of counters) or
-`[["FETCH_SIZE"], ["WRITE_SIZE"]]` (multiple sets of counters)
+The collection is configured through the `profile` option in the configuration
+file.
 
-The `sampling_mode` option controls how counter sets are distributed across
-the available GPUs:
-- `constant`: Assigns one counter set to all GPUs.
-- `gpu-id`: Cyclically assigns a counter set to each GPU. This mode requires
-  providing multiple counter sets.
-- `periodic`: Rotates all GPUs through multiple counter sets. When this mode
-  is enabled, counter values are reset at each sampling interval and not
-  accumulated.
+Each profile defines a set of counters to be collected and a sampling mode:
+- `counters`: This option accepts one or more sets of counters formatted as a
+  flat or nested JSON list. For a complete list of supported counters, see the
+  [ROCm documentation](https://rocm.docs.amd.com/en/latest/conceptual/gpu-arch/mi300-mi200-performance-counters.html).
+- `sampling_mode`: This option controls how counter sets are distributed
+  across the available GPUs:
+    - `constant`: Assigns one set of counters to all GPUs.
+    - `gpu-id`: Cyclically assigns a counter set to each GPU. This mode
+      requires providing multiple sets of counters.
+    - `periodic`: Rotates all GPUs through multiple counter sets, changing the
+      active counter set every sample. When this mode is enabled, counter
+      values are reset at each sampling interval and not accumulated.
+
+```eval_rst
+.. code-block:: ini
+   :caption: Profile to collect free-running and active cycles on all GPUs
+
+    [omnistat.collectors.rocprofiler.cycles]
+    counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
+    sampling_mode = constant
+  ```
+
+```eval_rst
+.. code-block:: ini
+   :caption: Profile to collect HBM reads and writes from different GPU IDs
+
+    [omnistat.collectors.rocprofiler.hbm]
+    counters = [["GRBM_COUNT"], ["GRBM_GUI_ACTIVE"]]
+    sampling_mode = gpu-id
+  ```
 
 The ROCprofiler data collector requires [building the ROCprofiler
 extension](./installation/extensions.md#rocprofiler).
 
 **Collectors**: `enable_rocprofiler`
 <br/>
-**Collector options**: `counters`, `sampling_mode`
+**Collector options**: `profile`
 
 | GPU Metric                                    | Description                          |
 | :-------------------------------------------- | :----------------------------------- |
