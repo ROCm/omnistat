@@ -168,6 +168,35 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 | `rocm_average_decoder_utilization_percentage` | Decoder utilization averaged across all engines in the GPU (%). |
 
 
+## ROCprofiler
+
+The ROCprofiler data collector provides access to low-level GPU hardware
+counters for in-depth performance analysis. In order to minimize impact on
+performance, counters are collected by sampling the GPUs at the device level
+without tracking kernel dispatches. The specific counters to collect are
+specified with the `counters` configuration option. This option accepts one or
+more sets of counters formatted as a JSON list. For example: `["FETCH_SIZE",
+"WRITE_SIZE"]` (a single set of counters) or `[["FETCH_SIZE"],
+["WRITE_SIZE"]]` (multiple sets of counters)
+
+The `sampling_mode` option controls how counter sets are distributed across
+the available GPUs:
+- `constant`: Assigns one counter set to all GPUs.
+- `gpu-id`: Cyclically assigns a counter set to each GPU. This mode requires
+  providing multiple counter sets.
+- `periodic`: Rotates all GPUs through multiple counter sets. When this mode
+  is enabled, counter values are reset at each sampling interval and not
+  accumulated.
+
+**Collectors**: `enable_rocprofiler`
+<br/>
+**Collector options**: `counters`, `sampling_mode`
+
+| GPU Metric                                    | Description                          |
+| :-------------------------------------------- | :----------------------------------- |
+| `omnistat_hardware_counter`                   | GPU hardware counter value from ROCprofiler. Labels: `source`, `name`. |
+
+
 ## Network
 
 The network data collector enables metrics providing information about data
