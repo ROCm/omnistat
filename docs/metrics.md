@@ -191,7 +191,7 @@ Each profile defines a set of counters to be collected and a sampling mode:
 
 ```eval_rst
 .. code-block:: ini
-   :caption: Profile to collect free-running and active cycles on all GPUs
+   :caption: Example profile to collect free-running and active cycles on all GPUs
 
     [omnistat.collectors.rocprofiler.cycles]
     counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
@@ -200,10 +200,10 @@ Each profile defines a set of counters to be collected and a sampling mode:
 
 ```eval_rst
 .. code-block:: ini
-   :caption: Profile to collect HBM reads and writes from different GPU IDs
+   :caption: Example profile to collect HBM reads and writes from different GPU IDs
 
     [omnistat.collectors.rocprofiler.hbm]
-    counters = [["GRBM_COUNT"], ["GRBM_GUI_ACTIVE"]]
+    counters = [["FETCH_SIZE"], ["WRITE_SIZE"]]
     sampling_mode = gpu-id
   ```
 
