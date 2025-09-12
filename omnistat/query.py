@@ -1199,7 +1199,7 @@ class QueryMetrics:
                 ["instance", "accel", "vendor"],
             ),
             (
-                "rocprofilersdk",
+                "rocprofiler",
                 ["omnistat_hardware_counter"],
                 ["instance", "card", "name"],
             ),
