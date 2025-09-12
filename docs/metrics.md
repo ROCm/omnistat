@@ -210,7 +210,7 @@ Each profile defines a set of counters to be collected and a sampling mode:
 The ROCprofiler data collector requires [building the ROCprofiler
 extension](./installation/extensions.md#rocprofiler).
 
-**Collectors**: `enable_rocprofiler`
+**Collector**: `enable_rocprofiler`
 <br/>
 **Collector options**: `profile`
 
