@@ -68,32 +68,39 @@ class rocprofiler_sdk(Collector):
         """
         logging.debug("Initializing rocprofiler collector")
 
-        counters = '[["GRBM_COUNT"]]'
+        profile = "default"
+        counters = None
         mode = "constant"
 
-        section_name = "omnistat.collectors.rocprofiler"
-        if config.has_section(section_name):
-            section = config[section_name]
-            counters = section.get("counters", counters)
-            mode = section.get("sampling_mode", mode)
+        rocprofiler_section_path = "omnistat.collectors.rocprofiler"
+        if config.has_section(rocprofiler_section_path):
+            section = config[rocprofiler_section_path]
+            profile = section.get("profile", profile)
 
-        try:
-            counters = json.loads(counters)
-        except json.JSONDecodeError as e:
-            logging.error(f"ERROR: Decoding list of counters as JSON: {e}")
-            sys.exit(4)
-
-        # Keep backwards-compatibility with the old collector based on
-        # rocprofiler v1/v2, which used the option "metrics" formatted as a
-        # simple comma-separated list of counters.
-        if config.has_section(section_name):
-            section = config[section_name]
-            if "metrics" in section and "counters" not in section:
+            # Keep backwards-compatibility with the old collector based on
+            # rocprofiler v1/v2, which used the option "metrics" formatted as a
+            # simple comma-separated list of counters.
+            if "metrics" in section:
                 logging.error('WARNING: Converting deprecated rocprofiler option "metrics"')
                 counters = section["metrics"].split(",")
 
+        profile_section_path = f"omnistat.collectors.rocprofiler.{profile}"
+        if config.has_section(profile_section_path):
+            section = config[profile_section_path]
+            mode = section.get("sampling_mode", mode)
+            if "counters" in section:
+                try:
+                    counters = json.loads(section.get("counters"))
+                except json.JSONDecodeError as e:
+                    logging.error(f"ERROR: Decoding list of counters as JSON: {e}")
+                    sys.exit(4)
+
+        if counters is None:
+            logging.error(f'ERROR: Required "counters" option not found in profile "{profile}"')
+            sys.exit(4)
+
         if not isinstance(counters, list) or len(counters) <= 0:
-            logging.error("ERROR: Unexpected list of counters.")
+            logging.error("ERROR: Unexpected list of counters")
             sys.exit(4)
 
         # If counters is a flat list, convert to list of lists.
