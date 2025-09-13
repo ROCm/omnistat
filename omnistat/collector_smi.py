@@ -504,21 +504,25 @@ class ROCMSMI(Collector):
                 if gpu_metrics.xgmi_link_status[index] == 0:
                     self.__xgmi_links.append(index)
 
-            if len(self.__xgmi_links) > 1:
+            if len(self.__xgmi_links) > 0:
                 logging.info(f"--> Identified {len(self.__xgmi_links)+1} active XGMI links")
+            else:
+                logging.warning("--> No XGMI links detected, XGMI metrics disabled")
+                self.__xgmi_available = False
 
             # Confirm same active link configuration on all remaining GPUs
-            for i in range(1, self.__num_gpus):
-                device = ctypes.c_uint32(i)
-                ret = self.__libsmi.rsmi_dev_gpu_metrics_info_get(device, ctypes.byref(gpu_metrics))
-                xgmi_links_tmp = []
-                for index in range(0, RSMI_MAX_NUM_XGMI_LINKS):
-                    if gpu_metrics.xgmi_link_status[index] == 0:
-                        xgmi_links_tmp.append(index)
-                if xgmi_links_tmp != self.__xgmi_links:
-                    logging.warning("Non-homogenous XGMI configuration across GPUs - XGMI metrics disabled")
-                    self.__xgmi_available = False
-                    break
+            if self.__xgmi_available:
+                for i in range(1, self.__num_gpus):
+                    device = ctypes.c_uint32(i)
+                    ret = self.__libsmi.rsmi_dev_gpu_metrics_info_get(device, ctypes.byref(gpu_metrics))
+                    xgmi_links_tmp = []
+                    for index in range(0, RSMI_MAX_NUM_XGMI_LINKS):
+                        if gpu_metrics.xgmi_link_status[index] == 0:
+                            xgmi_links_tmp.append(index)
+                    if xgmi_links_tmp != self.__xgmi_links:
+                        logging.warning("Non-homogenous XGMI configuration across GPUs - XGMI metrics disabled")
+                        self.__xgmi_available = False
+                        break
 
             if self.__xgmi_available:
                 metric = self.__prefix + "xgmi_total_read_kilobytes"
