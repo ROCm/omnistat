@@ -334,7 +334,7 @@ class AMDSMI(Collector):
                     dev_xgmi_values = metrics[source_metric]
                     dev_xgmi_links = [i for i, v in enumerate(dev_xgmi_values) if isinstance(v, int)]
                     if dev_xgmi_links != xgmi_links:
-                        logging.warning("Non-homogenous XGMI configuration across GPUs: XGMI metrics disabled")
+                        logging.warning("Non-homogenous XGMI configuration across GPUs")
                         xgmi_links = []
                         break
 
@@ -343,6 +343,8 @@ class AMDSMI(Collector):
                     self.__sumMetricMapping[target_metric] = (source_metric, xgmi_links)
                     metric_name = self.__prefix + target_metric
                     self.__GPUMetrics[metric_name] = Gauge(metric_name, target_metric, labelnames=["card"])
+                else:
+                    logging.warning(f"XGMI {flow} metrics disabled due to absence of valid links")
 
         if self.__vcn_monitoring:
             # MI3xx only supports decoding, and so vcn_activity can be used as a proxy for decoding
