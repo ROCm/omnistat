@@ -77,13 +77,6 @@ class rocprofiler_sdk(Collector):
             section = config[rocprofiler_section_path]
             profile = section.get("profile", profile)
 
-            # Keep backwards-compatibility with the old collector based on
-            # rocprofiler v1/v2, which used the option "metrics" formatted as a
-            # simple comma-separated list of counters.
-            if "metrics" in section:
-                logging.error('WARNING: Converting deprecated rocprofiler option "metrics"')
-                counters = section["metrics"].split(",")
-
         profile_section_path = f"omnistat.collectors.rocprofiler.{profile}"
         if config.has_section(profile_section_path):
             section = config[profile_section_path]
@@ -96,7 +89,10 @@ class rocprofiler_sdk(Collector):
                     sys.exit(4)
 
         if counters is None:
-            logging.error(f'ERROR: Required "counters" option not found in profile "{profile}"')
+            if config.has_option(rocprofiler_section_path, "metrics"):
+                logging.error(f'ERROR: Deprecated "metrics" option: switch to counter profiles')
+            else:
+                logging.error(f'ERROR: Required "counters" option not found in profile "{profile}"')
             sys.exit(4)
 
         if not isinstance(counters, list) or len(counters) <= 0:
