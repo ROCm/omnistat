@@ -138,19 +138,15 @@ maximum number of wavefronts that a CU can handle simultaneously.
 
 The xGMI (External Global Memory Interconnect) data collector provides metrics
 for monitoring the total data transferred over the GPU-to-GPU high-speed
-interconnect.
+interconnect. These metrics accumulate over time and are reset upon driver
+load.
 
-```{note}
-The xGMI collector requires enabling the AMD SMI collector (`enable_amd_smi`).
-It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
-```
-
-**Collectors**: `enable_amd_smi`, `enable_xgmi`
+**Collectors**: `enable_rocm_smi` or `enable_amd_smi`, `enable_xgmi`
 
 | GPU Metric                            | Description                           |
 | :------------------------------------ | :------------------------------------ |
-| `rocm_xgmi_total_read_kilobytes`      | Data read from all xGMI links (KB).   |
-| `rocm_xgmi_total_write_kilobytes`     | Data written to all xGMI links (KB).  |
+| `rocm_xgmi_total_read_kilobytes`      | Total data read from all xGMI links (KB).   |
+| `rocm_xgmi_total_write_kilobytes`     | Total data written to all xGMI links (KB).  |
 
 
 ## VCN
