@@ -30,21 +30,35 @@ profile = default
 ## Collect the number of free-running GPU cycles and the number of GPU active
 ## cycles. Both counters are collected from all GPUs on every sample.
 [omnistat.collectors.rocprofiler.default]
-counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
 sampling_mode = constant
+counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
 
 ## Collect total number of bytes read from and written to HBM. Both counters
 ## are collected from all GPUs on every sample. Sampling these counters at the
-## same time is possible on MI2xx GPUs.
+## same time is possible on MI2xx (gfx90a) GPUs.
 [omnistat.collectors.rocprofiler.hbm_gfx90a]
-counters = ["FETCH_SIZE", "WRITE_SIZE"]
 sampling_mode = constant
+counters = ["FETCH_SIZE", "WRITE_SIZE"]
 
-## Collect total number of bytes read from and written to HBM, assigning the
-## two counters to different GPU IDs. Requires at least 2 GPUs per node.
-[omnistat.collectors.rocprofiler.hbm]
-counters = [["FETCH_SIZE"], ["WRITE_SIZE"]]
+## Collect total number of bytes read from and written to HBM. Cyclically
+## assign the two counters to different GPU IDs.
+##  - GPU IDs 0, 2... sample FETCH_SIZE
+##  - GPU IDs 1, 3... sample WRITE_SIZE
+## Requires at least 2 GPUs per node.
+[omnistat.collectors.rocprofiler.hbm_gpuid]
 sampling_mode = gpu-id
+counters = [["FETCH_SIZE"], ["WRITE_SIZE"]]
+
+## Collect total number of bytes read from and written to HBM. Alternate
+## between counters on every sample.
+##  - Sample 0: FETCH_SIZE
+##  - Sample 1: WRITE_SIZE
+##  - Sample 2: FETCH_SIZE
+##  - Sample 3: WRITE_SIZE
+##  - ...
+[omnistat.collectors.rocprofiler.hbm_periodic]
+sampling_mode = periodic
+counters = [["FETCH_SIZE"], ["WRITE_SIZE"]]
 
 [omnistat.query]
 

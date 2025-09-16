@@ -9,6 +9,7 @@ enable_rocm_smi = True
 enable_amd_smi = False
 enable_ras_ecc = True
 enable_rms = True
+enable_rocprofiler = False
 enable_network = True
 enable_vendor_counters = True
 
@@ -24,6 +25,75 @@ allowed_ips = 127.0.0.1, 0.0.0.0
 
 host_skip = "login.*"
 enable_annotations = True
+
+[omnistat.collectors.rocprofiler]
+profile = default
+
+## Collect the number of free-running GPU cycles and the number of GPU active
+## cycles.
+[omnistat.collectors.rocprofiler.default]
+sampling_mode = constant
+counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
+
+## Collect total number of bytes read from and written to HBM.
+[omnistat.collectors.rocprofiler.hbm]
+sampling_mode = constant
+counters = ["FETCH_SIZE", "WRITE_SIZE"]
+
+## Collect instruction counters to calculate FLOPS on MI250 GPUs.
+##
+## A complete FLOPS calculation requires monitoring 16 distinct counters. Since
+## MI250s can sample a maximum of 8 SQ counters at any given time, the counters
+## are divided into two sets:
+##  - Set 1: FP64 vector and FP32 vector instructions
+##  - Set 2: FP16 vector and all matrix instructions
+##
+## The two counter sets are cyclically assigned to different GPU IDs in each
+## node, allowing to monitor all counters simultaneously:
+##  - GPU IDs 0, 2, 4, 6 are assigned Set 1
+##  - GPU IDs 1, 3, 5, 7 are assigned Set 2
+[omnistat.collectors.rocprofiler.flops_gpuid]
+sampling_mode = gpu-id
+counters = [
+        [
+            "SQ_INSTS_VALU_ADD_F64", "SQ_INSTS_VALU_MUL_F64",
+            "SQ_INSTS_VALU_TRANS_F64", "SQ_INSTS_VALU_FMA_F64",
+            "SQ_INSTS_VALU_ADD_F32", "SQ_INSTS_VALU_MUL_F32",
+            "SQ_INSTS_VALU_TRANS_F32", "SQ_INSTS_VALU_FMA_F32"
+        ],
+        [
+            "SQ_INSTS_VALU_ADD_F16", "SQ_INSTS_VALU_MUL_F16",
+            "SQ_INSTS_VALU_TRANS_F16", "SQ_INSTS_VALU_FMA_F16",
+            "SQ_INSTS_VALU_MFMA_MOPS_F64", "SQ_INSTS_VALU_MFMA_MOPS_F32",
+            "SQ_INSTS_VALU_MFMA_MOPS_F16", "SQ_INSTS_VALU_MFMA_MOPS_BF16"
+        ]
+    ]
+
+## Collect instruction counters to calculate FLOPS on MI250 GPUs.
+##
+## Same as "flops_gpuid", but instead of assigning the two counter sets to
+## different GPU IDs, alternates counter sets on every sample:
+##  - Sample 0: Set 1
+##  - Sample 1: Set 2
+##  - Sample 2: Set 1
+##  - Sample 3: Set 2
+##  - ...
+[omnistat.collectors.rocprofiler.flops_periodic]
+sampling_mode = periodic
+counters = [
+        [
+            "SQ_INSTS_VALU_ADD_F64", "SQ_INSTS_VALU_MUL_F64",
+            "SQ_INSTS_VALU_TRANS_F64", "SQ_INSTS_VALU_FMA_F64",
+            "SQ_INSTS_VALU_ADD_F32", "SQ_INSTS_VALU_MUL_F32",
+            "SQ_INSTS_VALU_TRANS_F32", "SQ_INSTS_VALU_FMA_F32"
+        ],
+        [
+            "SQ_INSTS_VALU_ADD_F16", "SQ_INSTS_VALU_MUL_F16",
+            "SQ_INSTS_VALU_TRANS_F16", "SQ_INSTS_VALU_FMA_F16",
+            "SQ_INSTS_VALU_MFMA_MOPS_F64", "SQ_INSTS_VALU_MFMA_MOPS_F32",
+            "SQ_INSTS_VALU_MFMA_MOPS_F16", "SQ_INSTS_VALU_MFMA_MOPS_BF16"
+        ]
+    ]
 
 [omnistat.query]
 
