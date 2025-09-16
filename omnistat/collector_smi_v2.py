@@ -324,15 +324,22 @@ class AMDSMI(Collector):
             for flow in ["read", "write"]:
                 target_metric = f"xgmi_total_{flow}_kilobytes"
                 source_metric = f"xgmi_{flow}_data_acc"
+
                 xgmi_values = metrics[source_metric]
+                xgmi_links = [i for i, v in enumerate(xgmi_values) if isinstance(v, int)]
 
-                xgmi_links = []
-                for i, value in enumerate(xgmi_values):
-                    if isinstance(value, int):
-                        xgmi_links.append(i)
+                # Confirm same active link configuration on all GPUs
+                for idx, device in enumerate(self.__devices):
+                    dev_metrics = smi.amdsmi_get_gpu_metrics_info(device)
+                    dev_xgmi_values = metrics[source_metric]
+                    dev_xgmi_links = [i for i, v in enumerate(dev_xgmi_values) if isinstance(v, int)]
+                    if dev_xgmi_links != xgmi_links:
+                        logging.warning("Non-homogenous XGMI configuration across GPUs: XGMI metrics disabled")
+                        xgmi_links = []
+                        break
 
-                logging.info(f"--> Identified {len(xgmi_links)} XGMI {flow} links")
                 if len(xgmi_links) > 0:
+                    logging.info(f"--> Identified {len(xgmi_links)} XGMI {flow} links")
                     self.__sumMetricMapping[target_metric] = (source_metric, xgmi_links)
                     metric_name = self.__prefix + target_metric
                     self.__GPUMetrics[metric_name] = Gauge(metric_name, target_metric, labelnames=["card"])
