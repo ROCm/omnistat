@@ -211,6 +211,14 @@ Each profile defines a sampling mode and a set of counters to be collected:
 The ROCprofiler data collector requires [building the ROCprofiler
 extension](./installation/extensions.md#rocprofiler).
 
+To ensure all performance counters are collected correctly, the collector has
+the following requirements depending on how Omnistat is executed:
+- *System mode*: Run Omnistat with the `CAP_PERFMON` capability enabled.
+- *User mode*: Set the `HSA_TOOLS_LIB` environment variable in the application's runtime environment.
+  ```shell
+  export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
+  ```
+
 **Collector**: `enable_rocprofiler`
 <br/>
 **Collector options**: `profile`
