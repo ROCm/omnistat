@@ -2034,7 +2034,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1025
+            "y": 1041
           },
           "id": 88,
           "interval": "$interval",
@@ -2144,7 +2144,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1025
+            "y": 1041
           },
           "id": 89,
           "interval": "$interval",
@@ -2294,7 +2294,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1502
+            "y": 1518
           },
           "id": 91,
           "interval": "$interval",
@@ -2445,7 +2445,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1510
+            "y": 1526
           },
           "id": 99,
           "interval": "$interval",
@@ -2609,7 +2609,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1510
+            "y": 1526
           },
           "id": 100,
           "interval": "$interval",
@@ -2758,7 +2758,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1026
+            "y": 1042
           },
           "id": 28,
           "interval": "$interval",
@@ -2820,7 +2820,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1026
+            "y": 1042
           },
           "id": 86,
           "interval": "$interval",
@@ -2933,7 +2933,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1412
+            "y": 1428
           },
           "id": 29,
           "interval": "$interval",
@@ -2995,7 +2995,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1412
+            "y": 1428
           },
           "id": 31,
           "interval": "$interval",
@@ -3136,7 +3136,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1420
+            "y": 1436
           },
           "id": 24,
           "interval": "$interval",
@@ -3210,7 +3210,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1027
+            "y": 1043
           },
           "id": 27,
           "interval": "$interval",
@@ -3320,7 +3320,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1027
+            "y": 1043
           },
           "id": 87,
           "interval": "$interval",
@@ -3470,7 +3470,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1038
+            "y": 1054
           },
           "id": 90,
           "interval": "$interval",
@@ -3637,7 +3637,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1046
+            "y": 1062
           },
           "id": 98,
           "interval": "$interval",
@@ -3817,7 +3817,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1046
+            "y": 1062
           },
           "id": 95,
           "interval": "$interval",
@@ -4088,7 +4088,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 1055
+            "y": 1071
           },
           "id": 52,
           "interval": "$interval",
@@ -4350,7 +4350,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 561
+            "y": 577
           },
           "id": 33,
           "interval": "$interval",
@@ -4459,7 +4459,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 569
+            "y": 585
           },
           "id": 128,
           "interval": "$interval",
@@ -4568,7 +4568,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 577
+            "y": 593
           },
           "id": 129,
           "interval": "$interval",
@@ -4677,7 +4677,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 585
+            "y": 601
           },
           "id": 130,
           "interval": "$interval",
@@ -4786,7 +4786,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 585
+            "y": 601
           },
           "id": 131,
           "interval": "$interval",
@@ -4909,7 +4909,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1431
+            "y": 1447
           },
           "id": 143,
           "interval": "$interval",
@@ -5009,7 +5009,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1439
+            "y": 1455
           },
           "id": 127,
           "interval": "$interval",
@@ -5109,7 +5109,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1447
+            "y": 1463
           },
           "id": 104,
           "interval": "$interval",
@@ -5209,7 +5209,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1455
+            "y": 1471
           },
           "id": 22,
           "interval": "$interval",
@@ -5309,7 +5309,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1463
+            "y": 1479
           },
           "id": 25,
           "interval": "$interval",
@@ -5409,7 +5409,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1463
+            "y": 1479
           },
           "id": 23,
           "interval": "$interval",
@@ -5523,7 +5523,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 851
+            "y": 867
           },
           "id": 144,
           "interval": "$interval",
@@ -5632,7 +5632,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 931
+            "y": 947
           },
           "id": 137,
           "interval": "$interval",
@@ -5741,7 +5741,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 939
+            "y": 955
           },
           "id": 138,
           "interval": "$interval",
@@ -5850,7 +5850,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 947
+            "y": 963
           },
           "id": 139,
           "interval": "$interval",
@@ -5959,7 +5959,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 955
+            "y": 971
           },
           "id": 140,
           "interval": "$interval",
@@ -6068,7 +6068,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 955
+            "y": 971
           },
           "id": 141,
           "interval": "$interval",
@@ -6192,7 +6192,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4423
+            "y": 4439
           },
           "id": 134,
           "interval": "$interval",
@@ -6444,7 +6444,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 94
+            "y": 110
           },
           "id": 125,
           "interval": "$interval",
@@ -6826,7 +6826,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "rate(\r\n    (64 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n    ))\r\n    +\r\n    (512 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\r\n        )\r\n    ))\r\n)[$interval]",
+              "expr": "rate(\r\n    (64 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n    ))\r\n    +\r\n    (512 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\r\n        )\r\n    ))\r\n)[$interval] != 0",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -6910,8 +6910,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -6926,7 +6925,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 64
+            "y": 80
           },
           "id": 120,
           "options": {
@@ -7107,8 +7106,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -7123,7 +7121,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 64
+            "y": 80
           },
           "id": 121,
           "options": {
@@ -7332,7 +7330,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 855
+            "y": 871
           },
           "id": 43,
           "interval": "$interval",
@@ -7441,7 +7439,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 855
+            "y": 871
           },
           "id": 48,
           "interval": "$interval",
@@ -7564,7 +7562,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 856
+            "y": 872
           },
           "id": 40,
           "interval": "$interval",
@@ -7674,7 +7672,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 856
+            "y": 872
           },
           "id": 42,
           "interval": "$interval",
@@ -7784,7 +7782,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 912
+            "y": 928
           },
           "id": 105,
           "interval": "$interval",
@@ -7894,7 +7892,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 912
+            "y": 928
           },
           "id": 106,
           "interval": "$interval",
@@ -8018,7 +8016,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 8390
+            "y": 8406
           },
           "id": 102,
           "interval": "$interval",
@@ -8128,7 +8126,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 8390
+            "y": 8406
           },
           "id": 103,
           "interval": "$interval",
@@ -8238,7 +8236,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 8398
+            "y": 8414
           },
           "id": 116,
           "interval": "$interval",
@@ -8348,7 +8346,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 8398
+            "y": 8414
           },
           "id": 117,
           "interval": "$interval",
@@ -8472,7 +8470,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 19164
+            "y": 19180
           },
           "id": 46,
           "interval": "$interval",
@@ -8581,7 +8579,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 19164
+            "y": 19180
           },
           "id": 45,
           "interval": "$interval",
@@ -8705,7 +8703,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 643
+            "y": 659
           },
           "id": 146,
           "interval": "$interval",
@@ -8815,7 +8813,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 651
+            "y": 667
           },
           "id": 149,
           "interval": "$interval",
@@ -8924,7 +8922,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 659
+            "y": 675
           },
           "id": 147,
           "interval": "$interval",
@@ -9033,7 +9031,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 667
+            "y": 683
           },
           "id": 148,
           "interval": "$interval",
@@ -9157,7 +9155,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3668
+            "y": 3684
           },
           "id": 135,
           "interval": "$interval",
@@ -9321,7 +9319,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3717
+            "y": 3733
           },
           "id": 56,
           "interval": "$interval",
@@ -9545,7 +9543,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17718
+            "y": 17734
           },
           "id": 107,
           "interval": "$interval",
@@ -9740,7 +9738,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17718
+            "y": 17734
           },
           "id": 112,
           "interval": "$interval",
@@ -9899,7 +9897,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17726
+            "y": 17742
           },
           "id": 108,
           "interval": "$interval",
@@ -10127,7 +10125,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17726
+            "y": 17742
           },
           "id": 113,
           "interval": "$interval",
@@ -10282,7 +10280,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17734
+            "y": 17750
           },
           "id": 109,
           "interval": "$interval",
@@ -10510,7 +10508,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17734
+            "y": 17750
           },
           "id": 115,
           "interval": "$interval",
@@ -10666,7 +10664,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17742
+            "y": 17758
           },
           "id": 110,
           "interval": "$interval",
@@ -10890,7 +10888,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17742
+            "y": 17758
           },
           "id": 114,
           "interval": "$interval",
