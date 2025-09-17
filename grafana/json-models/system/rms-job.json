@@ -1764,7 +1764,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 505
+            "y": 585
           },
           "id": 88,
           "interval": "$interval",
@@ -1874,7 +1874,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 505
+            "y": 585
           },
           "id": 89,
           "interval": "$interval",
@@ -2024,7 +2024,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 982
+            "y": 1062
           },
           "id": 91,
           "interval": "$interval",
@@ -2175,7 +2175,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 990
+            "y": 1070
           },
           "id": 99,
           "interval": "$interval",
@@ -2339,7 +2339,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 990
+            "y": 1070
           },
           "id": 100,
           "interval": "$interval",
@@ -2488,7 +2488,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 506
+            "y": 586
           },
           "id": 28,
           "interval": "$interval",
@@ -2550,7 +2550,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 506
+            "y": 586
           },
           "id": 86,
           "interval": "$interval",
@@ -2663,7 +2663,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 892
+            "y": 972
           },
           "id": 29,
           "interval": "$interval",
@@ -2725,7 +2725,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 892
+            "y": 972
           },
           "id": 31,
           "interval": "$interval",
@@ -2866,7 +2866,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 900
+            "y": 980
           },
           "id": 24,
           "interval": "$interval",
@@ -2940,7 +2940,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 507
+            "y": 587
           },
           "id": 27,
           "interval": "$interval",
@@ -3050,7 +3050,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 507
+            "y": 587
           },
           "id": 87,
           "interval": "$interval",
@@ -3200,7 +3200,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 518
+            "y": 598
           },
           "id": 90,
           "interval": "$interval",
@@ -3367,7 +3367,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 526
+            "y": 606
           },
           "id": 98,
           "interval": "$interval",
@@ -3547,7 +3547,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 526
+            "y": 606
           },
           "id": 95,
           "interval": "$interval",
@@ -3818,7 +3818,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 535
+            "y": 615
           },
           "id": 52,
           "interval": "$interval",
@@ -3955,8 +3955,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -4065,8 +4064,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -4082,7 +4080,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 41
+            "y": 121
           },
           "id": 33,
           "interval": "$interval",
@@ -4175,8 +4173,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -4192,7 +4189,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 49
+            "y": 129
           },
           "id": 128,
           "interval": "$interval",
@@ -4285,8 +4282,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -4302,7 +4298,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 57
+            "y": 137
           },
           "id": 129,
           "interval": "$interval",
@@ -4395,8 +4391,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -4412,7 +4407,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 65
+            "y": 145
           },
           "id": 130,
           "interval": "$interval",
@@ -4505,8 +4500,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -4522,7 +4516,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 65
+            "y": 145
           },
           "id": 131,
           "interval": "$interval",
@@ -4645,7 +4639,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 911
+            "y": 991
           },
           "id": 143,
           "interval": "$interval",
@@ -4745,7 +4739,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 919
+            "y": 999
           },
           "id": 127,
           "interval": "$interval",
@@ -4845,7 +4839,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 927
+            "y": 1007
           },
           "id": 104,
           "interval": "$interval",
@@ -4945,7 +4939,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 935
+            "y": 1015
           },
           "id": 22,
           "interval": "$interval",
@@ -5045,7 +5039,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 943
+            "y": 1023
           },
           "id": 25,
           "interval": "$interval",
@@ -5145,7 +5139,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 943
+            "y": 1023
           },
           "id": 23,
           "interval": "$interval",
@@ -5259,7 +5253,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 331
+            "y": 411
           },
           "id": 144,
           "interval": "$interval",
@@ -5368,7 +5362,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 411
+            "y": 491
           },
           "id": 137,
           "interval": "$interval",
@@ -5477,7 +5471,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 419
+            "y": 499
           },
           "id": 138,
           "interval": "$interval",
@@ -5586,7 +5580,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 427
+            "y": 507
           },
           "id": 139,
           "interval": "$interval",
@@ -5695,7 +5689,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 435
+            "y": 515
           },
           "id": 140,
           "interval": "$interval",
@@ -5804,7 +5798,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 435
+            "y": 515
           },
           "id": 141,
           "interval": "$interval",
@@ -5928,7 +5922,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3903
+            "y": 3983
           },
           "id": 134,
           "interval": "$interval",
@@ -5992,7 +5986,7 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "Performance counter rate using based on raw values from each counter without any other transformation.",
+          "description": "Rates based on raw values from each counter.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6036,7 +6030,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -6052,7 +6047,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3142
+            "y": 37
           },
           "id": 125,
           "interval": "$interval",
@@ -6081,7 +6076,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "rate(omnistat_rocprofiler{counter=\"$counters\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})",
+              "expr": "rate(omnistat_hardware_counter{name=\"$counters\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "{{instance}}, {{card}}",
@@ -6089,7 +6084,7 @@
               "refId": "A"
             }
           ],
-          "title": "GPU Performance Counter $counters (counts/s)",
+          "title": "GPU Hardware Counter $counters (counts/s)",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -6102,7 +6097,7 @@
           "type": "timeseries"
         }
       ],
-      "title": "GPU Counters [all GPUs]",
+      "title": "GPU Counters - Rates [all GPUs]",
       "type": "row"
     },
     {
@@ -6112,6 +6107,135 @@
         "w": 24,
         "x": 0,
         "y": 37
+      },
+      "id": 150,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Raw values from each counter without any other transformation.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "sci"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 46
+          },
+          "id": 151,
+          "interval": "$interval",
+          "maxPerRow": 2,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.5.2",
+          "repeat": "counters",
+          "repeatDirection": "h",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "(omnistat_hardware_counter{name=\"$counters\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "{{instance}}, {{card}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "GPU Hardware Counter $counters (counts)",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "([^,:]+)(?:[:].*)?, (.+)",
+                "renamePattern": "GPU: $1/$2"
+              }
+            }
+          ],
+          "type": "timeseries"
+        }
+      ],
+      "title": "GPU Counters - Raw Values [all GPUs]",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 38
       },
       "id": 122,
       "panels": [
@@ -6180,7 +6304,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3863
+            "y": 3943
           },
           "id": 120,
           "options": {
@@ -6376,7 +6500,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3863
+            "y": 3943
           },
           "id": 121,
           "options": {
@@ -6517,7 +6641,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 39
       },
       "id": 44,
       "panels": [
@@ -6585,7 +6709,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 335
+            "y": 415
           },
           "id": 43,
           "interval": "$interval",
@@ -6694,7 +6818,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 335
+            "y": 415
           },
           "id": 48,
           "interval": "$interval",
@@ -6749,7 +6873,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 40
       },
       "id": 101,
       "panels": [
@@ -6817,7 +6941,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 336
+            "y": 416
           },
           "id": 40,
           "interval": "$interval",
@@ -6927,7 +7051,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 336
+            "y": 416
           },
           "id": 42,
           "interval": "$interval",
@@ -6983,7 +7107,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 41
       },
       "id": 41,
       "panels": [
@@ -7051,7 +7175,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 7870
+            "y": 7950
           },
           "id": 102,
           "interval": "$interval",
@@ -7161,7 +7285,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 7870
+            "y": 7950
           },
           "id": 103,
           "interval": "$interval",
@@ -7217,7 +7341,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 41
+        "y": 42
       },
       "id": 83,
       "panels": [
@@ -7285,7 +7409,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18644
+            "y": 18724
           },
           "id": 46,
           "interval": "$interval",
@@ -7394,7 +7518,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18644
+            "y": 18724
           },
           "id": 45,
           "interval": "$interval",
@@ -7449,7 +7573,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 44
       },
       "id": 132,
       "panels": [
@@ -7518,7 +7642,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3148
+            "y": 3228
           },
           "id": 135,
           "interval": "$interval",
@@ -7575,7 +7699,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 45
       },
       "id": 57,
       "panels": [
@@ -7682,7 +7806,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3197
+            "y": 3277
           },
           "id": 56,
           "interval": "$interval",
@@ -7775,7 +7899,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 46
       },
       "id": 111,
       "panels": [
@@ -7906,7 +8030,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17198
+            "y": 17278
           },
           "id": 107,
           "interval": "$interval",
@@ -8101,7 +8225,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17198
+            "y": 17278
           },
           "id": 112,
           "interval": "$interval",
@@ -8260,7 +8384,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17206
+            "y": 17286
           },
           "id": 108,
           "interval": "$interval",
@@ -8488,7 +8612,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17206
+            "y": 17286
           },
           "id": 113,
           "interval": "$interval",
@@ -8643,7 +8767,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17214
+            "y": 17294
           },
           "id": 109,
           "interval": "$interval",
@@ -8871,7 +8995,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17214
+            "y": 17294
           },
           "id": 115,
           "interval": "$interval",
@@ -9027,7 +9151,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17222
+            "y": 17302
           },
           "id": 110,
           "interval": "$interval",
@@ -9251,7 +9375,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17222
+            "y": 17302
           },
           "id": 114,
           "interval": "$interval",
@@ -9414,7 +9538,7 @@
           "type": "prometheus",
           "uid": "${source}"
         },
-        "definition": "query_result(group by (counter) (omnistat_rocprofiler * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+        "definition": "query_result(group by (name) (omnistat_hardware_counter * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
         "hide": 2,
         "includeAll": true,
         "label": "Counters",
@@ -9423,11 +9547,11 @@
         "options": [],
         "query": {
           "qryType": 3,
-          "query": "query_result(group by (counter) (omnistat_rocprofiler * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+          "query": "query_result(group by (name) (omnistat_hardware_counter * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
-        "regex": "/.*counter=\"([^\"]*).*/",
+        "regex": "/.*name=\"([^\"]*).*/",
         "sort": 1,
         "type": "query"
       },
