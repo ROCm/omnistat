@@ -14,7 +14,7 @@ x-node: &node
     - ../../../:/host-source
   expose:
     - 6818
-    - 8001
+    - 8002
   devices:
     - /dev/kfd
     - /dev/dri
