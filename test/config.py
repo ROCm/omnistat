@@ -13,7 +13,7 @@ victoria_url = "http://localhost:9090/"
 time_range = "30m"
 
 # Omnistat monitor port; same port is used for system and user tests.
-port = "8001"
+port = "8002"
 
 # Path to prometheus data for user-level executions; needs to match datadir
 # as defined in docker/slurm/omnistat-user.config.
