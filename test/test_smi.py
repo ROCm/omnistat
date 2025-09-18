@@ -98,7 +98,7 @@ class TestMonitor:
 
 class TestSMI:
     @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
-    @pytest.mark.parametrize("smi_config", [CONFIG_ROCM_SMI,  CONFIG_AMD_SMI])
+    @pytest.mark.parametrize("smi_config", [CONFIG_ROCM_SMI, CONFIG_AMD_SMI])
     def test_smi_init(self, smi_config):
         monitor = TestMonitor(smi_config)
         response = monitor.get()
