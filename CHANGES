@@ -1,3 +1,12 @@
+Version 1.8 (19 September 2025)
+
+  * add ability to control log level via environment variable (#215)
+  * documentation updates to include vendor metrics (#217)
+  * refactor of hardware counter sampling to leverage rocprofiler-sdk and support multiplexing (#221)
+  * refactored collector base class to simplify dynamic loading and sharing of runtime configuration (#222)
+  * updated python dependencies (#223, #224)
+  * added support to track XGMI read/write traffic in SMI collectors (#226)
+
 Version 1.7 (08 August 2025)
 
   * documentation enhancements outlining data collector options and available metrics (#175)
