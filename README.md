@@ -31,6 +31,8 @@ basis). Relevant target metrics include:
 * RAS information (error counts per GPU block)
 * GPU power caps
 * GPU throttling events
+* XGMI traffic
+* GPU hardware counters
 * Host network traffic (rx and tx)
 
 
