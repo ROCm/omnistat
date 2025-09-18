@@ -1,6 +1,6 @@
 Version 1.8 (19 September 2025)
 
-  * add ability to control log level via environment variable (#215)
+  * added ability to control log level via environment variable (#215)
   * documentation updates to include vendor metrics (#217)
   * refactor of hardware counter sampling to leverage rocprofiler-sdk and support multiplexing (#221)
   * refactored collector base class to simplify dynamic loading and sharing of runtime configuration (#222)
