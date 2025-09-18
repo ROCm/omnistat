@@ -1764,7 +1764,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 585
+            "y": 1041
           },
           "id": 88,
           "interval": "$interval",
@@ -1874,7 +1874,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 585
+            "y": 1041
           },
           "id": 89,
           "interval": "$interval",
@@ -2024,7 +2024,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1062
+            "y": 1518
           },
           "id": 91,
           "interval": "$interval",
@@ -2175,7 +2175,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1070
+            "y": 1526
           },
           "id": 99,
           "interval": "$interval",
@@ -2339,7 +2339,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1070
+            "y": 1526
           },
           "id": 100,
           "interval": "$interval",
@@ -2488,7 +2488,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 586
+            "y": 1042
           },
           "id": 28,
           "interval": "$interval",
@@ -2550,7 +2550,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 586
+            "y": 1042
           },
           "id": 86,
           "interval": "$interval",
@@ -2663,7 +2663,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 972
+            "y": 1428
           },
           "id": 29,
           "interval": "$interval",
@@ -2725,7 +2725,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 972
+            "y": 1428
           },
           "id": 31,
           "interval": "$interval",
@@ -2866,7 +2866,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 980
+            "y": 1436
           },
           "id": 24,
           "interval": "$interval",
@@ -2940,7 +2940,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 587
+            "y": 1043
           },
           "id": 27,
           "interval": "$interval",
@@ -3050,7 +3050,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 587
+            "y": 1043
           },
           "id": 87,
           "interval": "$interval",
@@ -3200,7 +3200,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 598
+            "y": 1054
           },
           "id": 90,
           "interval": "$interval",
@@ -3367,7 +3367,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 606
+            "y": 1062
           },
           "id": 98,
           "interval": "$interval",
@@ -3547,7 +3547,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 606
+            "y": 1062
           },
           "id": 95,
           "interval": "$interval",
@@ -3818,7 +3818,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 615
+            "y": 1071
           },
           "id": 52,
           "interval": "$interval",
@@ -4080,7 +4080,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 121
+            "y": 577
           },
           "id": 33,
           "interval": "$interval",
@@ -4189,7 +4189,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 129
+            "y": 585
           },
           "id": 128,
           "interval": "$interval",
@@ -4298,7 +4298,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 137
+            "y": 593
           },
           "id": 129,
           "interval": "$interval",
@@ -4407,7 +4407,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 145
+            "y": 601
           },
           "id": 130,
           "interval": "$interval",
@@ -4516,7 +4516,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 145
+            "y": 601
           },
           "id": 131,
           "interval": "$interval",
@@ -4639,7 +4639,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 991
+            "y": 1447
           },
           "id": 143,
           "interval": "$interval",
@@ -4739,7 +4739,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 999
+            "y": 1455
           },
           "id": 127,
           "interval": "$interval",
@@ -4839,7 +4839,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1007
+            "y": 1463
           },
           "id": 104,
           "interval": "$interval",
@@ -4939,7 +4939,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1015
+            "y": 1471
           },
           "id": 22,
           "interval": "$interval",
@@ -5039,7 +5039,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1023
+            "y": 1479
           },
           "id": 25,
           "interval": "$interval",
@@ -5139,7 +5139,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1023
+            "y": 1479
           },
           "id": 23,
           "interval": "$interval",
@@ -5253,7 +5253,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 411
+            "y": 867
           },
           "id": 144,
           "interval": "$interval",
@@ -5362,7 +5362,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 491
+            "y": 947
           },
           "id": 137,
           "interval": "$interval",
@@ -5471,7 +5471,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 499
+            "y": 955
           },
           "id": 138,
           "interval": "$interval",
@@ -5580,7 +5580,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 507
+            "y": 963
           },
           "id": 139,
           "interval": "$interval",
@@ -5689,7 +5689,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 515
+            "y": 971
           },
           "id": 140,
           "interval": "$interval",
@@ -5798,7 +5798,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 515
+            "y": 971
           },
           "id": 141,
           "interval": "$interval",
@@ -5922,7 +5922,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3983
+            "y": 4439
           },
           "id": 134,
           "interval": "$interval",
@@ -5979,135 +5979,6 @@
         "x": 0,
         "y": 36
       },
-      "id": 133,
-      "panels": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${source}"
-          },
-          "description": "Rates based on raw values from each counter.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "cps"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 37
-          },
-          "id": 125,
-          "interval": "$interval",
-          "maxPerRow": 2,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.5.2",
-          "repeat": "counters",
-          "repeatDirection": "h",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${source}"
-              },
-              "editorMode": "code",
-              "expr": "rate(omnistat_hardware_counter{name=\"$counters\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})",
-              "instant": false,
-              "interval": "$interval",
-              "legendFormat": "{{instance}}, {{card}}",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "GPU Hardware Counter $counters (counts/s)",
-          "transformations": [
-            {
-              "id": "renameByRegex",
-              "options": {
-                "regex": "([^,:]+)(?:[:].*)?, (.+)",
-                "renamePattern": "GPU: $1/$2"
-              }
-            }
-          ],
-          "type": "timeseries"
-        }
-      ],
-      "title": "GPU Counters - Rates [all GPUs]",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 37
-      },
       "id": 150,
       "panels": [
         {
@@ -6159,8 +6030,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -6176,7 +6046,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 46
+            "y": 37
           },
           "id": 151,
           "interval": "$interval",
@@ -6235,7 +6105,488 @@
         "h": 1,
         "w": 24,
         "x": 0,
+        "y": 37
+      },
+      "id": 133,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Rates based on raw values from each counter. Meant to be used with the \"constant\" and \"gpu-id\" sampling modes.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "cps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 110
+          },
+          "id": 125,
+          "interval": "$interval",
+          "maxPerRow": 2,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.5.2",
+          "repeat": "counters",
+          "repeatDirection": "h",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "rate(omnistat_hardware_counter{name=\"$counters\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "{{instance}}, {{card}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "GPU Hardware Counter $counters (counts/s)",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "([^,:]+)(?:[:].*)?, (.+)",
+                "renamePattern": "GPU: $1/$2"
+              }
+            }
+          ],
+          "type": "timeseries"
+        }
+      ],
+      "title": "GPU Counters - Rates [all GPUs]",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
         "y": 38
+      },
+      "id": 152,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Requires enabling the rocprofiler collector and configuring it to collect the \"FETCH_SIZE\" counter using one of the following sampling modes: \"constant\" or \"gpu-id\".",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "KBs"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 39
+          },
+          "id": 153,
+          "interval": "$interval",
+          "maxPerRow": 2,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.5.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "rate(omnistat_hardware_counter{name=\"FETCH_SIZE\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "{{instance}}, {{card}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "HBM Read Bandwidth",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "([^,:]+)(?:[:].*)?, (.+)",
+                "renamePattern": "GPU: $1/$2"
+              }
+            }
+          ],
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Requires enabling the rocprofiler collector and configuring it to collect the \"WRITE_SIZE\" counter using one of the following sampling modes: \"constant\" or \"gpu-id\".",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "KBs"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 39
+          },
+          "id": 154,
+          "interval": "$interval",
+          "maxPerRow": 2,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.5.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "rate(omnistat_hardware_counter{name=\"WRITE_SIZE\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "{{instance}}, {{card}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "HBM Write Bandwidth",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "([^,:]+)(?:[:].*)?, (.+)",
+                "renamePattern": "GPU: $1/$2"
+              }
+            }
+          ],
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Average FLOPS for a single GPU in each node.\n\nRequires enabling the rocprofiler collector and configuring it to collect the \"SQ_INSTS_VALU_*\" counters using one of the following sampling modes: \"constant\" or \"gpu-id\".",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "flops"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 47
+          },
+          "id": 155,
+          "interval": "$interval",
+          "maxPerRow": 2,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.5.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "rate(\r\n    (64 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n    ))\r\n    +\r\n    (512 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\r\n        )\r\n    ))\r\n)[$interval] != 0",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "FLOPS: GPU Average",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "([^,:]+)(?:[:].*)?",
+                "renamePattern": "$1"
+              }
+            }
+          ],
+          "type": "timeseries"
+        }
+      ],
+      "title": "GPU Counters - Metrics",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
       },
       "id": 122,
       "panels": [
@@ -6304,7 +6655,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3943
+            "y": 80
           },
           "id": 120,
           "options": {
@@ -6500,7 +6851,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3943
+            "y": 80
           },
           "id": 121,
           "options": {
@@ -6641,7 +6992,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 40
       },
       "id": 44,
       "panels": [
@@ -6709,7 +7060,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 415
+            "y": 871
           },
           "id": 43,
           "interval": "$interval",
@@ -6818,7 +7169,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 415
+            "y": 871
           },
           "id": 48,
           "interval": "$interval",
@@ -6873,7 +7224,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 41
       },
       "id": 101,
       "panels": [
@@ -6941,7 +7292,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 416
+            "y": 872
           },
           "id": 40,
           "interval": "$interval",
@@ -7051,7 +7402,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 416
+            "y": 872
           },
           "id": 42,
           "interval": "$interval",
@@ -7107,7 +7458,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 41
+        "y": 42
       },
       "id": 41,
       "panels": [
@@ -7175,7 +7526,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 7950
+            "y": 8406
           },
           "id": 102,
           "interval": "$interval",
@@ -7285,7 +7636,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 7950
+            "y": 8406
           },
           "id": 103,
           "interval": "$interval",
@@ -7341,7 +7692,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 43
       },
       "id": 83,
       "panels": [
@@ -7409,7 +7760,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18724
+            "y": 19180
           },
           "id": 46,
           "interval": "$interval",
@@ -7518,7 +7869,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18724
+            "y": 19180
           },
           "id": 45,
           "interval": "$interval",
@@ -7573,7 +7924,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 45
       },
       "id": 132,
       "panels": [
@@ -7642,7 +7993,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3228
+            "y": 3684
           },
           "id": 135,
           "interval": "$interval",
@@ -7699,7 +8050,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 46
       },
       "id": 57,
       "panels": [
@@ -7806,7 +8157,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3277
+            "y": 3733
           },
           "id": 56,
           "interval": "$interval",
@@ -7899,7 +8250,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 47
       },
       "id": 111,
       "panels": [
@@ -8030,7 +8381,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17278
+            "y": 17734
           },
           "id": 107,
           "interval": "$interval",
@@ -8225,7 +8576,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17278
+            "y": 17734
           },
           "id": 112,
           "interval": "$interval",
@@ -8384,7 +8735,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17286
+            "y": 17742
           },
           "id": 108,
           "interval": "$interval",
@@ -8612,7 +8963,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17286
+            "y": 17742
           },
           "id": 113,
           "interval": "$interval",
@@ -8767,7 +9118,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17294
+            "y": 17750
           },
           "id": 109,
           "interval": "$interval",
@@ -8995,7 +9346,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17294
+            "y": 17750
           },
           "id": 115,
           "interval": "$interval",
@@ -9151,7 +9502,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17302
+            "y": 17758
           },
           "id": 110,
           "interval": "$interval",
@@ -9375,7 +9726,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17302
+            "y": 17758
           },
           "id": 114,
           "interval": "$interval",
