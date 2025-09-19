@@ -107,7 +107,7 @@ system_name = ORNL Frontier
 
 [omnistat.usermode]
 
-victoria_binary = /autofs/nccs-svm1_sw/crusher/amdsw/omnistat/victoria-metrics-linux-amd64-v1.109.0/victoria-metrics-prod
+victoria_binary = /sw/frontier/amdsw/omnistat//victoria-metrics-linux-amd64-v1.109.0/victoria-metrics-prod
 victoria_datadir = /lustre/orion/%(SLURM_JOB_ACCOUNT)s/scratch/%(USER)s/omnistat/%(SLURM_JOB_ID)s
 victoria_logfile = vic_server.log
 
@@ -115,7 +115,7 @@ victoria_logfile = vic_server.log
 #victoria_datadir = /lustre/orion/%(SLURM_JOB_ACCOUNT)s/world-shared/omnistat/%(SLURM_JOB_ID)s
 
 
-prometheus_binary = /autofs/nccs-svm1_sw/crusher/amdsw/omnistat/prometheus-2.45.1.linux-amd64/prometheus
+prometheus_binary = /sw/frontier/amdsw/omnistat/prometheus-2.45.1.linux-amd64/prometheus
 prometheus_datadir = /lustre/orion/%(SLURM_JOB_ACCOUNT)s/scratch/%(USER)s/omnistat/%(SLURM_JOB_ID)s
 prometheus_logfile = prom_server.log
 
