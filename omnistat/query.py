@@ -411,7 +411,7 @@ class QueryMetrics:
 
         for gpu in range(self.num_gpus):
             times_raw, values_raw, hosts = self.query_time_series_data(
-                f'omnistat_vendor_accel_energy_joules{{card="{gpu}"}}'
+                f'omnistat_vendor_accel_energy_joules{{accel="{gpu}"}}'
             )
             if values_raw:
                 vendor_ngpus += 1
