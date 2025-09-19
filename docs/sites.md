@@ -48,7 +48,7 @@ use of the wrapper utility before and after executing a GPU application is highl
    #SBATCH -S 0
 
    # Setup and launch Omnistat (wrapper version)
-   ml use /autofs/nccs-svm1_sw/crusher/amdsw/modules
+   ml use /sw/frontier/amdsw/modulefiles
    ml omnistat-wrapper
    ${OMNISTAT_WRAPPER} usermode --start --interval 1.0
 
@@ -81,7 +81,7 @@ directory. It's possible to override the default path using the
    #SBATCH -S 0
 
    # Setup and launch Omnistat (wrapper version)
-   ml use /autofs/nccs-svm1_sw/crusher/amdsw/modules
+   ml use /sw/frontier/amdsw/modulefiles
    ml omnistat-wrapper
    export OMNISTAT_VICTORIA_DATADIR=/tmp/omnistat/${SLURM_JOB_ID}
    ${OMNISTAT_WRAPPER} usermode --start --interval 1.0
