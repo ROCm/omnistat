@@ -52,7 +52,7 @@ OCCUPANCY_METRICS = [
     "rocm_compute_unit_occupancy",
 ]
 
-COLLECTORS = [
+COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocm_smi"],
         "metrics": SMI_METRICS,
@@ -79,44 +79,21 @@ COLLECTORS = [
     },
 ]
 
-CONFIG_TEMPLATE = """
-[omnistat.collectors]
-enable_rocm_smi = {rocm_smi}
-enable_amd_smi = {amd_smi}
-enable_ras_ecc = {ras_ecc}
-enable_network = {network}
-enable_cu_occupancy = {cu_occupancy}
-rocm_path = {rocm_path}
-"""
+
+SUPPORTED_COLLECTORS = set()
+for config in COLLECTOR_CONFIGS:
+    for collector in config["collectors"]:
+        SUPPORTED_COLLECTORS.add(collector)
 
 
-def generate_config(enabled_collectors):
-    values = {
-        "rocm_smi": False,
-        "amd_smi": False,
-        "ras_ecc": False,
-        "network": False,
-        "cu_occupancy": False,
-        "rocm_path": test.config.rocm_path,
-    }
-
-    for collector in enabled_collectors:
-        values[collector] = True
-
-    config = CONFIG_TEMPLATE.format(**values)
-    return config
-
-
-class TestMonitor:
-    __test__ = False
-
-    def __init__(self, config_string):
+class OmnistatTestServer:
+    def __init__(self, collectors):
         self.address = f"localhost:{test.config.port}"
         self.url = f"http://{self.address}/metrics"
         self.timeout = 3.0
+        self.collectors = collectors
 
-        config = configparser.ConfigParser()
-        config.read_string(config_string)
+        config = self.generate_config(self.collectors)
         monitor = Monitor(config)
 
         def post_fork(server, worker):
@@ -135,11 +112,21 @@ class TestMonitor:
             self.stop()
         assert running is True, "Failed to start Omnistat monitor"
 
-    def __del__(self):
-        self.stop()
-
     def stop(self):
         self._process.terminate()
+
+    def generate_config(self, enabled_collectors):
+        config = configparser.ConfigParser()
+        collectors = {"rocm_path": test.config.rocm_path}
+
+        for collector in SUPPORTED_COLLECTORS:
+            collectors[f"enable_{collector}"] = False
+
+        for collector in enabled_collectors:
+            collectors[f"enable_{collector}"] = True
+
+        config["omnistat.collectors"] = collectors
+        return config
 
     def wait_for_server(self):
         # Wait until endpoint is up and running, or timeout.
@@ -162,19 +149,23 @@ class TestMonitor:
             print(f"Error fetching metrics: {e}")
 
 
+# Fixture to manage server lifecycle
+@pytest.fixture(params=[x["collectors"] for x in COLLECTOR_CONFIGS])
+def server(request):
+    server = OmnistatTestServer(request.param)
+    yield server
+    server.stop()
+
+
 class TestCollectors:
     @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
-    @pytest.mark.parametrize(
-        "enabled_collectors, expected_metrics", [(x["collectors"], x["metrics"]) for x in COLLECTORS]
-    )
-    def test_collector_init(self, enabled_collectors, expected_metrics):
-        config = generate_config(enabled_collectors)
-        monitor = TestMonitor(config)
-
-        response = monitor.get()
+    def test_collector_metrics(self, server):
+        response = server.get()
         available_metrics = {metric.name for metric in response}
+
+        enabled_collectors = server.collectors
+        expected_metrics = next((x["metrics"] for x in COLLECTOR_CONFIGS if x["collectors"] == enabled_collectors), [])
+        assert len(expected_metrics) > 1, f"Failed to find expected metrics for {enabled_collectors}"
 
         for metric in expected_metrics:
             assert metric in available_metrics, f"Missing metric {metric} with {enabled_collectors}"
-
-        monitor.stop()
