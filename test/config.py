@@ -1,3 +1,4 @@
+import os
 import shutil
 
 # Variable used to skip tests that depend on a ROCm installation; assume
@@ -14,6 +15,8 @@ time_range = "30m"
 
 # Omnistat monitor port; same port is used for system and user tests.
 port = "8002"
+
+rocm_path = os.getenv("ROCM_PATH", "/opt/rocm")
 
 # Path to prometheus data for user-level executions; needs to match datadir
 # as defined in docker/slurm/omnistat-user.config.
