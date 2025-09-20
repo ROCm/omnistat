@@ -12,12 +12,21 @@ The core telemetry collection facilities within Omnistat are oriented around GPU
 .. code-block:: python
    :caption: Base class definition housed in omnistat/collector_base.py
 
-   # Base Collector class - defines required methods for all metric collectors
+   # Base Collector class - defines optional and required methods for all metric collectors
    # implemented as a child class.
 
    from abc import ABC, abstractmethod
 
    class Collector(ABC):
+      # Optional init method that can be overridden
+      def __init__(self, config: configparser.ConfigParser):
+        """Optional initializer for Collector.
+
+        Args:
+            config (configparser.ConfigParser): Cached copy of runtime configuration.
+        """
+        self.runtimeConfig = config
+
       # Required methods to be implemented by child classes
       @abstractmethod
       def registerMetrics(self):
@@ -34,6 +43,8 @@ As shown above, the base `Collector` class requires developers to implement **tw
 
 1. `registerMetrics()`: this method is called once during Omnistat startup process and defines one or more Prometheus metrics to be monitored by the new collector.
 1. `updateMetrics()`: this method is called during every sampling request and is tasked with updating all defined metrics with the latest measured values.
+
+In addition, developers may also override the default `__init__` method shown above. When overriding the default implementation, note the configparser.ConfigParser argument which provides a cached copy of the Omnistat runtime configuration that can be used to further control collector behavior.
 
 Note: developers are free to implement other supporting routines to assist in their data collection needs, but are required to implement the two named methods above.
 
