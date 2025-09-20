@@ -30,13 +30,13 @@ from omnistat.collector_base import Collector
 
 
 class NODEUptime(Collector):
-    def __init__(self):
-        logging.debug("Initializing node uptime event collector")
-        self.__metrics = {}  # method storage for Prometheus metrics
-        self.__kernelver = None  # method storage for kernel version
 
     # Required child methods
     def registerMetrics(self):
+
+        logging.debug("Initializing node uptime event collector")
+        self.__metrics = {}  # method storage for Prometheus metrics
+        self.__kernelver = None  # method storage for kernel version
 
         # gather local Linux kernel to store as a label
         with open("/proc/version", "r") as f:
