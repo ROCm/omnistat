@@ -412,7 +412,7 @@ class UserBasedMonitoring:
 
             # trying local ssh client implementation
             launch_results = utils.execute_ssh_parallel(
-                command=f"sh -c 'cd {os.getcwd()} && PYTHONPATH={':'.join(sys.path)} {additional_env} {cmd}'",
+                command=f"sh -c 'cd {os.getcwd()} && LD_LIBRARY_PATH={os.getenv('LD_LIBRARY_PATH')} PYTHONPATH={':'.join(sys.path)} {additional_env} {cmd}'",
                 hostnames=self.__hosts,
                 max_concurrent=128,
                 ssh_timeout=100,
