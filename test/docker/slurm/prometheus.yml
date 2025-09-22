@@ -4,5 +4,5 @@ scrape_configs:
    scrape_timeout: 1s
    static_configs:
     - targets:
-       - node1:8001
-       - node2:8001
+       - node1:8002
+       - node2:8002
