@@ -62,10 +62,20 @@ to individual users or applications.
 
 ## Annotations
 
-The resource manager collector optionally allows users to add application-level context to Omnistat metrics using the
-`omnistat-annotate` tool. This is useful for marking specific events or phases
-within an application, such as the start and end of a computation, making it
-easier to correlate performance data with application behavior.
+The resource manager collector optionally allows users to add application-level context to Omnistat metrics using the `omnistat-annotate` tool. This is useful for marking specific events or phases within an application, such as the start and end of a computation, making it
+easier to correlate performance data with application behavior.  To demonstrate creation of high-level markers from within a job script, the following snippet highlights annotation of repeated runs of an application with different command-line arguments (where the argument size included as text for the annotation).
+
+```eval_rst
+.. code-block:: bash
+   :caption: Example use of high-level annotations in a job script
+
+    for SIZE in 102400 358400 768000; do
+        ${OMNISTAT_DIR}/omnistat-annotate --mode start --text  "Size=${SIZE}"
+        ./my_app --size ${SIZE}
+        ${OMNISTAT_DIR}/omnistat-annotate --mode stop
+        sleep 5
+    done
+```
 
 **Collector**: `enable_rms`
 <br/>
