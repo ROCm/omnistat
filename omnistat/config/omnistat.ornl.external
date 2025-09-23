@@ -7,7 +7,7 @@
 port = 8001
 enable_rocm_smi = True
 enable_amd_smi = False
-enable_ras_ecc = True
+enable_ras_ecc = False
 enable_rms = True
 enable_rocprofiler = False
 enable_network = True
@@ -112,15 +112,14 @@ external_victoria_endpoint = omnistat.koomie.org
 external_victoria_port = 8440
 external_proxy=http://proxy.ccs.ornl.gov:3128/
 
-victoria_binary = /autofs/nccs-svm1_sw/crusher/amdsw/omnistat/victoria-metrics-linux-amd64-v1.109.0/victoria-metrics-prod
+victoria_binary = /sw/frontier/amdsw/omnistat//victoria-metrics-linux-amd64-v1.109.0/victoria-metrics-prod
 victoria_datadir = /lustre/orion/%(SLURM_JOB_ACCOUNT)s/scratch/%(USER)s/omnistat/%(SLURM_JOB_ID)s
 victoria_logfile = vic_server.log
 
 #victoria_datadir = /tmp/omnistat/%(SLURM_JOB_ID)s
 #victoria_datadir = /lustre/orion/%(SLURM_JOB_ACCOUNT)s/world-shared/omnistat/%(SLURM_JOB_ID)s
 
-
-prometheus_binary = /autofs/nccs-svm1_sw/crusher/amdsw/omnistat/prometheus-2.45.1.linux-amd64/prometheus
+prometheus_binary = /sw/frontier/amdsw/omnistat/prometheus-2.45.1.linux-amd64/prometheus
 prometheus_datadir = /lustre/orion/%(SLURM_JOB_ACCOUNT)s/scratch/%(USER)s/omnistat/%(SLURM_JOB_ID)s
 prometheus_logfile = prom_server.log
 
