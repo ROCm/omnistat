@@ -174,7 +174,10 @@ class OmnistatTestServer:
 
 
 # Fixture to manage server lifecycle
-@pytest.fixture(params=[x["collectors"] for x in COLLECTOR_CONFIGS])
+@pytest.fixture(params=[
+    pytest.param(x["collectors"], id=" + ".join(x["collectors"]))
+    for x in COLLECTOR_CONFIGS
+])
 def server(request):
     server = OmnistatTestServer(request.param)
     yield server
