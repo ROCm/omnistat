@@ -1,6 +1,7 @@
 [![Documentation](https://github.com/ROCm/omnistat/actions/workflows/docs.yml/badge.svg)](https://rocm.github.io/omnistat/)
 [![System mode](https://github.com/ROCm/omnistat/actions/workflows/test.yml/badge.svg)](https://github.com/ROCm/omnistat/actions/workflows/test.yml)
 [![User mode - Push](https://github.com/ROCm/omnistat/actions/workflows/test-user-push.yml/badge.svg)](https://github.com/ROCm/omnistat/actions/workflows/test-user-push.yml)
+[![GPU collectors](https://github.com/ROCm/omnistat/actions/workflows/test-gpus.yml/badge.svg)](https://github.com/ROCm/omnistat/actions/workflows/test-gpus.yml)
 
 
 # Omnistat
