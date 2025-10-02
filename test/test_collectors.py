@@ -24,6 +24,8 @@
 
 import configparser
 import multiprocessing
+import operator
+import re
 import time
 
 import pytest
@@ -35,47 +37,48 @@ import test.config
 from omnistat.monitor import Monitor
 from omnistat.node_monitoring import OmnistatServer
 
+# fmt: off
 SMI_METRICS = [
-    "rocm_num_gpus",
-    "rocm_version_info",
-    "rocm_temperature_celsius",
-    "rocm_temperature_celsius",
-    "rocm_temperature_memory_celsius",
-    "rocm_average_socket_power_watts",
-    "rocm_sclk_clock_mhz",
-    "rocm_mclk_clock_mhz",
-    "rocm_vram_total_bytes",
-    "rocm_vram_used_percentage",
-    "rocm_vram_busy_percentage",
-    "rocm_utilization_percentage",
+    {"name":"rocm_num_gpus",                            "validate":">=1",           "labels":None},
+    {"name":"rocm_version_info",                        "validate":"==1.0",         "labels":["card","driver_ver","schema","type"]},
+    {"name":"rocm_temperature_celsius",                 "validate":">=10",          "labels":["card","location"]},
+    {"name":"rocm_temperature_memory_celsius",          "validate":">=10",          "labels":["card","location"]},
+    {"name":"rocm_average_socket_power_watts",          "validate":">=10",          "labels":["card"]},
+    {"name":"rocm_sclk_clock_mhz",                      "validate":">=100",         "labels":["card"]},
+    {"name":"rocm_mclk_clock_mhz",                      "validate":">=100",         "labels":["card"]},
+    {"name":"rocm_vram_total_bytes",                    "validate":">1073741824",   "labels":["card"]},
+    {"name":"rocm_vram_used_percentage",                "validate":">0",            "labels":["card"]},
+    {"name":"rocm_vram_busy_percentage",                "validate":">=0.0",         "labels":["card"]},
+    {"name":"rocm_utilization_percentage",              "validate":">=0.0",         "labels":["card"]},
 ]
 
 RAS_METRICS = [
-    "rocm_ras_umc_correctable_count",
-    "rocm_ras_sdma_correctable_count",
-    "rocm_ras_gfx_correctable_count",
-    "rocm_ras_mmhub_correctable_count",
-    "rocm_ras_pcie_bif_correctable_count",
-    "rocm_ras_hdp_correctable_count",
-    "rocm_ras_umc_uncorrectable_count",
-    "rocm_ras_sdma_uncorrectable_count",
-    "rocm_ras_gfx_uncorrectable_count",
-    "rocm_ras_mmhub_uncorrectable_count",
-    "rocm_ras_pcie_bif_uncorrectable_count",
-    "rocm_ras_hdp_uncorrectable_count",
-    "rocm_ras_umc_deferred_count",
-    "rocm_ras_sdma_deferred_count",
-    "rocm_ras_gfx_deferred_count",
-    "rocm_ras_mmhub_deferred_count",
-    "rocm_ras_pcie_bif_deferred_count",
-    "rocm_ras_hdp_deferred_count",
+    {"name": "rocm_ras_umc_correctable_count",          "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_sdma_correctable_count",         "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_gfx_correctable_count",          "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_mmhub_correctable_count",        "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_pcie_bif_correctable_count",     "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_hdp_correctable_count",          "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_umc_uncorrectable_count",        "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_sdma_uncorrectable_count",       "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_gfx_uncorrectable_count",        "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_mmhub_uncorrectable_count",      "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_pcie_bif_uncorrectable_count",   "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_hdp_uncorrectable_count",        "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_umc_deferred_count",             "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_sdma_deferred_count",            "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_gfx_deferred_count",             "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_mmhub_deferred_count",           "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_pcie_bif_deferred_count",        "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_hdp_deferred_count",             "validate": ">=0",           "labels": ["card"]},
 ]
 
 OCCUPANCY_METRICS = [
-    "rocm_num_compute_units",
-    "rocm_compute_unit_occupancy",
+    {"name": "rocm_num_compute_units",                  "validate": ">=100",         "labels": ["card"]},
+    {"name": "rocm_compute_unit_occupancy",             "validate": ">=0",           "labels": ["card"]},
 ]
 
+# fmt: on
 COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocm_smi"],
@@ -87,7 +90,7 @@ COLLECTOR_CONFIGS = [
     },
     {
         "collectors": ["rocm_smi", "ras_ecc"],
-        "metrics": [x for x in RAS_METRICS if "_deferred_count" not in x],
+        "metrics": [x for x in RAS_METRICS if "_deferred_count" not in x["name"]],
     },
     {
         "collectors": ["amd_smi", "ras_ecc"],
@@ -108,6 +111,15 @@ SUPPORTED_COLLECTORS = set()
 for config in COLLECTOR_CONFIGS:
     for collector in config["collectors"]:
         SUPPORTED_COLLECTORS.add(collector)
+
+ops = {
+    ">": operator.gt,
+    ">=": operator.ge,
+    "<": operator.lt,
+    "<=": operator.le,
+    "==": operator.eq,
+    "!=": operator.ne,
+}
 
 
 class OmnistatTestServer:
@@ -174,25 +186,85 @@ class OmnistatTestServer:
 
 
 # Fixture to manage server lifecycle
-@pytest.fixture(params=[
-    pytest.param(x["collectors"], id=" + ".join(x["collectors"]))
-    for x in COLLECTOR_CONFIGS
-])
+@pytest.fixture(scope="session")
 def server(request):
     server = OmnistatTestServer(request.param)
     yield server
     server.stop()
 
 
+@pytest.fixture
+def available_metrics(server):
+    # Cache metrics on the server instance to avoid multiple GET calls
+    if not hasattr(server, "_metrics_cache"):
+        # Convert to list so generator can be reused across tests
+
+        # server._metrics_cache = list(server.get())
+
+        response = server.get()
+
+        metrics = {}
+        labels = {}
+        for metric in response:
+            if metric.samples:
+                metrics[metric.name] = metric.samples[0].value
+                labels[metric.name] = metric.samples[0].labels or {}
+            else:
+                metrics[metric.name] = None
+                labels[metric.name] = {}
+        server._metrics_cache = {"metrics": metrics, "labels": labels}
+    return server._metrics_cache
+
+
+def pytest_generate_tests(metafunc):
+    # Parametrize (server, metric) pairs directly to avoid cross-product
+    if "desired_metric" in metafunc.fixturenames and "server" in metafunc.fixturenames:
+        argvalues = []
+        ids = []
+        for config in COLLECTOR_CONFIGS:
+            for metric in config["metrics"]:
+                argvalues.append((config["collectors"], metric))
+                ids.append(f"{'+'.join(config['collectors'])}::{metric['name']}")
+        # Parametrize server (indirect via fixture) and metric together without cross-product
+        metafunc.parametrize(("server", "desired_metric"), argvalues, ids=ids, scope="session", indirect=["server"])
+
+
 class TestCollectors:
     @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
-    def test_collector_metrics(self, server):
-        response = server.get()
-        available_metrics = {metric.name for metric in response}
+    def test_collector_metrics(self, server, available_metrics, desired_metric):
+        # Ensure the fixture supplied metrics are fetched
+        assert available_metrics is not None, "Failed to fetch metrics from server"
+        assert (
+            desired_metric["name"] in available_metrics["metrics"]
+        ), f"Missing metric {desired_metric['name']} with {server.collectors}"
 
-        enabled_collectors = server.collectors
-        expected_metrics = next((x["metrics"] for x in COLLECTOR_CONFIGS if x["collectors"] == enabled_collectors), [])
-        assert len(expected_metrics) > 1, f"Failed to find expected metrics for {enabled_collectors}"
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_collector_labels(self, server, available_metrics, desired_metric):
+        assert available_metrics is not None, "Failed to fetch metrics from server"
 
-        for metric in expected_metrics:
-            assert metric in available_metrics, f"Missing metric {metric} with {enabled_collectors}"
+        name = desired_metric["name"]
+        available_labels = available_metrics["labels"][name]
+        if available_labels:
+            for label in desired_metric["labels"]:
+                assert label in available_labels, f"Missing label '{label}' for '{name}'"
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_collector_values(self, server, available_metrics, desired_metric):
+        assert available_metrics is not None, "Failed to fetch metrics from server"
+        validate_expr = desired_metric["validate"]
+
+        if validate_expr.upper() == "N/A":
+            return
+
+        name = desired_metric["name"]
+        value = available_metrics["metrics"][name]
+
+        # regex: capture operator and integer/float
+        match = re.match(r"(>=|<=|==|!=|>|<)\s*([0-9]*\.?[0-9]+)", validate_expr)
+        if not match:
+            raise ValueError(f"Invalid validate string: {validate_expr}")
+
+        op_str, num_str = match.groups()
+        threshold = float(num_str)
+
+        assert ops[op_str](value, threshold), f"Invalid value for {name} (expecting {validate_expr}, received {value})"
