@@ -1,4 +1,4 @@
-name: GPU Collector(s)
+name: GPU collectors
 
 on:
   workflow_dispatch:
