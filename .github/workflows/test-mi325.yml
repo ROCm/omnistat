@@ -17,7 +17,8 @@ jobs:
         run: |
           lspci
           rocm-smi
-
+          which rocm-smi
+          amd-smi version
 
 ##       - name: Create virtual environment
 ##         run: |
