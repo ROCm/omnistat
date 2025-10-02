@@ -20,26 +20,26 @@ jobs:
           which rocm-smi
           amd-smi version
 
-##       - name: Create virtual environment
-##         run: |
-##           python -m venv omnistat_venv
-##           source omnistat_venv/bin/activate
-##           pip install --upgrade pip
-##           pip install -r requirements.txt
-##           pip install -r test/requirements.txt
-## 
-##       - name: Collector tests
-##         run: |
-##           source omnistat_venv/bin/activate
-##           pytest -v --junitxml=results.xml test/test_collectors.py
-## 
-##       - name: Test Report
-##         uses: dorny/test-reporter@v2
-##         if: ${{ !cancelled() }}
-##         with:
-##           name: GPU Collectors
-##           reporter: jest-junit 
-##           path: results.xml
+      - name: Create virtual environment
+        run: |
+          python -m venv omnistat_venv
+          source omnistat_venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r test/requirements.txt
+
+      - name: Collector tests
+        run: |
+          source omnistat_venv/bin/activate
+          pytest -v --junitxml=results.xml test/test_collectors.py
+
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        if: ${{ !cancelled() }}
+        with:
+          name: GPU Collectors
+          reporter: jest-junit 
+          path: results.xml
 
 ##       - name: Publish Test Report
 ##         uses: mikepenz/action-junit-report@v4
