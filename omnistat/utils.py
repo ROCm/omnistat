@@ -549,6 +549,8 @@ def execute_ssh_parallel(
                     logging.debug(f"[pssh] successfully launched ssh command on {host}")
                 else:
                     logging.error(f"[pssh] Failed to launch ssh command on {host}")
+                    # Attempt to read the output file if it exists
+                    file_path = Path(outFile)
                     if file_path.is_file():
                         output = file_path.read_text()
                         logging.warning(output)
