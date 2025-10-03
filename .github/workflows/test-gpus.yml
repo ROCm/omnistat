@@ -4,12 +4,26 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - test-gpu
+      - ci2
 
 jobs:
   gpu-collectors:
     runs-on: [self-hosted, instinct]
+    strategy:
+      matrix:
+        hardware: [mi210, mi300]
+      fail-fast: false
     steps:
+      - name: Setup hardware-specific run details
+        run: |
+           if [ ${{ matrix.hardware }} == "mi210" ];then
+              echo "CI_QUEUE=devel" >> $GITHUB_ENV
+           elif [ ${{ matrix.hardware }} == "mi300" ];then
+              echo "CI_QUEUE=mi3001x" >> $GITHUB_ENV
+           else
+              echo "Unsupported hardware"
+              exit 1
+           fi
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -24,7 +38,7 @@ jobs:
       - name: Collector tests
         run: |
           source omnistat_venv/bin/activate
-          pytest -v --junitxml=results.xml test/test_collectors.py
+          srun -N 1 -J omnistat -p $CI_QUEUE -t 00:10:00 pytest -v --junitxml=results.xml test/test_collectors.py
 
       - name: Test Report
         uses: dorny/test-reporter@v2
