@@ -97,9 +97,15 @@ def gpu_index_mapping_based_on_guids(guidMapping, expectedNumGPUs):
     for id in range(len(devices)):
         file = os.path.join(kfd_nodes, str(id), "gpu_id")
         logging.debug("--> reading contents of %s" % file)
+
         if os.path.isfile(file):
-            with open(file) as f:
-                guid = int(f.readline().strip())
+            try:
+                with open(file) as f:
+                    guid = int(f.readline().strip())
+            except:
+                logging.debug("--> ...cannot access gpu_id file: %s" % file)
+                continue
+
             if guid == 0:
                 numNonGPUs += 1
                 logging.debug("--> ...ignoring CPU device")
