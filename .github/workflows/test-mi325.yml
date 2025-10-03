@@ -20,8 +20,7 @@ jobs:
           which rocm-smi
           which python3
           amd-smi version
-          cat /etc/os-relese
-          cat results.xml
+          cat /etc/os-release
           ls /sys/class/kfd/kfd/topology/nodes
 
       - name: Create virtual environment
