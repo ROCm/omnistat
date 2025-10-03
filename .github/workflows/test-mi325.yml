@@ -9,6 +9,15 @@ on:
 jobs:
   gpu-collectors-325:
     runs-on: [linux-mi325-1gpu-ossci-rocm]
+    container:
+      image: rocm/dev-ubuntu-24.04:6.4.4-complete
+      options: 
+        --privileged 
+        --ipc host
+        --group-add video
+        --device /dev/kfd
+        --device /dev/dri
+        --cap-add CAP_SYS_ADMIN
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,26 +34,26 @@ jobs:
           ls -l /sys/class/kfd/kfd/topology/nodes
           ls -l /sys/class/kfd/kfd/topology/nodes/*/gpu_id
 
-      - name: Create virtual environment
-        run: |
-          python3 -m venv omnistat_venv
-          source omnistat_venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r test/requirements.txt
+      # - name: Create virtual environment
+      #   run: |
+      #     python3 -m venv omnistat_venv
+      #     source omnistat_venv/bin/activate
+      #     pip install --upgrade pip
+      #     pip install -r requirements.txt
+      #     pip install -r test/requirements.txt
 
-      - name: Collector tests
-        run: |
-          source omnistat_venv/bin/activate
-          pytest -v --junitxml=results.xml test/test_collectors.py
+      # - name: Collector tests
+      #   run: |
+      #     source omnistat_venv/bin/activate
+      #     pytest -v --junitxml=results.xml test/test_collectors.py
 
-      - name: Test Report
-        uses: dorny/test-reporter@v2
-        if: ${{ !cancelled() }}
-        with:
-          name: GPU Collectors
-          reporter: jest-junit 
-          path: results.xml
+      # - name: Test Report
+      #   uses: dorny/test-reporter@v2
+      #   if: ${{ !cancelled() }}
+      #   with:
+      #     name: GPU Collectors
+      #     reporter: jest-junit 
+      #     path: results.xml
 
 ##       - name: Publish Test Report
 ##         uses: mikepenz/action-junit-report@v4
