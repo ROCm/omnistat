@@ -18,11 +18,12 @@ jobs:
           lspci
           rocm-smi
           which rocm-smi
+          which python3
           amd-smi version
 
       - name: Create virtual environment
         run: |
-          python -m venv omnistat_venv
+          python3 -m venv omnistat_venv
           source omnistat_venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
