@@ -23,6 +23,7 @@
 # -------------------------------------------------------------------------------
 
 import configparser
+import logging
 import multiprocessing
 import operator
 import re
@@ -36,6 +37,7 @@ from prometheus_client.parser import text_string_to_metric_families
 import test.config
 from omnistat.monitor import Monitor
 from omnistat.node_monitoring import OmnistatServer
+from omnistat.utils import runShellCommand
 
 # fmt: off
 SMI_METRICS = [
@@ -57,28 +59,47 @@ RAS_METRICS = [
     {"name": "rocm_ras_sdma_correctable_count",         "validate": ">=0",           "labels": ["card"]},
     {"name": "rocm_ras_gfx_correctable_count",          "validate": ">=0",           "labels": ["card"]},
     {"name": "rocm_ras_mmhub_correctable_count",        "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_pcie_bif_correctable_count",     "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_hdp_correctable_count",          "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_pcie_bif_correctable_count",     "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
+    {"name": "rocm_ras_hdp_correctable_count",          "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
     {"name": "rocm_ras_umc_uncorrectable_count",        "validate": ">=0",           "labels": ["card"]},
     {"name": "rocm_ras_sdma_uncorrectable_count",       "validate": ">=0",           "labels": ["card"]},
     {"name": "rocm_ras_gfx_uncorrectable_count",        "validate": ">=0",           "labels": ["card"]},
     {"name": "rocm_ras_mmhub_uncorrectable_count",      "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_pcie_bif_uncorrectable_count",   "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_hdp_uncorrectable_count",        "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_pcie_bif_uncorrectable_count",   "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
+    {"name": "rocm_ras_hdp_uncorrectable_count",        "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
     {"name": "rocm_ras_umc_deferred_count",             "validate": ">=0",           "labels": ["card"]},
     {"name": "rocm_ras_sdma_deferred_count",            "validate": ">=0",           "labels": ["card"]},
     {"name": "rocm_ras_gfx_deferred_count",             "validate": ">=0",           "labels": ["card"]},
     {"name": "rocm_ras_mmhub_deferred_count",           "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_pcie_bif_deferred_count",        "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_hdp_deferred_count",             "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_ras_pcie_bif_deferred_count",        "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
+    {"name": "rocm_ras_hdp_deferred_count",             "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
 ]
 
 OCCUPANCY_METRICS = [
     {"name": "rocm_num_compute_units",                  "validate": ">=100",         "labels": ["card"]},
     {"name": "rocm_compute_unit_occupancy",             "validate": ">=0",           "labels": ["card"]},
 ]
-
 # fmt: on
+
+
+def get_gpu_type(device=0):
+    """Return GPU Card Series by running `rocm-smi --showproductname -d <device>`."""
+    cmd = ["rocm-smi", "--showproductname", "-d", str(device)]
+    result = runShellCommand(cmd, capture_output=True, text=True, timeout=5)
+    if not result or result.returncode != 0:
+        logging.error(f"Failed to run rocm-smi for device {device}")
+        return ""
+    for line in result.stdout.splitlines():
+        if "Card Series:" in line:
+            parts = line.split("Card Series:")
+            if len(parts) == 2:
+                return parts[1].strip()
+    logging.warning("Card Series not found in rocm-smi output")
+    return ""
+
+
+gpu_type = get_gpu_type()
+
 COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocm_smi"],
@@ -90,11 +111,16 @@ COLLECTOR_CONFIGS = [
     },
     {
         "collectors": ["rocm_smi", "ras_ecc"],
-        "metrics": [x for x in RAS_METRICS if "_deferred_count" not in x["name"]],
+        "metrics": [
+            x
+            for x in RAS_METRICS
+            if "_deferred_count" not in x["name"]
+            and ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))
+        ],
     },
     {
         "collectors": ["amd_smi", "ras_ecc"],
-        "metrics": RAS_METRICS,
+        "metrics": [x for x in RAS_METRICS if "hardware" not in x or any(hw in gpu_type for hw in x["hardware"])],
     },
     {
         "collectors": ["rocm_smi", "cu_occupancy"],
