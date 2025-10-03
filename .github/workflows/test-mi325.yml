@@ -10,7 +10,8 @@ jobs:
   gpu-collectors-325:
     runs-on: [linux-mi325-1gpu-ossci-rocm]
     container:
-      image: rocm/dev-ubuntu-24.04:6.4.4-complete
+#      image: rocm/dev-ubuntu-24.04:6.4.4-complete
+      image: rocm/dev-ubuntu-24.04:6.4.4
       options: 
         --privileged 
         --ipc host
@@ -36,6 +37,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
+          sudo apt install python3.12-venv
           python3 -m venv omnistat_venv
           source omnistat_venv/bin/activate
           pip install --upgrade pip
