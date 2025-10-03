@@ -34,6 +34,12 @@ jobs:
           source omnistat_venv/bin/activate
           pytest -v --junitxml=results.xml test/test_collectors.py
 
+      - name: Interrogate2
+        run: |
+          cat /etc/os-relese
+          cat results.xml
+          ls /sys/class/kfd/kfd/topology/nodes
+
       - name: Test Report
         uses: dorny/test-reporter@v2
         if: ${{ !cancelled() }}
