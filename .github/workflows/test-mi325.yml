@@ -21,7 +21,9 @@ jobs:
           which python3
           amd-smi version
           cat /etc/os-release
-          ls /sys/class/kfd/kfd/topology/nodes
+          printenv
+          ls -l /sys/class/kfd/kfd/topology/nodes
+          ls -l /sys/class/kfd/kfd/topology/nodes/*/gpu_id
 
       - name: Create virtual environment
         run: |
