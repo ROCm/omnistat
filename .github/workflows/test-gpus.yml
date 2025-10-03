@@ -2,6 +2,9 @@ name: GPU collectors
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"      # midnight CST
+    - cron: "45 16 * * *"    # 10:45 AM CST
   push:
     branches:
       - ci2
