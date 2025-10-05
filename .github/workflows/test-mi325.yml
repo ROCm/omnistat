@@ -23,8 +23,6 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Interrogate
         run: |
@@ -34,6 +32,9 @@ jobs:
           cat /etc/os-release
           printenv
           ls -l /sys/class/kfd/kfd/topology/nodes/*/gpu_id
+
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Create virtual environment
         run: |
