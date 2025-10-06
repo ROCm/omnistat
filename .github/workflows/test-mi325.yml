@@ -40,6 +40,7 @@ jobs:
           cat /etc/os-release
           printenv
           ls -l /sys/class/kfd/kfd/topology/nodes/*/gpu_id
+          amd-smi metric -k
 
       - name: Checkout code
         uses: actions/checkout@v4
