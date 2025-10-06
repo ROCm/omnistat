@@ -24,6 +24,12 @@ jobs:
         shell: bash
     steps:
 
+      - name: Host software
+        run: |
+          sudo apt-get update -y
+          sudo apt install git -y
+          sudo apt install python3-venv -y
+
       - name: Interrogate
         run: |
           rocm-smi
@@ -38,9 +44,6 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          sudo apt-get update -y
-          sudo apt install git -y
-          sudo apt install python3-venv -y
           python3 -m venv --system-site-packages omnistat_venv
           source omnistat_venv/bin/activate
           pip install --upgrade pip
