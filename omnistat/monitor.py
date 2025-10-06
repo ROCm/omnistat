@@ -48,7 +48,7 @@ class Monitor:
 
         self.config = config  # cache runtime configuration
 
-        logLevel = os.environ.get("OMNISTAT_LOG_LEVEL", "INFO").upper()
+        logLevel = os.environ.get("OMNISTAT_LOG_LEVEL", "DEBUG").upper()
         if logFile:
             hostname = platform.node().split(".", 1)[0]
             logging.basicConfig(
