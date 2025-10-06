@@ -46,12 +46,13 @@ jobs:
 
       - name: Create virtual environment
         run: |
+          /usr/bin/git config --global --add safe.directory /__w/omnistat/omnistat
           python3 -m venv --system-site-packages omnistat_venv
           source omnistat_venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r test/requirements.txt
-
+          
       - name: Collector tests
         run: |
           source omnistat_venv/bin/activate
