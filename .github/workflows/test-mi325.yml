@@ -35,6 +35,7 @@ jobs:
           rocm-smi
           which python3
           which git
+          whoami
           amd-smi version
           cat /etc/os-release
           printenv
