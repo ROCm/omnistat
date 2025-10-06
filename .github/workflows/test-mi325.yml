@@ -44,9 +44,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Update git directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Create virtual environment
         run: |
-          /usr/bin/git config --global --add safe.directory /__w/omnistat/omnistat
           python3 -m venv --system-site-packages omnistat_venv
           source omnistat_venv/bin/activate
           pip install --upgrade pip
