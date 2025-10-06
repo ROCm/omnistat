@@ -59,7 +59,8 @@ jobs:
       - name: Collector tests
         run: |
           source omnistat_venv/bin/activate
-          pytest -v --junitxml=results.xml test/test_collectors.py
+          export OMNISTAT_LOG_LEVEL=DEBUG
+          pytest -s -v --junitxml=results.xml test/test_collectors.py
 
       - name: Test Report
         uses: dorny/test-reporter@v2
