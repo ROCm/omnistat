@@ -229,6 +229,7 @@ def available_metrics(server):
 
         response = server.get()
         print(response)
+        response = server.get()
 
         metrics = {}
         labels = {}
