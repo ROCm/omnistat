@@ -228,7 +228,9 @@ def available_metrics(server):
         # server._metrics_cache = list(server.get())
 
         response = server.get()
-        print("RESPONSE = %s" % response)
+        for metric in response:
+            print("METRIC = %s" % metric)
+
         response = server.get()
 
         metrics = {}
