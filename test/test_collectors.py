@@ -230,6 +230,7 @@ def available_metrics(server):
         response = server.get()
         for metric in response:
             print("METRIC = %s" % metric)
+            
 
         response = server.get()
 
