@@ -18,7 +18,7 @@ jobs:
         --group-add video
         --device /dev/kfd
         --device /dev/dri
-        --cap-add CAP_SYS_ADMIN
+#        --cap-add CAP_SYS_ADMIN
         --env-file /etc/podinfo/gha-gpu-isolation-settings        
     defaults:
       run:
