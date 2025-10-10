@@ -13,13 +13,13 @@ jobs:
 #      image: rocm/dev-ubuntu-24.04:6.4.4-complete
       image: rocm/dev-ubuntu-24.04:6.4.4
       options: 
-        --privileged 
         --ipc host
         --group-add video
         --device /dev/kfd
         --device /dev/dri
         --env-file /etc/podinfo/gha-gpu-isolation-settings     
-#        --cap-add CAP_SYS_ADMIN           
+#        --cap-add CAP_SYS_ADMIN        
+#        --privileged    
     defaults:
       run:
         shell: bash
@@ -60,6 +60,7 @@ jobs:
       - name: Collector tests
         run: |
           source omnistat_venv/bin/activate
+          amd-smi metric -k
           pytest -s -v --junitxml=results.xml test/test_collectors.py
 
       - name: Test Report
