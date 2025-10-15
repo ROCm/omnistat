@@ -1203,6 +1203,11 @@ class QueryMetrics:
                 ["omnistat_hardware_counter"],
                 ["instance", "card", "name"],
             ),
+            (
+                "xgmi",
+                ["rocm_xgmi_total_read_kilobytes", "rocm_xgmi_total_write_kilobytes"],
+                ["instance", "card"],
+            ),
         ]
 
         for name, metrics, labels in exports:
