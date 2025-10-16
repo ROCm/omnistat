@@ -13,7 +13,7 @@ jobs:
 
       - name: Interrogate
         run: |
-	  cat /etc/podinfo/gha-gpu-isolation-settings
+          cat /etc/podinfo/gha-gpu-isolation-settings
           rocm-smi
           which python3
           which git
