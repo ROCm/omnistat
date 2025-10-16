@@ -23,3 +23,4 @@ jobs:
           printenv
           ls -l /sys/class/kfd/kfd/topology/nodes/*/gpu_id
           amd-smi metric -k
+          id
