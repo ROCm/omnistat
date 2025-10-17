@@ -41,3 +41,9 @@ target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprof
 
 # Install the module to location within the Python package
 install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
+
+option(BUILD_KERNEL_TRACE_LIB "Build the kernel tracing library" OFF)
+if (BUILD_KERNEL_TRACE_LIB)
+    add_library(rsdk_kernel_trace SHARED kernel_tracer.cpp)
+    target_link_libraries(rsdk_kernel_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk)
+endif()
