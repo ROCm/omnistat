@@ -14,8 +14,8 @@ jobs:
       - name: Interrogate
         run: |
           cat /etc/podinfo/gha-gpu-isolation-settings
-	  lspci | grep Instinct
-	  ls -l /sys/class/drm/renderD1*/device
+          lspci | grep Instinct
+          ls -l /sys/class/drm/renderD1*/device
           rocm-smi
           which python3
           which git
