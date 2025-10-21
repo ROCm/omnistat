@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - ci3
+      - ci
 
 jobs:
   gpu-collectors-325:
@@ -16,9 +16,9 @@ jobs:
         --ipc host
         --group-add video
         --device /dev/kfd
-        --device /dev/dri
-        --group-add 992
-        --env-file /etc/podinfo/gha-gpu-isolation-settings     
+        --device /dev/dri/renderD129
+#        --group-add 992
+#        --env-file /etc/podinfo/gha-gpu-isolation-settings     
 #        --cap-add CAP_SYS_ADMIN        
 #        --privileged    
     defaults:

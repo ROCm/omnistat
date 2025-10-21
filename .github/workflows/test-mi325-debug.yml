@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - ci
+      - ci3
 
 jobs:
   gpu-collectors-325:
