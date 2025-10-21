@@ -16,7 +16,7 @@ jobs:
         --ipc host
         --group-add video
         --device /dev/kfd
-        --device /dev/dri/renderD129
+        --device /dev/dri/renderD128
 #        --group-add 992
 #        --env-file /etc/podinfo/gha-gpu-isolation-settings     
 #        --cap-add CAP_SYS_ADMIN        
