@@ -205,7 +205,7 @@ class AMDSMI(Collector):
                 try:
                     status = smi.amdsmi_get_gpu_ecc_status(self.__devices[0], block)
                 except smi.AmdSmiException as e:
-                    logging.debug(f"Failed to get {str(block)} ECC status:\n{e}")
+                    logging.debug(f"Failed to get {str(block.name)} ECC status:\n{e}")
                     continue
 
                 if status != smi.AmdSmiRasErrState.ENABLED:
@@ -215,7 +215,7 @@ class AMDSMI(Collector):
                 # check if queryable
                 try:
                     status = smi.amdsmi_get_gpu_ecc_count(self.__devices[0], block)
-                    key = "%s" % block
+                    key = "%s" % block.name
                     key = key.removeprefix("AmdSmiGpuBlock.").lower()
                     self.__eccBlocks[key] = block
                     metric = "ras_%s_correctable_count" % key
