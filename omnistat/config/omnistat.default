@@ -8,6 +8,9 @@ enable_rms = False
 enable_rocprofiler = False
 enable_network = True
 enable_vendor_counters = False
+enable_nvidia_dcgm = False
+nvidia_dcgm_exporter_url = http://localhost:9400/metrics
+enable_nvidia_uuid_label = False
 
 ## Path to local ROCM install to access SMI library
 rocm_path = /opt/rocm
