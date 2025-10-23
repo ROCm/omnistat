@@ -55,5 +55,7 @@ jobs:
         with:
           include_passed: 'true'
           report_paths: 'results.xml'
+          check_name: "JUnit Report (${{ matrix.hardware }})"
+          detailed_summary: true
           comment: 'true'
 
