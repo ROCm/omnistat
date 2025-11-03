@@ -26,6 +26,9 @@
 
 #include <rocprofiler-sdk/rocprofiler.h>
 
+#include <curl/curl.h>
+
+#include <string>
 #include <unordered_map>
 
 namespace omnistat {

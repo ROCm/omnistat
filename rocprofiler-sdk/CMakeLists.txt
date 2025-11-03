@@ -44,6 +44,7 @@ install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
 
 option(BUILD_KERNEL_TRACE_LIB "Build the kernel tracing library" OFF)
 if (BUILD_KERNEL_TRACE_LIB)
+    find_package(CURL REQUIRED)
     add_library(rsdk_kernel_trace SHARED kernel_tracer.cpp)
-    target_link_libraries(rsdk_kernel_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk)
+    target_link_libraries(rsdk_kernel_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk CURL::libcurl)
 endif()
