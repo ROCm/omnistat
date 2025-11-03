@@ -37,7 +37,7 @@ namespace omnistat {
 // being configured, which isn't directly under our control.
 static std::vector<std::shared_ptr<DeviceSampler>> samplers = {};
 
-const std::vector<std::shared_ptr<DeviceSampler>> &get_samplers() {
+const std::vector<std::shared_ptr<DeviceSampler>>& get_samplers() {
     return samplers;
 }
 
@@ -57,15 +57,15 @@ size_t get_counter_size(rocprofiler_counter_id_t counter) {
     size_t size = 1;
     rocprofiler_iterate_counter_dimensions(
         counter,
-        [](rocprofiler_counter_id_t, const rocprofiler_record_dimension_info_t *dim_info,
-           size_t num_dims, void *user_data) {
-            size_t *s = static_cast<size_t *>(user_data);
+        [](rocprofiler_counter_id_t, const rocprofiler_record_dimension_info_t* dim_info,
+           size_t num_dims, void* user_data) {
+            size_t* s = static_cast<size_t*>(user_data);
             for (size_t i = 0; i < num_dims; i++) {
                 *s *= dim_info[i].instance_size;
             }
             return ROCPROFILER_STATUS_SUCCESS;
         },
-        static_cast<void *>(&size));
+        static_cast<void*>(&size));
     return size;
 }
 
@@ -75,9 +75,9 @@ DeviceSampler::DeviceSampler(rocprofiler_agent_id_t agent) : agent_(agent) {
     ROCPROFILER_CALL(rocprofiler_configure_device_counting_service(
                          ctx_, rocprofiler_buffer_id_t{.handle = 0}, agent,
                          [](rocprofiler_context_id_t context_id, rocprofiler_agent_id_t,
-                            rocprofiler_agent_set_profile_callback_t set_config, void *user_data) {
+                            rocprofiler_agent_set_profile_callback_t set_config, void* user_data) {
                              if (user_data) {
-                                 auto *sampler = static_cast<DeviceSampler *>(user_data);
+                                 auto* sampler = static_cast<DeviceSampler*>(user_data);
                                  sampler->set_profile(context_id, set_config);
                              }
                          },
@@ -99,28 +99,28 @@ DeviceSampler::get_supported_counters() const {
 
     ROCPROFILER_CALL(rocprofiler_iterate_agent_supported_counters(
                          agent_,
-                         [](rocprofiler_agent_id_t, rocprofiler_counter_id_t *counters,
-                            size_t num_counters, void *user_data) {
-                             std::vector<rocprofiler_counter_id_t> *vec =
-                                 static_cast<std::vector<rocprofiler_counter_id_t> *>(user_data);
+                         [](rocprofiler_agent_id_t, rocprofiler_counter_id_t* counters,
+                            size_t num_counters, void* user_data) {
+                             std::vector<rocprofiler_counter_id_t>* vec =
+                                 static_cast<std::vector<rocprofiler_counter_id_t>*>(user_data);
                              for (size_t i = 0; i < num_counters; i++) {
                                  vec->push_back(counters[i]);
                              }
                              return ROCPROFILER_STATUS_SUCCESS;
                          },
-                         static_cast<void *>(&gpu_counters)),
+                         static_cast<void*>(&gpu_counters)),
                      "iterate supported counters");
-    for (auto &counter : gpu_counters) {
+    for (auto& counter : gpu_counters) {
         rocprofiler_counter_info_v0_t version;
         ROCPROFILER_CALL(rocprofiler_query_counter_info(counter, ROCPROFILER_COUNTER_INFO_VERSION_0,
-                                                        static_cast<void *>(&version)),
+                                                        static_cast<void*>(&version)),
                          "query counter");
         out.emplace(version.name, counter);
     }
     return out;
 }
 
-void DeviceSampler::start(const std::vector<std::string> &counters) {
+void DeviceSampler::start(const std::vector<std::string>& counters) {
     rocprofiler_profile_config_id_t profile = {};
     std::size_t profile_size = 0;
 
@@ -129,7 +129,7 @@ void DeviceSampler::start(const std::vector<std::string> &counters) {
         std::vector<rocprofiler_counter_id_t> counter_ids;
 
         auto supported_counters = get_supported_counters();
-        for (const auto &counter : counters) {
+        for (const auto& counter : counters) {
             auto it = supported_counters.find(counter);
             if (it == supported_counters.end()) {
                 throw std::runtime_error("Unsupported counter: " + counter);
@@ -171,13 +171,13 @@ std::vector<double> DeviceSampler::sample() {
     // Aggregate counter records: sums all records from each counter in an
     // attempt to return a value that represents total activity.
     rocprofiler_counter_id_t counter_id = {.handle = 0};
-    for (const auto &record : records_) {
+    for (const auto& record : records_) {
         rocprofiler_query_record_counter_id(record.id, &counter_id);
         aggregate[counter_id.handle] += record.counter_value;
     }
 
     const auto counter_ids = profile_counter_ids_[profile_.handle];
-    for (const auto &counter_id : counter_ids) {
+    for (const auto& counter_id : counter_ids) {
         result.push_back(aggregate[counter_id.handle]);
     }
 
@@ -190,7 +190,7 @@ std::vector<double> DeviceSampler::sample() {
 // ROCProfiler SDK tool initialization
 // ------------------------------------------------------------------------------------------------
 
-int tool_init(rocprofiler_client_finalize_t fini_func, void *) {
+int tool_init(rocprofiler_client_finalize_t fini_func, void*) {
     auto agents = omnistat::get_rocprofiler_agents();
     if (agents.empty()) {
         std::cerr << "No agents found\n";
@@ -204,20 +204,20 @@ int tool_init(rocprofiler_client_finalize_t fini_func, void *) {
     return 0;
 }
 
-void tool_fini(void *user_data) {
+void tool_fini(void* user_data) {
     omnistat::samplers.clear();
 }
 
-extern "C" rocprofiler_tool_configure_result_t *rocprofiler_configure(uint32_t version,
-                                                                      const char *runtime_version,
+extern "C" rocprofiler_tool_configure_result_t* rocprofiler_configure(uint32_t version,
+                                                                      const char* runtime_version,
                                                                       uint32_t priority,
-                                                                      rocprofiler_client_id_t *id) {
+                                                                      rocprofiler_client_id_t* id) {
     id->name = "omnistat-rocprofiler-sdk-extension";
 
-    std::ostream *output_stream = &std::cout;
+    std::ostream* output_stream = &std::cout;
     static auto cfg =
         rocprofiler_tool_configure_result_t{sizeof(rocprofiler_tool_configure_result_t), &tool_init,
-                                            &tool_fini, static_cast<void *>(output_stream)};
+                                            &tool_fini, static_cast<void*>(output_stream)};
 
     return &cfg;
 }
