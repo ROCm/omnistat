@@ -23,28 +23,12 @@
 // ---------------------------------------------------------------------------
 
 #include "device.hpp"
+#include "common.hpp"
 
 #include <hsa/hsa.h>
-#include <rocprofiler-sdk/fwd.h>
-#include <rocprofiler-sdk/registration.h>
 
 #include <iostream>
 #include <sstream>
-
-#define ROCPROFILER_CALL(result, msg)                                                              \
-    {                                                                                              \
-        rocprofiler_status_t CHECKSTATUS = result;                                                 \
-        if (CHECKSTATUS != ROCPROFILER_STATUS_SUCCESS) {                                           \
-            std::string status_msg = rocprofiler_get_status_string(CHECKSTATUS);                   \
-            std::cerr << "[" #result "][" << __FILE__ << ":" << __LINE__ << "] " << msg            \
-                      << " failed with error code " << CHECKSTATUS << ": " << status_msg           \
-                      << std::endl;                                                                \
-            std::stringstream errmsg{};                                                            \
-            errmsg << "[" #result "][" << __FILE__ << ":" << __LINE__ << "] " << msg " failure ("  \
-                   << status_msg << ")";                                                           \
-            throw std::runtime_error(errmsg.str());                                                \
-        }                                                                                          \
-    }
 
 namespace omnistat {
 
@@ -64,29 +48,6 @@ const std::vector<std::shared_ptr<DeviceSampler>> &get_samplers() {
 void initialize() {
     ROCPROFILER_CALL(rocprofiler_force_configure(&rocprofiler_configure), "configure rocprofiler");
     hsa_init();
-}
-
-std::vector<rocprofiler_agent_v0_t> get_rocprofiler_agents() {
-    std::vector<rocprofiler_agent_v0_t> agents;
-    rocprofiler_query_available_agents_cb_t iterate_cb = [](rocprofiler_agent_version_t agents_ver,
-                                                            const void **agents_arr,
-                                                            size_t num_agents, void *udata) {
-        if (agents_ver != ROCPROFILER_AGENT_INFO_VERSION_0)
-            throw std::runtime_error{"unexpected rocprofiler agent version"};
-        auto *agents_v = static_cast<std::vector<rocprofiler_agent_v0_t> *>(udata);
-        for (size_t i = 0; i < num_agents; ++i) {
-            const auto *rocp_agent = static_cast<const rocprofiler_agent_v0_t *>(agents_arr[i]);
-            if (rocp_agent->type == ROCPROFILER_AGENT_TYPE_GPU)
-                agents_v->emplace_back(*rocp_agent);
-        }
-        return ROCPROFILER_STATUS_SUCCESS;
-    };
-
-    ROCPROFILER_CALL(rocprofiler_query_available_agents(
-                         ROCPROFILER_AGENT_INFO_VERSION_0, iterate_cb, sizeof(rocprofiler_agent_t),
-                         const_cast<void *>(static_cast<const void *>(&agents))),
-                     "query available agents");
-    return agents;
 }
 
 // Calculate the size of a given counter based on its dimensions. GPU counters aren't simple

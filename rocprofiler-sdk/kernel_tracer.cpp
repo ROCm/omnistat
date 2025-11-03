@@ -25,9 +25,6 @@
 #include "kernel_tracer.hpp"
 #include "common.hpp"
 
-#include <rocprofiler-sdk/fwd.h>
-#include <rocprofiler-sdk/registration.h>
-
 #include <fstream>
 
 namespace omnistat {
