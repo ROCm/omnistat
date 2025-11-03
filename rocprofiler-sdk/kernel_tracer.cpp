@@ -29,13 +29,15 @@
 #include <rocprofiler-sdk/registration.h>
 
 #include <fstream>
-#include <vector>
 
 namespace omnistat {
 
 // Global variable to keep track of kernel tracing, necessary so that all
 // callbacks have access to tracing data.
 static KernelTracer tracer;
+
+// Map per-process agent IDs to GPU node IDs.
+static std::unordered_map<uint64_t, uint32_t> agent_map = {};
 
 // Callback used to register kernels when loading code objects. Forces a flush
 // on every kernel unload; the expectation is that only happens at the end of
@@ -65,11 +67,17 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
     }
 }
 
+static size_t write_callback(char* ptr, size_t size, size_t nmemb, void* userdata) {
+    return size * nmemb;
+}
+
 void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
                           rocprofiler_buffer_id_t buffer_id [[maybe_unused]],
                           rocprofiler_record_header_t** headers, size_t num_headers,
                           void* tool_data, uint64_t drop_count [[maybe_unused]]) {
-    auto* output_stream = static_cast<std::ostream*>(tool_data);
+    auto* curl = static_cast<CURL*>(tool_data);
+
+    std::ostringstream data_stream;
 
     if (num_headers == 0) {
         throw std::runtime_error{
@@ -86,14 +94,28 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
             header->kind == ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH) {
             auto* record =
                 static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
-            *output_stream << tracer.kernels.at(record->dispatch_info.kernel_id).kernel_name << ","
-                           << record->start_timestamp << "," << record->end_timestamp << "\n";
+            data_stream << agent_map[record->dispatch_info.agent_id.handle] << ","
+                        << tracer.kernels.at(record->dispatch_info.kernel_id).kernel_name << ","
+                        << record->start_timestamp << "," << record->end_timestamp << "\n";
         } else {
             auto msg = std::stringstream{};
             msg << "unexpected rocprofiler_record_header_t category + kind: (" << header->category
                 << " + " << header->kind << ")";
             throw std::runtime_error{msg.str()};
         }
+    }
+
+    std::string data = data_stream.str();
+    curl_easy_setopt(curl, CURLOPT_POST, 1L);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, data.length());
+
+    std::string response_buffer;
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_buffer);
+
+    auto res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        std::cerr << curl_easy_strerror(res) << std::endl;
     }
 }
 
@@ -143,15 +165,14 @@ int KernelTracer::initialize(void* tool_data) {
 // ------------------------------------------------------------------------------------------------
 
 int tool_init(rocprofiler_client_finalize_t fini_func, void* tool_data) {
+    omnistat::agent_map = omnistat::build_agent_map();
     return omnistat::tracer.initialize(tool_data);
 }
 
 void tool_fini(void* tool_data) {
-    auto* output_stream = static_cast<std::ostream*>(tool_data);
-    *output_stream << std::flush;
-    if (output_stream != &std::cout && output_stream != &std::cerr) {
-        delete output_stream;
-    }
+    auto* curl = static_cast<CURL*>(tool_data);
+    curl_easy_cleanup(curl);
+    curl_global_cleanup();
 }
 
 extern "C" rocprofiler_tool_configure_result_t* rocprofiler_configure(uint32_t version,
@@ -160,16 +181,22 @@ extern "C" rocprofiler_tool_configure_result_t* rocprofiler_configure(uint32_t v
                                                                       rocprofiler_client_id_t* id) {
     id->name = "omnistat-kernel-trace";
 
-    std::ostream* output_stream = &std::cout;
-    auto* log_file = getenv("OMNISTAT_KERNEL_LOG");
-    if (log_file != nullptr) {
-        std::cout << "OMNISTAT_KERNEL_LOG: " << log_file << std::endl;
-        output_stream = new std::ofstream{std::string(log_file)};
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    CURL* curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:8001/kernel_trace");
     }
+
+    struct curl_slist* http_headers = NULL;
+    http_headers = curl_slist_append(http_headers, "Content-Type: text/plain");
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, http_headers);
+
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &omnistat::write_callback);
 
     static auto cfg =
         rocprofiler_tool_configure_result_t{sizeof(rocprofiler_tool_configure_result_t), &tool_init,
-                                            &tool_fini, static_cast<void*>(output_stream)};
+                                            &tool_fini, static_cast<void*>(curl)};
 
     return &cfg;
 }
