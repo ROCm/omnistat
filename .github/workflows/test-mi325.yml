@@ -1,4 +1,4 @@
-name: GPU collectors MI325
+name: MI325
 
 on:
   workflow_dispatch:
