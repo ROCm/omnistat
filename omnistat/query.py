@@ -1551,6 +1551,11 @@ class QueryMetrics:
                 ["rocm_xgmi_total_read_kilobytes", "rocm_xgmi_total_write_kilobytes"],
                 ["instance", "card"],
             ),
+            (
+                "kernel-trace",
+                ["omnistat_kernel_dispatch_count", "omnistat_kernel_total_duration_ns"],
+                ["instance", "node_id", "kernel"],
+            ),
         ]
 
         for name, metrics, labels in exports:
