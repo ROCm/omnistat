@@ -56,5 +56,13 @@
             "file": "omnistat.collector_pm_counters",
             "class_name": "PM_COUNTERS"
         }
+    ],
+    "endpoints": [
+        {
+            "runtime_option": "enable_kernel_trace",
+            "enabled_by_default": false,
+            "file": "omnistat.collector_kernel_trace",
+            "class_name": "KernelTrace"
+        }
     ]
 }
