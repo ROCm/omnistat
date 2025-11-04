@@ -31,6 +31,8 @@
 import configparser
 from abc import ABC, abstractmethod
 
+from flask import Flask
+
 
 class Collector(ABC):
     # Optional method(s)
@@ -51,4 +53,18 @@ class Collector(ABC):
     @abstractmethod
     def updateMetrics(self):
         """Updates defined metrics with latest values. Called at every polling interval."""
+        pass
+
+
+class EndpointCollector(ABC):
+    @abstractmethod
+    def __init__(self, config: configparser.ConfigParser, route: Flask.route, interval: float):
+        pass
+
+    @abstractmethod
+    def handleRequest(self):
+        pass
+
+    @abstractmethod
+    def updateMetrics(self):
         pass
