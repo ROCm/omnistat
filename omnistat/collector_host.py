@@ -226,7 +226,7 @@ class HOST(Collector):
     def read_user_proc_io(self):
         """Sum read_bytes and write_bytes from /proc/<pid>/io.
 
-        In user-mode, rely on kernel permissions and only include processes we can read. In elevated 
+        In user-mode, rely on kernel permissions and only include processes we can read. In elevated
         system mode: explicitly filter out root-owned (UID 0) processes before summing.
         """
         import os
@@ -270,7 +270,7 @@ class HOST(Collector):
                     write_total += int(io_str[wb_idx + 12 : wb_end].strip())
 
             except (FileNotFoundError, ProcessLookupError, PermissionError, ValueError):
-                continue 
+                continue
             except Exception:
                 continue
 
