@@ -31,8 +31,8 @@ metrics:
 omnistat_host_mem_total_bytes 5.40314181632e+011
 omnistat_host_mem_free_bytes 5.23302158336e+011
 omnistat_host_mem_available_bytes 5.22178281472e+011
-omnistat_host_io_read_bytes_total 7.794688e+06
-omnistat_host_io_write_bytes_total 45056.0
+omnistat_host_io_read_total_bytes 7.794688e+06
+omnistat_host_io_write_total_bytes 45056.0
 omnistat_host_cpu_load1 3.08
 omnistat_host_cpu_load5 3.05
 omnistat_host_cpu_load15 3.06
@@ -110,8 +110,8 @@ class HOST(Collector):
 
         # fmt: off
         self.__user_io_metrics = [
-            {"metricName": "io_read_bytes_total",  "description": "Total bytes read by all processes owned by this user"},
-            {"metricName": "io_write_bytes_total", "description": "Total bytes written by all processes owned by this user"},
+            {"metricName": "io_read_total_bytes",  "description": "Total bytes read by all processes owned by this user"},
+            {"metricName": "io_write_total_bytes", "description": "Total bytes written by all processes owned by this user"},
         ]
         # fmt: on
 
@@ -193,8 +193,8 @@ class HOST(Collector):
 
         # sum per-user process I/O metrics
         read_total, write_total = self.read_user_proc_io()
-        self.__metrics["io_read_bytes_total"].set(read_total)
-        self.__metrics["io_write_bytes_total"].set(write_total)
+        self.__metrics["io_read_total_bytes"].set(read_total)
+        self.__metrics["io_write_total_bytes"].set(write_total)
 
         # --
         # CPU/load metrics
