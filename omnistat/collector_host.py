@@ -33,6 +33,7 @@ omnistat_host_mem_free_bytes 5.23302158336e+011
 omnistat_host_mem_available_bytes 5.22178281472e+011
 omnistat_host_io_read_total_bytes 7.794688e+06
 omnistat_host_io_write_total_bytes 45056.0
+omnistat_host_cpu_aggregate_core_utilization 1.9104
 omnistat_host_cpu_load1 3.08
 omnistat_host_cpu_load5 3.05
 omnistat_host_cpu_load15 3.06
@@ -45,7 +46,9 @@ import logging
 import os
 import platform
 import sys
+import time
 from pathlib import Path
+import threading
 
 from prometheus_client import Counter, Gauge
 
@@ -64,6 +67,20 @@ class HOST(Collector):
 
         self.__prefix = "omnistat_host_"
         self.__metrics = {}
+
+        # CPU sampling thread state
+        self.__cpu_lock = threading.Lock()
+        self.__cpu_delta_idle = 0
+        self.__cpu_delta_total = 0
+        self.__sampler_running = False
+        self.__sampler_thread = None
+        self.__cpu_load_sampling_interval = 0.02
+
+        # allow runtime override of CPU load sampling interval
+        if config.has_option("omnistat.collectors.host", "cpu_load_sampling_interval"):
+            self.__cpu_load_sampling_interval = float(
+                config["omnistat.collectors.host"].get("cpu_load_sampling_interval", 0.02)
+            )
 
     def registerMetrics(self):
         """Register metrics of interest"""
@@ -132,21 +149,33 @@ class HOST(Collector):
             {"metricName": "cpu_load15", "description": "15-minute load average"},
             {"metricName": "cpu_num_physical_cores", "description": "Number of physical CPU cores"},
             {"metricName": "cpu_num_logical_cores", "description": "Number of logical CPU cores"},
+            {"metricName": "cpu_aggregate_core_utilization", "description": "Instantaneous number of busy CPU cores (0..num_logical_cores)"},
         ]
         # fmt: on
 
-        # verify /proc/loadavg exists
-        if not os.path.exists("/proc/loadavg"):
+        # verify /proc/loadavg exists with expected entries
+        try:
+            with open("/proc/loadavg", "r") as f:
+                content = f.read().strip()
+        except:
             logging.error("--> [ERROR] /proc/loadavg not found")
             sys.exit(4)
-            return
+        if len(content.split()) < 3:
+            logging.error(f"--> [ERROR] Unexpected entry in /proc/loadavg: {content.strip()}")
+            sys.exit(4)
 
-        # verify expected entries in /proc/loadavg
-        with open("/proc/loadavg", "r") as f:
-            content = f.read().strip()
-        parts = content.split()
-        if len(parts) < 3:
-            logging.error(f"--> [ERROR] Unexpected entry in /proc/loadavg: {parts}")
+        # verify /proc/stat exists with expected entries
+        try:
+            with open("/proc/stat", "r") as f:
+                first = f.readline()
+        except:
+            logging.error("--> [ERROR] /proc/stat not found")
+            sys.exit(4)
+        if not first.startswith("cpu"):
+            logging.error(f"--> [ERROR] Unexpected entry in /proc/stat: {first.strip()}")
+            sys.exit(4)
+        if len(first.split()) < 9:
+            logging.error(f"--> [ERROR] Unexpected entry in /proc/stat: {first.strip()}")
             sys.exit(4)
 
         for item in self.__loadavg_metrics:
@@ -158,8 +187,9 @@ class HOST(Collector):
         phys_cnt, logical_cnt = self.get_cpu_counts()
         self.__metrics["cpu_num_physical_cores"].set(phys_cnt)
         self.__metrics["cpu_num_logical_cores"].set(logical_cnt)
+        self.__logical_cpu_count = logical_cnt
 
-        # Check for elevated /proc access: ef we can read /proc/1/io, assume we have elevated read access
+        # Check for elevated /proc access: if we can read /proc/1/io, assume we have elevated read access
         # and will explicitly filter out root-owned processes when aggregating per-process I/O (typically in system-mode).
         # Otherwise we just report on user-owned processes (user-mode)
         self.__filter_root_processes = False
@@ -171,6 +201,19 @@ class HOST(Collector):
         except PermissionError:
             self.__filter_root_processes = False
             logging.debug("--> standard /proc access; will rely on permissions to limit visibility")
+
+        # Initiate background CPU sampler thread
+        self.__sampler_running = True
+        self.__sampler_thread = threading.Thread(
+            target=self.cpu_load_sampler,
+            args=(self.__cpu_load_sampling_interval,),
+            daemon=True,
+            name="CPU load sampler",
+        )
+        self.__sampler_thread.start()
+        logging.info(
+            f"--> initiated background CPU load sampling thread (interval: {self.__cpu_load_sampling_interval} sec)"
+        )
 
     def updateMetrics(self):
         """Update registered metrics of interest"""
@@ -204,6 +247,15 @@ class HOST(Collector):
         self.__metrics["cpu_load1"].set(load_averages[0])
         self.__metrics["cpu_load5"].set(load_averages[1])
         self.__metrics["cpu_load15"].set(load_averages[2])
+
+        # Instantaneous CPU usage via background sampler
+        delta_idle, delta_total = self.read_cpu_times()
+        if delta_total > 0 and delta_idle >= 0:
+            busy = delta_total - delta_idle
+            usage_ratio = busy / delta_total
+            # Scale by number of logical cores to get a number of busy cores metric
+            busy_cores = usage_ratio * self.__logical_cpu_count
+            self.__metrics["cpu_aggregate_core_utilization"].set(round(busy_cores, 4))
 
         return
 
@@ -319,3 +371,51 @@ class HOST(Collector):
             physical = logical
 
         return (physical, logical)
+
+    def read_cpu_times(self):
+        """Return cached CPU stats from background sampling thread.
+
+        Returns:
+            int: (change_in_idle_cpu_jiffies, change_in_total_cpu_jiffies)
+        """
+        with self.__cpu_lock:
+            return (self.__cpu_delta_idle, self.__cpu_delta_total)
+
+    def cpu_load_sampler(self, sample_interval: float):
+        """Background thread to sample /proc/stat CPU times at regular intervals.
+
+        Args:
+            sample_interval (float, optional): Time in seconds between samples.
+        """
+
+        # Prime with first sample
+        prev_idle, prev_total = self.sample_cpu_stats()
+
+        # Sampling loop
+        while self.__sampler_running:
+            time.sleep(sample_interval)
+
+            current_idle, current_total = self.sample_cpu_stats()
+            with self.__cpu_lock:
+                self.__cpu_delta_idle = current_idle - prev_idle
+                self.__cpu_delta_total = current_total - prev_total
+            prev_idle, prev_total = current_idle, current_total
+
+    def sample_cpu_stats(self):
+        """Read instantaneous CPU stats from first line of /proc/stat
+
+        Returns:
+            int: (idle_cpu_jiffies, total_cpu_jiffies)
+        """
+
+        # Note: see https://www.kernel.org/doc/html/latest/filesystems/proc.html for /proc/stat format
+        # First 8 entries we care about are: user, nice, system, idle, iowait, irq, softirq, steal
+        try:
+            with open("/proc/stat", "r") as f:
+                first_line = f.readline()
+            values = [int(v) for v in first_line.split()[1:]]
+            idle = values[3] + values[4]  # idle + iowait
+            total = sum(values[:8])  # user..steal
+            return (idle, total)
+        except Exception:
+            return (0, 0)
