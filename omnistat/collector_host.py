@@ -82,9 +82,7 @@ class HOST(Collector):
             self.__cpu_load_sampling_interval = float(
                 config["omnistat.collectors.host"].get("cpu_load_sampling_interval", 0.02)
             )
-            self.__enable_proc_io_stats = config["omnistat.collectors.host"].getboolean(
-                "enable_proc_io_stats", False
-            )
+            self.__enable_proc_io_stats = config["omnistat.collectors.host"].getboolean("enable_proc_io_stats", False)
 
     def registerMetrics(self):
         """Register metrics of interest"""
@@ -130,14 +128,16 @@ class HOST(Collector):
         # --
 
         # fmt: off
-        if self.__enable_proc_io_stats:
-            self.__user_io_metrics = [
-                {"metricName": "io_read_total_bytes",  "description": "Total bytes read by all processes owned by this user"},
-                {"metricName": "io_write_total_bytes", "description": "Total bytes written by all processes owned by this user"},
-            ]
+        self.__user_io_metrics = [
+            {"metricName": "io_read_local_total_bytes",  "description": "Total bytes read from local physical disks",  "enable": True},
+            {"metricName": "io_write_local_total_bytes", "description": "Total bytes written to local physical disks", "enable": True},
+            {"metricName": "io_read_total_bytes",  "description": "Total bytes read by visible processes (includes network I/O)",    "enable": self.__enable_proc_io_stats},
+            {"metricName": "io_write_total_bytes", "description": "Total bytes written by visible processes (includes network I/O)", "enable": self.__enable_proc_io_stats},
+        ]
         # fmt: on
 
-            for item in self.__user_io_metrics:
+        for item in self.__user_io_metrics:
+            if item["enable"]:
                 metric = item["metricName"]
                 description = item["description"]
                 self.__metrics[metric] = Gauge(self.__prefix + metric, description)
@@ -245,6 +245,10 @@ class HOST(Collector):
         # I/O oriented metrics
         # --
 
+        read_total_local, write_total_local = self.read_local_disk_io()
+        self.__metrics["io_read_local_total_bytes"].set(read_total_local)
+        self.__metrics["io_write_local_total_bytes"].set(write_total_local)
+
         if self.__enable_proc_io_stats:
             # sum per-user process I/O metrics
             read_total, write_total = self.read_user_proc_io()
@@ -343,6 +347,44 @@ class HOST(Collector):
                 continue
 
         return read_total, write_total
+
+    def read_local_disk_io(self):
+        """Read /proc/diskstats and return total read and write bytes across all local physical disks.
+
+        Sums I/O for whole physical disks only (e.g., sda, nvme0n1), excluding:
+        - Partitions (e.g., sda1, nvme0n1p1) to avoid double-counting
+        - Virtual devices (loop, ram, dm-, md, sr, zram)
+
+        Returns (read_bytes, write_bytes).
+        """
+        read_bytes = 0
+        write_bytes = 0
+
+        try:
+            with open("/proc/diskstats", "r") as f:
+                for line in f:
+                    parts = line.split()
+                    if len(parts) < 14:
+                        continue
+
+                    dev_name = parts[2]
+
+                    # Skip virtual/pseudo devices and partitions
+                    if (
+                        dev_name.startswith(("loop", "ram", "dm-", "md", "sr", "zram")) or dev_name[-1].isdigit()
+                    ):  # Skip partitions (sda1, nvme0n1p1)
+                        continue
+
+                    # parts[5] is sectors read, parts[9] is sectors written
+                    # /proc/diskstats always reports in 512-byte sectors regardless of physical sector size
+                    sectors_read = int(parts[5])
+                    sectors_written = int(parts[9])
+                    read_bytes += sectors_read * 512
+                    write_bytes += sectors_written * 512
+        except Exception as e:
+            return (0, 0)
+
+        return (read_bytes, write_bytes)
 
     def read_loadavg(self):
         """Read /proc/loadavg and return the (1, 5, 15) minute load averages.
