@@ -202,6 +202,12 @@ class HOST(Collector):
             self.__filter_root_processes = False
             logging.debug("--> standard /proc access; will rely on permissions to limit visibility")
 
+        # Cache current UID for fast process filtering
+        try:
+            self.__current_uid = os.geteuid()
+        except AttributeError:
+            self.__current_uid = None
+
         # Initiate background CPU sampler thread
         self.__sampler_running = True
         self.__sampler_thread = threading.Thread(
@@ -239,9 +245,9 @@ class HOST(Collector):
         self.__metrics["io_read_total_bytes"].set(read_total)
         self.__metrics["io_write_total_bytes"].set(write_total)
 
-        # --
-        # CPU/load metrics
-        # --
+        # # --
+        # # CPU/load metrics
+        # # --
 
         load_averages = self.read_loadavg()
         self.__metrics["cpu_load1"].set(load_averages[0])
@@ -279,38 +285,43 @@ class HOST(Collector):
         """Sum read_bytes and write_bytes from /proc/<pid>/io.
 
         In user-mode, rely on kernel permissions and only include processes we can read. In elevated
-        system mode: explicitly filter out root-owned (UID 0) processes before summing.
-        """
-        import os
+        system mode: explicitly filter out root-owned processes before summing.
 
+        Performance optimization: use os.stat() on /proc/<pid> to get owner UID before opening files,
+        avoiding expensive file reads for processes we'll skip anyway. Process /proc entries in
+        sorted order to improve cache locality.
+        """
         read_total = 0
         write_total = 0
 
         try:
-            pids = [p for p in os.listdir("/proc") if p.isdigit() and int(p) >= 1000]
+            # Get numeric PIDs >= 1000, sorted for better cache locality
+            proc_entries = os.listdir("/proc")
+            pids = sorted([int(p) for p in proc_entries if p.isdigit() and int(p) >= 1000])
         except OSError:
             return 0, 0
 
         for pid in pids:
+            proc_dir = f"/proc/{pid}"
             try:
-                if self.__filter_root_processes:
-                    # Read minimal status to get UID and skip root-owned processes
-                    with open(f"/proc/{pid}/status", "rb") as f:
-                        status_data = f.read(256)
-                        status_str = status_data.decode("ascii", errors="ignore")
-                        uid_idx = status_str.find("Uid:")
-                        if uid_idx != -1:
-                            uid_line_end = status_str.find("\n", uid_idx)
-                            uid_fields = status_str[uid_idx:uid_line_end].split()
-                            proc_uid = int(uid_fields[1])
-                            if proc_uid == 0:
-                                continue
+                # Fast UID check via stat() on /proc/<pid> directory
+                stat_info = os.stat(proc_dir)
+                proc_uid = stat_info.st_uid
 
-                # Cull io stats
-                with open(f"/proc/{pid}/io", "rb") as f:
+                # Skip based on mode: root processes in elevated mode, non-owned in user mode
+                if self.__filter_root_processes:
+                    if proc_uid == 0:
+                        continue
+                else:
+                    if self.__current_uid is not None and proc_uid != self.__current_uid:
+                        continue
+
+                # Read io stats - using single open/read for efficiency
+                with open(f"{proc_dir}/io", "rb") as f:
                     io_data = f.read(512)
                 io_str = io_data.decode("ascii", errors="ignore")
 
+                # Fast string parsing without splits
                 rb_idx = io_str.find("read_bytes:")
                 if rb_idx != -1:
                     rb_end = io_str.find("\n", rb_idx)
@@ -321,9 +332,8 @@ class HOST(Collector):
                     wb_end = io_str.find("\n", wb_idx)
                     write_total += int(io_str[wb_idx + 12 : wb_end].strip())
 
-            except (FileNotFoundError, ProcessLookupError, PermissionError, ValueError):
-                continue
-            except Exception:
+            except (FileNotFoundError, ProcessLookupError, PermissionError, ValueError, OSError):
+                # Process disappeared or permission denied - skip silently
                 continue
 
         return read_total, write_total
