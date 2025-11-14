@@ -75,11 +75,15 @@ class HOST(Collector):
         self.__sampler_running = False
         self.__sampler_thread = None
         self.__cpu_load_sampling_interval = 0.02
+        self.__enable_proc_io_stats = False
 
-        # allow runtime override of CPU load sampling interval
-        if config.has_option("omnistat.collectors.host", "cpu_load_sampling_interval"):
+        # runtime config parsing
+        if config.has_section("omnistat.collectors.host"):
             self.__cpu_load_sampling_interval = float(
                 config["omnistat.collectors.host"].get("cpu_load_sampling_interval", 0.02)
+            )
+            self.__enable_proc_io_stats = config["omnistat.collectors.host"].getboolean(
+                "enable_proc_io_stats", False
             )
 
     def registerMetrics(self):
@@ -126,17 +130,18 @@ class HOST(Collector):
         # --
 
         # fmt: off
-        self.__user_io_metrics = [
-            {"metricName": "io_read_total_bytes",  "description": "Total bytes read by all processes owned by this user"},
-            {"metricName": "io_write_total_bytes", "description": "Total bytes written by all processes owned by this user"},
-        ]
+        if self.__enable_proc_io_stats:
+            self.__user_io_metrics = [
+                {"metricName": "io_read_total_bytes",  "description": "Total bytes read by all processes owned by this user"},
+                {"metricName": "io_write_total_bytes", "description": "Total bytes written by all processes owned by this user"},
+            ]
         # fmt: on
 
-        for item in self.__user_io_metrics:
-            metric = item["metricName"]
-            description = item["description"]
-            self.__metrics[metric] = Gauge(self.__prefix + metric, description)
-            logging.info("--> [registered] %s (gauge)" % (self.__prefix + metric))
+            for item in self.__user_io_metrics:
+                metric = item["metricName"]
+                description = item["description"]
+                self.__metrics[metric] = Gauge(self.__prefix + metric, description)
+                logging.info("--> [registered] %s (gauge)" % (self.__prefix + metric))
 
         # --
         # CPU oriented metrics
@@ -240,10 +245,11 @@ class HOST(Collector):
         # I/O oriented metrics
         # --
 
-        # sum per-user process I/O metrics
-        read_total, write_total = self.read_user_proc_io()
-        self.__metrics["io_read_total_bytes"].set(read_total)
-        self.__metrics["io_write_total_bytes"].set(write_total)
+        if self.__enable_proc_io_stats:
+            # sum per-user process I/O metrics
+            read_total, write_total = self.read_user_proc_io()
+            self.__metrics["io_read_total_bytes"].set(read_total)
+            self.__metrics["io_write_total_bytes"].set(write_total)
 
         # # --
         # # CPU/load metrics
