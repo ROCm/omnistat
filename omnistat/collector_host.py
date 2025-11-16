@@ -46,9 +46,9 @@ import logging
 import os
 import platform
 import sys
+import threading
 import time
 from pathlib import Path
-import threading
 
 from prometheus_client import Counter, Gauge
 
