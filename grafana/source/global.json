@@ -707,7 +707,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "count(count by (jobid) (rmsjob_info{jobid=~\"^\\\\d.+\"}))",
+          "expr": "count(count by (jobid) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
