@@ -3458,7 +3458,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "timestamp(group by (jobid,user,batchflag,partition,nodes) (rmsjob_info{jobid=~\"^\\\\d+\",instance=\"$instance\"}))",
+              "expr": "timestamp(group by (jobid,user,batchflag,partition,nodes) (rmsjob_info{jobid=~\"^[^\\\\s]+\",instance=\"$instance\"}))",
               "format": "table",
               "hide": false,
               "instant": false,
