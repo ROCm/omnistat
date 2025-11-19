@@ -31,7 +31,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": null,
+  "id": 3,
   "links": [],
   "panels": [
     {
@@ -63,7 +63,7 @@
             "steps": [
               {
                 "color": "text",
-                "value": 0
+                "value": null
               }
             ]
           }
@@ -97,7 +97,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -132,7 +132,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               }
             ]
           }
@@ -166,7 +166,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -206,7 +206,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               }
             ]
           }
@@ -240,7 +240,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -290,7 +290,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -328,7 +328,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -378,7 +378,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               }
             ]
           }
@@ -412,7 +412,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -447,7 +447,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               }
             ]
           }
@@ -481,7 +481,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -515,7 +515,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               }
             ]
           },
@@ -550,7 +550,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -601,7 +601,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": 0
+                "value": null
               },
               {
                 "color": "#EAB839",
@@ -641,7 +641,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -712,7 +712,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -786,7 +786,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -835,7 +835,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": 0
+                "value": null
               },
               {
                 "color": "#EAB839",
@@ -875,7 +875,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -948,7 +948,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -1022,7 +1022,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -1071,7 +1071,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": 0
+                "value": null
               },
               {
                 "color": "#EAB839",
@@ -1091,7 +1091,7 @@
         "h": 4,
         "w": 5,
         "x": 0,
-        "y": 25
+        "y": 13
       },
       "id": 118,
       "interval": "$interval",
@@ -1112,7 +1112,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -1197,7 +1197,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -1244,7 +1244,7 @@
         "h": 4,
         "w": 19,
         "x": 5,
-        "y": 25
+        "y": 13
       },
       "id": 119,
       "interval": "$interval",
@@ -1262,7 +1262,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": {
@@ -1329,7 +1329,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 17
       },
       "id": 82,
       "panels": [
@@ -1357,7 +1357,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1476
+            "y": 1999
           },
           "id": 88,
           "interval": "$interval",
@@ -1413,7 +1413,7 @@
               "reverse": false
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -1467,7 +1467,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1476
+            "y": 1999
           },
           "id": 89,
           "interval": "$interval",
@@ -1503,7 +1503,7 @@
               "color": "rgba(255,0,255,0.7)"
             },
             "filterValues": {
-              "le": 1e-09
+              "le": 1e-9
             },
             "legend": {
               "show": true
@@ -1523,7 +1523,7 @@
               "reverse": false
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -1601,7 +1601,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1617,7 +1618,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1953
+            "y": 2297
           },
           "id": 91,
           "interval": "$interval",
@@ -1635,7 +1636,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -1701,7 +1702,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1768,7 +1770,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1961
+            "y": 2305
           },
           "id": 99,
           "interval": "$interval",
@@ -1795,7 +1797,7 @@
             "xTickLabelRotation": 0,
             "xTickLabelSpacing": 0
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -1880,7 +1882,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1932,7 +1935,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1961
+            "y": 2305
           },
           "id": 100,
           "interval": "$interval",
@@ -1950,7 +1953,7 @@
             "showHeader": true,
             "sortBy": []
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -2041,7 +2044,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 18
       },
       "id": 15,
       "panels": [
@@ -2081,7 +2084,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1477
+            "y": 4911
           },
           "id": 28,
           "interval": "$interval",
@@ -2143,7 +2146,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1477
+            "y": 4911
           },
           "id": 86,
           "interval": "$interval",
@@ -2256,7 +2259,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1863
+            "y": 5297
           },
           "id": 29,
           "interval": "$interval",
@@ -2318,7 +2321,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1863
+            "y": 5297
           },
           "id": 31,
           "interval": "$interval",
@@ -2354,7 +2357,7 @@
               "color": "rgba(255,0,255,0.7)"
             },
             "filterValues": {
-              "le": 1e-09
+              "le": 1e-9
             },
             "legend": {
               "show": true
@@ -2459,7 +2462,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1871
+            "y": 5305
           },
           "id": 24,
           "interval": "$interval",
@@ -2505,7 +2508,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 19
       },
       "id": 81,
       "panels": [
@@ -2533,7 +2536,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1478
+            "y": 2782
           },
           "id": 27,
           "interval": "$interval",
@@ -2589,7 +2592,7 @@
               "reverse": false
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -2643,7 +2646,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1478
+            "y": 2782
           },
           "id": 87,
           "interval": "$interval",
@@ -2679,7 +2682,7 @@
               "color": "rgba(255,0,255,0.7)"
             },
             "filterValues": {
-              "le": 1e-09
+              "le": 1e-9
             },
             "legend": {
               "show": true
@@ -2699,7 +2702,7 @@
               "reverse": false
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -2777,7 +2780,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -2793,7 +2797,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1489
+            "y": 2793
           },
           "id": 90,
           "interval": "$interval",
@@ -2811,7 +2815,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -2877,7 +2881,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -2960,7 +2965,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1497
+            "y": 2801
           },
           "id": 98,
           "interval": "$interval",
@@ -2987,7 +2992,7 @@
             "xTickLabelRotation": 0,
             "xTickLabelSpacing": 100
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -3088,7 +3093,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -3140,7 +3146,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1497
+            "y": 2801
           },
           "id": 95,
           "interval": "$interval",
@@ -3158,7 +3164,7 @@
             "showHeader": true,
             "sortBy": []
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -3205,7 +3211,8 @@
                   "Field": true,
                   "cluster": true,
                   "job": true,
-                  "monitor": true
+                  "monitor": true,
+                  "user": true
                 },
                 "includeByName": {},
                 "indexByName": {
@@ -3287,7 +3294,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   }
                 ]
               },
@@ -3411,7 +3419,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 1506
+            "y": 2810
           },
           "id": 52,
           "interval": "$interval",
@@ -3429,7 +3437,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -3496,7 +3504,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 20
       },
       "id": 126,
       "panels": [
@@ -3564,7 +3572,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 372
+            "y": 3806
           },
           "id": 142,
           "interval": "$interval",
@@ -3673,7 +3681,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1012
+            "y": 4446
           },
           "id": 33,
           "interval": "$interval",
@@ -3706,7 +3714,7 @@
               "refId": "A"
             }
           ],
-          "title": "GPU Temperature (\u00b0C)",
+          "title": "GPU Temperature (°C)",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -3782,7 +3790,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1020
+            "y": 4454
           },
           "id": 128,
           "interval": "$interval",
@@ -3815,7 +3823,7 @@
               "refId": "A"
             }
           ],
-          "title": "GPU Memory Temperature (\u00b0C)",
+          "title": "GPU Memory Temperature (°C)",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -3891,7 +3899,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1028
+            "y": 4462
           },
           "id": 129,
           "interval": "$interval",
@@ -4000,7 +4008,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1036
+            "y": 4470
           },
           "id": 130,
           "interval": "$interval",
@@ -4109,7 +4117,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1036
+            "y": 4470
           },
           "id": 131,
           "interval": "$interval",
@@ -4164,7 +4172,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 33
+        "y": 21
       },
       "id": 21,
       "panels": [
@@ -4216,7 +4224,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4232,7 +4241,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1882
+            "y": 4
           },
           "id": 143,
           "interval": "$interval",
@@ -4250,7 +4259,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -4316,7 +4325,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4332,7 +4342,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1890
+            "y": 27
           },
           "id": 127,
           "interval": "$interval",
@@ -4350,7 +4360,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -4365,7 +4375,7 @@
               "refId": "A"
             }
           ],
-          "title": "GPU Temperature (\u00b0C)",
+          "title": "GPU Temperature (°C)",
           "type": "timeseries"
         },
         {
@@ -4432,7 +4442,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1898
+            "y": 1972
           },
           "id": 104,
           "interval": "$interval",
@@ -4465,7 +4475,7 @@
               "refId": "A"
             }
           ],
-          "title": "GPU Memory Temperature (\u00b0C)",
+          "title": "GPU Memory Temperature (°C)",
           "type": "timeseries"
         },
         {
@@ -4532,7 +4542,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1906
+            "y": 1980
           },
           "id": 22,
           "interval": "$interval",
@@ -4632,7 +4642,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1914
+            "y": 1988
           },
           "id": 25,
           "interval": "$interval",
@@ -4732,7 +4742,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1914
+            "y": 1988
           },
           "id": 23,
           "interval": "$interval",
@@ -4778,7 +4788,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 22
       },
       "id": 136,
       "panels": [
@@ -4830,7 +4840,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4846,7 +4857,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1302
+            "y": 2882
           },
           "id": 144,
           "interval": "$interval",
@@ -4864,7 +4875,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -4939,7 +4950,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4955,7 +4967,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1382
+            "y": 2978
           },
           "id": 137,
           "interval": "$interval",
@@ -4973,7 +4985,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -4988,7 +5000,7 @@
               "refId": "A"
             }
           ],
-          "title": "GPU Temperature (\u00b0C)",
+          "title": "GPU Temperature (°C)",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -5064,7 +5076,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1390
+            "y": 2986
           },
           "id": 138,
           "interval": "$interval",
@@ -5097,7 +5109,7 @@
               "refId": "A"
             }
           ],
-          "title": "GPU Memory Temperature (\u00b0C)",
+          "title": "GPU Memory Temperature (°C)",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -5173,7 +5185,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1398
+            "y": 2994
           },
           "id": 139,
           "interval": "$interval",
@@ -5282,7 +5294,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1406
+            "y": 3002
           },
           "id": 140,
           "interval": "$interval",
@@ -5391,7 +5403,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1406
+            "y": 3002
           },
           "id": 141,
           "interval": "$interval",
@@ -5446,7 +5458,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 23
       },
       "id": 123,
       "panels": [
@@ -5516,7 +5528,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 36
+            "y": 3470
           },
           "id": 134,
           "interval": "$interval",
@@ -5571,7 +5583,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 24
       },
       "id": 157,
       "panels": [
@@ -5641,7 +5653,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 61
+            "y": 3495
           },
           "id": 156,
           "interval": "$interval",
@@ -5753,7 +5765,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 61
+            "y": 3495
           },
           "id": 158,
           "interval": "$interval",
@@ -5809,7 +5821,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 25
       },
       "id": 150,
       "panels": [
@@ -5878,7 +5890,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 408
+            "y": 3320
           },
           "id": 151,
           "interval": "$interval",
@@ -5897,7 +5909,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "11.5.1",
           "repeat": "counters",
           "repeatDirection": "h",
           "targets": [
@@ -5937,7 +5949,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 26
       },
       "id": 133,
       "panels": [
@@ -6006,7 +6018,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 545
+            "y": 3979
           },
           "id": 125,
           "interval": "$interval",
@@ -6065,7 +6077,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 27
       },
       "id": 152,
       "panels": [
@@ -6119,7 +6131,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": 0
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -6135,7 +6147,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 40
+            "y": 28
           },
           "id": 153,
           "interval": "$interval",
@@ -6154,7 +6166,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -6232,7 +6244,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": 0
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -6248,7 +6260,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 40
+            "y": 28
           },
           "id": 154,
           "interval": "$interval",
@@ -6267,7 +6279,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -6345,7 +6357,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": 0
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -6361,7 +6373,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 48
+            "y": 615
           },
           "id": 155,
           "interval": "$interval",
@@ -6380,7 +6392,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "11.5.1",
           "targets": [
             {
               "datasource": {
@@ -6418,7 +6430,772 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 28
+      },
+      "id": 159,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "ns"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "# Dispatches"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "none"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 29
+          },
+          "id": 160,
+          "interval": "$interval",
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "frameIndex": 0,
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "11.5.1",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "(increase(omnistat_kernel_total_duration_ns) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "hide": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "expr": "avg by (kernel) (increase(omnistat_kernel_total_duration_ns) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "hide": false,
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "expr": "avg by (kernel) (increase(omnistat_kernel_dispatch_count))",
+              "format": "table",
+              "hide": false,
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "C"
+            }
+          ],
+          "title": "GPU Average Kernel Stats",
+          "transformations": [
+            {
+              "id": "groupBy",
+              "options": {
+                "fields": {
+                  "Value": {
+                    "aggregations": [
+                      "mean",
+                      "stdDev",
+                      "min",
+                      "max"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "Value #A": {
+                    "aggregations": [
+                      "mean",
+                      "stdDev",
+                      "min",
+                      "max"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "Value #B": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "Value #C": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "kernel": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  }
+                }
+              }
+            },
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "includeByName": {},
+                "indexByName": {
+                  "Value #A (max)": 6,
+                  "Value #A (mean)": 3,
+                  "Value #A (min)": 5,
+                  "Value #A (stdDev)": 4,
+                  "Value #B (sum)": 1,
+                  "Value #C (sum)": 2,
+                  "kernel": 0
+                },
+                "renameByName": {
+                  "Value #A (max)": "Max",
+                  "Value #A (mean)": "Mean",
+                  "Value #A (min)": "Min",
+                  "Value #A (stdDev)": "Standard Deviation",
+                  "Value #B (diff)": "Sum",
+                  "Value #B (mean)": "Duration",
+                  "Value #B (sum)": "Total Duration",
+                  "Value #C (diff)": "# Dispatches",
+                  "Value #C (mean)": "# Dispatches",
+                  "Value #C (sum)": "# Dispatches",
+                  "kernel": "Kernel"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "Total Duration"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "ns"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 37
+          },
+          "id": 163,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.5.1",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "avg by (kernel) ((increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "GPU Average Kernel Duration [Top Kernels]",
+          "type": "timeseries"
+        }
+      ],
+      "title": "GPU Kernels",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "id": 164,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "fillOpacity": 72,
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineWidth": 0,
+                "spanNulls": false
+              },
+              "displayName": "GPU: ${__series.name}",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 46
+          },
+          "id": 169,
+          "interval": "$interval",
+          "options": {
+            "alignValue": "left",
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "mergeValues": false,
+            "rowHeight": 0.9,
+            "showValue": "auto",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.5.1",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "topk by (gpu_id) (1, (label_join(increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}), \"gpu_id\", \"/\", \"instance\", \"node_id\") * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))) > 0",
+              "format": "table",
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Top Kernels per GPU/Sample",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Value": true,
+                  "instance": true,
+                  "node_id": true,
+                  "user": true
+                },
+                "includeByName": {},
+                "indexByName": {},
+                "renameByName": {
+                  "kernel": ""
+                }
+              }
+            },
+            {
+              "id": "partitionByValues",
+              "options": {
+                "fields": [
+                  "gpu_id"
+                ],
+                "keepFields": false,
+                "naming": {
+                  "asLabels": false
+                }
+              }
+            },
+            {
+              "id": "convertFieldType",
+              "options": {
+                "conversions": [
+                  {
+                    "destinationType": "enum",
+                    "enumConfig": {
+                      "text": [
+                        "_Z19memory_bound_kernelPfS_ii.kd",
+                        "_Z20compute_bound_kernelPfii.kd"
+                      ]
+                    },
+                    "targetField": "kernel"
+                  }
+                ],
+                "fields": {}
+              }
+            }
+          ],
+          "type": "state-timeline"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "ns"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 54
+          },
+          "id": 165,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.5.1",
+          "repeat": "top_kernels",
+          "repeatDirection": "v",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "avg by (instance,node_id) ((increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+              "legendFormat": "GPU: {{instance}}/{{node_id}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Duration: $top_kernels",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "ns"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "GPU Node ID"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "none"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "# Dispatches"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "none"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 54
+          },
+          "id": 166,
+          "interval": "$interval",
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "frameIndex": 0,
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "11.5.1",
+          "repeat": "top_kernels",
+          "repeatDirection": "v",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "(increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "hide": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "expr": "avg by (instance,node_id) (increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "hide": false,
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "expr": "avg by (instance,node_id) (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}))",
+              "format": "table",
+              "hide": false,
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "C"
+            }
+          ],
+          "title": "Stats: $top_kernels",
+          "transformations": [
+            {
+              "id": "groupBy",
+              "options": {
+                "fields": {
+                  "Value": {
+                    "aggregations": [
+                      "mean",
+                      "stdDev",
+                      "min",
+                      "max"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "Value #A": {
+                    "aggregations": [
+                      "mean"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "Value #B": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "Value #C": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "instance": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "kernel": {
+                    "aggregations": []
+                  },
+                  "node_id": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  }
+                }
+              }
+            },
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "includeByName": {},
+                "indexByName": {
+                  "Value #A (mean)": 4,
+                  "Value #B (sum)": 2,
+                  "Value #C (sum)": 3,
+                  "instance": 0,
+                  "node_id": 1
+                },
+                "renameByName": {
+                  "Value #A (max)": "Max",
+                  "Value #A (mean)": "Mean",
+                  "Value #A (min)": "Min",
+                  "Value #A (stdDev)": "Standard Deviation",
+                  "Value #B (diff)": "Sum",
+                  "Value #B (mean)": "Duration",
+                  "Value #B (sum)": "Total Duration",
+                  "Value #C (diff)": "# Dispatches",
+                  "Value #C (mean)": "# Dispatches",
+                  "Value #C (sum)": "# Dispatches",
+                  "instance": "Node",
+                  "kernel": "Kernel",
+                  "node_id": "GPU Node ID"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "Total Duration"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "table"
+        }
+      ],
+      "title": "GPU Kernels [all GPUs]",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 30
       },
       "id": 122,
       "panels": [
@@ -6488,7 +7265,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 201
+            "y": 3635
           },
           "id": 120,
           "options": {
@@ -6685,7 +7462,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 201
+            "y": 3635
           },
           "id": 121,
           "options": {
@@ -6826,7 +7603,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 31
       },
       "id": 101,
       "panels": [
@@ -6895,7 +7672,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 155
+            "y": 3589
           },
           "id": 105,
           "interval": "$interval",
@@ -7006,7 +7783,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 155
+            "y": 3589
           },
           "id": 106,
           "interval": "$interval",
@@ -7062,7 +7839,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 32
       },
       "id": 41,
       "panels": [
@@ -7130,7 +7907,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 454
+            "y": 3888
           },
           "id": 116,
           "interval": "$interval",
@@ -7240,7 +8017,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 454
+            "y": 3888
           },
           "id": 117,
           "interval": "$interval",
@@ -7296,7 +8073,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 33
       },
       "id": 132,
       "panels": [
@@ -7365,7 +8142,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4119
+            "y": 7553
           },
           "id": 135,
           "interval": "$interval",
@@ -7422,7 +8199,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 34
       },
       "id": 57,
       "panels": [
@@ -7529,7 +8306,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4168
+            "y": 7602
           },
           "id": 56,
           "interval": "$interval",
@@ -7622,7 +8399,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 35
       },
       "id": 111,
       "panels": [
@@ -7753,7 +8530,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18169
+            "y": 21603
           },
           "id": 107,
           "interval": "$interval",
@@ -7948,7 +8725,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18169
+            "y": 21603
           },
           "id": 112,
           "interval": "$interval",
@@ -8107,7 +8884,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18177
+            "y": 21611
           },
           "id": 108,
           "interval": "$interval",
@@ -8335,7 +9112,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18177
+            "y": 21611
           },
           "id": 113,
           "interval": "$interval",
@@ -8490,7 +9267,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18185
+            "y": 21619
           },
           "id": 109,
           "interval": "$interval",
@@ -8718,7 +9495,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18185
+            "y": 21619
           },
           "id": 115,
           "interval": "$interval",
@@ -8874,7 +9651,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18193
+            "y": 21627
           },
           "id": 110,
           "interval": "$interval",
@@ -9098,7 +9875,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18193
+            "y": 21627
           },
           "id": 114,
           "interval": "$interval",
@@ -9161,7 +9938,7 @@
   ],
   "preload": false,
   "refresh": "",
-  "schemaVersion": 41,
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
@@ -9304,6 +10081,32 @@
         "regex": "/.*name=\"([^\"]*).*/",
         "sort": 1,
         "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${source}"
+        },
+        "definition": "query_result(topk(5, sum by (kernel) (increase(omnistat_kernel_total_duration_ns{}[${__range}]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))))",
+        "hide": 2,
+        "includeAll": true,
+        "label": "Kernels",
+        "multi": true,
+        "name": "top_kernels",
+        "options": [],
+        "query": {
+          "qryType": 3,
+          "query": "query_result(topk(5, sum by (kernel) (increase(omnistat_kernel_total_duration_ns{}[${__range}]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))))",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/.*kernel=\"([^\"]*).*/",
+        "type": "query"
       }
     ]
   },
@@ -9315,5 +10118,6 @@
   "timezone": "",
   "title": "Job - User",
   "uid": "fdqo0h2s2drswe-user",
-  "version": 1
+  "version": 9,
+  "weekStart": ""
 }
