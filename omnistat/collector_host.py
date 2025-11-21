@@ -24,7 +24,7 @@
 
 """Host-level monitoring
 
-Implements a number of prometheus gauge metrics based to track host-level utilization
+Implements a number of prometheus gauge metrics to track host-level utilization
 including CPU usage, memory usage, and I/O stats. The following highlights example
 metrics:
 
@@ -33,6 +33,8 @@ omnistat_host_mem_free_bytes 5.23302158336e+011
 omnistat_host_mem_available_bytes 5.22178281472e+011
 omnistat_host_io_read_total_bytes 7.794688e+06
 omnistat_host_io_write_total_bytes 45056.0
+omnistat_host_io_read_local_total_bytes 0.0
+omnistat_host_io_write_local_total_bytes 0.0
 omnistat_host_cpu_aggregate_core_utilization 1.9104
 omnistat_host_cpu_load1 3.08
 omnistat_host_cpu_load5 3.05
@@ -80,7 +82,7 @@ class HOST(Collector):
         # runtime config parsing
         if config.has_section("omnistat.collectors.host"):
             self.__cpu_load_sampling_interval = float(
-                config["omnistat.collectors.host"].get("cpu_load_sampling_interval", 0.02)
+                config["omnistat.collectors.host"].get("cpu_load_sampling_interval", 0.05)
             )
             self.__enable_proc_io_stats = config["omnistat.collectors.host"].getboolean("enable_proc_io_stats", False)
 
@@ -131,10 +133,23 @@ class HOST(Collector):
         self.__user_io_metrics = [
             {"metricName": "io_read_local_total_bytes",  "description": "Total bytes read from local physical disks",  "enable": True},
             {"metricName": "io_write_local_total_bytes", "description": "Total bytes written to local physical disks", "enable": True},
-            {"metricName": "io_read_total_bytes",  "description": "Total bytes read by visible processes (includes network I/O)",    "enable": self.__enable_proc_io_stats},
-            {"metricName": "io_write_total_bytes", "description": "Total bytes written by visible processes (includes network I/O)", "enable": self.__enable_proc_io_stats},
+            {"metricName": "io_read_total_bytes",        "description": "Total bytes read by visible processes (includes network I/O)",    "enable": self.__enable_proc_io_stats},
+            {"metricName": "io_write_total_bytes",       "description": "Total bytes written by visible processes (includes network I/O)", "enable": self.__enable_proc_io_stats},
         ]
         # fmt: on
+
+        # verify /proc/<pid>/io file format
+        if self.__enable_proc_io_stats:
+            desired_stats = ["rchar", "wchar"]
+            with open("/proc/self/io", "r") as f:
+                for entry in desired_stats:
+                    line = f.readline()
+                    if not line.startswith(f"{entry}:"):
+                        logging.error(f"--> [ERROR] Unexpected {entry} format in /proc/<pid>/io ({line.strip()})")
+                        sys.exit(4)
+                    if len(line.split()) < 2:
+                        logging.error(f"--> [ERROR] Unexpected {entry} line in /proc/<pid>/io ({line.strip()})")
+                        sys.exit(4)
 
         for item in self.__user_io_metrics:
             if item["enable"]:
@@ -255,9 +270,9 @@ class HOST(Collector):
             self.__metrics["io_read_total_bytes"].set(read_total)
             self.__metrics["io_write_total_bytes"].set(write_total)
 
-        # # --
-        # # CPU/load metrics
-        # # --
+        # --
+        # CPU/load metrics
+        # --
 
         load_averages = self.read_loadavg()
         self.__metrics["cpu_load1"].set(load_averages[0])
@@ -276,7 +291,12 @@ class HOST(Collector):
         return
 
     def read_meminfo(self, num_lines):
-        """Read and parse the top num_lines of /proc/meminfo"""
+        """Read and parse the top num_lines of /proc/meminfo
+        Args:
+            num_lines (int): Number of lines to read from /proc/meminfo
+
+        Returns:
+            list: List of memory values in bytes corresponding to the requested lines."""
         mem_info = []
 
         try:
@@ -292,33 +312,33 @@ class HOST(Collector):
         return mem_info
 
     def read_user_proc_io(self):
-        """Sum read_bytes and write_bytes from /proc/<pid>/io.
+        """Sum rchar and wchar from /proc/<pid>/io.
 
-        In user-mode, rely on kernel permissions and only include processes we can read. In elevated
-        system mode: explicitly filter out root-owned processes before summing.
+        Parses rchar/wchar to track total bytes read/written via syscalls to capture all I/O
+        including network filesystems (WekaFS, NFS, Lustre) which bypass the block layer.
+        This includes buffered I/O, direct I/O, and network filesystem operations.
 
-        Performance optimization: use os.stat() on /proc/<pid> to get owner UID before opening files,
-        avoiding expensive file reads for processes we'll skip anyway. Process /proc entries in
-        sorted order to improve cache locality.
+        Returns:
+            int: (read_bytes, write_bytes)
         """
         read_total = 0
         write_total = 0
 
         try:
-            # Get numeric PIDs >= 1000, sorted for better cache locality
+            # Get numeric PIDs >= 1000
             proc_entries = os.listdir("/proc")
             pids = sorted([int(p) for p in proc_entries if p.isdigit() and int(p) >= 1000])
-        except OSError:
+        except:
             return 0, 0
 
         for pid in pids:
             proc_dir = f"/proc/{pid}"
             try:
-                # Fast UID check via stat() on /proc/<pid> directory
+
+                # Perm checks
                 stat_info = os.stat(proc_dir)
                 proc_uid = stat_info.st_uid
 
-                # Skip based on mode: root processes in elevated mode, non-owned in user mode
                 if self.__filter_root_processes:
                     if proc_uid == 0:
                         continue
@@ -326,24 +346,14 @@ class HOST(Collector):
                     if self.__current_uid is not None and proc_uid != self.__current_uid:
                         continue
 
-                # Read io stats - using single open/read for efficiency
-                with open(f"{proc_dir}/io", "rb") as f:
-                    io_data = f.read(512)
-                io_str = io_data.decode("ascii", errors="ignore")
-
-                # Fast string parsing without splits
-                rb_idx = io_str.find("read_bytes:")
-                if rb_idx != -1:
-                    rb_end = io_str.find("\n", rb_idx)
-                    read_total += int(io_str[rb_idx + 11 : rb_end].strip())
-
-                wb_idx = io_str.find("write_bytes:")
-                if wb_idx != -1:
-                    wb_end = io_str.find("\n", wb_idx)
-                    write_total += int(io_str[wb_idx + 12 : wb_end].strip())
-
-            except (FileNotFoundError, ProcessLookupError, PermissionError, ValueError, OSError):
-                # Process disappeared or permission denied - skip silently
+                # Read first two lines to parse rchar and wchar values
+                with open(f"{proc_dir}/io", "r") as f:
+                    rchar_line = f.readline()  # Line 1: rchar: <value>
+                    wchar_line = f.readline()  # Line 2: wchar: <value>
+                    read_total += int(rchar_line.split(":", 1)[1])
+                    write_total += int(wchar_line.split(":", 1)[1])
+            except:
+                # Process disappeared or permission denied
                 continue
 
         return read_total, write_total
@@ -355,7 +365,8 @@ class HOST(Collector):
         - Partitions (e.g., sda1, nvme0n1p1) to avoid double-counting
         - Virtual devices (loop, ram, dm-, md, sr, zram)
 
-        Returns (read_bytes, write_bytes).
+        Returns:
+            int: (read_bytes, write_bytes)
         """
         read_bytes = 0
         write_bytes = 0
@@ -388,7 +399,9 @@ class HOST(Collector):
 
     def read_loadavg(self):
         """Read /proc/loadavg and return the (1, 5, 15) minute load averages.
-        Returns None on failure.
+
+        Returns:
+            int: [load1, load5, load15]
         """
         try:
             with open("/proc/loadavg", "r") as f:
@@ -403,7 +416,7 @@ class HOST(Collector):
         """Determine physical core count and logical CPU count.
 
         Returns:
-            tuple: (physical_cores, logical_cores)
+            int: (physical_cores, logical_cores)
         """
         # Logical CPUs
         logical = os.cpu_count() or 0
