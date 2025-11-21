@@ -8,6 +8,7 @@ enable_rms = False
 enable_rocprofiler = False
 enable_network = True
 enable_vendor_counters = False
+enable_host_metrics = True
 
 ## Path to local ROCM install to access SMI library
 rocm_path = /opt/rocm
@@ -23,6 +24,10 @@ host_skip = "login.*"
 enable_annotations = False
 job_detection_mode = file-based
 job_detection_file = /tmp/omni_rmsjobinfo
+
+[omnistat.collectors.host]
+enable_proc_io_stats = False
+cpu_load_sampling_interval = 0.05
 
 [omnistat.collectors.rocprofiler]
 profile = default
