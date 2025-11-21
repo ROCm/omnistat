@@ -57,7 +57,7 @@
             "class_name": "PM_COUNTERS"
         },
         {
-            "runtime_option": "enable_host_counters",
+            "runtime_option": "enable_host_metrics",
             "enabled_by_default": true,
             "file": "omnistat.collector_host",
             "class_name": "HOST"
