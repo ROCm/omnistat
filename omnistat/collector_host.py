@@ -29,8 +29,7 @@ including CPU usage, memory usage, and I/O stats. The following highlights examp
 metrics:
 
 omnistat_host_mem_total_bytes 5.40314181632e+011
-omnistat_host_mem_free_bytes 5.23302158336e+011
-omnistat_host_mem_available_bytes 5.22178281472e+011
+omnistat_host_mem_used_percentage 0.361
 omnistat_host_io_read_total_bytes 7.794688e+06
 omnistat_host_io_write_total_bytes 45056.0
 omnistat_host_io_read_local_total_bytes 0.0
@@ -93,14 +92,10 @@ class HOST(Collector):
         # Memory oriented metrics
         # --
 
-        # fmt: off
-        self.__mem_metrics = [
-            {"entry":"MemTotal",    "index":0,"metricName":"mem_total_bytes","description":"Total memory available on the host in bytes"},
-            {"entry":"MemFree",     "index":1,"metricName":"mem_free_bytes","description":"Free memory available on the host in bytes"},
-            {"entry":"MemAvailable","index":2,"metricName":"mem_available_bytes","description":"Available memory on the host in bytes"},
-        ]
-        # fmt: on
-        self.__max_mem_metric_index = max(item["index"] for item in self.__mem_metrics)
+        self.__mem_metrics_index = {"MemTotal": 0, "MemAvailable": 2}
+
+        self.__max_mem_metric_index = max(self.__mem_metrics_index.values())
+        logging.info("--> max mem metric line index: %d" % self.__max_mem_metric_index)
 
         # verify /proc/meminfo exists
         if not os.path.exists("/proc/meminfo"):
@@ -110,20 +105,19 @@ class HOST(Collector):
 
         # verify metric ordering expectations
         with open("/proc/meminfo", "r") as f:
-            for item in self.__mem_metrics:
-                line = f.readline()
+            contents = f.readlines()
+            for key, index in self.__mem_metrics_index.items():
+                line = contents[index]
                 # Check if the memory entry matches expected
-                if not line.startswith(item["entry"] + ":"):
-                    logging.error(f"--> [ERROR] Expected {item['entry']} in /proc/meminfo but found: {line.strip()}")
+                if not line.startswith(key + ":"):
+                    logging.error(f"--> [ERROR] Expected {key} in /proc/meminfo but found: {line.strip()}")
                     sys.exit(4)
                 else:
-                    logging.debug(f"--> verified {item['entry']} in /proc/meminfo")
+                    logging.debug(f"--> verified {key} in /proc/meminfo (line {index + 1})")
 
-        for item in self.__mem_metrics:
-            metric = item["metricName"]
-            description = item["description"]
-            self.__metrics[metric] = Gauge(self.__prefix + metric, description)
-            logging.info("--> [registered] %s (gauge)" % (self.__prefix + metric))
+        # register memory metrics
+        self.__metrics["mem_total_bytes"] = Gauge(self.__prefix + "mem_total_bytes", "Total Host Memory (Bytes)")
+        self.__metrics["mem_used_percentage"] = Gauge(self.__prefix + "mem_used_percentage", "Host Memory in Use (%)")
 
         # --
         # I/O oriented metrics
@@ -249,12 +243,11 @@ class HOST(Collector):
         # --
 
         mem_info = self.read_meminfo(self.__max_mem_metric_index + 1)
-
-        for item in self.__mem_metrics:
-            metric = item["metricName"]
-            index = item["index"]
-            if metric in self.__metrics and index < len(mem_info):
-                self.__metrics[metric].set(mem_info[index])
+        mem_total_bytes = mem_info[self.__mem_metrics_index["MemTotal"]]
+        mem_available_bytes = mem_info[self.__mem_metrics_index["MemAvailable"]]
+        used_percentage = 1.0 - (mem_available_bytes / mem_total_bytes)
+        self.__metrics["mem_total_bytes"].set(mem_total_bytes)
+        self.__metrics["mem_used_percentage"].set(round(used_percentage, 4))
 
         # --
         # I/O oriented metrics
