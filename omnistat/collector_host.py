@@ -217,9 +217,9 @@ class HOST(Collector):
                 _ = _f.read(1)
             self.__filter_root_processes = True
             logging.info("--> elevated /proc access detected; will filter out root-owned processes")
-        except PermissionError:
+        except:
             self.__filter_root_processes = False
-            logging.debug("--> standard /proc access; will rely on permissions to limit visibility")
+            logging.debug("--> non-root /proc access detected")
 
         # Cache current UID for fast process filtering
         try:
