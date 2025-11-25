@@ -40,6 +40,7 @@ health and performance.
 | `rocm_version_info`               | GPU model and versioning information for GPU driver and VBIOS. Labels: `driver_ver`, `vbios`, `type`, `schema`. |
 | `rocm_utilization_percentage`     | GPU utilization (%). |
 | `rocm_vram_used_percentage`       | Memory utilization (%). |
+| `rocm_vram_total_bytes`           | Total GPU memory (bytes). |
 | `rocm_average_socket_power_watts` | Average socket power (W). |
 | `rocm_sclk_clock_mhz`             | GPU clock speed (MHz). |
 | `rocm_mclk_clock_mhz`             | Memory clock speed (MHz). |
@@ -58,6 +59,28 @@ to individual users or applications.
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
 | `rmsjob_info`           | Resource manager info metric tracking running jobs. When a job is running, the `jobid` label is different than the empty string. Labels: `jobid`, `user`, `partition`, `nodes`, `batchflag`, `jobstep`, `type`. |
+
+## Host
+
+The host data collector optionally gathers host-oriented data including CPU and
+memory utilization statistics along with general I/O metrics.
+
+**Collector**: `enable_host_metrics`
+
+| Node Metric             | Description                          |
+| :---------------------- | :----------------------------------- |
+| `omnistat_mem_total_bytes`| Total host memory available (bytes). |
+| `omnistat_mem_available_bytes` | Currently available host memory (bytes). This is typically the amount of memory available for allocation to new processes.|
+| `omnistat_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it is generally smaller than `omnistat_mem_available_bytes` due to caching. |
+| `omnistat_host_cpu_num_physical_cores` | Number of physical CPU cores. |
+| `omnistat_host_cpu_num_logical_cores` | Number of logical CPU cores. |
+| `omnistat_host_cpu_aggregate_core_utilization` | Instantaneous number of busy CPU cores. Typical range varies from 0 (no load) to num_logical_cores (max load). |
+| `omnistat_host_cpu_load1` | 1-minute CPU load average. This is identical to 1-minute load reported by `uptime`. |
+| `omnistat_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
+| `omnistat_io_write_local_total_bytes` | Total bock-level data written to **local** physical disk (bytes). |
+| `omnistat_io_read_total_bytes` | Total data read by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`.|
+| `omnistat_io_write_total_bytes` | Total data written by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`.|
+
 
 
 ## Annotations
