@@ -46,12 +46,14 @@ To demonstrate the overall data collection architecture employed by Omnistat in 
 ```{figure} images/architecture_system-mode.png
 ---
 name: fig-system-mode
+width: 800px
 ---
 System-wide monitoring
 
 ```{figure} images/architecture_user-mode.png
 ---
 name: fig-user-mode
+width: 800px
 ---
 User-mode monitoring
 
