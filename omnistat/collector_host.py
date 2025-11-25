@@ -36,8 +36,6 @@ omnistat_host_io_read_local_total_bytes 0.0
 omnistat_host_io_write_local_total_bytes 0.0
 omnistat_host_cpu_aggregate_core_utilization 1.9104
 omnistat_host_cpu_load1 3.08
-omnistat_host_cpu_load5 3.05
-omnistat_host_cpu_load15 3.06
 omnistat_host_cpu_num_physical_cores 128.0
 omnistat_host_cpu_num_logical_cores 128.0
 """
@@ -159,8 +157,6 @@ class HOST(Collector):
         # fmt: off
         self.__loadavg_metrics = [
             {"metricName": "cpu_load1",  "description": "1-minute load average"},
-            {"metricName": "cpu_load5",  "description": "5-minute load average"},
-            {"metricName": "cpu_load15", "description": "15-minute load average"},
             {"metricName": "cpu_num_physical_cores", "description": "Number of physical CPU cores"},
             {"metricName": "cpu_num_logical_cores", "description": "Number of logical CPU cores"},
             {"metricName": "cpu_aggregate_core_utilization", "description": "Instantaneous number of busy CPU cores (0..num_logical_cores)"},
@@ -269,8 +265,6 @@ class HOST(Collector):
 
         load_averages = self.read_loadavg()
         self.__metrics["cpu_load1"].set(load_averages[0])
-        self.__metrics["cpu_load5"].set(load_averages[1])
-        self.__metrics["cpu_load15"].set(load_averages[2])
 
         # Instantaneous CPU usage via background sampler
         delta_idle, delta_total = self.read_cpu_times()
@@ -400,7 +394,7 @@ class HOST(Collector):
             with open("/proc/loadavg", "r") as f:
                 content = f.read().strip()
             parts = content.split()
-            return parts[:3]
+            return parts[:1]
         except Exception as e:
             logging.debug(f"Failed reading /proc/loadavg: {e}")
         return None
