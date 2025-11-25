@@ -181,7 +181,6 @@ class UserBasedMonitoring:
 
         vm_binary = self.runtimeConfig[section].get("victoria_binary")
 
-
         if not os.path.exists(vm_binary):
             logging.error("")
             logging.error("[ERROR]: Unable to resolve path to VictoriaMetrics binary -> %s" % vm_binary)
