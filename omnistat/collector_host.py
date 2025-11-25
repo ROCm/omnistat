@@ -129,10 +129,10 @@ class HOST(Collector):
 
         # fmt: off
         self.__user_io_metrics = [
-            {"metricName": "io_read_local_total_bytes",  "description": "Total bytes read from local physical disks",  "enable": True},
-            {"metricName": "io_write_local_total_bytes", "description": "Total bytes written to local physical disks", "enable": True},
-            {"metricName": "io_read_total_bytes",        "description": "Total bytes read by visible processes (includes network I/O)",    "enable": self.__enable_proc_io_stats},
-            {"metricName": "io_write_total_bytes",       "description": "Total bytes written by visible processes (includes network I/O)", "enable": self.__enable_proc_io_stats},
+            {"metricName": "io_read_local_total_bytes",  "description": "Total bytes read from local physical disks",  "enable": True, "labels": None},
+            {"metricName": "io_write_local_total_bytes", "description": "Total bytes written to local physical disks", "enable": True, "labels": None},
+            {"metricName": "io_read_total_bytes",        "description": "Total bytes read by visible processes (includes network I/O)",    "enable": self.__enable_proc_io_stats, "labels": ["pid"]},
+            {"metricName": "io_write_total_bytes",       "description": "Total bytes written by visible processes (includes network I/O)", "enable": self.__enable_proc_io_stats, "labels": ["pid"]},
         ]
         # fmt: on
 
@@ -153,7 +153,10 @@ class HOST(Collector):
             if item["enable"]:
                 metric = item["metricName"]
                 description = item["description"]
-                self.__metrics[metric] = Gauge(self.__prefix + metric, description)
+                if item["labels"] is not None:
+                    self.__metrics[metric] = Gauge(self.__prefix + metric, description, labelnames=item["labels"])
+                else:
+                    self.__metrics[metric] = Gauge(self.__prefix + metric, description)
                 logging.info("--> [registered] %s (gauge)" % (self.__prefix + metric))
 
         # --
@@ -261,10 +264,15 @@ class HOST(Collector):
         self.__metrics["io_write_local_total_bytes"].set(write_total_local)
 
         if self.__enable_proc_io_stats:
-            # sum per-user process I/O metrics
-            read_total, write_total = self.read_user_proc_io()
-            self.__metrics["io_read_total_bytes"].set(read_total)
-            self.__metrics["io_write_total_bytes"].set(write_total)
+            self.__metrics["io_read_total_bytes"].clear()
+            self.__metrics["io_write_total_bytes"].clear()
+
+            # log per-pid process I/O metrics
+            reads, writes = self.read_user_proc_io()
+            for pid in reads:
+                self.__metrics["io_read_total_bytes"].labels(pid=pid).set(reads[pid])
+            for pid in writes:
+                self.__metrics["io_write_total_bytes"].labels(pid=pid).set(writes[pid])
 
         # --
         # CPU/load metrics
@@ -274,7 +282,7 @@ class HOST(Collector):
         self.__metrics["cpu_load1"].set(load_averages[0])
 
         # Instantaneous CPU usage via background sampler
-        delta_idle, delta_total = self.read_cpu_times()
+        delta_idle, delta_total = self.read_cpu_stats()
         if delta_total > 0 and delta_idle >= 0:
             busy = delta_total - delta_idle
             usage_ratio = busy / delta_total
@@ -310,26 +318,35 @@ class HOST(Collector):
 
         Parses rchar/wchar to track total bytes read/written via syscalls to capture all I/O
         including network filesystems (WekaFS, NFS, Lustre) which bypass the block layer.
-        This includes buffered I/O, direct I/O, and network filesystem operations.
 
         Returns:
-            int: (read_bytes, write_bytes)
+            dict: (read_rchar, write_wchar) mapping PID to total read/write bytes
         """
-        read_total = 0
-        write_total = 0
+        read_rchar = {}
+        write_wchar = {}
 
         try:
-            # Get numeric PIDs >= 1000
             proc_entries = os.listdir("/proc")
-            pids = sorted([int(p) for p in proc_entries if p.isdigit() and int(p) >= 1000])
         except:
-            return 0, 0
+            return {}, {}
 
-        for pid in pids:
+        for entry in proc_entries:
+            if not entry.isdigit():
+                continue
+            pid = int(entry)
+            # skip system processes
+            if pid < 1000:
+                continue
+
             proc_dir = f"/proc/{pid}"
             try:
+                # Skip threads - only track main process
+                try:
+                    os.stat(f"{proc_dir}/task/{pid}")
+                except:
+                    continue
 
-                # Perm checks
+                # Permission checks
                 stat_info = os.stat(proc_dir)
                 proc_uid = stat_info.st_uid
 
@@ -340,17 +357,17 @@ class HOST(Collector):
                     if self.__current_uid is not None and proc_uid != self.__current_uid:
                         continue
 
-                # Read first two lines to parse rchar and wchar values
+                # Read I/O stats
                 with open(f"{proc_dir}/io", "r") as f:
                     rchar_line = f.readline()  # Line 1: rchar: <value>
                     wchar_line = f.readline()  # Line 2: wchar: <value>
-                    read_total += int(rchar_line.split(":", 1)[1])
-                    write_total += int(wchar_line.split(":", 1)[1])
+                    read_rchar[pid] = int(rchar_line.split(":", 1)[1])
+                    write_wchar[pid] = int(wchar_line.split(":", 1)[1])
             except:
                 # Process disappeared or permission denied
                 continue
 
-        return read_total, write_total
+        return read_rchar, write_wchar
 
     def read_local_disk_io(self):
         """Read /proc/diskstats and return total read and write bytes across all local physical disks.
@@ -437,7 +454,7 @@ class HOST(Collector):
 
         return (physical, logical)
 
-    def read_cpu_times(self):
+    def read_cpu_stats(self):
         """Return cached CPU stats from background sampling thread.
 
         Returns:
