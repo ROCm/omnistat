@@ -44,7 +44,7 @@ omnistat_host_cpu_num_logical_cores 128.0
 import configparser
 import logging
 import os
-import platform
+import re
 import sys
 import threading
 import time
@@ -74,18 +74,32 @@ class HOST(Collector):
         self.__cpu_delta_total = 0
         self.__sampler_running = False
         self.__sampler_thread = None
-        self.__cpu_load_sampling_interval = 0.02
+        self.__cpu_load_sampling_interval = 0.05
         self.__enable_proc_io_stats = False
+        self.__proc_io_cmds_exclude = ["flux-broker"]
 
         # runtime config parsing
         if config.has_section("omnistat.collectors.host"):
-            self.__cpu_load_sampling_interval = float(
-                config["omnistat.collectors.host"].get("cpu_load_sampling_interval", 0.05)
-            )
+            if config.has_option("omnistat.collectors.host", "cpu_load_sampling_interval"):
+                self.__cpu_load_sampling_interval = float(
+                    config["omnistat.collectors.host"].get("cpu_load_sampling_interval")
+                )
+                logging.debug("--> overriding default cpu_load_sampling_interval...")
             self.__enable_proc_io_stats = config["omnistat.collectors.host"].getboolean("enable_proc_io_stats", False)
+            if self.__enable_proc_io_stats:
+                if config.has_option("omnistat.collectors.host", "proc_io_cmds_exclude"):
+                    self.__proc_io_cmds_exclude = config["omnistat.collectors.host"].get("proc_io_cmds_exclude")
+                    self.__proc_io_cmds_exclude = re.split(r",\s*", self.__proc_io_cmds_exclude)
+                    logging.debug("--> overriding default proc_io_cmd_exclude_list...")
 
     def registerMetrics(self):
         """Register metrics of interest"""
+
+        # logging.info("Runtime options:")
+        logging.info("cpu_load_sampling_interval: %.4f secs" % self.__cpu_load_sampling_interval)
+        logging.info("enable_proc_io_stats: %s" % str(self.__enable_proc_io_stats))
+        if self.__enable_proc_io_stats:
+            logging.info("proc_io_cmds_exclude: %s" % self.__proc_io_cmds_exclude)
 
         # --
         # Memory oriented metrics
@@ -131,8 +145,8 @@ class HOST(Collector):
         self.__user_io_metrics = [
             {"metricName": "io_read_local_total_bytes",  "description": "Total bytes read from local physical disks",  "enable": True, "labels": None},
             {"metricName": "io_write_local_total_bytes", "description": "Total bytes written to local physical disks", "enable": True, "labels": None},
-            {"metricName": "io_read_total_bytes",        "description": "Total bytes read by visible processes (includes network I/O)",    "enable": self.__enable_proc_io_stats, "labels": ["pid"]},
-            {"metricName": "io_write_total_bytes",       "description": "Total bytes written by visible processes (includes network I/O)", "enable": self.__enable_proc_io_stats, "labels": ["pid"]},
+            {"metricName": "io_read_total_bytes",        "description": "Total bytes read by visible processes (includes network I/O)",    "enable": self.__enable_proc_io_stats, "labels": ["pid","cmd"]},
+            {"metricName": "io_write_total_bytes",       "description": "Total bytes written by visible processes (includes network I/O)", "enable": self.__enable_proc_io_stats, "labels": ["pid","cmd"]},
         ]
         # fmt: on
 
@@ -270,9 +284,9 @@ class HOST(Collector):
             # log per-pid process I/O metrics
             reads, writes = self.read_user_proc_io()
             for pid in reads:
-                self.__metrics["io_read_total_bytes"].labels(pid=pid).set(reads[pid])
+                self.__metrics["io_read_total_bytes"].labels(pid=pid, cmd=reads[pid][1]).set(reads[pid][0])
             for pid in writes:
-                self.__metrics["io_write_total_bytes"].labels(pid=pid).set(writes[pid])
+                self.__metrics["io_write_total_bytes"].labels(pid=pid, cmd=writes[pid][1]).set(writes[pid][0])
 
         # --
         # CPU/load metrics
@@ -357,12 +371,24 @@ class HOST(Collector):
                     if self.__current_uid is not None and proc_uid != self.__current_uid:
                         continue
 
+                # Ignore commands in exclude list
+                try:
+                    with open(f"{proc_dir}/comm", "r") as f:
+                        command = f.readline().strip()
+                except:
+                    continue
+
+                if command in self.__proc_io_cmds_exclude:
+                    continue
+
                 # Read I/O stats
                 with open(f"{proc_dir}/io", "r") as f:
                     rchar_line = f.readline()  # Line 1: rchar: <value>
                     wchar_line = f.readline()  # Line 2: wchar: <value>
-                    read_rchar[pid] = int(rchar_line.split(":", 1)[1])
-                    write_wchar[pid] = int(wchar_line.split(":", 1)[1])
+
+                read_rchar[pid] = [int(rchar_line.split(":", 1)[1]), command]
+                write_wchar[pid] = [int(wchar_line.split(":", 1)[1]), command]
+
             except:
                 # Process disappeared or permission denied
                 continue
