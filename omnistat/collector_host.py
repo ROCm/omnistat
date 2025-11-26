@@ -131,8 +131,8 @@ class HOST(Collector):
         self.__user_io_metrics = [
             {"metricName": "io_read_local_total_bytes",  "description": "Total bytes read from local physical disks",  "enable": True, "labels": None},
             {"metricName": "io_write_local_total_bytes", "description": "Total bytes written to local physical disks", "enable": True, "labels": None},
-            {"metricName": "io_read_total_bytes",        "description": "Total bytes read by visible processes (includes network I/O)",    "enable": self.__enable_proc_io_stats, "labels": ["pid"]},
-            {"metricName": "io_write_total_bytes",       "description": "Total bytes written by visible processes (includes network I/O)", "enable": self.__enable_proc_io_stats, "labels": ["pid"]},
+            {"metricName": "io_read_total_bytes",        "description": "Total bytes read by visible processes (includes network I/O)",    "enable": self.__enable_proc_io_stats, "labels": ["pid","cmd"]},
+            {"metricName": "io_write_total_bytes",       "description": "Total bytes written by visible processes (includes network I/O)", "enable": self.__enable_proc_io_stats, "labels": ["pid","cmd"]},
         ]
         # fmt: on
 
@@ -269,10 +269,11 @@ class HOST(Collector):
 
             # log per-pid process I/O metrics
             reads, writes = self.read_user_proc_io()
+            logging.info(writes)
             for pid in reads:
-                self.__metrics["io_read_total_bytes"].labels(pid=pid).set(reads[pid])
+                self.__metrics["io_read_total_bytes"].labels(pid=pid,cmd=reads[pid][1]).set(reads[pid][0])
             for pid in writes:
-                self.__metrics["io_write_total_bytes"].labels(pid=pid).set(writes[pid])
+                self.__metrics["io_write_total_bytes"].labels(pid=pid,cmd=writes[pid][1]).set(writes[pid][0])
 
         # --
         # CPU/load metrics
@@ -357,12 +358,21 @@ class HOST(Collector):
                     if self.__current_uid is not None and proc_uid != self.__current_uid:
                         continue
 
+                command = "Unknown"
                 # Read I/O stats
                 with open(f"{proc_dir}/io", "r") as f:
                     rchar_line = f.readline()  # Line 1: rchar: <value>
                     wchar_line = f.readline()  # Line 2: wchar: <value>
                     read_rchar[pid] = int(rchar_line.split(":", 1)[1])
                     write_wchar[pid] = int(wchar_line.split(":", 1)[1])
+                # Read command
+                with open(f"{proc_dir}/comm", "r") as f:
+                    command = f.readline().strip()
+
+                read_rchar[pid] = [int(rchar_line.split(":", 1)[1]), command]
+                write_wchar[pid] = [int(wchar_line.split(":", 1)[1]), command]                    
+                    
+                
             except:
                 # Process disappeared or permission denied
                 continue
