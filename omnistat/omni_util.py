@@ -180,7 +180,6 @@ class UserBasedMonitoring:
             logging.info("Starting VictoriaMetrics server on localhost")
 
         vm_binary = self.runtimeConfig[section].get("victoria_binary")
-        vm_datadir = self.runtimeConfig[section].get("victoria_datadir", "data_prom", vars=os.environ)
 
         if not os.path.exists(vm_binary):
             logging.error("")
@@ -196,6 +195,8 @@ class UserBasedMonitoring:
             logging.warning(
                 "OMNISTAT_VICSERVER_DATADIR variable is being deprecated - please use OMNISTAT_VICTORIA_DATADIR instead"
             )
+        else:
+            vm_datadir = self.runtimeConfig[section].get("victoria_datadir", "data_prom", vars=os.environ)
 
         vm_logfile = self.runtimeConfig[section].get("victoria_logfile", "victoria_server.log")
         vm_corebinding = self.runtimeConfig[section].getint("victoria_corebinding", None)

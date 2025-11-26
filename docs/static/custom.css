@@ -11,3 +11,8 @@
 .wy-table-responsive code {
     font-size: 0.85em;
 }
+
+.wy-nav-content {
+    /* max-width: none !important; */ /* For full width */
+    max-width: 1000px !important;
+}
