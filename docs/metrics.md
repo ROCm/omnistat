@@ -21,6 +21,8 @@ Note that Omnistat metrics generally fall into one of the two following types:
   and include a `card` label to distinguish between them. These metric types are denoted
   with a *GPU Metric* heading.
 
+<hr style="border: 1px solid black;">
+
 ## ROCm
 
 This core data collector provides essential metrics for monitoring AMD Instinct(tm) GPUs covering utilization, memory usage,
@@ -47,6 +49,7 @@ health and performance.
 | `rocm_temperature_celsius`        | GPU temperature (°C). Labels: `location`. |
 | `rocm_temperature_memory_celsius` | Memory temperature (°C). Labels: `location`. |
 
+<hr style="border: 1px solid black;">
 
 ## Resource Manager
 
@@ -60,30 +63,8 @@ to individual users or applications.
 | :---------------------- | :----------------------------------- |
 | `rmsjob_info`           | Resource manager info metric tracking running jobs. When a job is running, the `jobid` label is different than the empty string. Labels: `jobid`, `user`, `partition`, `nodes`, `batchflag`, `jobstep`, `type`. |
 
-## Host
 
-The host data collector optionally gathers host-oriented data including CPU and
-memory utilization statistics along with general I/O metrics.
-
-**Collector**: `enable_host_metrics`
-
-| Node Metric             | Description                          |
-| :---------------------- | :----------------------------------- |
-| `omnistat_mem_total_bytes`| Total host memory available (bytes). |
-| `omnistat_mem_available_bytes` | Currently available host memory (bytes). This is typically the amount of memory available for allocation to new processes.|
-| `omnistat_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it is generally smaller than `omnistat_mem_available_bytes` due to caching. |
-| `omnistat_host_cpu_num_physical_cores` | Number of physical CPU cores. |
-| `omnistat_host_cpu_num_logical_cores` | Number of logical CPU cores. |
-| `omnistat_host_cpu_aggregate_core_utilization` | Instantaneous number of busy CPU cores. Typical range varies from 0 (no load) to num_logical_cores (max load). |
-| `omnistat_host_cpu_load1` | 1-minute CPU load average. This is identical to 1-minute load reported by `uptime`. |
-| `omnistat_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
-| `omnistat_io_write_local_total_bytes` | Total bock-level data written to **local** physical disk (bytes). |
-| `omnistat_io_read_total_bytes` | Total data read by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`.|
-| `omnistat_io_write_total_bytes` | Total data written by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`.|
-
-
-
-## Annotations
+### Annotations
 
 The resource manager collector optionally allows users to add application-level context to Omnistat metrics using the `omnistat-annotate` tool. This is useful for marking specific events or phases within an application, such as the start and end of a computation, making it
 easier to correlate performance data with application behavior.  To demonstrate creation of high-level markers from within a job script, the following snippet highlights annotation of repeated runs of an application with different command-line arguments (where the argument size included as text for the annotation).
@@ -108,6 +89,48 @@ easier to correlate performance data with application behavior.  To demonstrate 
 | :---------------------- | :----------------------------------- |
 | `rmsjob_annotations`    | User-provided annotations. Labels: `jobid`, `marker`. |
 
+<hr style="border: 1px solid black;">
+
+## Host
+
+The host data collector optionally gathers host-oriented data including CPU and
+memory utilization statistics along with general I/O metrics.
+
+**Collector**: `enable_host_metrics`
+
+| Node Metric             | Description                          |
+| :---------------------- | :----------------------------------- |
+| `omnistat_mem_total_bytes`| Total host memory available (bytes). |
+| `omnistat_mem_available_bytes` | Currently available host memory (bytes). This is typically the amount of memory available for allocation to new processes.|
+| `omnistat_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it is generally smaller than `omnistat_mem_available_bytes` due to caching. |
+| `omnistat_host_cpu_num_physical_cores` | Number of physical CPU cores. |
+| `omnistat_host_cpu_num_logical_cores` | Number of logical CPU cores. |
+| `omnistat_host_cpu_aggregate_core_utilization` | Instantaneous number of busy CPU cores. Typical range varies from 0 (no load) to num_logical_cores (max load). |
+| `omnistat_host_cpu_load1` | 1-minute CPU load average. This is identical to 1-minute load reported by `uptime`. |
+| `omnistat_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
+| `omnistat_io_write_local_total_bytes` | Total bock-level data written to **local** physical disk (bytes). |
+
+### Process-based I/O 
+
+**Collector**: `enable_host_metrics`
+<br/>
+**Collector options**: `enable_proc_io_stats`
+
+The default I/O tracking mechanism above tracks node-local I/O to physical
+disks. Consequently, it does not have visibility to I/O directed at
+network-based file systems (e.g NFS, Lustre, Vast) that are
+common in large production clusters.  To enable tracking of all I/O (including
+network-based), the host collector includes an optional mechanism to track I/O
+of individual processes at the syscall level.  This requires access to scan
+relevant files in `/proc` and is generally appropriate for use in User-Mode
+execution where Omnistat is running under the same user ID as the application.
+
+| Node Metric             | Description                          |
+| :---------------------- | :----------------------------------- |
+| `omnistat_io_read_total_bytes` | Total data read by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
+| `omnistat_io_write_total_bytes` | Total data written by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
+
+<hr style="border: 1px solid black;">
 
 ## RAS
 
@@ -152,6 +175,7 @@ available for tracking:
 [^deferred]: Deferred RAS ECC counts are only available with `enable_amd_smi`,
   and not with `enable_rocm_smi`.
 
+<hr style="border: 1px solid black;">
 
 ## Occupancy
 
@@ -166,6 +190,7 @@ maximum number of wavefronts that a CU can handle simultaneously.
 | `rocm_num_compute_units`      | Number of compute units. |
 | `rocm_compute_unit_occupancy` | Number of used compute units. |
 
+<hr style="border: 1px solid black;">
 
 ## xGMI
 
@@ -181,6 +206,7 @@ load.
 | `rocm_xgmi_total_read_kilobytes`      | Total data read from all xGMI links (KB).   |
 | `rocm_xgmi_total_write_kilobytes`     | Total data written to all xGMI links (KB).  |
 
+<hr style="border: 1px solid black;">
 
 ## VCN
 
@@ -200,7 +226,7 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 | :-------------------------------------------- | :----------------------------------- |
 | `rocm_average_decoder_utilization_percentage` | Decoder utilization averaged across all engines in the GPU (%). |
 
-
+---
 ## ROCprofiler
 
 The ROCprofiler data collector provides access to low-level GPU hardware
@@ -260,7 +286,7 @@ the following requirements depending on how Omnistat is executed:
 | :-------------------------------------------- | :----------------------------------- |
 | `omnistat_hardware_counter`                   | GPU hardware counter value from ROCprofiler. Labels: `source`, `name`. |
 
-
+---
 ## Network
 
 The network data collector enables metrics providing information about data
