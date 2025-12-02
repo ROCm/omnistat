@@ -226,7 +226,8 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 | :-------------------------------------------- | :----------------------------------- |
 | `rocm_average_decoder_utilization_percentage` | Decoder utilization averaged across all engines in the GPU (%). |
 
----
+<hr style="border: 1px solid black;">
+
 ## ROCprofiler
 
 The ROCprofiler data collector provides access to low-level GPU hardware
@@ -286,7 +287,8 @@ the following requirements depending on how Omnistat is executed:
 | :-------------------------------------------- | :----------------------------------- |
 | `omnistat_hardware_counter`                   | GPU hardware counter value from ROCprofiler. Labels: `source`, `name`. |
 
----
+<hr style="border: 1px solid black;">
+
 ## Network
 
 The network data collector enables metrics providing information about data
