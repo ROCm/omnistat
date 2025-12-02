@@ -33,7 +33,7 @@ path accessible from all nodes.
 
 2. Install dependencies. Optionally, [build extensions](./extensions.md).
    ```shell-session
-   [user@login]$ cd omnistat-v{__VERSION__}
+   [user@login]$ cd omnistat-{__VERSION__}
    [user@login]$ pip install --user -r requirements.txt
    [user@login]$ pip install --user -r requirements-query.txt
    ```
