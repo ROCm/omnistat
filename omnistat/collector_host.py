@@ -378,7 +378,7 @@ class HOST(Collector):
                 except:
                     continue
 
-                if command in self.__proc_io_cmds_exclude:
+                if any(command.startswith(prefix) for prefix in self.__proc_io_cmds_exclude):
                     continue
 
                 # Read I/O stats
