@@ -1,0 +1,5 @@
+# Default code owners
+* @jordap @koomie
+# Documentation files
+docs/ @ROCm/rocm-documentation @jordap @koomie
+*.md @ROCm/rocm-documentation @jordap @koomie
