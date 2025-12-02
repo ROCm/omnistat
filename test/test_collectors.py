@@ -26,6 +26,7 @@ import configparser
 import logging
 import multiprocessing
 import operator
+import os
 import re
 import time
 
@@ -41,44 +42,61 @@ from omnistat.utils import runShellCommand
 
 # fmt: off
 SMI_METRICS = [
-    {"name":"rocm_num_gpus",                            "validate":">=1",           "labels":None},
-    {"name":"rocm_version_info",                        "validate":"==1.0",         "labels":["card","driver_ver","schema","type"]},
-    {"name":"rocm_temperature_celsius",                 "validate":">=10",          "labels":["card","location"]},
-    {"name":"rocm_temperature_memory_celsius",          "validate":">=10",          "labels":["card","location"]},
-    {"name":"rocm_average_socket_power_watts",          "validate":">=10",          "labels":["card"]},
-    {"name":"rocm_sclk_clock_mhz",                      "validate":">=100",         "labels":["card"]},
-    {"name":"rocm_mclk_clock_mhz",                      "validate":">=100",         "labels":["card"]},
-    {"name":"rocm_vram_total_bytes",                    "validate":">1073741824",   "labels":["card"]},
-    {"name":"rocm_vram_used_percentage",                "validate":">0",            "labels":["card"]},
-    {"name":"rocm_vram_busy_percentage",                "validate":">=0.0",         "labels":["card"]},
-    {"name":"rocm_utilization_percentage",              "validate":">=0.0",         "labels":["card"]},
+    {"name":"rocm_num_gpus",                                "validate":">=1",                "labels":None},
+    {"name":"rocm_version_info",                            "validate":"==1.0",              "labels":["card","driver_ver","schema","type"]},
+    {"name":"rocm_temperature_celsius",                     "validate":">=10",               "labels":["card","location"]},
+    {"name":"rocm_temperature_memory_celsius",              "validate":">=10",               "labels":["card","location"]},
+    {"name":"rocm_average_socket_power_watts",              "validate":">=10",               "labels":["card"]},
+    {"name":"rocm_sclk_clock_mhz",                          "validate":">=100",              "labels":["card"]},
+    {"name":"rocm_mclk_clock_mhz",                          "validate":">=100",              "labels":["card"]},
+    {"name":"rocm_vram_total_bytes",                        "validate":">1073741824",        "labels":["card"]},
+    {"name":"rocm_vram_used_percentage",                    "validate":">0",                 "labels":["card"]},
+    {"name":"rocm_vram_busy_percentage",                    "validate":">=0.0",              "labels":["card"]},
+    {"name":"rocm_utilization_percentage",                  "validate":">=0.0",              "labels":["card"]},
 ]
 
 RAS_METRICS = [
-    {"name": "rocm_ras_umc_correctable_count",          "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_sdma_correctable_count",         "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_gfx_correctable_count",          "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_mmhub_correctable_count",        "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_pcie_bif_correctable_count",     "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
-    {"name": "rocm_ras_hdp_correctable_count",          "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
-    {"name": "rocm_ras_umc_uncorrectable_count",        "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_sdma_uncorrectable_count",       "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_gfx_uncorrectable_count",        "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_mmhub_uncorrectable_count",      "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_pcie_bif_uncorrectable_count",   "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
-    {"name": "rocm_ras_hdp_uncorrectable_count",        "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
-    {"name": "rocm_ras_umc_deferred_count",             "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_sdma_deferred_count",            "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_gfx_deferred_count",             "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_mmhub_deferred_count",           "validate": ">=0",           "labels": ["card"]},
-    {"name": "rocm_ras_pcie_bif_deferred_count",        "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
-    {"name": "rocm_ras_hdp_deferred_count",             "validate": ">=0",           "labels": ["card"],        "hardware":["MI210"]},
+    {"name": "rocm_ras_umc_correctable_count",              "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_sdma_correctable_count",             "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_gfx_correctable_count",              "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_mmhub_correctable_count",            "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_pcie_bif_correctable_count",         "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
+    {"name": "rocm_ras_hdp_correctable_count",              "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
+    {"name": "rocm_ras_umc_uncorrectable_count",            "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_sdma_uncorrectable_count",           "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_gfx_uncorrectable_count",            "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_mmhub_uncorrectable_count",          "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_pcie_bif_uncorrectable_count",       "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
+    {"name": "rocm_ras_hdp_uncorrectable_count",            "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
+    {"name": "rocm_ras_umc_deferred_count",                 "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_sdma_deferred_count",                "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_gfx_deferred_count",                 "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_mmhub_deferred_count",               "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_pcie_bif_deferred_count",            "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
+    {"name": "rocm_ras_hdp_deferred_count",                 "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
 ]
 
 OCCUPANCY_METRICS = [
-    {"name": "rocm_num_compute_units",                  "validate": ">=100",         "labels": ["card"]},
-    {"name": "rocm_compute_unit_occupancy",             "validate": ">=0",           "labels": ["card"]},
+    {"name": "rocm_num_compute_units",                      "validate": ">=100",             "labels": ["card"]},
+    {"name": "rocm_compute_unit_occupancy",                 "validate": ">=0",               "labels": ["card"]},
 ]
+
+cores = os.cpu_count()
+
+HOST_METRICS = [
+    {"name": "omnistat_host_mem_total_bytes",                "validate": ">=1000000",         "labels": None},
+    {"name": "omnistat_host_mem_available_bytes",            "validate": ">=10000",           "labels": None},
+    {"name": "omnistat_host_mem_free_bytes",                 "validate": ">=10000",           "labels": None},
+    {"name": "omnistat_host_io_read_total_bytes",            "validate": ">=0",               "labels": ["pid","cmd"]},
+    {"name": "omnistat_host_io_write_total_bytes",           "validate": ">=0",               "labels": ["pid","cmd"]},
+    {"name": "omnistat_host_io_read_local_total_bytes",      "validate": ">=0",               "labels": None},
+    {"name": "omnistat_host_io_write_local_total_bytes",     "validate": ">=0",               "labels": None},
+    {"name": "omnistat_host_cpu_aggregate_core_utilization", "validate": ">=0",               "labels": None},
+    {"name": "omnistat_host_cpu_load1",                      "validate": ">=0",               "labels": None},
+    {"name": "omnistat_host_cpu_num_physical_cores",         "validate": ">=%i" % (cores/2),  "labels": None},
+    {"name": "omnistat_host_cpu_num_logical_cores",          "validate": "==%i" % cores,      "labels": None},
+]
+
 # fmt: on
 
 
@@ -129,6 +147,10 @@ COLLECTOR_CONFIGS = [
     {
         "collectors": ["amd_smi", "cu_occupancy"],
         "metrics": OCCUPANCY_METRICS,
+    },
+    {
+        "collectors": ["host_metrics", "omnistat.collectors.host::enable_proc_io_stats"],
+        "metrics": HOST_METRICS,
     },
 ]
 
@@ -185,7 +207,11 @@ class OmnistatTestServer:
             collectors[f"enable_{collector}"] = False
 
         for collector in enabled_collectors:
-            collectors[f"enable_{collector}"] = True
+            if "::" in collector:
+                collector_name, option = collector.split("::", 1)
+                config[collector_name] = {option: "True"}
+            else:
+                collectors[f"enable_{collector}"] = True
 
         config["omnistat.collectors"] = collectors
         return config
@@ -250,7 +276,11 @@ def pytest_generate_tests(metafunc):
         for config in COLLECTOR_CONFIGS:
             for metric in config["metrics"]:
                 argvalues.append((config["collectors"], metric))
-                ids.append(f"{'+'.join(config['collectors'])}::{metric['name']}")
+                collector_config = config["collectors"].copy()
+                if len(collector_config) > 1:
+                    if "::" in collector_config[1]:
+                        collector_config[1] = collector_config[1].split("::", 1)[1]
+                ids.append(f"{'+'.join(collector_config)}::{metric['name']}")
         # Parametrize server (indirect via fixture) and metric together without cross-product
         metafunc.parametrize(("server", "desired_metric"), argvalues, ids=ids, scope="session", indirect=["server"])
 
