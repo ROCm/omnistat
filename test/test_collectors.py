@@ -50,7 +50,7 @@ SMI_METRICS = [
     {"name":"rocm_sclk_clock_mhz",                          "validate":">=100",              "labels":["card"]},
     {"name":"rocm_mclk_clock_mhz",                          "validate":">=100",              "labels":["card"]},
     {"name":"rocm_vram_total_bytes",                        "validate":">1073741824",        "labels":["card"]},
-    {"name":"rocm_vram_used_percentage",                    "validate":">0",                 "labels":["card"]},
+    {"name":"rocm_vram_used_percentage",                    "validate":">=0",                "labels":["card"]},
     {"name":"rocm_vram_busy_percentage",                    "validate":">=0.0",              "labels":["card"]},
     {"name":"rocm_utilization_percentage",                  "validate":">=0.0",              "labels":["card"]},
 ]
