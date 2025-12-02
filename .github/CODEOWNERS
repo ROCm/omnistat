@@ -1,0 +1,5 @@
+# Default code owners
+* @jordap @koomie
+# Documentation files
+docs/ @jordap @koomie
+*.md @jordap @koomie
