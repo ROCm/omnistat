@@ -235,7 +235,7 @@ class HOST(Collector):
             self.__filter_root_processes = False
             logging.debug("--> non-root /proc access detected")
 
-        # Cache current UID for fast process filtering
+        # Cache current UID
         try:
             self.__current_uid = os.geteuid()
         except AttributeError:
@@ -292,8 +292,7 @@ class HOST(Collector):
         # CPU/load metrics
         # --
 
-        load_averages = self.read_loadavg()
-        self.__metrics["cpu_load1"].set(load_averages[0])
+        self.__metrics["cpu_load1"].set(self.read_loadavg())
 
         # Instantaneous CPU usage via background sampler
         delta_idle, delta_total = self.read_cpu_stats()
@@ -334,7 +333,8 @@ class HOST(Collector):
         including network filesystems (WekaFS, NFS, Lustre) which bypass the block layer.
 
         Returns:
-            dict: (read_rchar, write_wchar) mapping PID to total read/write bytes
+            dict: {pid: [read_rchar_bytes, command_name]}
+            dict: {pid: [write_wchar_bytes, command_name]}
         """
         read_rchar = {}
         write_wchar = {}
@@ -435,16 +435,16 @@ class HOST(Collector):
         return (read_bytes, write_bytes)
 
     def read_loadavg(self):
-        """Read /proc/loadavg and return the (1, 5, 15) minute load averages.
+        """Read /proc/loadavg and return the 1 minute load average.
 
         Returns:
-            int: [load1, load5, load15]
+            int: load1
         """
         try:
             with open("/proc/loadavg", "r") as f:
                 content = f.read().strip()
             parts = content.split()
-            return parts[:1]
+            return parts[0]
         except Exception as e:
             logging.debug(f"Failed reading /proc/loadavg: {e}")
         return None
