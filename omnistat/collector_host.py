@@ -31,8 +31,8 @@ metrics:
 omnistat_host_mem_total_bytes 5.40314181632e+011
 omnistat_host_mem_free_bytes 5.23302158336e+011
 omnistat_host_mem_available_bytes 5.22178281472e+011
-omnistat_host_io_read_total_bytes 7.794688e+06
-omnistat_host_io_write_total_bytes 45056.0
+omnistat_host_io_read_total_bytes{cmd="python3",pid="590620"} 4.34303e+06
+omnistat_host_io_write_total_bytes{cmd="python3",pid="590621"} 2651.0
 omnistat_host_io_read_local_total_bytes 0.0
 omnistat_host_io_write_local_total_bytes 0.0
 omnistat_host_cpu_aggregate_core_utilization 1.9104
