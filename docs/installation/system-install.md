@@ -36,7 +36,7 @@ To begin, we download the Omnistat software and install necessary Python depende
 
 2. Install dependencies.
    ```shell-session
-   [omnidc@login]$ cd omnistat-v{__VERSION__}
+   [omnidc@login]$ cd omnistat-{__VERSION__}
    [omnidc@login]$ pip install --user -r requirements.txt
    ```
 
