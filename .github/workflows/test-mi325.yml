@@ -20,6 +20,7 @@ jobs:
       image: rocm/dev-ubuntu-24.04:${{ matrix.rocm }}
       options: 
         --ipc host
+        --cap-add SYS_PTRACE
         --group-add video
         --device /dev/kfd
         --device /dev/dri/renderD128
@@ -66,6 +67,7 @@ jobs:
       - name: Collector tests
         run: |
           source omnistat_venv/bin/activate
+          su - ubuntu -c "sleep 300 &"
           pytest -s -v --junitxml=results.xml test/test_collectors.py
 
 ##       - name: Test Report

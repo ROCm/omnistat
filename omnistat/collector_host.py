@@ -348,9 +348,6 @@ class HOST(Collector):
             if not entry.isdigit():
                 continue
             pid = int(entry)
-            # skip system processes
-            if pid < 1000:
-                continue
 
             proc_dir = f"/proc/{pid}"
             try:
