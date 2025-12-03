@@ -29,6 +29,7 @@ Omnistat provides a set of utilities to aid cluster administrators or individual
 * GPU power caps
 * GPU throttling events
 * Host network traffic (received/transmitted)
+* Host resource utilization (CPU, memory, and I/O)
 
 
 To enable scalable collection of these metrics, Omnistat provides a python-based [Prometheus](https://prometheus.io) client that supplies instantaneous metric values on-demand for periodic polling by a companion Prometheus server (or a [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics) server).

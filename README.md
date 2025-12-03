@@ -36,6 +36,7 @@ basis). Relevant target metrics include:
 * XGMI traffic
 * GPU hardware counters
 * Host network traffic (rx and tx)
+* Host resource utilization (CPU, memory, and I/O)
 
 
 The data can be scraped for detailed visualization and analysis via a
