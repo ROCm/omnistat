@@ -12,11 +12,7 @@ dashboards for cluster-wide deployments that vary depending on whether resource
 manager integration is desired or not (screenshots of the variants with
 resource manager integration enabled are highlighted in [Example
 Screenshots](#example-screenshots)). JSON sources for example dashboards that
-can be used in local deployments are highlighted below. Note that in addition
-to querying GPU data gathered with the Omnistat data collector, these example
-dashboards assume that
-[node-exporter](https://github.com/prometheus/node_exporter) data is also being
-collected.
+can be used in local deployments are highlighted below.
 
 - *RMS* dashboards provide integration with *Resource Managers* like
   SLURM.
@@ -104,11 +100,11 @@ To import a dashboard to an existing Grafana server:
 
 Sample dashboards are configured using standard default values for settings
 such as network ports, but may require changes depending on the environment.
-The following variables represent the most relevant dashboard settings:
+The following variable is the most relevant dashboard setting that may require
+changes:
 - `source`: Name of the Prometheus data source where the data is stored.
    Defaults to `prometheus`, and may require filtering if the Grafana instance
    has several Prometheus data sources.
-- `node_exporter_port`: Port of the Prometheus Node Exporter. Defaults to `9100`.
 
 To configure a dashboard:
 1. Open a dashboard in edit mode.
