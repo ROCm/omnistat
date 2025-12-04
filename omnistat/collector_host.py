@@ -77,7 +77,7 @@ class HOST(Collector):
         self.__sampler_thread = None
         self.__cpu_load_sampling_interval = 0.05
         self.__enable_proc_io_stats = False
-        self.__proc_io_cmds_exclude = ["flux-broker"]
+        self.__proc_io_cmds_exclude = ["flux-"]
 
         # runtime config parsing
         if config.has_section("omnistat.collectors.host"):
