@@ -100,6 +100,7 @@ memory utilization statistics along with general I/O metrics.
 
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
+| `omnistat_host_boot_time_seconds` | Node boot time (seconds since epoch). |
 | `omnistat_mem_total_bytes`| Total host memory available (bytes). |
 | `omnistat_mem_available_bytes` | Currently available host memory (bytes). This is typically the amount of memory available for allocation to new processes.|
 | `omnistat_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it is generally smaller than `omnistat_mem_available_bytes` due to caching. |
@@ -119,10 +120,10 @@ memory utilization statistics along with general I/O metrics.
 The default I/O tracking mechanism above tracks node-local I/O to physical
 disks. Consequently, it does not have visibility to I/O directed at
 network-based file systems (e.g NFS, Lustre, Vast) that are
-common in large production clusters.  To enable tracking of all I/O (including
-network-based), the host collector includes an optional mechanism to track I/O
+common in large production clusters.  To enable tracking of all I/O (**including
+network-based**), the host collector includes an optional mechanism to track I/O
 of individual processes at the syscall level.  This requires access to scan
-relevant files in `/proc` and is generally appropriate for use in User-Mode
+relevant files in `/proc` and is generally appropriate for use in {ref}`User-mode <user-vs-system>`
 execution where Omnistat is running under the same user ID as the application.
 
 | Node Metric             | Description                          |
