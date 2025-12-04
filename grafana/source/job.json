@@ -1071,7 +1071,7 @@
         "type": "prometheus",
         "uid": "${source}"
       },
-      "description": "Average over time of the average 1m Load Average of all nodes.",
+      "description": "Average over time of the average CPU Utilization of all nodes.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1096,7 +1096,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -1132,14 +1132,14 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(omnistat_host_cpu_load1 * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
+          "expr": "avg((omnistat_host_cpu_aggregate_core_utilization / omnistat_host_cpu_num_logical_cores) * on (instance) (rmsjob_info{jobid=\"$jobid\"}) * 100)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "CPU Load Average",
+      "title": "CPU",
       "type": "stat"
     },
     {
@@ -1202,7 +1202,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "percent"
         },
         "overrides": [
           {
@@ -1252,7 +1252,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(omnistat_host_cpu_load1 * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
+          "expr": "avg((omnistat_host_cpu_aggregate_core_utilization / omnistat_host_cpu_num_logical_cores) * on (instance) (rmsjob_info{jobid=\"$jobid\"}) * 100)",
           "instant": false,
           "legendFormat": "Average",
           "range": true,
@@ -1765,7 +1765,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1580
+            "y": 1588
           },
           "id": 88,
           "interval": "$interval",
@@ -1875,7 +1875,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1580
+            "y": 1588
           },
           "id": 89,
           "interval": "$interval",
@@ -2025,7 +2025,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2057
+            "y": 2065
           },
           "id": 91,
           "interval": "$interval",
@@ -2176,7 +2176,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 2065
+            "y": 2073
           },
           "id": 99,
           "interval": "$interval",
@@ -2340,7 +2340,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 2065
+            "y": 2073
           },
           "id": 100,
           "interval": "$interval",
@@ -2489,7 +2489,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1581
+            "y": 1589
           },
           "id": 28,
           "interval": "$interval",
@@ -2551,7 +2551,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1581
+            "y": 1589
           },
           "id": 86,
           "interval": "$interval",
@@ -2664,7 +2664,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1967
+            "y": 1975
           },
           "id": 29,
           "interval": "$interval",
@@ -2726,7 +2726,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1967
+            "y": 1975
           },
           "id": 31,
           "interval": "$interval",
@@ -2867,7 +2867,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1975
+            "y": 1983
           },
           "id": 24,
           "interval": "$interval",
@@ -2941,7 +2941,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1582
+            "y": 1590
           },
           "id": 27,
           "interval": "$interval",
@@ -3051,7 +3051,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1582
+            "y": 1590
           },
           "id": 87,
           "interval": "$interval",
@@ -3201,7 +3201,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1593
+            "y": 1601
           },
           "id": 90,
           "interval": "$interval",
@@ -3368,7 +3368,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1601
+            "y": 1609
           },
           "id": 98,
           "interval": "$interval",
@@ -3548,7 +3548,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1601
+            "y": 1609
           },
           "id": 95,
           "interval": "$interval",
@@ -3819,7 +3819,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 1610
+            "y": 1618
           },
           "id": 52,
           "interval": "$interval",
@@ -3972,7 +3972,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 476
+            "y": 484
           },
           "id": 142,
           "interval": "$interval",
@@ -4081,7 +4081,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1116
+            "y": 1124
           },
           "id": 33,
           "interval": "$interval",
@@ -4190,7 +4190,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1124
+            "y": 1132
           },
           "id": 128,
           "interval": "$interval",
@@ -4299,7 +4299,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1132
+            "y": 1140
           },
           "id": 129,
           "interval": "$interval",
@@ -4408,7 +4408,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1140
+            "y": 1148
           },
           "id": 130,
           "interval": "$interval",
@@ -4517,7 +4517,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1140
+            "y": 1148
           },
           "id": 131,
           "interval": "$interval",
@@ -4640,7 +4640,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1986
+            "y": 1994
           },
           "id": 143,
           "interval": "$interval",
@@ -4740,7 +4740,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1994
+            "y": 2002
           },
           "id": 127,
           "interval": "$interval",
@@ -4840,7 +4840,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2002
+            "y": 2010
           },
           "id": 104,
           "interval": "$interval",
@@ -4940,7 +4940,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2010
+            "y": 2018
           },
           "id": 22,
           "interval": "$interval",
@@ -5040,7 +5040,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2018
+            "y": 2026
           },
           "id": 25,
           "interval": "$interval",
@@ -5140,7 +5140,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2018
+            "y": 2026
           },
           "id": 23,
           "interval": "$interval",
@@ -5254,7 +5254,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1406
+            "y": 1414
           },
           "id": 144,
           "interval": "$interval",
@@ -5363,7 +5363,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1486
+            "y": 1494
           },
           "id": 137,
           "interval": "$interval",
@@ -5472,7 +5472,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1494
+            "y": 1502
           },
           "id": 138,
           "interval": "$interval",
@@ -5581,7 +5581,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1502
+            "y": 1510
           },
           "id": 139,
           "interval": "$interval",
@@ -5690,7 +5690,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1510
+            "y": 1518
           },
           "id": 140,
           "interval": "$interval",
@@ -5799,7 +5799,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1510
+            "y": 1518
           },
           "id": 141,
           "interval": "$interval",
@@ -6049,7 +6049,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 165
+            "y": 173
           },
           "id": 156,
           "interval": "$interval",
@@ -6161,7 +6161,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 165
+            "y": 173
           },
           "id": 158,
           "interval": "$interval",
@@ -6286,7 +6286,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 512
+            "y": 520
           },
           "id": 151,
           "interval": "$interval",
@@ -6414,7 +6414,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 649
+            "y": 657
           },
           "id": 125,
           "interval": "$interval",
@@ -6543,7 +6543,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 40
+            "y": 48
           },
           "id": 153,
           "interval": "$interval",
@@ -6656,7 +6656,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 40
+            "y": 48
           },
           "id": 154,
           "interval": "$interval",
@@ -6769,7 +6769,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 152
+            "y": 160
           },
           "id": 155,
           "interval": "$interval",
@@ -6896,7 +6896,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 305
+            "y": 313
           },
           "id": 120,
           "options": {
@@ -7093,7 +7093,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 305
+            "y": 313
           },
           "id": 121,
           "options": {
@@ -7295,7 +7295,7 @@
                   }
                 ]
               },
-              "unit": "none"
+              "unit": "percent"
             },
             "overrides": []
           },
@@ -7303,7 +7303,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 42
+            "y": 38
           },
           "id": 43,
           "interval": "$interval",
@@ -7329,14 +7329,14 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(omnistat_host_cpu_load1) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
+              "expr": "(omnistat_host_cpu_aggregate_core_utilization / omnistat_host_cpu_num_logical_cores) * on (instance) (rmsjob_info{jobid=\"$jobid\"}) * 100",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "CPU - 1m Load Average",
+          "title": "CPU - Utilization (%)",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7413,7 +7413,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 42
+            "y": 38
           },
           "id": 48,
           "interval": "$interval",
@@ -7537,7 +7537,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 59
+            "y": 67
           },
           "id": 105,
           "interval": "$interval",
@@ -7648,7 +7648,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 59
+            "y": 67
           },
           "id": 106,
           "interval": "$interval",
@@ -7773,7 +7773,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 60
+            "y": 68
           },
           "id": 116,
           "interval": "$interval",
@@ -7884,7 +7884,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 60
+            "y": 68
           },
           "id": 117,
           "interval": "$interval",
@@ -8009,7 +8009,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 61
+            "y": 69
           },
           "id": 46,
           "interval": "$interval",
@@ -8120,7 +8120,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 61
+            "y": 69
           },
           "id": 45,
           "interval": "$interval",
@@ -8246,7 +8246,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 70
+            "y": 78
           },
           "id": 146,
           "interval": "$interval",
@@ -8357,7 +8357,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 78
+            "y": 86
           },
           "id": 149,
           "interval": "$interval",
@@ -8466,7 +8466,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 86
+            "y": 94
           },
           "id": 147,
           "interval": "$interval",
@@ -8575,7 +8575,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 94
+            "y": 102
           },
           "id": 148,
           "interval": "$interval",
@@ -8699,7 +8699,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4223
+            "y": 4231
           },
           "id": 135,
           "interval": "$interval",
@@ -8863,7 +8863,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4272
+            "y": 4280
           },
           "id": 56,
           "interval": "$interval",
@@ -9087,7 +9087,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18273
+            "y": 18281
           },
           "id": 107,
           "interval": "$interval",
@@ -9282,7 +9282,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18273
+            "y": 18281
           },
           "id": 112,
           "interval": "$interval",
@@ -9441,7 +9441,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18281
+            "y": 18289
           },
           "id": 108,
           "interval": "$interval",
@@ -9669,7 +9669,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18281
+            "y": 18289
           },
           "id": 113,
           "interval": "$interval",
@@ -9824,7 +9824,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18289
+            "y": 18297
           },
           "id": 109,
           "interval": "$interval",
@@ -10052,7 +10052,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18289
+            "y": 18297
           },
           "id": 115,
           "interval": "$interval",
@@ -10208,7 +10208,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18297
+            "y": 18305
           },
           "id": 110,
           "interval": "$interval",
@@ -10432,7 +10432,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18297
+            "y": 18305
           },
           "id": 114,
           "interval": "$interval",
