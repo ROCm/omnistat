@@ -396,7 +396,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "time() - node_boot_time_seconds{instance=\"${instance:text}:$node_exporter_port\"}",
+          "expr": "time() - omnistat_host_boot_time_seconds{instance=\"$instance\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
