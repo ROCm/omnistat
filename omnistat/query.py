@@ -143,6 +143,7 @@ class QueryMetrics:
 
         self.enable_redirect = False
         self.vendorData = False
+        self.hostData = False
         self.output = None
         self.output_file = output_file
 
@@ -369,6 +370,60 @@ class QueryMetrics:
                 minvalue = sum
                 minindex = i
         return minindex, sum
+
+    def gather_host_data(self):
+        times_raw, values_raw, hosts = self.query_time_series_data("omnistat_host_cpu_aggregate_core_utilization")
+        if not values_raw:
+            return
+        self.hostData = True
+        self.HOSTMETRICS = [
+            {
+                "metric": "omnistat_host_cpu_aggregate_core_utilization",
+                "title": "Host CPU Core Utilization (%)",
+                "title_short": "CPU Utilization (%)",
+            },
+            {
+                "metric": "omnistat_host_mem_available_bytes",
+                "title": "Host Memory Use (%)",
+                "title_short": "Memory Use (%)",
+            },
+            {
+                "metric": "omnistat_host_io_write_total_bytes",
+                "title": "Host I/O Total Write (bytes)",
+                "title_short": "I/O Peak Rates (%)",
+            },
+            # {
+            #     "metric": "omnistat_host_io_read_total_bytes",
+            #     "title": "Host I/O Total Read (bytes)",
+            #     "title_short": None
+            # },
+        ]   
+
+        for entry in self.HOSTMETRICS:
+            metric = entry["metric"]
+
+            self.stats[metric + "_min"] = []
+            self.stats[metric + "_max"] = []
+            self.stats[metric + "_mean"] = []
+
+            query_metric = f'{metric}'
+            if metric == "omnistat_host_io_write_total_bytes" or metric == "omnistat_host_io_read_total_bytes":
+                query_metric = f'sum({metric})'
+            try:
+                # (1) capture time series that assembles [mean] value at each timestamp across all assigned nodes
+                times, values_mean = self.query_time_series_data(query_metric, "avg")
+
+                # (2) capture time series that assembles [max] value at each timestamp across all assigned nodes
+                times, values_max = self.query_time_series_data(query_metric, "max")
+
+
+            except:
+                    utils.error("Unable to query prometheus data for metric -> %s" % query_metric)
+
+            self.stats[metric + "_max"].append(np.max(values_max))
+            self.stats[metric + "_mean"].append(np.mean(values_mean))
+
+        # sys.exit(1)
 
     def gather_vendor_data(self):
         # node-level data: total energy usage
@@ -626,6 +681,51 @@ class QueryMetrics:
             print("Approximate Total GPU Energy Consumed = %.2e kWh" % self.gpu_energy_total_kwh)
             print("")
 
+        if self.hostData:
+            # print(self.stats)
+            print("Host Statistics:")
+            print("")
+            print("    # CPUs |", end="")
+            for entry in self.HOSTMETRICS[:3]:
+                if "title_short" in entry:
+                    print(" %s |" % entry["title_short"].center(20), end="")
+            print("")
+            print("           |", end="")
+            for entry in self.HOSTMETRICS[:2]:
+                if "title_short" in entry:
+                    print(" %10s%10s |" % ("Max".center(10), "Mean".center(10)), end="")
+            print("    Read      Write   |",end="")
+            print("")
+            print("    " + "-" * 99)
+            print("      128  |", end="")
+            for entry in self.HOSTMETRICS[:2]:
+                if "title_short" not in entry:
+                    continue
+                metric = entry["metric"]
+                print(
+                    "%8.2f  %8.2f    |" % (self.stats[metric + "_max"][0], self.stats[metric + "_mean"][0]),
+                    end="",
+                )
+
+            
+            # Convert bytes/sec to human-readable units
+            def format_bytes_rate(rate_bytes_sec):
+                """Convert bytes/sec to appropriate unit (B/s, MB/s, GB/s)"""
+                if rate_bytes_sec >= 1e9:
+                    return f"{rate_bytes_sec / 1e9:6.2f} GB/s"
+                elif rate_bytes_sec >= 1e6:
+                    return f"{rate_bytes_sec / 1e6:6.2f} MB/s"
+                elif rate_bytes_sec >= 1e3:
+                    return f"{rate_bytes_sec / 1e3:6.2f} KB/s"
+                else:
+                    return f"{rate_bytes_sec:7.2f} B/s"
+            
+            max_rate_write = self.stats["omnistat_host_io_write_total_bytes_max"][0]
+            max_rate_read = self.stats["omnistat_host_io_read_total_bytes_max"][0]
+            print(f"{format_bytes_rate(max_rate_read)} {format_bytes_rate(max_rate_write)} |", end="")
+            print("")
+
+        print("")
         print("--")
         print("Query interval = %.3f secs" % self.interval)
         print("Query execution time = %.1f secs" % (timeit.default_timer() - self.timer_start))
@@ -1245,6 +1345,7 @@ def main():
     query.find_job_info()
     query.gather_data(saveTimeSeries=True)
     query.gather_vendor_data()
+    query.gather_host_data()
     query.generate_report_card()
 
     if args.pdf:
