@@ -16,7 +16,7 @@ json-models/system/rms-%.json: source/%.json
 	./scripts/filter-dashboard --input $< \
 		--exclude-metrics \
 			rocm_throttle_events \
-			omnistat_io_read_total_bytes omnistat_io_write_total_bytes \
+			omnistat_host_io_read_total_bytes omnistat_host_io_write_total_bytes \
 			omnistat_vendor_ \
 		--replace-name Source:RMS > $@
 
