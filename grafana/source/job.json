@@ -1328,7 +1328,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(100 * ((omnistat_mem_total_bytes - omnistat_mem_free_bytes) / omnistat_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
+          "expr": "avg(100 * ((omnistat_host_mem_total_bytes - omnistat_host_mem_free_bytes) / omnistat_host_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
           "instant": false,
           "legendFormat": "Core",
           "range": true,
@@ -1451,7 +1451,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(100 * ((omnistat_mem_total_bytes - omnistat_mem_free_bytes) / omnistat_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
+          "expr": "avg(100 * ((omnistat_host_mem_total_bytes - omnistat_host_mem_free_bytes) / omnistat_host_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
           "instant": false,
           "legendFormat": "Average",
           "range": true,
@@ -7706,7 +7706,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "100 * ((omnistat_mem_total_bytes - omnistat_mem_free_bytes) / omnistat_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
+              "expr": "100 * ((omnistat_host_mem_total_bytes - omnistat_host_mem_free_bytes) / omnistat_host_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -8740,7 +8740,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(omnistat_io_read_local_total_bytes[$__rate_interval])) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
+              "expr": "sum by (instance) (rate(omnistat_host_io_read_local_total_bytes[$__rate_interval])) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -8849,7 +8849,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(omnistat_io_write_local_total_bytes[$__rate_interval])) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
+              "expr": "sum by (instance) (rate(omnistat_host_io_write_local_total_bytes[$__rate_interval])) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",

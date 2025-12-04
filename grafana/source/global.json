@@ -635,7 +635,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "100 - (sum(omnistat_mem_available_bytes) / sum(omnistat_mem_total_bytes)) * 100",
+          "expr": "100 - (sum(omnistat_host_mem_available_bytes) / sum(omnistat_host_mem_total_bytes)) * 100",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -6707,7 +6707,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "100 - (sum(omnistat_mem_available_bytes) / sum(omnistat_mem_total_bytes)) * 100",
+              "expr": "100 - (sum(omnistat_host_mem_available_bytes) / sum(omnistat_host_mem_total_bytes)) * 100",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -6814,7 +6814,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "100 - (sum by (instance) (omnistat_mem_available_bytes) / sum by (instance) (omnistat_mem_total_bytes)) * 100",
+              "expr": "100 - (sum by (instance) (omnistat_host_mem_available_bytes) / sum by (instance) (omnistat_host_mem_total_bytes)) * 100",
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
@@ -6936,7 +6936,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum(rate(omnistat_io_read_local_total_bytes[$__rate_interval]))",
+              "expr": "sum(rate(omnistat_host_io_read_local_total_bytes[$__rate_interval]))",
               "hide": false,
               "instant": false,
               "legendFormat": "Read",
@@ -6949,7 +6949,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum(rate(omnistat_io_write_local_total_bytes[$__rate_interval]))",
+              "expr": "sum(rate(omnistat_host_io_write_local_total_bytes[$__rate_interval]))",
               "hide": false,
               "instant": false,
               "legendFormat": "Write",
@@ -7049,7 +7049,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(omnistat_io_read_local_total_bytes[$__rate_interval]))",
+              "expr": "sum by (instance) (rate(omnistat_host_io_read_local_total_bytes[$__rate_interval]))",
               "hide": false,
               "instant": false,
               "legendFormat": "Node: {{instance}}",
@@ -7158,7 +7158,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(omnistat_io_write_local_total_bytes[$__rate_interval]))",
+              "expr": "sum by (instance) (rate(omnistat_host_io_write_local_total_bytes[$__rate_interval]))",
               "hide": false,
               "instant": false,
               "legendFormat": "Node: {{instance}}",
