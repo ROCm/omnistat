@@ -10579,13 +10579,6 @@
         "type": "custom"
       },
       {
-        "hide": 2,
-        "name": "node_exporter_port",
-        "query": "9100",
-        "skipUrlSync": true,
-        "type": "constant"
-      },
-      {
         "allowCustomValue": false,
         "current": {
           "text": "All",

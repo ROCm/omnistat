@@ -8122,13 +8122,6 @@
         "refresh": 1,
         "regex": "",
         "type": "datasource"
-      },
-      {
-        "hide": 2,
-        "name": "node_exporter_port",
-        "query": "9100",
-        "skipUrlSync": true,
-        "type": "constant"
       }
     ]
   },
