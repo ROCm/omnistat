@@ -1132,7 +1132,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(node_load1 * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "avg(omnistat_host_cpu_load1 * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1252,7 +1252,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(node_load1 * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "avg(omnistat_host_cpu_load1 * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
           "instant": false,
           "legendFormat": "Average",
           "range": true,
@@ -1328,7 +1328,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(100 * ((node_memory_MemTotal_bytes  -node_memory_MemFree_bytes) / node_memory_MemTotal_bytes) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "avg(100 * ((omnistat_mem_total_bytes - omnistat_mem_free_bytes) / omnistat_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
           "instant": false,
           "legendFormat": "Core",
           "range": true,
@@ -1451,7 +1451,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(100 * ((node_memory_MemTotal_bytes - node_memory_MemFree_bytes) / node_memory_MemTotal_bytes) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "avg(100 * ((omnistat_mem_total_bytes - omnistat_mem_free_bytes) / omnistat_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
           "instant": false,
           "legendFormat": "Average",
           "range": true,
@@ -7597,7 +7597,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(node_load1) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
+              "expr": "(omnistat_host_cpu_load1) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -7706,7 +7706,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "100 * ((node_memory_MemTotal_bytes - node_memory_MemFree_bytes) / node_memory_MemTotal_bytes) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
+              "expr": "100 * ((omnistat_mem_total_bytes - omnistat_mem_free_bytes) / omnistat_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -8740,7 +8740,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_disk_read_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
+              "expr": "sum by (instance) (rate(omnistat_io_read_local_total_bytes[$__rate_interval])) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -8849,7 +8849,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_disk_written_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))\r\n",
+              "expr": "sum by (instance) (rate(omnistat_io_write_local_total_bytes[$__rate_interval])) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
