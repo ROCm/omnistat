@@ -28,6 +28,7 @@ Implements a number of prometheus gauge metrics to track host-level utilization
 including CPU usage, memory usage, and I/O stats. The following highlights example
 metrics:
 
+omnistat_host_boot_time_seconds 1.762878278e+09
 omnistat_host_mem_total_bytes 5.40314181632e+011
 omnistat_host_mem_free_bytes 5.23302158336e+011
 omnistat_host_mem_available_bytes 5.22178281472e+011
@@ -221,6 +222,27 @@ class HOST(Collector):
         self.__metrics["cpu_num_physical_cores"].set(phys_cnt)
         self.__metrics["cpu_num_logical_cores"].set(logical_cnt)
         self.__logical_cpu_count = logical_cnt
+
+        # --
+        # Miscellaneous
+        # --
+
+        self.__misc_metrics = [
+            {"metricName": "boot_time_seconds", "description": "Node boot time (seconds since epoch)"}
+        ]
+        for item in self.__misc_metrics:
+            metric = item["metricName"]
+            description = item["description"]
+            self.__metrics[metric] = Gauge(self.__prefix + metric, description)
+            logging.info("--> [registered] %s (gauge)" % (self.__prefix + metric))
+
+        # boot_time_seconds is static and can be set once at init
+        with open("/proc/stat", "r") as f:
+            for line in f:
+                if line.startswith("btime"):
+                    boot_time = int(line.split()[1])
+                    break
+        self.__metrics["boot_time_seconds"].set(boot_time)
 
         # Check for elevated /proc access: if we can read /proc/1/io, assume we have elevated read access
         # and will explicitly filter out root-owned processes when aggregating per-process I/O (typically in system-mode).

@@ -95,6 +95,7 @@ HOST_METRICS = [
     {"name": "omnistat_host_cpu_load1",                      "validate": ">=0",               "labels": None},
     {"name": "omnistat_host_cpu_num_physical_cores",         "validate": ">=%i" % (cores/2),  "labels": None},
     {"name": "omnistat_host_cpu_num_logical_cores",          "validate": "==%i" % cores,      "labels": None},
+    {"name": "omnistat_host_boot_time_seconds",              "validate": ">1000",             "labels": None},
 ]
 
 # fmt: on
