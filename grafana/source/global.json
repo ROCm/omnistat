@@ -851,7 +851,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_network_receive_bytes_total[$__rate_interval]))",
+          "expr": "sum(rate(omnistat_network_rx_bytes{device_class=\"net\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "Rx",
           "range": true,
@@ -863,7 +863,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_network_transmit_bytes_total[$__rate_interval]))",
+          "expr": "sum(rate(omnistat_network_tx_bytes{device_class=\"net\"}[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "Tx",
@@ -937,7 +937,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_infiniband_port_data_received_bytes_total[$__rate_interval]))",
+          "expr": "sum(rate(omnistat_network_rx_bytes{device_class!=\"net\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "Rx",
           "range": true,
@@ -949,7 +949,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_infiniband_port_data_transmitted_bytes_total[$__rate_interval]))",
+          "expr": "sum(rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "Tx",
@@ -957,7 +957,7 @@
           "refId": "B"
         }
       ],
-      "title": "Network: Infiniband",
+      "title": "Network: High Performance Interconnect",
       "type": "stat"
     },
     {
