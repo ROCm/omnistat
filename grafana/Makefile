@@ -14,7 +14,10 @@ all: $(RMS) $(STANDALONE) $(USER) $(DOCKER)
 
 json-models/system/rms-%.json: source/%.json
 	./scripts/filter-dashboard --input $< \
-		--exclude-metrics rocm_throttle_events omnistat_network omnistat_vendor_ \
+		--exclude-metrics \
+			rocm_throttle_events \
+			omnistat_io_read_total_bytes omnistat_io_write_total_bytes \
+			omnistat_vendor_ \
 		--replace-name Source:RMS > $@
 
 json-models/system/standalone-%.json: json-models/system/rms-%.json
@@ -40,6 +43,5 @@ json-models/user/job.json: source/job.json
 # those are not included in usermode executions.
 ../docker/grafana/json-models/%.json: json-models/user/%.json
 	./scripts/filter-dashboard --input $< \
-		--exclude-metrics node_ \
 		--exclude-links Global \
 		--default-interval 1s > $@
