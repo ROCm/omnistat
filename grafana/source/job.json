@@ -1819,7 +1819,7 @@
           "refId": "B"
         }
       ],
-      "title": "Network Bandwidth (Omnistat)",
+      "title": "Network Bandwidth",
       "type": "stat"
     },
     {
@@ -2034,7 +2034,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1476
+            "y": 1580
           },
           "id": 88,
           "interval": "$interval",
@@ -2144,7 +2144,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1476
+            "y": 1580
           },
           "id": 89,
           "interval": "$interval",
@@ -2294,7 +2294,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1953
+            "y": 2057
           },
           "id": 91,
           "interval": "$interval",
@@ -2445,7 +2445,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1961
+            "y": 2065
           },
           "id": 99,
           "interval": "$interval",
@@ -2609,7 +2609,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1961
+            "y": 2065
           },
           "id": 100,
           "interval": "$interval",
@@ -2758,7 +2758,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1477
+            "y": 1581
           },
           "id": 28,
           "interval": "$interval",
@@ -2820,7 +2820,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1477
+            "y": 1581
           },
           "id": 86,
           "interval": "$interval",
@@ -2933,7 +2933,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1863
+            "y": 1967
           },
           "id": 29,
           "interval": "$interval",
@@ -2995,7 +2995,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1863
+            "y": 1967
           },
           "id": 31,
           "interval": "$interval",
@@ -3136,7 +3136,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1871
+            "y": 1975
           },
           "id": 24,
           "interval": "$interval",
@@ -3210,7 +3210,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1478
+            "y": 1582
           },
           "id": 27,
           "interval": "$interval",
@@ -3320,7 +3320,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1478
+            "y": 1582
           },
           "id": 87,
           "interval": "$interval",
@@ -3470,7 +3470,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1489
+            "y": 1593
           },
           "id": 90,
           "interval": "$interval",
@@ -3637,7 +3637,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1497
+            "y": 1601
           },
           "id": 98,
           "interval": "$interval",
@@ -3817,7 +3817,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1497
+            "y": 1601
           },
           "id": 95,
           "interval": "$interval",
@@ -4088,7 +4088,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 1506
+            "y": 1610
           },
           "id": 52,
           "interval": "$interval",
@@ -4241,7 +4241,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 372
+            "y": 476
           },
           "id": 142,
           "interval": "$interval",
@@ -4350,7 +4350,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1012
+            "y": 1116
           },
           "id": 33,
           "interval": "$interval",
@@ -4459,7 +4459,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1020
+            "y": 1124
           },
           "id": 128,
           "interval": "$interval",
@@ -4568,7 +4568,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1028
+            "y": 1132
           },
           "id": 129,
           "interval": "$interval",
@@ -4677,7 +4677,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1036
+            "y": 1140
           },
           "id": 130,
           "interval": "$interval",
@@ -4786,7 +4786,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1036
+            "y": 1140
           },
           "id": 131,
           "interval": "$interval",
@@ -4909,7 +4909,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1882
+            "y": 1986
           },
           "id": 143,
           "interval": "$interval",
@@ -5009,7 +5009,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1890
+            "y": 1994
           },
           "id": 127,
           "interval": "$interval",
@@ -5109,7 +5109,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1898
+            "y": 2002
           },
           "id": 104,
           "interval": "$interval",
@@ -5209,7 +5209,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1906
+            "y": 2010
           },
           "id": 22,
           "interval": "$interval",
@@ -5309,7 +5309,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1914
+            "y": 2018
           },
           "id": 25,
           "interval": "$interval",
@@ -5409,7 +5409,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1914
+            "y": 2018
           },
           "id": 23,
           "interval": "$interval",
@@ -5523,7 +5523,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1302
+            "y": 1406
           },
           "id": 144,
           "interval": "$interval",
@@ -5632,7 +5632,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1382
+            "y": 1486
           },
           "id": 137,
           "interval": "$interval",
@@ -5741,7 +5741,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1390
+            "y": 1494
           },
           "id": 138,
           "interval": "$interval",
@@ -5850,7 +5850,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1398
+            "y": 1502
           },
           "id": 139,
           "interval": "$interval",
@@ -5959,7 +5959,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1406
+            "y": 1510
           },
           "id": 140,
           "interval": "$interval",
@@ -6068,7 +6068,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1406
+            "y": 1510
           },
           "id": 141,
           "interval": "$interval",
@@ -6318,7 +6318,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 61
+            "y": 165
           },
           "id": 156,
           "interval": "$interval",
@@ -6430,7 +6430,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 61
+            "y": 165
           },
           "id": 158,
           "interval": "$interval",
@@ -6555,7 +6555,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 408
+            "y": 512
           },
           "id": 151,
           "interval": "$interval",
@@ -6683,7 +6683,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 545
+            "y": 649
           },
           "id": 125,
           "interval": "$interval",
@@ -7038,7 +7038,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 48
+            "y": 152
           },
           "id": 155,
           "interval": "$interval",
@@ -7165,7 +7165,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 201
+            "y": 305
           },
           "id": 120,
           "options": {
@@ -7362,7 +7362,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 201
+            "y": 305
           },
           "id": 121,
           "options": {
@@ -7555,7 +7555,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7571,7 +7572,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1306
+            "y": 42
           },
           "id": 43,
           "interval": "$interval",
@@ -7589,7 +7590,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7664,7 +7665,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7680,7 +7682,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1306
+            "y": 42
           },
           "id": 48,
           "interval": "$interval",
@@ -7698,7 +7700,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7804,9 +7806,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 147
+            "y": 59
           },
-          "id": 40,
+          "id": 105,
           "interval": "$interval",
           "options": {
             "legend": {
@@ -7830,7 +7832,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_network_receive_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
+              "expr": "sum by (instance) (rate(omnistat_network_rx_bytes{device_class=\"net\"}[$__rate_interval])) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -7915,229 +7917,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 147
-          },
-          "id": 42,
-          "interval": "$interval",
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.1.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${source}"
-              },
-              "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_network_transmit_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
-              "instant": false,
-              "interval": "$interval",
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "Ethernet Bandwidth - Transmitted",
-          "transformations": [
-            {
-              "id": "renameByRegex",
-              "options": {
-                "regex": "(.*):(.*)",
-                "renamePattern": "Node: $1"
-              }
-            }
-          ],
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${source}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "binBps"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 155
-          },
-          "id": 105,
-          "interval": "$interval",
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.1.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${source}"
-              },
-              "editorMode": "code",
-              "expr": "sum by (instance) (rate(omnistat_network_rx_bytes{device_class=\"net\"}[$__rate_interval])) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})",
-              "instant": false,
-              "interval": "$interval",
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "Ethernet Bandwidth - Received (Omnistat)",
-          "transformations": [
-            {
-              "id": "renameByRegex",
-              "options": {
-                "regex": "(.*):(.*)",
-                "renamePattern": "Node: $1"
-              }
-            }
-          ],
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${source}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "binBps"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 155
+            "y": 59
           },
           "id": 106,
           "interval": "$interval",
@@ -8171,7 +7951,7 @@
               "refId": "A"
             }
           ],
-          "title": "Ethernet Bandwidth - Transmitted (Omnistat)",
+          "title": "Ethernet Bandwidth - Transmitted",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -8245,7 +8025,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -8261,227 +8042,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 446
-          },
-          "id": 102,
-          "interval": "$interval",
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.5.2",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${source}"
-              },
-              "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_infiniband_port_data_received_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
-              "instant": false,
-              "interval": "$interval",
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "Infiniband Bandwidth - Received",
-          "transformations": [
-            {
-              "id": "renameByRegex",
-              "options": {
-                "regex": "(.*):(.*)",
-                "renamePattern": "Node: $1"
-              }
-            }
-          ],
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${source}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "binBps"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 446
-          },
-          "id": 103,
-          "interval": "$interval",
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.5.2",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${source}"
-              },
-              "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_infiniband_port_data_transmitted_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
-              "instant": false,
-              "interval": "$interval",
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "Infiniband Bandwidth - Transmitted",
-          "transformations": [
-            {
-              "id": "renameByRegex",
-              "options": {
-                "regex": "(.*):(.*)",
-                "renamePattern": "Node: $1"
-              }
-            }
-          ],
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${source}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "binBps"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 454
+            "y": 60
           },
           "id": 116,
           "interval": "$interval",
@@ -8499,7 +8060,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -8515,7 +8076,7 @@
               "refId": "A"
             }
           ],
-          "title": "High Performance Interconnect Bandwidth - Received (Omnistat)",
+          "title": "High Performance Interconnect Bandwidth - Received",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -8575,7 +8136,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -8591,7 +8153,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 454
+            "y": 60
           },
           "id": 117,
           "interval": "$interval",
@@ -8609,7 +8171,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -8625,7 +8187,7 @@
               "refId": "A"
             }
           ],
-          "title": "High Performance Interconnect Bandwidth - Transmitted (Omnistat)",
+          "title": "High Performance Interconnect Bandwidth - Transmitted",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -8699,7 +8261,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -8715,7 +8278,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 19615
+            "y": 61
           },
           "id": 46,
           "interval": "$interval",
@@ -8727,12 +8290,13 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "maxHeight": 600,
               "mode": "single",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.0-76537",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -8808,7 +8372,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -8824,7 +8389,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 19615
+            "y": 61
           },
           "id": 45,
           "interval": "$interval",
@@ -8836,12 +8401,13 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "maxHeight": 600,
               "mode": "single",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.0-76537",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -8932,7 +8498,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -8948,7 +8515,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1094
+            "y": 70
           },
           "id": 146,
           "interval": "$interval",
@@ -8966,7 +8533,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -9042,7 +8609,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -9058,7 +8626,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1102
+            "y": 78
           },
           "id": 149,
           "interval": "$interval",
@@ -9076,7 +8644,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -9167,7 +8735,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1110
+            "y": 86
           },
           "id": 147,
           "interval": "$interval",
@@ -9276,7 +8844,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1118
+            "y": 94
           },
           "id": 148,
           "interval": "$interval",
@@ -9400,7 +8968,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4119
+            "y": 4223
           },
           "id": 135,
           "interval": "$interval",
@@ -9564,7 +9132,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4168
+            "y": 4272
           },
           "id": 56,
           "interval": "$interval",
@@ -9788,7 +9356,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18169
+            "y": 18273
           },
           "id": 107,
           "interval": "$interval",
@@ -9983,7 +9551,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18169
+            "y": 18273
           },
           "id": 112,
           "interval": "$interval",
@@ -10142,7 +9710,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18177
+            "y": 18281
           },
           "id": 108,
           "interval": "$interval",
@@ -10370,7 +9938,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18177
+            "y": 18281
           },
           "id": 113,
           "interval": "$interval",
@@ -10525,7 +10093,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18185
+            "y": 18289
           },
           "id": 109,
           "interval": "$interval",
@@ -10753,7 +10321,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18185
+            "y": 18289
           },
           "id": 115,
           "interval": "$interval",
@@ -10909,7 +10477,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18193
+            "y": 18297
           },
           "id": 110,
           "interval": "$interval",
@@ -11133,7 +10701,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18193
+            "y": 18297
           },
           "id": 114,
           "interval": "$interval",
