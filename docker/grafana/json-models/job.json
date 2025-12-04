@@ -1752,7 +1752,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1596
+            "y": 1612
           },
           "id": 88,
           "interval": "$interval",
@@ -1862,7 +1862,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1596
+            "y": 1612
           },
           "id": 89,
           "interval": "$interval",
@@ -2012,7 +2012,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2073
+            "y": 2089
           },
           "id": 91,
           "interval": "$interval",
@@ -2163,7 +2163,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 2081
+            "y": 2097
           },
           "id": 99,
           "interval": "$interval",
@@ -2327,7 +2327,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 2081
+            "y": 2097
           },
           "id": 100,
           "interval": "$interval",
@@ -2476,7 +2476,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1597
+            "y": 1613
           },
           "id": 28,
           "interval": "$interval",
@@ -2538,7 +2538,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1597
+            "y": 1613
           },
           "id": 86,
           "interval": "$interval",
@@ -2651,7 +2651,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1983
+            "y": 1999
           },
           "id": 29,
           "interval": "$interval",
@@ -2713,7 +2713,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1983
+            "y": 1999
           },
           "id": 31,
           "interval": "$interval",
@@ -2854,7 +2854,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1991
+            "y": 2007
           },
           "id": 24,
           "interval": "$interval",
@@ -2928,7 +2928,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1598
+            "y": 1614
           },
           "id": 27,
           "interval": "$interval",
@@ -3038,7 +3038,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1598
+            "y": 1614
           },
           "id": 87,
           "interval": "$interval",
@@ -3188,7 +3188,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1609
+            "y": 1625
           },
           "id": 90,
           "interval": "$interval",
@@ -3355,7 +3355,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1617
+            "y": 1633
           },
           "id": 98,
           "interval": "$interval",
@@ -3535,7 +3535,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1617
+            "y": 1633
           },
           "id": 95,
           "interval": "$interval",
@@ -3806,7 +3806,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 1626
+            "y": 1642
           },
           "id": 52,
           "interval": "$interval",
@@ -3959,7 +3959,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 492
+            "y": 508
           },
           "id": 142,
           "interval": "$interval",
@@ -4068,7 +4068,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1132
+            "y": 1148
           },
           "id": 33,
           "interval": "$interval",
@@ -4177,7 +4177,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1140
+            "y": 1156
           },
           "id": 128,
           "interval": "$interval",
@@ -4286,7 +4286,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1148
+            "y": 1164
           },
           "id": 129,
           "interval": "$interval",
@@ -4395,7 +4395,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1156
+            "y": 1172
           },
           "id": 130,
           "interval": "$interval",
@@ -4504,7 +4504,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1156
+            "y": 1172
           },
           "id": 131,
           "interval": "$interval",
@@ -4627,7 +4627,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2002
+            "y": 2018
           },
           "id": 143,
           "interval": "$interval",
@@ -4727,7 +4727,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2010
+            "y": 2026
           },
           "id": 127,
           "interval": "$interval",
@@ -4827,7 +4827,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2018
+            "y": 2034
           },
           "id": 104,
           "interval": "$interval",
@@ -4927,7 +4927,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2026
+            "y": 2042
           },
           "id": 22,
           "interval": "$interval",
@@ -5027,7 +5027,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2034
+            "y": 2050
           },
           "id": 25,
           "interval": "$interval",
@@ -5127,7 +5127,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2034
+            "y": 2050
           },
           "id": 23,
           "interval": "$interval",
@@ -5241,7 +5241,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1422
+            "y": 1438
           },
           "id": 144,
           "interval": "$interval",
@@ -5350,7 +5350,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1502
+            "y": 1518
           },
           "id": 137,
           "interval": "$interval",
@@ -5459,7 +5459,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1510
+            "y": 1526
           },
           "id": 138,
           "interval": "$interval",
@@ -5568,7 +5568,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1518
+            "y": 1534
           },
           "id": 139,
           "interval": "$interval",
@@ -5677,7 +5677,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1526
+            "y": 1542
           },
           "id": 140,
           "interval": "$interval",
@@ -5786,7 +5786,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1526
+            "y": 1542
           },
           "id": 141,
           "interval": "$interval",
@@ -6036,7 +6036,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 181
+            "y": 197
           },
           "id": 156,
           "interval": "$interval",
@@ -6148,7 +6148,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 181
+            "y": 197
           },
           "id": 158,
           "interval": "$interval",
@@ -6273,7 +6273,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 528
+            "y": 544
           },
           "id": 151,
           "interval": "$interval",
@@ -6401,7 +6401,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 665
+            "y": 681
           },
           "id": 125,
           "interval": "$interval",
@@ -6530,7 +6530,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 56
+            "y": 72
           },
           "id": 153,
           "interval": "$interval",
@@ -6643,7 +6643,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 56
+            "y": 72
           },
           "id": 154,
           "interval": "$interval",
@@ -6756,7 +6756,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 168
+            "y": 184
           },
           "id": 155,
           "interval": "$interval",
@@ -6883,7 +6883,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 321
+            "y": 337
           },
           "id": 120,
           "options": {
@@ -7080,7 +7080,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 321
+            "y": 337
           },
           "id": 121,
           "options": {
@@ -7524,7 +7524,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 75
+            "y": 91
           },
           "id": 105,
           "interval": "$interval",
@@ -7635,7 +7635,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 75
+            "y": 91
           },
           "id": 106,
           "interval": "$interval",
@@ -7760,7 +7760,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 76
+            "y": 92
           },
           "id": 116,
           "interval": "$interval",
@@ -7871,7 +7871,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 76
+            "y": 92
           },
           "id": 117,
           "interval": "$interval",
@@ -8376,6 +8376,160 @@
             }
           ],
           "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Total amount of data read by visible processes during the selected time range. This panel tracks I/O at the syscall level and includes both local and network I/O.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 12,
+            "x": 0,
+            "y": 57
+          },
+          "id": 161,
+          "interval": "$interval",
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum_over_time(sum(increase(omnistat_host_io_read_total_bytes) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))[$__range])",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Total Process-based IO - Read",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "(.*):(.*)",
+                "renamePattern": "Node: $1"
+              }
+            }
+          ],
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Total amount of data written by visible processes during the selected time range. This panel tracks I/O at the syscall level and includes both local and network I/O.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 12,
+            "x": 12,
+            "y": 57
+          },
+          "id": 162,
+          "interval": "$interval",
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum_over_time(sum(increase(omnistat_host_io_write_total_bytes) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))[$__range])",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Total Process-based IO - Write",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "(.*):(.*)",
+                "renamePattern": "Node: $1"
+              }
+            }
+          ],
+          "type": "stat"
         }
       ],
       "title": "IO Bandwidth",
@@ -8456,7 +8610,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4239
+            "y": 4255
           },
           "id": 135,
           "interval": "$interval",
@@ -8620,7 +8774,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4288
+            "y": 4304
           },
           "id": 56,
           "interval": "$interval",
@@ -8844,7 +8998,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18289
+            "y": 18305
           },
           "id": 107,
           "interval": "$interval",
@@ -9039,7 +9193,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18289
+            "y": 18305
           },
           "id": 112,
           "interval": "$interval",
@@ -9198,7 +9352,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18297
+            "y": 18313
           },
           "id": 108,
           "interval": "$interval",
@@ -9426,7 +9580,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18297
+            "y": 18313
           },
           "id": 113,
           "interval": "$interval",
@@ -9581,7 +9735,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18305
+            "y": 18321
           },
           "id": 109,
           "interval": "$interval",
@@ -9809,7 +9963,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18305
+            "y": 18321
           },
           "id": 115,
           "interval": "$interval",
@@ -9965,7 +10119,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18313
+            "y": 18329
           },
           "id": 110,
           "interval": "$interval",
@@ -10189,7 +10343,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18313
+            "y": 18329
           },
           "id": 114,
           "interval": "$interval",
