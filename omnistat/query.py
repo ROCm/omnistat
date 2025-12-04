@@ -38,6 +38,7 @@ import matplotlib.dates as mdates
 import matplotlib.pylab as plt
 import numpy as np
 import pandas
+from matplotlib.ticker import EngFormatter
 from prometheus_api_client import MetricRangeDataFrame, PrometheusConnect
 from prometheus_api_client.utils import parse_datetime
 from reportlab.lib import colors
@@ -143,6 +144,7 @@ class QueryMetrics:
 
         self.enable_redirect = False
         self.vendorData = False
+        self.hostData = False
         self.output = None
         self.output_file = output_file
 
@@ -369,6 +371,89 @@ class QueryMetrics:
                 minvalue = sum
                 minindex = i
         return minindex, sum
+
+    def gather_host_data(self):
+        times_raw, values_raw, hosts = self.query_time_series_data("omnistat_host_cpu_aggregate_core_utilization")
+        if not values_raw:
+            return
+        self.hostData = True
+        self.HOSTMETRICS = [
+            {
+                "metric": "omnistat_host_cpu_aggregate_core_utilization",
+                "title": "Host CPU Core Utilization (%)",
+                "title_short": "CPU Utilization (%)",
+            },
+            {
+                "metric": "omnistat_host_mem_utilization",
+                "title": "Host Memory Use (%)",
+                "title_short": "Memory Use (%)",
+            }
+        ]
+        # check for optional proc-based I/O metrics
+        times_raw, values_raw, hosts = self.query_time_series_data("sum by (instance) (omnistat_host_io_write_total_bytes)")
+        if not values_raw:
+            self.hostDataIO = False
+        else:
+            self.hostDataIO = True
+            self.HOSTMETRICS += [
+            {
+                "metric": "omnistat_host_io_write_total_bytes",
+                "title": "Host I/O Total Write (bytes)",
+                "title_short": " I/O Data Totals",
+            },
+            {
+                "metric": "omnistat_host_io_read_total_bytes",
+                "title": "Host I/O Total Read (bytes)",
+                "title_short": None
+            },
+        ]   
+
+        for entry in self.HOSTMETRICS:
+            metric = entry["metric"]
+
+            self.stats[metric + "_min"] = []
+            self.stats[metric + "_max"] = []
+            self.stats[metric + "_mean"] = []
+
+            query_metric = f'{metric}'
+            if metric == "omnistat_host_io_write_total_bytes" or metric == "omnistat_host_io_read_total_bytes":
+                query_metric = f'sum by (instance) ({metric})'
+            elif metric == "omnistat_host_mem_utilization":
+                query_metric = f'100 * ((omnistat_host_mem_total_bytes - omnistat_host_mem_free_bytes) / omnistat_host_mem_total_bytes)'
+            try:
+                # (1) capture time series that assembles [mean] value at each timestamp across all assigned nodes
+                times, values_mean = self.query_time_series_data(query_metric, "avg")
+                # (2) capture time series that assembles [max] value at each timestamp across all assigned nodes
+                times, values_max = self.query_time_series_data(query_metric, "max")
+
+            except Exception as ex:
+                utils.error("Unable to query prometheus data for metric -> %s" % query_metric)
+
+            self.stats[metric + "_max"].append(np.max(values_max))
+            self.stats[metric + "_mean"].append(np.mean(values_mean))
+
+            self.time_series[metric] = {}
+            self.time_series[metric] = {"time": times, "values": values_mean}
+
+        # CPU count
+
+         # we assume node uniformity for cpu count
+        times_raw, values_raw = self.query_time_series_data("omnistat_host_cpu_num_logical_cores","max")
+        self.num_logical_cores = int(values_raw[0])
+
+        # Total I/O stats
+        if  self.hostDataIO:
+            self.total_io = {}
+            for metric in ["omnistat_host_io_write_total_bytes", "omnistat_host_io_read_total_bytes"]:
+                query = "%s * on (instance) group_left() (rmsjob_info{$job,$step})" % (metric)
+                metric_data = self.query_job_range(query)
+                total_bytes = 0
+                for entry in metric_data:
+                    values = entry["values"]
+                    max_value = max(int(item[1]) for item in values)
+                    total_bytes += max_value
+                self.total_io[metric] = total_bytes
+
 
     def gather_vendor_data(self):
         # node-level data: total energy usage
@@ -626,6 +711,42 @@ class QueryMetrics:
             print("Approximate Total GPU Energy Consumed = %.2e kWh" % self.gpu_energy_total_kwh)
             print("")
 
+        if self.hostData:
+            print("Host Statistics:")
+            print("")
+            print("    # CPUs |", end="")
+            for entry in self.HOSTMETRICS[:3]:
+                if "title_short" in entry:
+                    print(" %s |" % entry["title_short"].center(20), end="")
+            print("")
+            print("           |", end="")
+            for entry in self.HOSTMETRICS[:2]:
+                if "title_short" in entry:
+                    print(" %10s%10s |" % ("Max".center(10), "Mean".center(10)), end="")
+            if self.hostDataIO:
+                print("    Read      Write   |",end="")
+            print("")
+            print("    " + "-" * 54 + "-" * 23 * self.hostDataIO)
+            print("     %5d |" % self.num_logical_cores, end="")
+            for entry in self.HOSTMETRICS[:2]:
+                if "title_short" not in entry:
+                    continue
+                metric = entry["metric"]
+                print(
+                    "%8.2f  %8.2f    |" % (self.stats[metric + "_max"][0], self.stats[metric + "_mean"][0]),
+                    end="",
+                )
+            if self.hostDataIO:
+                print("%10s %10s |" % (utils.format_bytes(self.total_io["omnistat_host_io_read_total_bytes"]), 
+                                    utils.format_bytes(self.total_io["omnistat_host_io_write_total_bytes"])), end="")
+
+            
+            # max_rate_write = self.stats["omnistat_host_io_write_total_bytes_max"][0]
+            # max_rate_read = self.stats["omnistat_host_io_read_total_bytes_max"][0]
+            # print(f"{format_bytes_rate(max_rate_read)} {format_bytes_rate(max_rate_write)} |", end="")
+            print("")
+
+        print("")
         print("--")
         print("Query interval = %.3f secs" % self.interval)
         print("Query execution time = %.1f secs" % (timeit.default_timer() - self.timer_start))
@@ -668,7 +789,7 @@ class QueryMetrics:
             dict: Metric data in response of the submitted query.
         """
         # The slowest sample time is used to improve query results in the
-        # presence of unxpectectedly slow samples by adapting the lookback
+        # presence of unexpectedly slow samples by adapting the lookback
         # period. While the expected sample time is in the 10-30ms range, we
         # tolerate some samples taking up to 10x longer to provide more
         # consistent results and avoid NaNs.
@@ -806,7 +927,7 @@ class QueryMetrics:
 
         data = []
         data.append(
-            ["", "Utilization (%)", "", "Memory Use (%)", "", "Temperature (C)", "", "Power (W)", "", "Energy (kWh)"]
+            ["", "Utilization (%)", "", "Memory Use (%)", "", "Temperature (°C)", "", "Power (W)", "", "Energy (kWh)"]
         )
         data.append(["GPU", "Max", "Mean", "Max", "Mean", "Max", "Mean", "Max", "Mean", "Total"])
 
@@ -927,33 +1048,64 @@ class QueryMetrics:
             Story.append(t)
             Story.append(Spacer(1, 0.2 * inch))
 
-        ##             Story.append(HRFlowable(width="75%", thickness=1, hAlign="LEFT"))
-        ##             Story.append(Paragraph("<strong>Vendor energy data</strong>:", normal))
-        ##
-        ##             ptext = "Approximate Total Memory Energy Consumed = %.2e kWh (%5.2f %%)"% (
-        ##                     self.node_level_memory_energy_total_kwh,
-        ##                     100.0 * self.node_level_memory_energy_total_kwh / self.node_level_energy_total_kwh,
-        ##                 )
-        ##             Story.append(Paragraph(ptext, normal))
-        ##             ptext = "  Approximate Total CPU    Energy Consumed = %.2e kWh (%5.2f %%)" % (
-        ##                     self.node_level_cpu_energy_total_kwh,
-        ##                     100.0 * self.node_level_cpu_energy_total_kwh / self.node_level_energy_total_kwh,
-        ##                 )
-        ##             Story.append(Paragraph(ptext, normal))
-        ##
-        ##             ptext = "  Approximate Total Accel  Energy Consumed = %.2e kWh (%5.2f %%)" % (
-        ##                     self.node_level_accel_energy_total_kwh,
-        ##                     100.0 * self.node_level_accel_energy_total_kwh / self.node_level_energy_total_kwh,
-        ##                 )
-        ##             Story.append(Paragraph(ptext, normal))
-        ##
-        ##             ptext = "Approximate Total Node Energy Consumed   = %.2e kWh" % self.node_level_energy_total_kwh
-        ##             Story.append(Paragraph(ptext, normal))
-        ##
-        ##             Story.append(HRFlowable(width="75%", thickness=1, hAlign="LEFT"))
         else:
             ptext = """Approximate Total GPU Energy Consumed = %.2e kWh""" % (self.gpu_energy_total_kwh)
             Story.append(Paragraph(ptext, normal))
+
+        # --
+        # Display general Host Statistics
+        # --
+
+        if self.hostData:
+            Story.append(Spacer(1, 0.2 * inch))
+            ptext = """<strong>Host Statistics</strong>"""
+            Story.append(Paragraph(ptext, normal))
+            Story.append(Spacer(1, 0.2 * inch))
+
+            data = []
+            data.append(["", "CPU Utilization (%)", "", "Memory Use (%)", ""])
+            if self.hostDataIO:
+                data[0].append("I/O Data Totals")
+            data.append(["# CPUs", "Max", "Mean", "Max", "Mean"]) 
+            if self.hostDataIO:
+                data[-1].extend(["Read", "Write"])
+
+            data.append([
+                    "%i" % self.num_logical_cores,
+                    "%.2f" % self.stats["omnistat_host_cpu_aggregate_core_utilization_max"][0],
+                    "%.2f" % self.stats["omnistat_host_cpu_aggregate_core_utilization_mean"][0],
+                    "%.2f" % self.stats["omnistat_host_mem_utilization_max"][0],
+                    "%.2f" % self.stats["omnistat_host_mem_utilization_mean"][0],
+            ])
+
+            if self.hostDataIO:
+                data[-1].extend(["%s" % utils.format_bytes(self.total_io["omnistat_host_io_read_total_bytes"]), 
+                                 "%s" % utils.format_bytes(self.total_io["omnistat_host_io_write_total_bytes"])])
+
+            t = Table(data, rowHeights=[0.21 * inch] * len(data), colWidths=[0.6 * inch] + [0.8 * inch] * 4 + [0.8* inch] * 2)
+            t.hAlign = "LEFT"
+            t.setStyle(
+                TableStyle([("LINEBELOW", (0, 1), (-1, 1), 1.5, colors.black), ("ALIGN", (0, 0), (-1, -1), "CENTER")])
+            )
+            t.setStyle(
+            TableStyle(
+                [
+                    ("LINEBEFORE", (1, 0), (1, -1), 1.25, colors.darkgrey),
+                    ("LINEAFTER", (2, 0), (2, -1), 1.25, colors.darkgrey),
+                    ("LINEAFTER", (4, 0), (4, -1), 1.25, colors.darkgrey),
+                    ("LINEAFTER", (6, 0), (6, -1), 1.25, colors.darkgrey),
+                ]
+            )
+        )
+
+            t.setStyle(TableStyle([("SPAN", (1, 0), (2, 0)), ("SPAN", (3, 0), (4, 0))]))
+            if self.hostDataIO:
+                t.setStyle(TableStyle([("SPAN", (5, 0), (6, 0))]))
+            t.setStyle(TableStyle([("FONTSIZE", (1, 0), (-1, -1), 10)]))
+            t.setStyle(TableStyle([("BACKGROUND", (0, 2), (-1, 2), colors.lightgrey)]))
+
+            Story.append(t)
+            Story.append(Spacer(1, 0.2 * inch))
 
         # --
         # Display time-series plots
@@ -966,6 +1118,7 @@ class QueryMetrics:
         Story.append(Paragraph(ptext, normal))
         Story.append(Spacer(1, 0.2 * inch))
 
+        lineWidth=0.9
         for entry in QueryMetrics.METRICS:
             metric = entry["metric"]
             plt.figure(figsize=(9, 2.5))
@@ -974,7 +1127,7 @@ class QueryMetrics:
                 plt.plot(
                     self.time_series[metric][gpu]["time"],
                     self.time_series[metric][gpu]["values"],
-                    linewidth=0.4,
+                    linewidth=lineWidth,
                     label="Card %i" % gpu,
                 )
             #                         self.time_series[metric][gpu]['values'],marker='o',markersize=1,linewidth=0.4,label='Card %i' % gpu)
@@ -985,7 +1138,8 @@ class QueryMetrics:
             #          self.time_series[metric+'_hostmin_raw'][gpu]['values'],'--',linewidth=0.4,label=None)
 
             plt.title(entry["title"])
-            plt.legend(bbox_to_anchor=(1.0, 0.5), loc="center left", ncol=1, frameon=True)
+            # plt.legend(bbox_to_anchor=(1.0, 0.5), loc="center left", ncol=1, frameon=True)
+            plt.legend(bbox_to_anchor=(0,-0.3),loc="center left",frameon=True,ncol=4)
             plt.grid()
             ax = plt.gca()
 
@@ -1001,8 +1155,114 @@ class QueryMetrics:
             Story.append(aplot)
             os.remove(".utilization.png")
 
+            Story.append(Spacer(1, 0.2 * inch))
+            # Story.append(HRFlowable(width="100%", thickness=1))
+
+        
+        if self.hostData:
+            lineWidth=0.9
+            Story.append(Spacer(1, 0.2 * inch))
+            # ptext = """<strong>Host Metrics</strong>"""
+            # Story.append(Paragraph(ptext, normal))
+            Story.append(Spacer(1, 0.2 * inch))
+
+            plt.figure(figsize=(9, 2.5))
+
+            plt.plot(
+                self.time_series["omnistat_host_cpu_aggregate_core_utilization"]["time"],
+                self.time_series["omnistat_host_cpu_aggregate_core_utilization"]["values"],
+                linewidth=lineWidth,
+                label=None,
+            )
+
+            plt.title("Host CPU Utilization")
+            plt.grid()
+            ax = plt.gca()
+
+            locator = mdates.AutoDateLocator(minticks=4, maxticks=12)
+            formatter = mdates.ConciseDateFormatter(locator)
+            ax.xaxis.set_major_locator(locator)
+            ax.xaxis.set_major_formatter(formatter)
+            plt.savefig(".cpu_utilization.png", dpi=150, bbox_inches="tight")
+            plt.close()
+            aplot = Image(".cpu_utilization.png")
+            aplot.hAlign = "LEFT"
+            aplot._restrictSize(6.5 * inch, 4 * inch)
+            Story.append(aplot)
+            os.remove(".cpu_utilization.png")
+            Story.append(Spacer(1, 0.2 * inch))
+
+            #-- Memory Utilization
+            plt.figure(figsize=(9, 2.5))
+
+            plt.plot(
+                self.time_series["omnistat_host_mem_utilization"]["time"],
+                self.time_series["omnistat_host_mem_utilization"]["values"],
+                linewidth=lineWidth,
+                label=None,
+            )
+
+            plt.title("Host Memory Utilization (%)")
+            plt.grid()
+            ax = plt.gca()
+
+            locator = mdates.AutoDateLocator(minticks=4, maxticks=12)
+            formatter = mdates.ConciseDateFormatter(locator)
+            ax.xaxis.set_major_locator(locator)
+            ax.xaxis.set_major_formatter(formatter)
+            plt.savefig(".memory_utilization.png", dpi=150, bbox_inches="tight")
+            plt.close()
+            aplot = Image(".memory_utilization.png")
+            aplot.hAlign = "LEFT"
+            aplot._restrictSize(6.5 * inch, 4 * inch)
+            Story.append(aplot)
+            os.remove(".memory_utilization.png")
+            Story.append(Spacer(1, 0.2 * inch))
+
+            if self.hostDataIO:
+                #-- IO Throughput
+                plt.figure(figsize=(9, 2.5))
+
+                plt.plot(
+                    self.time_series["omnistat_host_io_read_total_bytes"]["time"],
+                    self.time_series["omnistat_host_io_read_total_bytes"]["values"],
+                    linewidth=lineWidth,
+                    label="Read",
+                )
+                plt.plot(
+                    self.time_series["omnistat_host_io_write_total_bytes"]["time"],
+                    self.time_series["omnistat_host_io_write_total_bytes"]["values"],
+                    linewidth=lineWidth,
+                    label="Write",
+                )
+
+                plt.title("Host IO (Bytes Transferred)")
+#                plt.legend(bbox_to_anchor=(1.0, 0.5), loc="center left", ncol=1, frameon=True)
+                plt.legend(bbox_to_anchor=(0,-0.25),loc="center left",frameon=True,ncol=2)
+                plt.grid()
+                ax = plt.gca()
+
+                locator = mdates.AutoDateLocator(minticks=4, maxticks=12)
+                formatter = mdates.ConciseDateFormatter(locator)
+                ax.xaxis.set_major_locator(locator)
+                ax.xaxis.set_major_formatter(formatter)
+                ax.yaxis.set_major_formatter(EngFormatter(unit='B'))
+                plt.savefig(".io_throughput.png", dpi=150, bbox_inches="tight")
+                plt.close()
+                aplot = Image(".io_throughput.png")
+                aplot.hAlign = "LEFT"
+                aplot._restrictSize(6.5 * inch, 4 * inch)
+                Story.append(aplot)
+                os.remove(".io_throughput.png")
+
         # Energy chart
         if True:
+
+            # Story.append(Paragraph(ptext, normal))
+            Story.append(Spacer(1, 0.2 * inch))
+            Story.append(HRFlowable(width="100%", thickness=1))
+            Story.append(Spacer(1, 0.2 * inch))
+
             labels = []
             min_energy = []
             mean_energy = []
@@ -1048,9 +1308,6 @@ class QueryMetrics:
             Story.append(aplot)
             os.remove(".energy.png")
 
-        Story.append(Spacer(1, 0.2 * inch))
-        Story.append(HRFlowable(width="100%", thickness=1))
-
         # Multi-node distributions
         if False:
             Story.append(Spacer(1, 0.2 * inch))
@@ -1079,8 +1336,8 @@ class QueryMetrics:
             Story.append(aplot)
             os.remove(".distribution.png")
 
-            Story.append(Spacer(1, 0.2 * inch))
-            Story.append(HRFlowable(width="100%", thickness=1))
+        Story.append(Spacer(1, 0.2 * inch))
+        Story.append(HRFlowable(width="100%", thickness=1)) 
 
         footerStyle = ParagraphStyle(
             "footer",
@@ -1088,7 +1345,7 @@ class QueryMetrics:
             parent=styles["Normal"],
         )
 
-        ptext = """Query interval = %i secs""" % self.interval
+        ptext = """Query interval = %.2f secs""" % self.interval
         Story.append(Paragraph(ptext, footerStyle))
         ptext = """Query execution time = %.1f secs""" % (timeit.default_timer() - self.timer_start)
         Story.append(Paragraph(ptext, footerStyle))
@@ -1245,6 +1502,7 @@ def main():
     query.find_job_info()
     query.gather_data(saveTimeSeries=True)
     query.gather_vendor_data()
+    query.gather_host_data()
     query.generate_report_card()
 
     if args.pdf:
