@@ -2514,7 +2514,7 @@
               "refId": "B"
             }
           ],
-          "title": "IO Bandwidth",
+          "title": "Local Disk IO Bandwidth",
           "type": "timeseries"
         }
       ],

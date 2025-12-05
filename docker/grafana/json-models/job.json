@@ -8030,7 +8030,7 @@
               "refId": "A"
             }
           ],
-          "title": "IO - Read",
+          "title": "Local Disk IO - Read",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -8141,7 +8141,7 @@
               "refId": "A"
             }
           ],
-          "title": "IO - Write",
+          "title": "Local Disk IO - Write",
           "transformations": [
             {
               "id": "renameByRegex",
