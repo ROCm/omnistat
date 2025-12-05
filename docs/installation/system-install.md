@@ -178,35 +178,6 @@ Alternatively, you can specify a value of `allowed_ips = 0.0.0.0` to disable any
 
 ---
 
-## Host telemetry
-
-As mentioned in the [intro](../introduction.md) discussion, we recommend enablement of the popular [node-exporter](https://github.com/prometheus/node_exporter) client for host-level monitoring including CPU load, host memory usage, I/O, and network traffic.  This client is available in most standard distros and we highlight common package manager installs below. Alternatively, you can download binary distributions from [here](https://prometheus.io/download/#node_exporter).
-
-For Debian-based systems:
-```shell-session
-# apt-get install prometheus-node-exporter
-```
-For RHEL:
-```shell-session
-# dnf install golang-github-prometheus-node-exporter
-```
-For SUSE:
-```shell-session
-#  zypper install golang-github-prometheus-node_exporter
-```
-
-The relevant OS package should be installed on all desired cluster hosts and enabled for execution (e.g. `systemctl enable prometheus-node-exporter` on a RHEL9-based system).
-
-```{note}
-The default node-exporter configuration can enable a significantly large number of metrics per host and the example Grafana [dashboards](../grafana.md) included with Omnistat are restricted to rely on a modest number of available metrics. In addition, if desiring to monitor InfiniBand traffic an additional module needs to be enabled. The configuration below highlights  example node-exporter arguments for the `/etc/default/prometheus-node-exporter` file to enable InfiniBand and metrics referenced in example Omnistat dashboards.
-```text
-ARGS='--collector.disable-defaults --collector.loadavg --collector.diskstats
-      --collector.meminfo --collector.stat --collector.netdev
-      --collector.infiniband'
-```
-
----
-
 ## Prometheus server
 
 Once the `omnistat-monitor` daemon is configured and running system-wide, we next install and configure a [Prometheus](https://prometheus.io/) server to enable automatic telemetry collection. This server typically runs on an administrative host and can be installed via package manager, by downloading a [precompiled binary](https://prometheus.io/download/), or using a [Docker image](https://hub.docker.com/u/prom). The install steps below highlight installation via package manager followed by a simple scrape configuration.
@@ -229,7 +200,7 @@ Once the `omnistat-monitor` daemon is configured and running system-wide, we nex
    #  zypper install golang-github-prometheus-prometheus
    ```
 
-2. Configuration: add a scrape configuration to Prometheus to enable telemetry collection. This configuration stanza typically resides in the `/etc/prometheus/prometheus.yml` runtime config file and controls which nodes to poll and at what frequency. The example below highlights configuration of two Prometheus jobs.  The first enables an omnistat job to poll GPU data at 30 second intervals from four separate compute nodes.  The second job enables collection of the recommended node-exporter to collect host-level data at a similar frequency (default node-exporter port is). We recommend keeping the `scrape_interval` setting at 5 seconds or larger.
+2. Configuration: add a scrape configuration to Prometheus to enable telemetry collection. This configuration stanza typically resides in the `/etc/prometheus/prometheus.yml` runtime config file and controls which nodes to poll and at what frequency. The example below highlights configuration of a Prometheus job to poll Omnistat data at 30 second intervals from four separate compute nodes. We recommend keeping the `scrape_interval` setting at 5 seconds or larger.
 
    ```yaml
    scrape_configs:
@@ -242,16 +213,6 @@ Once the `omnistat-monitor` daemon is configured and running system-wide, we nex
            - compute-01:8001
            - compute-02:8001
            - compute-03:8001
-
-     - job_name: "node"
-       scrape_interval: 30s
-       scrape_timeout: 5s
-       static_configs:
-         - targets:
-           - compute-00:9100
-           - compute-01:9100
-           - compute-02:9100
-           - compute-03:9100
    ```
 
 Edit your server's prometheus.yml file using the snippet above as a guide and restart the Prometheus server to enable automatic data collection. Please also ensure that the target hosts configured for the Omnistat data collection allow queries initiated from this Prometheus server as discussed in the [access restriction](#access-restriction-configuration) section.
@@ -274,7 +235,7 @@ SendSIGKILL=no
 
 ## Ansible example
 
-For production cluster or data center deployments, configuration management tools like [Ansible](https://github.com/ansible/ansible) may be useful to automate installation of Omnistat. To aid in this process, the following example highlights key elements of an Ansible role to install necessary Python dependencies and configure the Omnistat and node-exporter Prometheus clients. These RHEL9-based example files are provided as a starting reference for system administrators and can be adjusted to suit per local conventions.
+For production cluster or data center deployments, configuration management tools like [Ansible](https://github.com/ansible/ansible) may be useful to automate installation of Omnistat. To aid in this process, the following example highlights key elements of an Ansible role to install necessary Python dependencies and configure the Omnistat Prometheus client. These RHEL9-based example files are provided as a starting reference for system administrators and can be adjusted to suit per local conventions.
 
 Note that this recipe assumes existence of a dedicated non-root user to run the Omnistat exporter, templated as `{{ omnistat_user }}`.  It also assumes that an Omnistat release has been downloaded into a local path, templated to be in the `{{ omnistat_dir }}`.
 
@@ -317,29 +278,6 @@ Note that this recipe assumes existence of a dedicated non-root user to run the 
         name: omnistat
         enabled: yes
         state: started
-
-    #--
-    #  prometheus node exporter
-    #--
-
-    - name: node-exporter package
-      ansible.builtin.yum:
-        name: golang-github-prometheus-node-exporter
-        state: installed
-
-    - name: /etc/default/prometheus-node-exporter
-      ansible.builtin.template:
-        src:  prometheus-node-exporter.j2
-        dest:  /etc/default/prometheus-node-exporter
-        owner: root
-        group: root
-        mode: '0644'
-
-    - name: node-exporter service enabled
-      ansible.builtin.service:
-        name: prometheus-node-exporter
-        enabled: yes
-        state: started
 ```
 
 ```eval_rst
@@ -367,12 +305,6 @@ Note that this recipe assumes existence of a dedicated non-root user to run the 
     [Install]
     WantedBy=multi-user.target
   ```
-```eval_rst
-.. code-block:: bash
-   :caption: roles/omnistat/templates/prometheus-node-exporter.j2
-
-    ARGS='--collector.disable-defaults --collector.loadavg --collector.diskstats --collector.meminfo --collector.stat --collector.netdev --collector.infiniband'
-```
 
 ---
 
