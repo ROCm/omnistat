@@ -6942,7 +6942,7 @@
               "refId": "B"
             }
           ],
-          "title": "Aggregate IO Bandwidth",
+          "title": "Aggregate Local Disk IO Bandwidth",
           "type": "timeseries"
         },
         {
@@ -7044,7 +7044,7 @@
               "refId": "A"
             }
           ],
-          "title": "IO Bandwidth per Node - Read",
+          "title": "Local Disk IO Bandwidth per Node - Read",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7155,7 +7155,7 @@
               "refId": "A"
             }
           ],
-          "title": "IO Bandwidth per Node - Write",
+          "title": "Local Disk IO Bandwidth per Node - Write",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7168,7 +7168,7 @@
           "type": "timeseries"
         }
       ],
-      "title": "IO - Disk Bandwidth",
+      "title": "IO - Bandwidth",
       "type": "row"
     },
     {
