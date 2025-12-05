@@ -127,7 +127,7 @@ int KernelTracer::initialize(void* tool_data) {
                          code_object_ops.size(), code_object_callback, nullptr),
                      "configure code object tracing service");
 
-    constexpr auto buffer_size_bytes = 4096;
+    constexpr auto buffer_size_bytes = 262144;
     constexpr auto buffer_watermark_bytes = buffer_size_bytes - (buffer_size_bytes / 8);
 
     ROCPROFILER_CALL(rocprofiler_create_buffer(context, buffer_size_bytes, buffer_watermark_bytes,
