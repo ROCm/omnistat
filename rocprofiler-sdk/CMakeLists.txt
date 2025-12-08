@@ -25,19 +25,32 @@
 cmake_minimum_required(VERSION 3.15)
 project(omnistat_rocprofiler_sdk_extension LANGUAGES CXX)
 
-find_package(Python COMPONENTS Interpreter Development REQUIRED)
+# The kernel tracing library is meant to be built separately from the Omnistat
+# package and extensions. When it's enabled, compile only the library and
+# nothing else.
+option(BUILD_KERNEL_TRACE_LIB "Build the kernel tracing library" OFF)
 
-set(CMAKE_EXECUTE_PROCESS_COMMAND_ECHO STDOUT)
-execute_process(
-    COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
-    OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
+if (NOT BUILD_KERNEL_TRACE_LIB)
+    find_package(Python COMPONENTS Interpreter Development REQUIRED)
 
-find_package(nanobind CONFIG REQUIRED)
+    set(CMAKE_EXECUTE_PROCESS_COMMAND_ECHO STDOUT)
+    execute_process(
+        COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
 
-find_package(rocprofiler-sdk REQUIRED)
+    find_package(nanobind CONFIG REQUIRED)
 
-nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp)
-target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk)
+    find_package(rocprofiler-sdk REQUIRED)
 
-# Install the module to location within the Python package
-install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
+    nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp)
+    target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk)
+
+    # Install the module to location within the Python package
+    install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
+else()
+    find_package(rocprofiler-sdk REQUIRED)
+    find_package(CURL REQUIRED)
+
+    add_library(rsdk_kernel_trace SHARED kernel_tracer.cpp)
+    target_link_libraries(rsdk_kernel_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk CURL::libcurl)
+endif()
