@@ -449,6 +449,7 @@ def displayVersion(version):
     print("Omnistat version: %s" % version)
     print("-" * 40)
 
+
 def format_bytes_rate(rate_bytes_sec):
     """Convert bytes/sec to appropriate unit (B/s, MB/s, GB/s)"""
     if rate_bytes_sec >= 1e9:
@@ -459,7 +460,8 @@ def format_bytes_rate(rate_bytes_sec):
         return f"{rate_bytes_sec / 1e3:6.2f} KB/s"
     else:
         return f"{rate_bytes_sec:7.2f} B/s"
-    
+
+
 def format_bytes(data_bytes):
     """Convert bytes/sec to appropriate unit (B/s, MB/s, GB/s)"""
     if data_bytes >= 1e15:
@@ -474,7 +476,8 @@ def format_bytes(data_bytes):
         return f"{data_bytes / 1e3:6.1f} KB"
     else:
         return f"{data_bytes:6.1f} B"
-    
+
+
 def execute_ssh_command_nohup(
     hostname: str,
     command: str,
