@@ -746,10 +746,6 @@ class QueryMetrics:
                     ),
                     end="",
                 )
-
-            # max_rate_write = self.stats["omnistat_host_io_write_total_bytes_max"][0]
-            # max_rate_read = self.stats["omnistat_host_io_read_total_bytes_max"][0]
-            # print(f"{format_bytes_rate(max_rate_read)} {format_bytes_rate(max_rate_write)} |", end="")
             print("")
 
         print("")
@@ -1175,8 +1171,6 @@ class QueryMetrics:
         if self.hostData:
             lineWidth = 0.9
             Story.append(Spacer(1, 0.2 * inch))
-            # ptext = """<strong>Host Metrics</strong>"""
-            # Story.append(Paragraph(ptext, normal))
             Story.append(Spacer(1, 0.2 * inch))
 
             plt.figure(figsize=(9, 2.5))
@@ -1250,7 +1244,6 @@ class QueryMetrics:
                 )
 
                 plt.title("Host IO (Bytes Transferred)")
-                #                plt.legend(bbox_to_anchor=(1.0, 0.5), loc="center left", ncol=1, frameon=True)
                 plt.legend(bbox_to_anchor=(0, -0.25), loc="center left", frameon=True, ncol=2)
                 plt.grid()
                 ax = plt.gca()
