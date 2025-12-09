@@ -2,6 +2,7 @@
 
 ```eval_rst
 .. toctree::
+   :hidden:
    :glob:
    :maxdepth: 4
 
