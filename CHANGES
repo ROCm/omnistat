@@ -1,4 +1,4 @@
-Version 1.9 (08 December 2025)
+Version 1.9 (09 December 2025)
 
   * enum bug fix for newer Python versions (#237)
   * expanded CI tests (#230, #239)    
