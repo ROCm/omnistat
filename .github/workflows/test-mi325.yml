@@ -23,7 +23,7 @@ jobs:
         --cap-add SYS_PTRACE
         --group-add video
         --device /dev/kfd
-        -- device /dev/dri
+        --device /dev/dri
 #        --device /dev/dri/renderD128
     defaults:
       run:
