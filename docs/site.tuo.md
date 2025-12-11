@@ -50,6 +50,47 @@ In the standard case, users load the `omnistat` module and include relevant comm
    ${OMNISTAT_DIR}/omnistat-usermode --stopserver
 ```
 
+If all runs well, the `omnistat-query` command above will include a short summary output directly within the Flux job output. Representative output from an example job is as follows:
+
+```eval_rst
+
+.. code-block:: none
+   :caption: Example telemetry summary report card in user-mode from Tuolomne.
+
+   ----------------------------------------------------------------------
+   Omnistat Report Card for Job Id: f2cZ3xxxxxx
+   ----------------------------------------------------------------------
+
+   Job Overview (Num Nodes = 2, Machine = LLNL Tuolumne)
+   --> Start time = 2025-12-11 13:32:48
+   --> End   time = 2025-12-11 13:35:49
+   --> Duration   = 181 secs
+
+   GPU Statistics:
+
+              | Utilization (%)  |  Memory Use (%)  | Temperature (C)  |    Power (W)     | Energy (kWh) |
+        GPU # |    Max     Mean  |    Max     Mean  |    Max     Mean  |    Max     Mean  |    Total     |
+       ---------------------------------------------------------------------------------------------------
+            0 |  100.00   26.48  |   63.42   20.03  |   63.00   51.78  |  549.00  227.39  |   2.27e-02   |
+            1 |  100.00   27.00  |   63.41   20.03  |   67.00   54.95  |  549.00  229.38  |   2.29e-02   |
+            2 |  100.00   25.46  |   63.41   19.94  |   60.00   49.92  |  549.00  212.08  |   2.12e-02   |
+            3 |  100.00   25.54  |   63.41   19.95  |   64.00   51.66  |  549.00  222.37  |   2.22e-02   |
+
+   Approximate Total GPU Energy Consumed = 8.90e-02 kWh
+
+   Host Statistics:
+
+      # CPUs | CPU Utilization (%)  |    Memory Use (%)    |    I/O Data Totals   |
+             |    Max       Mean    |    Max       Mean    |    Read      Write   |
+      -----------------------------------------------------------------------------
+         192 |   26.21      5.71    |   69.44     26.56    |  143.3 GB   138.2 GB |
+
+   --
+   Query interval = 1.0 secs
+   Query execution time = 1.0 secs
+   Version = {__VERSION__}
+```
+
 ### Wrapper usage
 
 The `omnistat` module used in the previous example relies on the system provided `cray-python` module along with extending the python environment to resolve necessary dependencies.  Teams maintaining and deploying their own custom Python stack for application execution may wish to avoid any environment pollution and the local install also includes a convenience wrapper named `omnistat-wrapper`. This wrapper variant can be used as an alternative to run desired Omnistat commands in a sandbox without changing the remaining execution environment.  
