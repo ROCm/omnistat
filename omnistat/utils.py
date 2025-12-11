@@ -97,9 +97,15 @@ def gpu_index_mapping_based_on_guids(guidMapping, expectedNumGPUs):
     for id in range(len(devices)):
         file = os.path.join(kfd_nodes, str(id), "gpu_id")
         logging.debug("--> reading contents of %s" % file)
+
         if os.path.isfile(file):
-            with open(file) as f:
-                guid = int(f.readline().strip())
+            try:
+                with open(file) as f:
+                    guid = int(f.readline().strip())
+            except:
+                logging.debug("--> ...cannot access gpu_id file: %s" % file)
+                continue
+
             if guid == 0:
                 numNonGPUs += 1
                 logging.debug("--> ...ignoring CPU device")
@@ -442,6 +448,34 @@ def displayVersion(version):
     print("-" * 40)
     print("Omnistat version: %s" % version)
     print("-" * 40)
+
+
+def format_bytes_rate(rate_bytes_sec):
+    """Convert bytes/sec to appropriate unit (B/s, MB/s, GB/s)"""
+    if rate_bytes_sec >= 1e9:
+        return f"{rate_bytes_sec / 1e9:6.2f} GB/s"
+    elif rate_bytes_sec >= 1e6:
+        return f"{rate_bytes_sec / 1e6:6.2f} MB/s"
+    elif rate_bytes_sec >= 1e3:
+        return f"{rate_bytes_sec / 1e3:6.2f} KB/s"
+    else:
+        return f"{rate_bytes_sec:7.2f} B/s"
+
+
+def format_bytes(data_bytes):
+    """Convert bytes/sec to appropriate unit (B/s, MB/s, GB/s)"""
+    if data_bytes >= 1e15:
+        return f"{data_bytes / 1e15:6.1} PB"
+    elif data_bytes >= 1e12:
+        return f"{data_bytes / 1e12:6.1f} TB"
+    elif data_bytes >= 1e9:
+        return f"{data_bytes / 1e9:6.1f} GB"
+    elif data_bytes >= 1e6:
+        return f"{data_bytes / 1e6:6.1f} MB"
+    elif data_bytes >= 1e3:
+        return f"{data_bytes / 1e3:6.1f} KB"
+    else:
+        return f"{data_bytes:6.1f} B"
 
 
 def execute_ssh_command_nohup(

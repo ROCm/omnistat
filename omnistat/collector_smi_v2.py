@@ -28,7 +28,7 @@ Implements a number of prometheus gauge metrics based on GPU data collected from
 the amd-smi library interface.  The ROCm runtime must be pre-installed to use this data
 collector. This data collector gathers statistics on a per GPU basis and exposes
 metrics with "amdsmi_{metric_name}" with labels for each GPU number. The following
-example highlights example metrics:
+highlights example metrics:
 
 rocm_vram_total_bytes{card="0"} 3.4342961152e+010
 rocm_temperature_celsius{card="0",location="edge"} 42.0
@@ -205,7 +205,7 @@ class AMDSMI(Collector):
                 try:
                     status = smi.amdsmi_get_gpu_ecc_status(self.__devices[0], block)
                 except smi.AmdSmiException as e:
-                    logging.debug(f"Failed to get {str(block)} ECC status:\n{e}")
+                    logging.debug(f"Failed to get {str(block.name)} ECC status:\n{e}")
                     continue
 
                 if status != smi.AmdSmiRasErrState.ENABLED:
@@ -215,7 +215,7 @@ class AMDSMI(Collector):
                 # check if queryable
                 try:
                     status = smi.amdsmi_get_gpu_ecc_count(self.__devices[0], block)
-                    key = "%s" % block
+                    key = "%s" % block.name
                     key = key.removeprefix("AmdSmiGpuBlock.").lower()
                     self.__eccBlocks[key] = block
                     metric = "ras_%s_correctable_count" % key

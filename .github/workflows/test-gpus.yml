@@ -42,17 +42,20 @@ jobs:
           source omnistat_venv/bin/activate
           srun -N 1 -J omnistat -p $CI_QUEUE -t 00:10:00 pytest -v --junitxml=results.xml test/test_collectors.py
 
-      - name: Test Report
-        uses: dorny/test-reporter@v2
-        if: ${{ !cancelled() }}
-        with:
-          name: GPU Collectors
-          reporter: jest-junit 
-          path: results.xml
-
-##       - name: Publish Test Report
-##         uses: mikepenz/action-junit-report@v4
+##       - name: Test Report
+##         uses: dorny/test-reporter@v2
+##         if: ${{ !cancelled() }}
 ##         with:
-##           include_passed: 'true'
-##           report_paths: 'results.xml'
+##           name: GPU Collectors
+##           reporter: jest-junit 
+##           path: results.xml
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: ${{ !cancelled() }}	
+        with:
+          include_passed: 'true'
+          report_paths: 'results.xml'
+          check_name: "Collector Tests (${{ matrix.hardware }})"
+          comment: 'true'
 

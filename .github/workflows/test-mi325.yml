@@ -1,0 +1,89 @@
+name: MI325
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 */12 * * *"    
+
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  gpu-collectors-325:
+    runs-on: [linux-mi325-1gpu-ossci-rocm]
+    strategy:
+      matrix:
+        rocm: [6.4.4, 7.0.2, 7.1]
+      fail-fast: false
+    container:
+      image: rocm/dev-ubuntu-24.04:${{ matrix.rocm }}
+      options: 
+        --ipc host
+        --cap-add SYS_PTRACE
+        --group-add video
+        --device /dev/kfd
+        --device /dev/dri
+#        --device /dev/dri/renderD128
+    defaults:
+      run:
+        shell: bash
+    steps:
+
+      - name: Host software
+        run: |
+          sudo apt-get update -y
+          sudo apt install git -y
+          sudo apt install python3-venv -y
+          sudo apt install python3-yaml -y
+
+      # - name: Fix dodgy container environment for 6.3.4
+      #   if: matrix.rocm == '6.3.4'
+      #   run: |
+      #     pip3 install --break-system-packages /opt/rocm-${{ matrix.rocm }}/share/amd_smi
+
+      - name: Interrogate
+        run: |
+          rocm-smi
+          which python3
+          amd-smi version
+          cat /etc/os-release
+          rocm-smi --showenergycounter
+          amd-smi metric -E
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update git directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Create virtual environment
+        run: |
+          python3 -m venv --system-site-packages omnistat_venv
+          source omnistat_venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r test/requirements.txt
+          
+      - name: Collector tests
+        run: |
+          source omnistat_venv/bin/activate
+          su - ubuntu -c "sleep 300 &"
+          pytest -s -v --junitxml=results.xml test/test_collectors.py
+
+##       - name: Test Report
+##         uses: dorny/test-reporter@v2
+##         if: ${{ !cancelled() }}
+##         with:
+##           name: GPU Collectors
+##           reporter: jest-junit
+##           path: results.xml
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: ${{ !cancelled() }}
+        with:
+          include_passed: 'true'
+          report_paths: 'results.xml'
+          check_name: "Collector Tests (mi325) - ${{ matrix.rocm }}"
+          comment: 'true'

@@ -29,6 +29,7 @@ Omnistat provides a set of utilities to aid cluster administrators or individual
 * GPU power caps
 * GPU throttling events
 * Host network traffic (received/transmitted)
+* Host resource utilization (CPU, memory, and I/O)
 
 
 To enable scalable collection of these metrics, Omnistat provides a python-based [Prometheus](https://prometheus.io) client that supplies instantaneous metric values on-demand for periodic polling by a companion Prometheus server (or a [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics) server).
@@ -46,18 +47,18 @@ To demonstrate the overall data collection architecture employed by Omnistat in 
 ```{figure} images/architecture_system-mode.png
 ---
 name: fig-system-mode
+width: 800px
 ---
 System-wide monitoring
 
 ```{figure} images/architecture_user-mode.png
 ---
 name: fig-user-mode
+width: 800px
 ---
 User-mode monitoring
 
 In the __system-wide monitoring__ case, a system administrator enables data collectors permanently on all relevant hosts within the cluster and configures a Prometheus server to periodically poll these nodes (e.g. at 1 minute or 5 minute intervals). The Prometheus server typically runs on the cluster head node (or separate administrative host) and does not require GPU resources locally. For real-time and historical queries, the system administrator also enables a Grafana instance that queries the Prometheus datastore to provide a variety of visualizations with collected data. Example visualization panels using this approach are highlighted in the [Grafana](./grafana.md) section.
-
-In addition to enabling GPU metrics collection in the __system-wide monitoring__ case, sites may also wish to collect host-side metrics (CPU load, memory usage, etc). Other open-source Prometheus collectors exist for this purpose and we recommend enabling the [node-exporter](https://github.com/prometheus/node_exporter) in combination with Omnistat.
 
 Conversely, in the __user-mode__ case,  Omnistat data collector(s) and a companion VictoriaMetrics server are deployed temporarily on hosts assigned to a user's job.  At the end of the job, Omnistat utilities can query cached telemetry data to summarize GPU utilization details or it can be visualized offline after the job completes. An example command-line summary from this user-mode approach is highlighted as follows:
 

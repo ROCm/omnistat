@@ -75,7 +75,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -110,7 +110,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -144,7 +144,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -179,7 +179,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -216,7 +216,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -255,7 +255,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -292,7 +292,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -331,7 +331,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -365,7 +365,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -403,7 +403,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -412,7 +412,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(rmsjob_info{jobid=~\"^\\\\d+\"})",
+          "expr": "count(rmsjob_info{jobid=~\"^[^\\\\s]+\"})",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -439,7 +439,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -474,7 +474,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -482,7 +482,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "count(rocm_utilization_percentage * on (instance) group_left() (rmsjob_info{jobid=~\"^\\\\d+\"}))",
+          "expr": "count(rocm_utilization_percentage * on (instance) group_left() (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -512,7 +512,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -551,7 +551,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -559,7 +559,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(node_load1)",
+          "expr": "avg(omnistat_host_cpu_load1)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -588,7 +588,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -627,7 +627,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -635,7 +635,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "100 - (sum(node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes)) * 100",
+          "expr": "100 - (sum(omnistat_host_mem_available_bytes) / sum(omnistat_host_mem_total_bytes)) * 100",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -661,7 +661,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -699,7 +699,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -707,7 +707,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "count(count by (jobid) (rmsjob_info{jobid=~\"^\\\\d.+\"}))",
+          "expr": "count(count by (jobid) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -735,7 +735,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -770,7 +770,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -778,7 +778,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "count(rocm_utilization_percentage * on (instance) group_left() (rmsjob_info{jobid=~\"^\\\\d+\"}))",
+          "expr": "count(rocm_utilization_percentage * on (instance) group_left() (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -806,7 +806,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -843,7 +843,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -851,7 +851,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_network_receive_bytes_total[$__rate_interval]))",
+          "expr": "sum(rate(omnistat_network_rx_bytes{device_class=\"net\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "Rx",
           "range": true,
@@ -863,7 +863,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_network_transmit_bytes_total[$__rate_interval]))",
+          "expr": "sum(rate(omnistat_network_tx_bytes{device_class=\"net\"}[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "Tx",
@@ -892,7 +892,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -929,7 +929,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -937,7 +937,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_infiniband_port_data_received_bytes_total[$__rate_interval]))",
+          "expr": "sum(rate(omnistat_network_rx_bytes{device_class!=\"net\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "Rx",
           "range": true,
@@ -949,7 +949,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_infiniband_port_data_transmitted_bytes_total[$__rate_interval]))",
+          "expr": "sum(rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "Tx",
@@ -957,7 +957,7 @@
           "refId": "B"
         }
       ],
-      "title": "Network: Infiniband",
+      "title": "Network: High Performance Interconnect",
       "type": "stat"
     },
     {
@@ -1020,7 +1020,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 5284
+            "y": 5700
           },
           "id": 110,
           "options": {
@@ -1139,7 +1139,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 5284
+            "y": 5700
           },
           "id": 112,
           "options": {
@@ -1263,7 +1263,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 5952
+            "y": 6368
           },
           "id": 113,
           "options": {
@@ -1390,7 +1390,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 5952
+            "y": 6368
           },
           "id": 140,
           "options": {
@@ -1537,7 +1537,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 5958
+            "y": 6374
           },
           "id": 139,
           "options": {
@@ -1768,7 +1768,7 @@
             "h": 13,
             "w": 24,
             "x": 0,
-            "y": 2733
+            "y": 3149
           },
           "id": 99,
           "interval": "5s",
@@ -1793,7 +1793,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "timestamp(group by (jobid,user,batchflag,partition,nodes) (rmsjob_info{jobid=~\"^\\\\d+\"}))",
+              "expr": "timestamp(group by (jobid,user,batchflag,partition,nodes) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))",
               "format": "table",
               "hide": false,
               "instant": false,
@@ -2038,7 +2038,7 @@
             "h": 12,
             "w": 12,
             "x": 0,
-            "y": 7229
+            "y": 7645
           },
           "id": 12,
           "options": {
@@ -2061,7 +2061,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (jobid,user) (rocm_utilization_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"})))",
+              "expr": "avg by (jobid,user) (rocm_utilization_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})))",
               "hide": false,
               "instant": false,
               "legendFormat": "__auto",
@@ -2208,7 +2208,7 @@
             "h": 12,
             "w": 12,
             "x": 12,
-            "y": 7229
+            "y": 7645
           },
           "id": 20,
           "options": {
@@ -2231,7 +2231,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (jobid,user) (rocm_utilization_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"})))",
+              "expr": "avg by (jobid,user) (rocm_utilization_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})))",
               "hide": false,
               "instant": false,
               "legendFormat": "__auto",
@@ -2375,7 +2375,7 @@
             "h": 12,
             "w": 12,
             "x": 0,
-            "y": 7657
+            "y": 8073
           },
           "id": 21,
           "options": {
@@ -2399,7 +2399,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"}))) / count by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"})))",
+              "expr": "avg by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))) / count by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})))",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -2411,7 +2411,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "max by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"}))) / count by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"})))",
+              "expr": "max by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))) / count by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})))",
               "hide": false,
               "instant": false,
               "legendFormat": "__auto",
@@ -2580,7 +2580,7 @@
             "h": 12,
             "w": 12,
             "x": 12,
-            "y": 7657
+            "y": 8073
           },
           "id": 22,
           "options": {
@@ -2604,7 +2604,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"}))) / count by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"})))",
+              "expr": "avg by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))) / count by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})))",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -2616,7 +2616,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "max by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"}))) / count by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"})))",
+              "expr": "max by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))) / count by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})))",
               "hide": false,
               "instant": false,
               "legendFormat": "__auto",
@@ -2800,7 +2800,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 18118
+            "y": 18534
           },
           "id": 28,
           "options": {
@@ -2868,7 +2868,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "rocm_utilization_percentage * on (instance) group_left(jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"})",
+              "expr": "rocm_utilization_percentage * on (instance) group_left(jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})",
               "format": "table",
               "hide": false,
               "instant": false,
@@ -2882,7 +2882,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "rocm_vram_used_percentage * on (instance) group_left(jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\"})",
+              "expr": "rocm_vram_used_percentage * on (instance) group_left(jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})",
               "format": "table",
               "hide": false,
               "instant": false,
@@ -2896,7 +2896,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "timestamp(group by (jobid,user) (rmsjob_info{jobid=~\"^\\\\d+\", batchflag=\"1\"}))",
+              "expr": "timestamp(group by (jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\", batchflag=\"1\"}))",
               "format": "table",
               "hide": false,
               "instant": false,
@@ -3083,7 +3083,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 2418
+            "y": 2834
           },
           "id": 23,
           "options": {
@@ -3110,7 +3110,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "timestamp(group by (jobid) (rmsjob_info{jobid=~\"^\\\\d+\", batchflag=\"1\"}))",
+              "expr": "timestamp(group by (jobid) (rmsjob_info{jobid=~\"^[^\\\\s]+\", batchflag=\"1\"}))",
               "format": "table",
               "instant": false,
               "legendFormat": "{{label_name}}",
@@ -3204,8 +3204,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -3305,7 +3304,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 949
+            "y": 1365
           },
           "id": 6,
           "options": {
@@ -3427,8 +3426,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   }
                 ]
               },
@@ -3440,7 +3438,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 958
+            "y": 1374
           },
           "id": 29,
           "options": {
@@ -3467,7 +3465,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (instance) (rocm_utilization_percentage) * on (instance) (rmsjob_info{jobid=~\"^\\\\d+\"})",
+              "expr": "avg by (instance) (rocm_utilization_percentage) * on (instance) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})",
               "instant": false,
               "legendFormat": "{{instance}}",
               "range": true,
@@ -3537,8 +3535,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   }
                 ]
               },
@@ -3550,7 +3547,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 958
+            "y": 1374
           },
           "id": 103,
           "options": {
@@ -3661,8 +3658,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   },
                   {
                     "color": "#56A64B",
@@ -3779,8 +3775,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   },
                   {
                     "color": "#56A64B",
@@ -3800,7 +3795,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 326
+            "y": 742
           },
           "id": 38,
           "options": {
@@ -3827,7 +3822,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (instance) (rocm_temperature_celsius) * on (instance) (rmsjob_info{jobid=~\"^\\\\d+\"})",
+              "expr": "avg by (instance) (rocm_temperature_celsius) * on (instance) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})",
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
@@ -3897,8 +3892,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   },
                   {
                     "color": "#56A64B",
@@ -3918,7 +3912,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 326
+            "y": 742
           },
           "id": 39,
           "options": {
@@ -4015,8 +4009,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   },
                   {
                     "color": "#56A64B",
@@ -4036,7 +4029,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 335
+            "y": 751
           },
           "id": 109,
           "options": {
@@ -4147,8 +4140,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   }
                 ]
               },
@@ -4257,8 +4249,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   }
                 ]
               },
@@ -4270,7 +4261,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 300
+            "y": 716
           },
           "id": 119,
           "options": {
@@ -4367,8 +4358,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   }
                 ]
               },
@@ -4380,7 +4370,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 309
+            "y": 725
           },
           "id": 104,
           "options": {
@@ -4407,7 +4397,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rocm_average_socket_power_watts)  * on (instance) (rmsjob_info{jobid=~\"^\\\\d+\"})",
+              "expr": "sum by (instance) (rocm_average_socket_power_watts)  * on (instance) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})",
               "instant": false,
               "legendFormat": "{{instance}}",
               "range": true,
@@ -4477,8 +4467,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   }
                 ]
               },
@@ -4490,7 +4479,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 309
+            "y": 725
           },
           "id": 105,
           "options": {
@@ -4601,8 +4590,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   }
                 ]
               },
@@ -4711,8 +4699,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   }
                 ]
               },
@@ -4724,7 +4711,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 283
+            "y": 699
           },
           "id": 125,
           "options": {
@@ -4834,8 +4821,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -5031,8 +5017,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -5226,8 +5211,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -5242,7 +5226,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 59
+            "y": 475
           },
           "id": 144,
           "options": {
@@ -5333,8 +5317,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -5349,7 +5332,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 59
+            "y": 475
           },
           "id": 145,
           "options": {
@@ -5431,8 +5414,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -5447,7 +5429,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 67
+            "y": 483
           },
           "id": 146,
           "options": {
@@ -5582,8 +5564,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -5598,7 +5579,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 67
+            "y": 483
           },
           "id": 147,
           "options": {
@@ -5757,8 +5738,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -5859,8 +5839,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   }
                 ]
               },
@@ -5872,7 +5851,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 34
+            "y": 450
           },
           "id": 159,
           "options": {
@@ -5969,8 +5948,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue",
-                    "value": null
+                    "color": "blue"
                   }
                 ]
               },
@@ -5982,7 +5960,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 43
+            "y": 459
           },
           "id": 160,
           "options": {
@@ -6092,7 +6070,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6107,7 +6085,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1976
+            "y": 26
           },
           "id": 35,
           "options": {
@@ -6124,7 +6102,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6132,7 +6110,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "node_load1",
+              "expr": "omnistat_host_cpu_load1",
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
@@ -6200,7 +6178,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6215,7 +6194,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1984
+            "y": 434
           },
           "id": 65,
           "options": {
@@ -6226,12 +6205,13 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "maxHeight": 600,
               "mode": "single",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.0-75826",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6239,7 +6219,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(node_load1 * on (instance) group_left(jobid,user) (label_replace(rmsjob_info{jobid=~\"^\\\\d+\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+              "expr": "(omnistat_host_cpu_load1 * on (instance) group_left(jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))",
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
@@ -6307,7 +6287,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6322,7 +6303,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1984
+            "y": 434
           },
           "id": 66,
           "options": {
@@ -6333,12 +6314,13 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "maxHeight": 600,
               "mode": "single",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.0-75826",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6346,7 +6328,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(node_load1 * on (instance) group_left(jobid,user) (label_replace(rmsjob_info{jobid=\"\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+              "expr": "(omnistat_host_cpu_load1 * on (instance) group_left(jobid,user) (rmsjob_info{jobid=\"\"}))",
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
@@ -6430,7 +6412,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6446,7 +6429,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3930
+            "y": 27
           },
           "id": 118,
           "options": {
@@ -6463,7 +6446,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6471,7 +6454,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "100 - (sum(node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes)) * 100",
+              "expr": "100 - (sum(omnistat_host_mem_available_bytes) / sum(omnistat_host_mem_total_bytes)) * 100",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -6539,7 +6522,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6554,7 +6538,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4098
+            "y": 259
           },
           "id": 134,
           "options": {
@@ -6565,12 +6549,13 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "maxHeight": 600,
               "mode": "single",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.0-75826",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6578,7 +6563,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "100 - (sum by (instance) (node_memory_MemAvailable_bytes) / sum by (instance) (node_memory_MemTotal_bytes)) * 100",
+              "expr": "100 - (sum by (instance) (omnistat_host_mem_available_bytes) / sum by (instance) (omnistat_host_mem_total_bytes)) * 100",
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
@@ -6660,7 +6645,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6676,7 +6662,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 7551
+            "y": 28
           },
           "id": 92,
           "options": {
@@ -6687,12 +6673,13 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "maxHeight": 600,
               "mode": "single",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.0-75826",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6700,7 +6687,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum(rate(node_disk_read_bytes_total[$__rate_interval]))",
+              "expr": "sum(rate(omnistat_host_io_read_local_total_bytes[$__rate_interval]))",
               "hide": false,
               "instant": false,
               "legendFormat": "Read",
@@ -6713,7 +6700,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum(rate(node_disk_written_bytes_total[$__rate_interval]))",
+              "expr": "sum(rate(omnistat_host_io_write_local_total_bytes[$__rate_interval]))",
               "hide": false,
               "instant": false,
               "legendFormat": "Write",
@@ -6721,7 +6708,7 @@
               "refId": "B"
             }
           ],
-          "title": "Aggregate IO Bandwidth",
+          "title": "Aggregate Local Disk IO Bandwidth",
           "type": "timeseries"
         },
         {
@@ -6773,7 +6760,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6789,7 +6777,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 7559
+            "y": 244
           },
           "id": 135,
           "options": {
@@ -6800,12 +6788,13 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "maxHeight": 600,
               "mode": "single",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.0-75826",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6813,7 +6802,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_disk_read_bytes_total[$__rate_interval]))",
+              "expr": "sum by (instance) (rate(omnistat_host_io_read_local_total_bytes[$__rate_interval]))",
               "hide": false,
               "instant": false,
               "legendFormat": "Node: {{instance}}",
@@ -6821,7 +6810,7 @@
               "refId": "A"
             }
           ],
-          "title": "IO Bandwidth per Node - Read",
+          "title": "Local Disk IO Bandwidth per Node - Read",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -6882,7 +6871,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6898,7 +6888,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 7559
+            "y": 244
           },
           "id": 136,
           "options": {
@@ -6909,12 +6899,13 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "maxHeight": 600,
               "mode": "single",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.0-75826",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6922,7 +6913,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_disk_written_bytes_total[$__rate_interval]))",
+              "expr": "sum by (instance) (rate(omnistat_host_io_write_local_total_bytes[$__rate_interval]))",
               "hide": false,
               "instant": false,
               "legendFormat": "Node: {{instance}}",
@@ -6930,7 +6921,7 @@
               "refId": "A"
             }
           ],
-          "title": "IO Bandwidth per Node - Write",
+          "title": "Local Disk IO Bandwidth per Node - Write",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -6943,7 +6934,7 @@
           "type": "timeseries"
         }
       ],
-      "title": "IO - Disk Bandwidth",
+      "title": "IO - Bandwidth",
       "type": "row"
     },
     {
@@ -7005,7 +6996,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7021,9 +7013,9 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3932
+            "y": 29
           },
-          "id": 121,
+          "id": 148,
           "options": {
             "legend": {
               "calcs": [],
@@ -7038,7 +7030,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7046,7 +7038,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum(rate(node_network_receive_bytes_total[$__rate_interval]))",
+              "expr": "sum(rate(omnistat_network_rx_bytes{device_class=\"net\"}[$__rate_interval]))",
               "instant": false,
               "legendFormat": "Received",
               "range": true,
@@ -7058,7 +7050,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum(rate(node_network_transmit_bytes_total[$__rate_interval]))",
+              "expr": "sum(rate(omnistat_network_tx_bytes{device_class=\"net\"}[$__rate_interval]))",
               "hide": false,
               "instant": false,
               "legendFormat": "Transmitted",
@@ -7127,7 +7119,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7143,9 +7136,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3940
+            "y": 85
           },
-          "id": 137,
+          "id": 149,
           "options": {
             "legend": {
               "calcs": [],
@@ -7160,7 +7153,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7168,7 +7161,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_network_receive_bytes_total[$__rate_interval]))",
+              "expr": "sum by (instance) (rate(omnistat_network_rx_bytes{device_class=\"net\"}[$__rate_interval]))",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -7236,7 +7229,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7252,9 +7246,9 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3940
+            "y": 85
           },
-          "id": 138,
+          "id": 150,
           "options": {
             "legend": {
               "calcs": [],
@@ -7269,7 +7263,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7277,7 +7271,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_network_transmit_bytes_total[$__rate_interval]))",
+              "expr": "sum by (instance) (rate(omnistat_network_tx_bytes{device_class=\"net\"}[$__rate_interval]))",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -7359,7 +7353,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7375,9 +7370,9 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3933
+            "y": 30
           },
-          "id": 115,
+          "id": 151,
           "options": {
             "legend": {
               "calcs": [],
@@ -7392,7 +7387,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7400,7 +7395,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum(sum by (instance) (rate(node_infiniband_port_data_received_bytes_total[$__rate_interval])))",
+              "expr": "sum(sum by (instance) (rate(omnistat_network_rx_bytes{device_class!=\"net\"}[$__rate_interval])))",
               "instant": false,
               "legendFormat": "Received",
               "range": true,
@@ -7412,7 +7407,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum(sum by (instance) (rate(node_infiniband_port_data_transmitted_bytes_total[$__rate_interval])))",
+              "expr": "sum(sum by (instance) (rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval])))",
               "hide": false,
               "instant": false,
               "legendFormat": "Transmitted",
@@ -7420,7 +7415,7 @@
               "refId": "B"
             }
           ],
-          "title": "Aggregate Infiniband Bandwidth",
+          "title": "Aggregate High Performance Interconnect Bandwidth",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7481,7 +7476,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7497,9 +7493,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3941
+            "y": 38
           },
-          "id": 96,
+          "id": 152,
           "options": {
             "legend": {
               "calcs": [],
@@ -7514,7 +7510,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7522,14 +7518,14 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(sum by (instance) (rate(node_infiniband_port_data_received_bytes_total[$__rate_interval])) * on (instance) group_left(jobid,user) (label_replace(rmsjob_info{jobid=~\"^\\\\d+\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+              "expr": "sum by (instance) (rate(omnistat_network_rx_bytes{device_class!=\"net\"}[$__rate_interval])) * on (instance) group_left(jobid,user) rmsjob_info{jobid=~\"^[^\\\\s]+\"}",
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Infiniband Bandwidth - Received - Allocated Nodes",
+          "title": "High Performance Interconnect Bandwidth - Received - Allocated Nodes",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7590,7 +7586,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7606,9 +7603,9 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3941
+            "y": 38
           },
-          "id": 94,
+          "id": 153,
           "options": {
             "legend": {
               "calcs": [],
@@ -7623,7 +7620,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7631,14 +7628,14 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(sum by (instance) (rate(node_infiniband_port_data_received_bytes_total[$__rate_interval])) * on (instance) group_left(jobid,user) (label_replace(rmsjob_info{jobid=\"\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+              "expr": "sum by (instance) (rate(omnistat_network_rx_bytes{device_class!=\"net\"}[$__rate_interval])) * on (instance) group_left(jobid,user) rmsjob_info{jobid=\"\"}",
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Infiniband Bandwidth - Received - Unallocated Nodes",
+          "title": "High Performance Interconnect Bandwidth - Received - Unallocated Nodes",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7699,7 +7696,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7715,9 +7713,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3949
+            "y": 46
           },
-          "id": 93,
+          "id": 154,
           "options": {
             "legend": {
               "calcs": [],
@@ -7732,7 +7730,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7740,14 +7738,14 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(sum by (instance) (rate(node_infiniband_port_data_transmitted_bytes_total[$__rate_interval])) * on (instance) group_left(jobid,user) (label_replace(rmsjob_info{jobid=~\"^\\\\d+\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+              "expr": "sum by (instance) (rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval])) * on (instance) group_left(jobid,user) rmsjob_info{jobid=~\"^[^\\\\s]+\"}",
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Infiniband Bandwidth - Transmitted - Allocated Nodes",
+          "title": "High Performance Interconnect Bandwidth - Transmitted - Allocated Nodes",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7808,7 +7806,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7824,9 +7823,9 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3949
+            "y": 46
           },
-          "id": 95,
+          "id": 155,
           "options": {
             "legend": {
               "calcs": [],
@@ -7841,7 +7840,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7849,14 +7848,14 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(sum by (instance) (rate(node_infiniband_port_data_transmitted_bytes_total[$__rate_interval])) * on (instance) group_left(jobid,user) (label_replace(rmsjob_info{jobid=\"\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+              "expr": "sum by (instance) (rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval])) * on (instance) group_left(jobid,user) rmsjob_info{jobid=\"\"}",
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Infiniband Bandwidth - Transmitted - Unallocated Nodes",
+          "title": "High Performance Interconnect Bandwidth - Transmitted - Unallocated Nodes",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7875,7 +7874,7 @@
   ],
   "preload": false,
   "refresh": "",
-  "schemaVersion": 40,
+  "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": [
@@ -7889,13 +7888,6 @@
         "refresh": 1,
         "regex": "",
         "type": "datasource"
-      },
-      {
-        "hide": 2,
-        "name": "node_exporter_port",
-        "query": "9100",
-        "skipUrlSync": true,
-        "type": "constant"
       }
     ]
   },
@@ -7918,6 +7910,5 @@
   "timezone": "",
   "title": "Global - RMS",
   "uid": "edqnz7pce7togc-rms",
-  "version": 1,
-  "weekStart": ""
+  "version": 1
 }

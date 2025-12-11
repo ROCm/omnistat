@@ -76,7 +76,7 @@
             "steps": [
               {
                 "color": "text",
-                "value": null
+                "value": 0
               }
             ]
           }
@@ -110,7 +110,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -145,7 +145,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           }
@@ -179,7 +179,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -219,7 +219,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           }
@@ -253,7 +253,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -303,7 +303,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -341,7 +341,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -391,7 +391,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           }
@@ -425,7 +425,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -460,7 +460,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           }
@@ -494,7 +494,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -528,7 +528,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -563,7 +563,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -614,7 +614,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -654,7 +654,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -725,7 +725,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -799,7 +799,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -848,7 +848,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -888,7 +888,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -961,7 +961,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1035,7 +1035,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1071,7 +1071,7 @@
         "type": "prometheus",
         "uid": "${source}"
       },
-      "description": "Average over time of the average 1m Load Average of all nodes.",
+      "description": "Average over time of the average CPU Utilization of all nodes.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1084,7 +1084,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -1096,7 +1096,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -1124,7 +1124,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1132,14 +1132,14 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(node_load1 * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "avg((omnistat_host_cpu_aggregate_core_utilization / omnistat_host_cpu_num_logical_cores) * on (instance) (rmsjob_info{jobid=\"$jobid\"}) * 100)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "CPU Load Average",
+      "title": "CPU",
       "type": "stat"
     },
     {
@@ -1194,7 +1194,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1202,7 +1202,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "percent"
         },
         "overrides": [
           {
@@ -1244,7 +1244,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1252,7 +1252,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(node_load1 * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "avg((omnistat_host_cpu_aggregate_core_utilization / omnistat_host_cpu_num_logical_cores) * on (instance) (rmsjob_info{jobid=\"$jobid\"}) * 100)",
           "instant": false,
           "legendFormat": "Average",
           "range": true,
@@ -1280,7 +1280,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -1320,7 +1320,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1328,7 +1328,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(100 * ((node_memory_MemTotal_bytes  -node_memory_MemFree_bytes) / node_memory_MemTotal_bytes) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "avg(100 * ((omnistat_host_mem_total_bytes - omnistat_host_mem_free_bytes) / omnistat_host_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
           "instant": false,
           "legendFormat": "Core",
           "range": true,
@@ -1393,7 +1393,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1443,7 +1443,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1451,7 +1451,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "avg(100 * ((node_memory_MemTotal_bytes - node_memory_MemFree_bytes) / node_memory_MemTotal_bytes) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "avg(100 * ((omnistat_host_mem_total_bytes - omnistat_host_mem_free_bytes) / omnistat_host_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"}))",
           "instant": false,
           "legendFormat": "Average",
           "range": true,
@@ -1479,7 +1479,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -1501,7 +1501,8 @@
         "x": 0,
         "y": 21
       },
-      "id": 67,
+      "id": 118,
+      "interval": "$interval",
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -1519,7 +1520,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1527,7 +1528,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_network_receive_bytes_total[$__rate_interval]) * on (instance) group_left() (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))) + sum(rate(node_network_transmit_bytes_total[$__rate_interval]) * on (instance) group_left() (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "sum(rate(omnistat_network_rx_bytes{device_class=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"}) + sum(rate(omnistat_network_tx_bytes{device_class=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
           "instant": false,
           "interval": "$interval",
           "legendFormat": "Ethernet",
@@ -1540,11 +1541,11 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_infiniband_port_data_received_bytes_total[$__rate_interval]) * on (instance) group_left() (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))) + sum(rate(node_infiniband_port_data_transmitted_bytes_total[$__rate_interval]) * on (instance) group_left() (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "sum(rate(omnistat_network_rx_bytes{device_class!=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"}) + sum(rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
           "hide": false,
           "instant": false,
           "interval": "$interval",
-          "legendFormat": "Infiniband",
+          "legendFormat": "High Performance Interconnect",
           "range": true,
           "refId": "B"
         }
@@ -1604,7 +1605,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1653,7 +1654,7 @@
         "x": 5,
         "y": 21
       },
-      "id": 68,
+      "id": 119,
       "interval": "$interval",
       "options": {
         "legend": {
@@ -1669,7 +1670,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1677,7 +1678,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_network_receive_bytes_total[$__rate_interval]) * on (instance) group_left()(label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "sum(rate(omnistat_network_rx_bytes{device_class=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
           "hide": false,
           "instant": false,
           "interval": "$interval",
@@ -1691,7 +1692,7 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_network_transmit_bytes_total[$__rate_interval]) * on (instance) group_left()(label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "sum(rate(omnistat_network_tx_bytes{device_class=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
           "hide": false,
           "instant": false,
           "interval": "$interval",
@@ -1705,10 +1706,10 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_infiniband_port_data_received_bytes_total[$__rate_interval]) * on (instance) group_left() (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "sum(rate(omnistat_network_rx_bytes{device_class!=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
           "instant": false,
           "interval": "$interval",
-          "legendFormat": "IB Rx",
+          "legendFormat": "Other Rx",
           "range": true,
           "refId": "A"
         },
@@ -1718,11 +1719,11 @@
             "uid": "${source}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(node_infiniband_port_data_transmitted_bytes_total[$__rate_interval]) * on (instance) group_left() (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\")))",
+          "expr": "sum(rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
           "hide": false,
           "instant": false,
           "interval": "$interval",
-          "legendFormat": "IB Tx",
+          "legendFormat": "Other Tx",
           "range": true,
           "refId": "B"
         }
@@ -1736,7 +1737,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 25
       },
       "id": 82,
       "panels": [
@@ -1764,7 +1765,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1105
+            "y": 1612
           },
           "id": 88,
           "interval": "$interval",
@@ -1874,7 +1875,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1105
+            "y": 1612
           },
           "id": 89,
           "interval": "$interval",
@@ -2024,7 +2025,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1582
+            "y": 2089
           },
           "id": 91,
           "interval": "$interval",
@@ -2175,7 +2176,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1590
+            "y": 2097
           },
           "id": 99,
           "interval": "$interval",
@@ -2339,7 +2340,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1590
+            "y": 2097
           },
           "id": 100,
           "interval": "$interval",
@@ -2448,7 +2449,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 26
       },
       "id": 15,
       "panels": [
@@ -2488,7 +2489,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1106
+            "y": 1613
           },
           "id": 28,
           "interval": "$interval",
@@ -2550,7 +2551,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1106
+            "y": 1613
           },
           "id": 86,
           "interval": "$interval",
@@ -2663,7 +2664,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1492
+            "y": 1999
           },
           "id": 29,
           "interval": "$interval",
@@ -2725,7 +2726,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1492
+            "y": 1999
           },
           "id": 31,
           "interval": "$interval",
@@ -2866,7 +2867,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1500
+            "y": 2007
           },
           "id": 24,
           "interval": "$interval",
@@ -2912,7 +2913,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 27
       },
       "id": 81,
       "panels": [
@@ -2940,7 +2941,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1107
+            "y": 1614
           },
           "id": 27,
           "interval": "$interval",
@@ -3050,7 +3051,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1107
+            "y": 1614
           },
           "id": 87,
           "interval": "$interval",
@@ -3200,7 +3201,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1118
+            "y": 1625
           },
           "id": 90,
           "interval": "$interval",
@@ -3367,7 +3368,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1126
+            "y": 1633
           },
           "id": 98,
           "interval": "$interval",
@@ -3547,7 +3548,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1126
+            "y": 1633
           },
           "id": 95,
           "interval": "$interval",
@@ -3818,7 +3819,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 1135
+            "y": 1642
           },
           "id": 52,
           "interval": "$interval",
@@ -3903,7 +3904,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 28
       },
       "id": 126,
       "panels": [
@@ -3971,7 +3972,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 33
+            "y": 508
           },
           "id": 142,
           "interval": "$interval",
@@ -4080,7 +4081,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 641
+            "y": 1148
           },
           "id": 33,
           "interval": "$interval",
@@ -4189,7 +4190,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 649
+            "y": 1156
           },
           "id": 128,
           "interval": "$interval",
@@ -4298,7 +4299,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 657
+            "y": 1164
           },
           "id": 129,
           "interval": "$interval",
@@ -4407,7 +4408,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 665
+            "y": 1172
           },
           "id": 130,
           "interval": "$interval",
@@ -4516,7 +4517,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 665
+            "y": 1172
           },
           "id": 131,
           "interval": "$interval",
@@ -4571,7 +4572,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 33
+        "y": 29
       },
       "id": 21,
       "panels": [
@@ -4639,7 +4640,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1511
+            "y": 2018
           },
           "id": 143,
           "interval": "$interval",
@@ -4739,7 +4740,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1519
+            "y": 2026
           },
           "id": 127,
           "interval": "$interval",
@@ -4839,7 +4840,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1527
+            "y": 2034
           },
           "id": 104,
           "interval": "$interval",
@@ -4939,7 +4940,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1535
+            "y": 2042
           },
           "id": 22,
           "interval": "$interval",
@@ -5039,7 +5040,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1543
+            "y": 2050
           },
           "id": 25,
           "interval": "$interval",
@@ -5139,7 +5140,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1543
+            "y": 2050
           },
           "id": 23,
           "interval": "$interval",
@@ -5185,7 +5186,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 30
       },
       "id": 136,
       "panels": [
@@ -5253,7 +5254,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 931
+            "y": 1438
           },
           "id": 144,
           "interval": "$interval",
@@ -5362,7 +5363,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1011
+            "y": 1518
           },
           "id": 137,
           "interval": "$interval",
@@ -5471,7 +5472,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1019
+            "y": 1526
           },
           "id": 138,
           "interval": "$interval",
@@ -5580,7 +5581,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1027
+            "y": 1534
           },
           "id": 139,
           "interval": "$interval",
@@ -5689,7 +5690,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1035
+            "y": 1542
           },
           "id": 140,
           "interval": "$interval",
@@ -5798,7 +5799,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1035
+            "y": 1542
           },
           "id": 141,
           "interval": "$interval",
@@ -5853,7 +5854,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 31
       },
       "id": 123,
       "panels": [
@@ -5906,7 +5907,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -5922,7 +5924,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4503
+            "y": 36
           },
           "id": 134,
           "interval": "$interval",
@@ -5940,7 +5942,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -5977,7 +5979,245 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 32
+      },
+      "id": 157,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "KBs"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 197
+          },
+          "id": 156,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "rate(rocm_xgmi_total_read_kilobytes * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})[$__rate_interval]",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "{{instance}}, {{card}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "xGMI Bandwidth - Reads",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "([^,:]+)(?:[:].*)?, (.+)",
+                "renamePattern": "GPU: $1/$2"
+              }
+            }
+          ],
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "KBs"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 197
+          },
+          "id": 158,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "rate(rocm_xgmi_total_write_kilobytes * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})[$__rate_interval]",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "{{instance}}, {{card}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "xGMI Bandwidth - Writes",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "([^,:]+)(?:[:].*)?, (.+)",
+                "renamePattern": "GPU: $1/$2"
+              }
+            }
+          ],
+          "type": "timeseries"
+        }
+      ],
+      "title": "GPU Interconnect [all GPUs]",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 33
       },
       "id": 150,
       "panels": [
@@ -6046,7 +6286,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 37
+            "y": 544
           },
           "id": 151,
           "interval": "$interval",
@@ -6105,7 +6345,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 34
       },
       "id": 133,
       "panels": [
@@ -6174,7 +6414,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 174
+            "y": 681
           },
           "id": 125,
           "interval": "$interval",
@@ -6233,7 +6473,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 35
       },
       "id": 152,
       "panels": [
@@ -6287,7 +6527,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6303,7 +6543,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 39
+            "y": 72
           },
           "id": 153,
           "interval": "$interval",
@@ -6322,7 +6562,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6400,7 +6640,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6416,7 +6656,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 39
+            "y": 72
           },
           "id": 154,
           "interval": "$interval",
@@ -6435,7 +6675,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6513,7 +6753,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6529,7 +6769,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 47
+            "y": 184
           },
           "id": 155,
           "interval": "$interval",
@@ -6548,7 +6788,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6556,7 +6796,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "rate(\r\n    (64 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n    ))\r\n    +\r\n    (512 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\r\n        )\r\n    ))\r\n)[$__rate_interval] != 0",
+              "expr": "rate((\r\n    (64 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n    ))\r\n    +\r\n    (512 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\r\n        )\r\n    ))\r\n)[$__rate_interval:]) != 0",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -6586,7 +6826,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 36
       },
       "id": 122,
       "panels": [
@@ -6640,7 +6880,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6655,7 +6896,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 144
+            "y": 337
           },
           "id": 120,
           "options": {
@@ -6674,7 +6915,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6836,7 +7077,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6851,7 +7093,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 144
+            "y": 337
           },
           "id": 121,
           "options": {
@@ -6870,7 +7112,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -6992,7 +7234,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 37
       },
       "id": 44,
       "panels": [
@@ -7044,7 +7286,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7052,7 +7295,7 @@
                   }
                 ]
               },
-              "unit": "none"
+              "unit": "percent"
             },
             "overrides": []
           },
@@ -7060,7 +7303,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 935
+            "y": 38
           },
           "id": 43,
           "interval": "$interval",
@@ -7078,7 +7321,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7086,14 +7329,14 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(node_load1) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
+              "expr": "(omnistat_host_cpu_aggregate_core_utilization / omnistat_host_cpu_num_logical_cores) * on (instance) (rmsjob_info{jobid=\"$jobid\"}) * 100",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "CPU - 1m Load Average",
+          "title": "CPU - Utilization (%)",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7153,7 +7396,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7169,7 +7413,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 935
+            "y": 38
           },
           "id": 48,
           "interval": "$interval",
@@ -7187,7 +7431,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7195,7 +7439,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "100 * ((node_memory_MemTotal_bytes - node_memory_MemFree_bytes) / node_memory_MemTotal_bytes) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
+              "expr": "100 * ((omnistat_host_mem_total_bytes - omnistat_host_mem_free_bytes) / omnistat_host_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -7224,7 +7468,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 41
+        "y": 38
       },
       "id": 101,
       "panels": [
@@ -7276,7 +7520,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7292,9 +7537,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 936
+            "y": 91
           },
-          "id": 40,
+          "id": 105,
           "interval": "$interval",
           "options": {
             "legend": {
@@ -7310,7 +7555,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7318,7 +7563,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_network_receive_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
+              "expr": "sum by (instance) (rate(omnistat_network_rx_bytes{device_class=\"net\"}[$__rate_interval])) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -7386,7 +7631,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7402,9 +7648,9 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 936
+            "y": 91
           },
-          "id": 42,
+          "id": 106,
           "interval": "$interval",
           "options": {
             "legend": {
@@ -7420,7 +7666,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7428,7 +7674,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_network_transmit_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
+              "expr": "sum by (instance) (rate(omnistat_network_tx_bytes{device_class=\"net\"}[$__rate_interval])) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -7458,7 +7704,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 39
       },
       "id": 41,
       "panels": [
@@ -7511,7 +7757,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7527,9 +7773,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 75
+            "y": 92
           },
-          "id": 102,
+          "id": 116,
           "interval": "$interval",
           "options": {
             "legend": {
@@ -7545,7 +7791,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7553,7 +7799,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_infiniband_port_data_received_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
+              "expr": "sum by (instance) (rate(omnistat_network_rx_bytes{device_class!=\"net\"}[$__rate_interval])) * on (instance) rmsjob_info{jobid=\"$jobid\"}",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -7561,7 +7807,7 @@
               "refId": "A"
             }
           ],
-          "title": "Infiniband Bandwidth - Received",
+          "title": "High Performance Interconnect Bandwidth - Received",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7622,7 +7868,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7638,9 +7884,9 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 75
+            "y": 92
           },
-          "id": 103,
+          "id": 117,
           "interval": "$interval",
           "options": {
             "legend": {
@@ -7656,7 +7902,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7664,7 +7910,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_infiniband_port_data_transmitted_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
+              "expr": "sum by (instance) (rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval])) * on (instance) rmsjob_info{jobid=\"$jobid\"}",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -7672,7 +7918,7 @@
               "refId": "A"
             }
           ],
-          "title": "Infiniband Bandwidth - Transmitted",
+          "title": "High Performance Interconnect Bandwidth - Transmitted",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7694,7 +7940,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 40
       },
       "id": 83,
       "panels": [
@@ -7746,7 +7992,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7762,7 +8009,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 19244
+            "y": 41
           },
           "id": 46,
           "interval": "$interval",
@@ -7774,12 +8021,13 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "maxHeight": 600,
               "mode": "single",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.0-76537",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7787,7 +8035,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_disk_read_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))",
+              "expr": "sum by (instance) (rate(omnistat_host_io_read_local_total_bytes[$__rate_interval])) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -7795,7 +8043,7 @@
               "refId": "A"
             }
           ],
-          "title": "IO - Read",
+          "title": "Local Disk IO - Read",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7855,7 +8103,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7871,7 +8120,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 19244
+            "y": 41
           },
           "id": 45,
           "interval": "$interval",
@@ -7883,12 +8132,13 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "maxHeight": 600,
               "mode": "single",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.0-76537",
+          "pluginVersion": "12.1.1",
           "targets": [
             {
               "datasource": {
@@ -7896,7 +8146,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(node_disk_written_bytes_total[$__rate_interval])) * on (instance) (label_replace(rmsjob_info{jobid=\"$jobid\"}, \"instance\", \"$1:$node_exporter_port\", \"instance\", \"(.*):(.*)\"))\r\n",
+              "expr": "sum by (instance) (rate(omnistat_host_io_write_local_total_bytes[$__rate_interval])) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -7904,7 +8154,7 @@
               "refId": "A"
             }
           ],
-          "title": "IO - Write",
+          "title": "Local Disk IO - Write",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -7926,7 +8176,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 42
       },
       "id": 132,
       "panels": [
@@ -7995,7 +8245,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3748
+            "y": 4255
           },
           "id": 135,
           "interval": "$interval",
@@ -8052,7 +8302,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 43
       },
       "id": 57,
       "panels": [
@@ -8159,7 +8409,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3797
+            "y": 4304
           },
           "id": 56,
           "interval": "$interval",
@@ -8252,7 +8502,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 44
       },
       "id": 111,
       "panels": [
@@ -8383,7 +8633,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17798
+            "y": 18305
           },
           "id": 107,
           "interval": "$interval",
@@ -8578,7 +8828,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17798
+            "y": 18305
           },
           "id": 112,
           "interval": "$interval",
@@ -8737,7 +8987,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17806
+            "y": 18313
           },
           "id": 108,
           "interval": "$interval",
@@ -8965,7 +9215,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17806
+            "y": 18313
           },
           "id": 113,
           "interval": "$interval",
@@ -9120,7 +9370,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17814
+            "y": 18321
           },
           "id": 109,
           "interval": "$interval",
@@ -9348,7 +9598,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17814
+            "y": 18321
           },
           "id": 115,
           "interval": "$interval",
@@ -9504,7 +9754,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 17822
+            "y": 18329
           },
           "id": 110,
           "interval": "$interval",
@@ -9728,7 +9978,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 17822
+            "y": 18329
           },
           "id": 114,
           "interval": "$interval",
@@ -9791,7 +10041,7 @@
   ],
   "preload": false,
   "refresh": "",
-  "schemaVersion": 40,
+  "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": [
@@ -9875,13 +10125,6 @@
         "type": "custom"
       },
       {
-        "hide": 2,
-        "name": "node_exporter_port",
-        "query": "9100",
-        "skipUrlSync": true,
-        "type": "constant"
-      },
-      {
         "allowCustomValue": false,
         "current": {
           "text": "All",
@@ -9945,6 +10188,5 @@
   "timezone": "",
   "title": "Job - RMS",
   "uid": "fdqo0h2s2drswe-rms",
-  "version": 1,
-  "weekStart": ""
+  "version": 1
 }

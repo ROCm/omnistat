@@ -1,3 +1,10 @@
+Version 1.9 (09 December 2025)
+
+  * enum bug fix for newer Python versions (#237)
+  * expanded CI tests (#230, #239)    
+  * introduction of new optional data collector to track host-oriented metrics (#242, #249, #251)
+  * various dashboard updates and query outputs (#236, #250, #253)
+
 Version 1.8 (19 September 2025)
 
   * added ability to control log level via environment variable (#215)
