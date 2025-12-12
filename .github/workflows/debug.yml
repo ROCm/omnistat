@@ -1,10 +1,10 @@
-name: MI325
+name: debug
 
 on:
   workflow_dispatch:
 
-  pull_request:
-    branches: [ noop ]
+  push:
+    branches: ["noop"]
 
 jobs:
   gpu-collectors-325:
