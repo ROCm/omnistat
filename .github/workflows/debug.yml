@@ -18,5 +18,9 @@ jobs:
           amd-smi version
           cat /etc/os-release
           ps auxw
+      - name: Interrogate2
+        run: |
+          unset ROCR_VISIBLE_DEVICES
+          rocm-smi
 
       
