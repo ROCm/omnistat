@@ -1,0 +1,22 @@
+name: MI325
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches: [ noop ]
+
+jobs:
+  gpu-collectors-325:
+    runs-on: [linux-mi325-1gpu-ossci-rocm]
+
+    steps:
+      - name: Interrogate
+        run: |
+          rocm-smi
+          which python3
+          amd-smi version
+          cat /etc/os-release
+          ps auxw
+
+      
