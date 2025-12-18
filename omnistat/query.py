@@ -1420,6 +1420,59 @@ class QueryMetrics:
     def export(self, export_path):
         export_prefix = "omnistat-"
 
+        cxi_interface_metrics = [
+            # Raw CXI counters (interface-level).
+            "omnistat_network_cxi_rx_ok_octets",
+            "omnistat_network_cxi_tx_ok_octets",
+            "omnistat_network_cxi_tx_octets_multi",
+            "omnistat_network_cxi_tx_octets_ieee",
+            "omnistat_network_cxi_tx_octets_opt",
+            "omnistat_network_cxi_tx_bad_octets",
+            "omnistat_network_cxi_rx_bad_octets",
+            "omnistat_network_cxi_pause_sent",
+            "omnistat_network_cxi_fgfc_discard",
+            "omnistat_network_cxi_pcs_corrected_cw",
+            "omnistat_network_cxi_pcs_uncorrected_cw",
+            # Derived CXI metrics (computed in Omnistat).
+            "omnistat_network_cxi_tx_bandwidth_bytes_per_second",
+            "omnistat_network_cxi_rx_bandwidth_bytes_per_second",
+            "omnistat_network_cxi_bidirectional_bandwidth_bytes_per_second",
+            "omnistat_network_cxi_tx_to_rx_balance_ratio",
+            "omnistat_network_cxi_multicast_tx_share_fraction",
+            "omnistat_network_cxi_ieee_tx_share_fraction",
+            "omnistat_network_cxi_optimized_tx_share_fraction",
+            "omnistat_network_cxi_packet_send_rate_packets_per_second",
+            "omnistat_network_cxi_packet_receive_rate_packets_per_second",
+            "omnistat_network_cxi_avg_bytes_per_tx_packet",
+            "omnistat_network_cxi_small_packet_fraction_tx",
+            "omnistat_network_cxi_large_packet_fraction_tx",
+            "omnistat_network_cxi_link_busy_fraction",
+            "omnistat_network_cxi_link_stall_per_flit",
+            "omnistat_network_cxi_cq_blocked_cycles_per_second",
+            "omnistat_network_cxi_nic_no_work_cycles_per_second",
+            "omnistat_network_cxi_pause_received_per_second",
+            "omnistat_network_cxi_pause_sent_per_second",
+            "omnistat_network_cxi_xoff_sent_per_second",
+            "omnistat_network_cxi_ecn_marking_ratio_request_fraction",
+            "omnistat_network_cxi_ecn_marking_ratio_response_fraction",
+            "omnistat_network_cxi_congestion_discard_per_second",
+            "omnistat_network_cxi_command_credits_in_use_per_second",
+            "omnistat_network_cxi_receive_fifo_credits_in_use_per_second",
+            "omnistat_network_cxi_pi_posted_credits_in_use_per_second",
+            "omnistat_network_cxi_resource_busy_per_second",
+            "omnistat_network_cxi_endpoint_table_pressure_fraction",
+            "omnistat_network_cxi_ordered_to_unordered_ratio",
+            "omnistat_network_cxi_unordered_fraction",
+            "omnistat_network_cxi_ordered_request_fraction",
+            "omnistat_network_cxi_mean_rsp_latency_bin_index",
+            "omnistat_network_cxi_tail_latency_fraction_top10pct_bins",
+            "omnistat_network_cxi_timeout_per_second",
+            "omnistat_network_cxi_bad_tx_octets_per_second",
+            "omnistat_network_cxi_bad_rx_octets_per_second",
+            "omnistat_network_cxi_ecc_corrected_cw_per_second",
+            "omnistat_network_cxi_ecc_uncorrected_cw_per_second",
+        ]
+
         # List files to be generated for different subsets of metrics. Values
         # are tuples containing 1) file name, 2) a list of metrics, and 3) a
         # list of labels to be used for hierarchical indexing.
@@ -1433,6 +1486,35 @@ class QueryMetrics:
                 "network",
                 ["omnistat_network_rx_bytes", "omnistat_network_tx_bytes"],
                 ["instance", "device_class", "interface"],
+            ),
+            (
+                "cxi",
+                cxi_interface_metrics,
+                ["instance", "interface"],
+            ),
+            (
+                "cxi-tc",
+                [
+                    "omnistat_network_cxi_pkts_sent_by_tc",
+                    "omnistat_network_cxi_pkts_recv_by_tc",
+                    "omnistat_network_cxi_pause_recv",
+                    "omnistat_network_cxi_pause_xoff_sent",
+                    "omnistat_network_cxi_discard_cntr",
+                ],
+                ["instance", "interface", "traffic_class"],
+            ),
+            (
+                "cxi-buckets",
+                [
+                    "omnistat_network_cxi_rx_ok_packets_bucket",
+                    "omnistat_network_cxi_tx_ok_packets_bucket",
+                ],
+                ["instance", "interface", "bucket_min", "bucket_max"],
+            ),
+            (
+                "cxi-telemetry",
+                ["omnistat_network_cxi_telemetry"],
+                ["instance", "interface", "counter"],
             ),
             (
                 "rocprofiler",
