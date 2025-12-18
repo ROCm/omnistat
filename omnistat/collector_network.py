@@ -85,6 +85,7 @@ class NETWORK(Collector):
         # Files to check for for infiniband devices.
         self.__ib_rx_data_paths = {}
         self.__ib_tx_data_paths = {}
+        self.__warned_sysfs_read_paths = set()
 
     @staticmethod
     def __read_sysfs_counter(path: Path) -> int:
@@ -97,6 +98,15 @@ class NETWORK(Collector):
         if "@" in value:
             value = value.split("@", 1)[0].strip()
         return int(value)
+
+    def __read_sysfs_counter_maybe_warn(self, path: Path) -> int:
+        try:
+            return self.__read_sysfs_counter(path)
+        except Exception as e:
+            if path not in self.__warned_sysfs_read_paths:
+                self.__warned_sysfs_read_paths.add(path)
+                logging.debug(f"NETWORK: failed reading sysfs counter {path}: {e}")
+            raise
 
     @staticmethod
     def __safe_delta(current: int, previous: int) -> int:
@@ -119,7 +129,7 @@ class NETWORK(Collector):
             if path is None:
                 continue
             try:
-                total += self.__read_sysfs_counter(path)
+                total += self.__read_sysfs_counter_maybe_warn(path)
                 found = True
             except:
                 pass
@@ -130,7 +140,7 @@ class NETWORK(Collector):
         if path is None:
             return None
         try:
-            return self.__read_sysfs_counter(path)
+            return self.__read_sysfs_counter_maybe_warn(path)
         except:
             return None
 
@@ -157,7 +167,7 @@ class NETWORK(Collector):
         if path is None:
             return None
         try:
-            return self.__read_sysfs_counter(path)
+            return self.__read_sysfs_counter_maybe_warn(path)
         except:
             return None
 
@@ -166,7 +176,7 @@ class NETWORK(Collector):
         found = False
         for path in self.__cxi_tc_counter_paths.get(suffix, {}).get(nic, {}).values():
             try:
-                total += self.__read_sysfs_counter(path)
+                total += self.__read_sysfs_counter_maybe_warn(path)
                 found = True
             except:
                 pass
@@ -178,7 +188,7 @@ class NETWORK(Collector):
         if path is None:
             return None
         try:
-            return self.__read_sysfs_counter(path)
+            return self.__read_sysfs_counter_maybe_warn(path)
         except:
             return None
 
@@ -294,8 +304,6 @@ class NETWORK(Collector):
                 for entry in telemetry_dir.iterdir():
                     if not entry.is_file():
                         continue
-                    if entry.stat().st_size <= 0:
-                        continue
 
                     name = entry.name
                     if name.startswith("hni_rx_ok_") or name.startswith("hni_tx_ok_"):
@@ -310,7 +318,7 @@ class NETWORK(Collector):
                     ("rx", "hni_sts_rx_ok_octets"),
                 ]:
                     path = telemetry_dir / filename
-                    if path.is_file() and path.stat().st_size > 0:
+                    if path.is_file():
                         self.__cxi_ok_octets_paths[kind][nic_name] = path
                         # Also export as a raw counter metric for dashboards.
                         self.__cxi_simple_counter_paths.setdefault(f"{kind}_ok_octets", {})[nic_name] = path
@@ -329,7 +337,7 @@ class NETWORK(Collector):
                 }
                 for suffix, filename in simple_counters.items():
                     path = telemetry_dir / filename
-                    if path.is_file() and path.stat().st_size > 0:
+                    if path.is_file():
                         self.__cxi_simple_counter_paths.setdefault(suffix, {})[nic_name] = path
 
                 # Traffic-class indexed counters (0..7).
@@ -343,8 +351,22 @@ class NETWORK(Collector):
                 for suffix, pattern in tc_counters.items():
                     for tc in range(8):
                         path = telemetry_dir / pattern.format(tc)
-                        if path.is_file() and path.stat().st_size > 0:
+                        if path.is_file():
                             self.__cxi_tc_counter_paths.setdefault(suffix, {}).setdefault(nic_name, {})[str(tc)] = path
+            else:
+                logging.debug(f"NETWORK: CXI telemetry dir missing: {telemetry_dir}")
+
+            logging.debug(
+                "NETWORK: CXI %s discovered: rx_buckets=%d tx_buckets=%d ok_octets(rx=%s,tx=%s) simple=%d tc=%d feature=%d",
+                nic_name,
+                len(self.__cxi_rx_data_paths.get(nic_name, {})),
+                len(self.__cxi_tx_data_paths.get(nic_name, {})),
+                nic_name in self.__cxi_ok_octets_paths["rx"],
+                nic_name in self.__cxi_ok_octets_paths["tx"],
+                sum(1 for d in self.__cxi_simple_counter_paths.values() if nic_name in d),
+                sum(1 for d in self.__cxi_tc_counter_paths.values() if nic_name in d),
+                len(self.__cxi_feature_counter_paths.get(nic_name, {})),
+            )
 
         # Infiniband traffic (/sys/class/infiniband): store data paths to
         # counters, indexed by interface ID and port ID. For example, for Rx
@@ -513,7 +535,7 @@ class NETWORK(Collector):
                 path = self.__cxi_ok_octets_paths[kind].get(nic)
                 if path is not None:
                     try:
-                        total = self.__read_sysfs_counter(path)
+                        total = self.__read_sysfs_counter_maybe_warn(path)
                     except:
                         total = None
 
@@ -522,7 +544,7 @@ class NETWORK(Collector):
                     total = 0
                     for size, bucket_path in buckets.items():
                         try:
-                            count = self.__read_sysfs_counter(bucket_path)
+                            count = self.__read_sysfs_counter_maybe_warn(bucket_path)
                             total += count * size
                         except:
                             pass
@@ -538,7 +560,7 @@ class NETWORK(Collector):
             for nic, buckets in data_paths.items():
                 for min_size, bucket_path in buckets.items():
                     try:
-                        count = self.__read_sysfs_counter(bucket_path)
+                        count = self.__read_sysfs_counter_maybe_warn(bucket_path)
                         max_size = self.__cxi_bucket_max_sizes[kind].get(nic, {}).get(min_size, str(min_size))
                         gauge.labels(interface=nic, bucket_min=str(min_size), bucket_max=str(max_size)).set(count)
                     except:
@@ -551,7 +573,7 @@ class NETWORK(Collector):
                 continue
             for nic, path in per_nic.items():
                 try:
-                    value = self.__read_sysfs_counter(path)
+                    value = self.__read_sysfs_counter_maybe_warn(path)
                     gauge.labels(interface=nic).set(value)
                 except:
                     pass
@@ -563,7 +585,7 @@ class NETWORK(Collector):
             for nic, per_tc in per_nic.items():
                 for tc, path in per_tc.items():
                     try:
-                        value = self.__read_sysfs_counter(path)
+                        value = self.__read_sysfs_counter_maybe_warn(path)
                         gauge.labels(interface=nic, traffic_class=tc).set(value)
                     except:
                         pass
@@ -573,7 +595,7 @@ class NETWORK(Collector):
             for nic, counters in self.__cxi_feature_counter_paths.items():
                 for name, path in counters.items():
                     try:
-                        value = self.__read_sysfs_counter(path)
+                        value = self.__read_sysfs_counter_maybe_warn(path)
                         gauge.labels(interface=nic, counter=name).set(value)
                     except:
                         pass
@@ -659,7 +681,7 @@ class NETWORK(Collector):
                     if not suffix.isdigit():
                         continue
                     try:
-                        latency_bins[int(suffix)] = self.__read_sysfs_counter(path)
+                        latency_bins[int(suffix)] = self.__read_sysfs_counter_maybe_warn(path)
                     except:
                         pass
                 for idx, value in latency_bins.items():
