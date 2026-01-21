@@ -227,29 +227,43 @@ class NvidiaDCGMCollector(Collector):
     # ---------------------------
     def _update_from_families(self, families: Dict[str, List[Tuple[Dict[str, str], float]]], initial: bool):
         # Update version_info
-        ver_samples = families.get("DCGM_FI_DRIVER_VERSION", [])
-        vbios_samples = families.get("DCGM_FI_DEV_VBIOS_VERSION", [])
-        brand_samples = families.get("DCGM_FI_DEV_BRAND", [])
+        # Note: dcgm-exporter exposes driver version, model name, etc. as LABELS on
+        # per-GPU metrics, not as separate metrics. We extract them from any available
+        # per-GPU metric sample (preferring SM_CLOCK as it's commonly available).
+        reference_samples = (
+            families.get("DCGM_FI_DEV_SM_CLOCK", [])
+            or families.get("DCGM_FI_DEV_GPU_UTIL", [])
+            or families.get("DCGM_FI_DEV_GPU_TEMP", [])
+        )
 
         for gpu_id in self.__gpu_ids:
             card = gpu_id  # direct mapping
             uuid_val = None
+            driver_ver = None
+            dev_type = None
 
-            # Grab UUID if present and configured
-            if self.__enabled_uuid:
-                # Try UUID label from any per-GPU sample (prefer SM_CLOCK)
-                sm = families.get("DCGM_FI_DEV_SM_CLOCK", [])
-                s = self._find_value_for_gpu(sm, gpu_id)
-                if s is not None:
-                    uuid_val = s[0].get("UUID")
+            # Extract labels from a reference metric sample for this GPU
+            ref_sample = self._find_value_for_gpu(reference_samples, gpu_id)
+            if ref_sample is not None:
+                labels = ref_sample[0]
+                # UUID
+                if self.__enabled_uuid:
+                    uuid_val = labels.get("UUID")
+                # Driver version is typically a label like "DCGM_FI_DRIVER_VERSION"
+                driver_ver = labels.get("DCGM_FI_DRIVER_VERSION")
+                # GPU model/type is typically in "modelName" label (sometimes "modelNam" due to truncation)
+                dev_type = labels.get("modelName") or labels.get("modelNam")
 
-            driver_ver = self._find_label_value(ver_samples, gpu_id, "driver_version")
-            vbios = self._find_label_value(vbios_samples, gpu_id, "vbios_version")
-            dev_type = self._find_label_value(brand_samples, gpu_id, "brand")
+            # Fallback: try legacy separate metrics if labels not found
+            if not driver_ver:
+                ver_samples = families.get("DCGM_FI_DRIVER_VERSION", [])
+                driver_ver = self._find_label_value(ver_samples, gpu_id, "driver_version")
+            if not dev_type:
+                brand_samples = families.get("DCGM_FI_DEV_BRAND", [])
+                dev_type = self._find_label_value(brand_samples, gpu_id, "brand")
 
-            # Fallbacks
-            if not vbios:
-                vbios = self.__version_info_defaults["vbios"]
+            # Final fallbacks to defaults
+            vbios = self.__version_info_defaults["vbios"]
             if not dev_type:
                 dev_type = self.__version_info_defaults["type"]
 
