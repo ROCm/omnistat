@@ -14,7 +14,7 @@ jobs:
     runs-on: [linux-mi325-1gpu-ossci-rocm-frac]
     strategy:
       matrix:
-        rocm: [6.4.4, 7.0.2, 7.1]
+        rocm: [6.4.4, 7.0.2, 7.1, 7.2]
       fail-fast: false
     container:
       image: rocm/dev-ubuntu-24.04:${{ matrix.rocm }}
