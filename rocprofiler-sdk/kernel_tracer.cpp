@@ -25,12 +25,14 @@
 #include "kernel_tracer.hpp"
 #include "common.hpp"
 
+#include <chrono>
 #include <fstream>
+#include <thread>
 
 namespace omnistat {
 
 // Global variable to keep track of kernel tracing, necessary so that all
-// callbacks have access to tracing data.
+// rocprofiler-sdk callbacks have access to tracing data.
 static KernelTracer tracer;
 
 // Map per-process agent IDs to GPU node IDs.
@@ -46,7 +48,7 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
         if (record.phase == ROCPROFILER_CALLBACK_PHASE_UNLOAD) {
             // Never reached when using the tool with the ROCP_TOOL_LIBRARIES
             // environment variable, hence the need to flush on kernel unload.
-            auto flush_status = rocprofiler_flush_buffer(tracer.buffer);
+            auto flush_status = rocprofiler_flush_buffer(tracer.buffer_);
             if (flush_status != ROCPROFILER_STATUS_ERROR_BUFFER_BUSY)
                 ROCPROFILER_CALL(flush_status, "flush buffer");
         }
@@ -56,10 +58,10 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
             static_cast<rocprofiler_callback_tracing_code_object_kernel_symbol_register_data_t*>(
                 record.payload);
         if (record.phase == ROCPROFILER_CALLBACK_PHASE_LOAD) {
-            tracer.kernels.emplace(data->kernel_id, *data);
+            tracer.kernels_.emplace(data->kernel_id, *data);
         } else if (record.phase == ROCPROFILER_CALLBACK_PHASE_UNLOAD) {
-            ROCPROFILER_CALL(rocprofiler_flush_buffer(tracer.buffer), "flush buffer");
-            tracer.kernels.erase(data->kernel_id);
+            ROCPROFILER_CALL(rocprofiler_flush_buffer(tracer.buffer_), "flush buffer");
+            tracer.kernels_.erase(data->kernel_id);
         }
     }
 }
@@ -92,7 +94,7 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
             auto* record =
                 static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
             data_stream << agent_map[record->dispatch_info.agent_id.handle] << ","
-                        << tracer.kernels.at(record->dispatch_info.kernel_id).kernel_name << ","
+                        << tracer.kernels_.at(record->dispatch_info.kernel_id).kernel_name << ","
                         << record->start_timestamp << "," << record->end_timestamp << "\n";
         } else {
             auto msg = std::stringstream{};
@@ -101,6 +103,8 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
             throw std::runtime_error{msg.str()};
         }
     }
+
+    tracer.record_flush_time();
 
     std::string data = data_stream.str();
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
@@ -117,42 +121,90 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
 }
 
 int KernelTracer::initialize(void* tool_data) {
-    ROCPROFILER_CALL(rocprofiler_create_context(&context), "create context");
+    ROCPROFILER_CALL(rocprofiler_create_context(&context_), "create context");
 
     auto code_object_ops = std::vector<rocprofiler_tracing_operation_t>{
         ROCPROFILER_CODE_OBJECT_DEVICE_KERNEL_SYMBOL_REGISTER};
 
     ROCPROFILER_CALL(rocprofiler_configure_callback_tracing_service(
-                         context, ROCPROFILER_CALLBACK_TRACING_CODE_OBJECT, code_object_ops.data(),
+                         context_, ROCPROFILER_CALLBACK_TRACING_CODE_OBJECT, code_object_ops.data(),
                          code_object_ops.size(), code_object_callback, nullptr),
                      "configure code object tracing service");
 
     constexpr auto buffer_size_bytes = 262144;
     constexpr auto buffer_watermark_bytes = buffer_size_bytes - (buffer_size_bytes / 8);
 
-    ROCPROFILER_CALL(rocprofiler_create_buffer(context, buffer_size_bytes, buffer_watermark_bytes,
+    ROCPROFILER_CALL(rocprofiler_create_buffer(context_, buffer_size_bytes, buffer_watermark_bytes,
                                                ROCPROFILER_BUFFER_POLICY_LOSSLESS,
-                                               full_buffer_callback, tool_data, &buffer),
+                                               full_buffer_callback, tool_data, &buffer_),
                      "create buffer");
 
     ROCPROFILER_CALL(rocprofiler_configure_buffer_tracing_service(
-                         context, ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH, nullptr, 0, buffer),
+                         context_, ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH, nullptr, 0, buffer_),
                      "configure buffer tracing service for kernel dispatches");
 
     auto thread = rocprofiler_callback_thread_t{};
     ROCPROFILER_CALL(rocprofiler_create_callback_thread(&thread), "create thread");
 
-    ROCPROFILER_CALL(rocprofiler_assign_callback_thread(buffer, thread),
+    ROCPROFILER_CALL(rocprofiler_assign_callback_thread(buffer_, thread),
                      "assign thread for buffer");
 
     int valid = 0;
-    ROCPROFILER_CALL(rocprofiler_context_is_valid(context, &valid), "check context validity");
+    ROCPROFILER_CALL(rocprofiler_context_is_valid(context_, &valid), "check context validity");
     if (valid == 0) {
         return -1;
     }
 
-    ROCPROFILER_CALL(rocprofiler_start_context(context), "start context");
+    ROCPROFILER_CALL(rocprofiler_start_context(context_), "start context");
+
+    record_flush_time();
+    periodic_thread_ = std::thread(&KernelTracer::periodic_flush, this);
+
     return 0;
+}
+
+void KernelTracer::finalize() {
+    {
+        std::lock_guard<std::mutex> lock(periodic_mutex_);
+        stop_requested_.store(true);
+    }
+    periodic_cv_.notify_one();
+    if (periodic_thread_.joinable()) {
+        periodic_thread_.join();
+    }
+}
+
+void KernelTracer::periodic_flush() {
+    while (true) {
+        std::unique_lock<std::mutex> lock(periodic_mutex_);
+
+        // wait_for returns false on timeout, true if predicate returns true
+        bool stop_signaled = periodic_cv_.wait_for(lock, PERIODIC_FLUSH_INTERVAL,
+                                                   [this] { return stop_requested_.load(); });
+        if (stop_signaled) {
+            break;
+        }
+
+        auto now = std::chrono::steady_clock::now();
+        auto last = last_flush_time_.load();
+        if ((now - last) < PERIODIC_FLUSH_INTERVAL) {
+            continue;
+        }
+
+        // Timeout occurred, perform periodic flush
+        auto flush_status = rocprofiler_flush_buffer(buffer_);
+
+        // Ignore BUFFER_BUSY errors as the buffer might be in use
+        if (flush_status != ROCPROFILER_STATUS_SUCCESS &&
+            flush_status != ROCPROFILER_STATUS_ERROR_BUFFER_BUSY) {
+            std::cerr << "Warning: periodic buffer flush failed with status " << flush_status
+                      << std::endl;
+        }
+    }
+}
+
+void KernelTracer::record_flush_time() {
+    last_flush_time_.store(std::chrono::steady_clock::now());
 }
 
 } // namespace omnistat
@@ -167,6 +219,7 @@ int tool_init(rocprofiler_client_finalize_t fini_func, void* tool_data) {
 }
 
 void tool_fini(void* tool_data) {
+    omnistat::tracer.finalize();
     auto* curl = static_cast<CURL*>(tool_data);
     curl_easy_cleanup(curl);
     curl_global_cleanup();

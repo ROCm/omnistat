@@ -28,19 +28,41 @@
 
 #include <curl/curl.h>
 
+#include <atomic>
+#include <condition_variable>
 #include <string>
 #include <unordered_map>
 
 namespace omnistat {
 
-struct KernelTracer {
+class KernelTracer {
+  public:
+    // Methods called during rocprofiler-sdk's tool initialization and finalization
     int initialize(void* tool_data);
+    void finalize();
 
-    rocprofiler_context_id_t context = {.handle = 0};
-    rocprofiler_buffer_id_t buffer = {};
+    // Records the current timestamp whenever the flush callback is called
+    void record_flush_time();
+
+    // Members used directly by the rocprofiler-sdk tool API
+    rocprofiler_context_id_t context_ = {.handle = 0};
+    rocprofiler_buffer_id_t buffer_ = {};
     std::unordered_map<rocprofiler_kernel_id_t,
                        rocprofiler_callback_tracing_code_object_kernel_symbol_register_data_t>
-        kernels = {};
+        kernels_ = {};
+
+  private:
+    // Thread for periodic record flushing, which happens in addition to the
+    // flushing triggered by full buffers
+    void periodic_flush();
+
+    static constexpr auto PERIODIC_FLUSH_INTERVAL = std::chrono::seconds(10);
+
+    std::thread periodic_thread_;
+    std::mutex periodic_mutex_;
+    std::condition_variable periodic_cv_;
+    std::atomic<bool> stop_requested_{false};
+    std::atomic<std::chrono::steady_clock::time_point> last_flush_time_;
 };
 
 } // namespace omnistat
