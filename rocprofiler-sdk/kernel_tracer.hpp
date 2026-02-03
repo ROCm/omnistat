@@ -73,7 +73,7 @@ class KernelTracer {
     std::mutex periodic_mutex_;
     std::condition_variable periodic_cv_;
     std::atomic<bool> stop_requested_{false};
-    std::atomic<std::chrono::steady_clock::time_point> last_flush_time_;
+    std::atomic<std::chrono::steady_clock::rep> last_flush_time_;
 
     // Counters for summary statistics
     std::atomic<uint64_t> total_flushes_{0};
