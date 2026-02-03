@@ -52,7 +52,7 @@ namespace omnistat {
 
 // Helper function to parse an unsigned integer from an environment variable
 // Returns the value, defaulting to default_value if invalid or not set
-unsigned int parse_env_uint(const char* env_var_name, unsigned int default_value) {
+uint64_t parse_env_uint(const char* env_var_name, uint64_t default_value) {
     const char* env_value = std::getenv(env_var_name);
 
     if (env_value == nullptr) {
@@ -60,9 +60,9 @@ unsigned int parse_env_uint(const char* env_var_name, unsigned int default_value
     }
 
     try {
-        int value = std::stoi(env_value);
+        uint64_t value = std::stoull(env_value);
         if (value > 0) {
-            return static_cast<unsigned int>(value);
+            return value;
         }
     } catch (const std::exception&) {
     }

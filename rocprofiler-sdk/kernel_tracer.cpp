@@ -122,7 +122,8 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
 
 KernelTracer::KernelTracer()
     : periodic_flush_interval_(std::chrono::seconds(
-          parse_env_uint("OMNISTAT_TRACE_MAX_INTERVAL", DEFAULT_FLUSH_INTERVAL_SECONDS))) {
+          parse_env_uint("OMNISTAT_TRACE_MAX_INTERVAL", DEFAULT_FLUSH_INTERVAL_SECONDS))),
+      buffer_size_bytes_(parse_env_uint("OMNISTAT_TRACE_BUFFER_SIZE", DEFAULT_BUFFER_SIZE_BYTES)) {
 }
 
 int KernelTracer::initialize(void* tool_data) {
@@ -136,10 +137,9 @@ int KernelTracer::initialize(void* tool_data) {
                          code_object_ops.size(), code_object_callback, nullptr),
                      "configure code object tracing service");
 
-    constexpr auto buffer_size_bytes = 262144;
-    constexpr auto buffer_watermark_bytes = buffer_size_bytes - (buffer_size_bytes / 8);
+    const auto buffer_watermark_bytes = buffer_size_bytes_ - (buffer_size_bytes_ / 8);
 
-    ROCPROFILER_CALL(rocprofiler_create_buffer(context_, buffer_size_bytes, buffer_watermark_bytes,
+    ROCPROFILER_CALL(rocprofiler_create_buffer(context_, buffer_size_bytes_, buffer_watermark_bytes,
                                                ROCPROFILER_BUFFER_POLICY_LOSSLESS,
                                                full_buffer_callback, tool_data, &buffer_),
                      "create buffer");
