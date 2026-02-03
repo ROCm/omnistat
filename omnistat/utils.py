@@ -37,6 +37,74 @@ import time
 from importlib.metadata import version
 from pathlib import Path
 
+# Global to store dynamically loaded amdsmi python module (shared across all collectors)
+_amdsmi_module = None
+
+
+def load_amdsmi_interface(rocm_path):
+    """Dynamically load amdsmi Python module from ROCm installation.
+
+    This allows use of the Python interface without requiring 'pip install amdsmi'.
+    The module is directly loaded from <rocm_path>/share/amd_smi/amdsmi/ directory
+
+    Args:
+        rocm_path: Path to ROCm installation (e.g., "/opt/rocm-6.4.1")
+    """
+    global _amdsmi_module
+
+    if _amdsmi_module is not None:
+        return _amdsmi_module
+
+    amdsmi_dir = Path(rocm_path) / "share" / "amd_smi"
+    amdsmi_pkg_dir = amdsmi_dir / "amdsmi"
+
+    if not amdsmi_pkg_dir.exists():
+        logging.error("")
+        logging.error("ERROR: Unable to find AMD SMI python interface directory")
+        logging.error("--> looking for %s" % amdsmi_pkg_dir)
+        logging.error('--> please verify path and update "rocm_path" in runtime config file if necesssary.')
+        sys.exit(1)
+
+    # Set ROCM_PATH environment variable to match what is provided via runtime config. Needed
+    # to ensure the Python wrapper loads the matching C library version. The wrapper's find_smi_library()
+    # function checks ROCM_PATH first, so this takes precedence over LD_LIBRARY_PATH.
+    old_rocm_path = os.environ.get("ROCM_PATH", "")
+    os.environ["ROCM_PATH"] = rocm_path
+
+    logging.debug(f"Set ROCM_PATH to {rocm_path} to ensure library version consistency")
+
+    # Add parent directory to sys.path so the package can be imported
+    amdsmi_parent = str(amdsmi_dir)
+    if amdsmi_parent not in sys.path:
+        sys.path.insert(0, amdsmi_parent)
+
+    # Import the package normally now that it's in sys.path
+    try:
+        import amdsmi
+
+        _amdsmi_module = amdsmi
+        logging.info(f"Loading AMD SMI Python interface from {amdsmi_pkg_dir}")
+        return _amdsmi_module
+    except (ImportError, AttributeError) as e:
+        # Restore ROCM_PATH on failure
+        if old_rocm_path:
+            os.environ["ROCM_PATH"] = old_rocm_path
+        else:
+            os.environ.pop("ROCM_PATH", None)
+        logging.error("ERROR: Unable to load AMD SMI python interface")
+        logging.error(f"--> attempted to load from {amdsmi_pkg_dir}")
+        logging.error(f"--> {e}")
+        exit(1)
+
+
+def get_amdsmi_module():
+    """Get the pre-loaded amdsmi module.
+
+    Returns:
+        The amdsmi module, or None if not yet loaded
+    """
+    return _amdsmi_module
+
 
 def convert_bdf_to_gpuid(bdf_string):
     """
