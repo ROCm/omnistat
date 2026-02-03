@@ -78,12 +78,12 @@ class KmsgCollector(Collector):
         self.__severity_count = [0] * (self.__severity_threshold + 1)
         self.__include_existing = include_existing
 
-        include = "existing and new" if include_existing else "new"
-        severities = [s.name for s in KmsgSeverity if s.value <= self.__severity_threshold]
-        logging.info(f"--> kmsg: report {include} messages with these severities: {', '.join(severities)}")
-
     def registerMetrics(self):
         """Register metrics of interest"""
+
+        include = "existing and new" if self.__include_existing else "new"
+        severities = [s.name for s in KmsgSeverity if s.value <= self.__severity_threshold]
+        logging.info(f"kmsg: tracking {include} messages with these severities: {', '.join(severities)}")
 
         description = "Number of driver messages in the kernel log buffer"
         self.__metric = Gauge(self.__name, description, labelnames=["driver", "severity"])
