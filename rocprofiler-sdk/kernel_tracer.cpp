@@ -240,7 +240,7 @@ extern "C" rocprofiler_tool_configure_result_t* rocprofiler_configure(uint32_t v
 
     CURL* curl = curl_easy_init();
     if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:8001/kernel_trace");
+        curl_easy_setopt(curl, CURLOPT_URL, omnistat::TRACE_ENDPOINT_URL);
     }
 
     struct curl_slist* http_headers = NULL;
