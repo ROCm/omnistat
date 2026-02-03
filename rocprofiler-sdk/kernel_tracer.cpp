@@ -202,7 +202,8 @@ void KernelTracer::periodic_flush() {
         }
 
         auto now = std::chrono::steady_clock::now();
-        auto last = last_flush_time_.load();
+        auto last = std::chrono::steady_clock::time_point(
+            std::chrono::steady_clock::duration(last_flush_time_.load()));
         if ((now - last) < periodic_flush_interval_) {
             continue;
         }
@@ -220,7 +221,7 @@ void KernelTracer::periodic_flush() {
 }
 
 void KernelTracer::record_flush_time() {
-    last_flush_time_.store(std::chrono::steady_clock::now());
+    last_flush_time_.store(std::chrono::steady_clock::now().time_since_epoch().count());
 }
 
 void KernelTracer::record_flush_stats(size_t num_headers, bool failed) {
