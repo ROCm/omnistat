@@ -172,6 +172,10 @@ int KernelTracer::initialize(void* tool_data) {
     return 0;
 }
 
+KernelTracer::~KernelTracer() {
+    finalize();
+}
+
 void KernelTracer::finalize() {
     {
         std::lock_guard<std::mutex> lock(periodic_mutex_);
@@ -181,13 +185,13 @@ void KernelTracer::finalize() {
 
     if (periodic_thread_.joinable()) {
         periodic_thread_.join();
-    }
 
-    auto successful_records = total_records_ - failed_records_;
-    auto successful_flushes = total_flushes_ - failed_flushes_;
-    std::cout << "Omnistat trace summary: " << successful_records << "/" << total_records_
-              << " processed records (" << successful_flushes << "/" << total_flushes_
-              << " successful flushes)" << std::endl;
+        auto successful_records = total_records_ - failed_records_;
+        auto successful_flushes = total_flushes_ - failed_flushes_;
+        std::cout << "Omnistat trace summary: " << successful_records << "/" << total_records_
+                  << " processed records (" << successful_flushes << "/" << total_flushes_
+                  << " successful flushes)" << std::endl;
+    }
 }
 
 void KernelTracer::periodic_flush() {

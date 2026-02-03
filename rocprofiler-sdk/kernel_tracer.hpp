@@ -47,6 +47,7 @@ constexpr const char* TRACE_ENDPOINT_URL = "http://localhost:8001/kernel_trace";
 class KernelTracer {
   public:
     KernelTracer();
+    ~KernelTracer();
 
     // Methods called during rocprofiler-sdk's tool initialization and finalization
     int initialize(void* tool_data);
