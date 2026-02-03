@@ -74,11 +74,9 @@ class Monitor:
         self.__collectors = []
 
         # load amd-smi python interface if needed (done here to pre-load before forking)
-        if self.__enable_amd_smi:
-            from omnistat import collector_smi_v2
-
+        if self.__enable_amd_smi or self.__enable_events:
             rocm_path = config["omnistat.collectors"].get("rocm_path", "/opt/rocm")
-            collector_smi_v2.load_amdsmi_interface(rocm_path)
+            utils.load_amdsmi_interface(rocm_path)
 
         logging.debug("Completed collector initialization (base class)")
         return
@@ -89,6 +87,7 @@ class Monitor:
         # verify only one SMI collector is enabled
         self.__enable_rocm_smi = collectors.getboolean("enable_rocm_smi", True)
         self.__enable_amd_smi = collectors.getboolean("enable_amd_smi", True)
+        self.__enable_events = collectors.getboolean("enable_events", False)
         if self.__enable_rocm_smi and self.__enable_amd_smi:
             logging.error("")
             logging.error("[ERROR]: Only one SMI GPU data collector may be configured at a time.")
