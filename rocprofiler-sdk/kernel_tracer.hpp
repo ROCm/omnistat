@@ -59,9 +59,7 @@ class KernelTracer {
     // Members used directly by the rocprofiler-sdk tool API
     rocprofiler_context_id_t context_ = {.handle = 0};
     rocprofiler_buffer_id_t buffer_ = {};
-    std::unordered_map<rocprofiler_kernel_id_t,
-                       rocprofiler_callback_tracing_code_object_kernel_symbol_register_data_t>
-        kernels_ = {};
+    std::unordered_map<rocprofiler_kernel_id_t, std::string> kernels_ = {};
 
   private:
     // Thread for periodic record flushing, which happens in addition to the
