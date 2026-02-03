@@ -36,7 +36,10 @@
 namespace omnistat {
 
 // Default periodic flush interval in seconds
-constexpr unsigned int DEFAULT_FLUSH_INTERVAL_SECONDS = 30;
+constexpr uint64_t DEFAULT_FLUSH_INTERVAL_SECONDS = 30;
+
+// Default buffer size in bytes
+constexpr uint64_t DEFAULT_BUFFER_SIZE_BYTES = 262144;
 
 class KernelTracer {
   public:
@@ -62,6 +65,7 @@ class KernelTracer {
     void periodic_flush();
 
     const std::chrono::seconds periodic_flush_interval_;
+    const uint64_t buffer_size_bytes_;
 
     std::thread periodic_thread_;
     std::mutex periodic_mutex_;
