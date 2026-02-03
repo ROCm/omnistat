@@ -157,16 +157,11 @@ class AMDSMI(Collector):
         logging.debug("Initializing AMD SMI data collector")
         self.__prefix = "rocm_"
         self.__schema = 1.0
-        smi.amdsmi_init()
-        logging.info("AMD SMI library API initialized")
         self.__num_gpus = 0
         self.__devices = []
         self.__GPUMetrics = {}
         self.__metricMapping = {}
         self.__eccBlocks = {}
-        # verify minimum version met
-        check_min_version("24.7.1")
-
         self.__ecc_ras_monitoring = config["omnistat.collectors"].getboolean("enable_ras_ecc", True)
         self.__power_cap_monitoring = config["omnistat.collectors"].getboolean("enable_power_cap", False)
         self.__cu_occupancy_monitoring = config["omnistat.collectors"].getboolean("enable_cu_occupancy", False)
@@ -198,6 +193,12 @@ class AMDSMI(Collector):
 
     def registerMetrics(self):
         """Query number of devices and register metrics of interest"""
+
+        smi.amdsmi_init()
+        logging.info("AMD SMI library API initialized")
+
+        # verify minimum version met
+        check_min_version("24.7.1")
 
         devices = smi.amdsmi_get_processor_handles()
         self.__devices = devices
