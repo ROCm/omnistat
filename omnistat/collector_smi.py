@@ -27,7 +27,7 @@
 Implements a number of prometheus gauge metrics based on GPU data collected from
 rocm smi library.  The ROCm runtime must be pre-installed to use this data
 collector. This data collector gathers statistics on a per GPU basis and exposes
-metrics with a "rocm" prefix with individual cards denotes by labels. The
+metrics with a "rocm" prefix with individual cards denoted by labels. The
 following example highlights example metrics for card 0:
 
 rocm_temperature_celsius{card="0",location="edge"} 41.0
