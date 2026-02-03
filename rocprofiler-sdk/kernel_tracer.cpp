@@ -114,10 +114,14 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
     std::string response_buffer;
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_buffer);
 
+    bool failed = false;
     auto res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
         std::cerr << curl_easy_strerror(res) << std::endl;
+        failed = true;
     }
+
+    tracer.record_flush_stats(num_headers, failed);
 }
 
 KernelTracer::KernelTracer()
@@ -174,9 +178,16 @@ void KernelTracer::finalize() {
         stop_requested_.store(true);
     }
     periodic_cv_.notify_one();
+
     if (periodic_thread_.joinable()) {
         periodic_thread_.join();
     }
+
+    auto successful_records = total_records_ - failed_records_;
+    auto successful_flushes = total_flushes_ - failed_flushes_;
+    std::cout << "Omnistat trace summary: " << successful_records << "/" << total_records_
+              << " processed records (" << successful_flushes << "/" << total_flushes_
+              << " successful flushes)" << std::endl;
 }
 
 void KernelTracer::periodic_flush() {
@@ -210,6 +221,15 @@ void KernelTracer::periodic_flush() {
 
 void KernelTracer::record_flush_time() {
     last_flush_time_.store(std::chrono::steady_clock::now());
+}
+
+void KernelTracer::record_flush_stats(size_t num_headers, bool failed) {
+    total_flushes_.fetch_add(1, std::memory_order_relaxed);
+    total_records_.fetch_add(num_headers, std::memory_order_relaxed);
+    if (failed) {
+        failed_flushes_.fetch_add(1, std::memory_order_relaxed);
+        failed_records_.fetch_add(num_headers, std::memory_order_relaxed);
+    }
 }
 
 } // namespace omnistat
