@@ -35,8 +35,13 @@
 
 namespace omnistat {
 
+// Default periodic flush interval in seconds
+constexpr unsigned int DEFAULT_FLUSH_INTERVAL_SECONDS = 30;
+
 class KernelTracer {
   public:
+    KernelTracer();
+
     // Methods called during rocprofiler-sdk's tool initialization and finalization
     int initialize(void* tool_data);
     void finalize();
@@ -56,7 +61,7 @@ class KernelTracer {
     // flushing triggered by full buffers
     void periodic_flush();
 
-    static constexpr auto PERIODIC_FLUSH_INTERVAL = std::chrono::seconds(10);
+    const std::chrono::seconds periodic_flush_interval_;
 
     std::thread periodic_thread_;
     std::mutex periodic_mutex_;

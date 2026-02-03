@@ -120,6 +120,11 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
     }
 }
 
+KernelTracer::KernelTracer()
+    : periodic_flush_interval_(std::chrono::seconds(
+          parse_env_uint("OMNISTAT_TRACE_MAX_INTERVAL", DEFAULT_FLUSH_INTERVAL_SECONDS))) {
+}
+
 int KernelTracer::initialize(void* tool_data) {
     ROCPROFILER_CALL(rocprofiler_create_context(&context_), "create context");
 
@@ -179,7 +184,7 @@ void KernelTracer::periodic_flush() {
         std::unique_lock<std::mutex> lock(periodic_mutex_);
 
         // wait_for returns false on timeout, true if predicate returns true
-        bool stop_signaled = periodic_cv_.wait_for(lock, PERIODIC_FLUSH_INTERVAL,
+        bool stop_signaled = periodic_cv_.wait_for(lock, periodic_flush_interval_,
                                                    [this] { return stop_requested_.load(); });
         if (stop_signaled) {
             break;
@@ -187,7 +192,7 @@ void KernelTracer::periodic_flush() {
 
         auto now = std::chrono::steady_clock::now();
         auto last = last_flush_time_.load();
-        if ((now - last) < PERIODIC_FLUSH_INTERVAL) {
+        if ((now - last) < periodic_flush_interval_) {
             continue;
         }
 
