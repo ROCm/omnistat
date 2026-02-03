@@ -43,8 +43,8 @@ rocm_slck_clock_mhz{card="0"} 300.0
 
 import configparser
 import logging
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import packaging.version
 from prometheus_client import Gauge
@@ -52,9 +52,9 @@ from prometheus_client import Gauge
 from omnistat.collector_base import Collector
 from omnistat.utils import (
     count_compute_units,
+    get_amdsmi_module,
     get_occupancy,
     gpu_index_mapping_based_on_guids,
-    get_amdsmi_module,
 )
 
 # Shared amdsmi module
