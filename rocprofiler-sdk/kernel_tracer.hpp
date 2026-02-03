@@ -41,6 +41,9 @@ constexpr uint64_t DEFAULT_FLUSH_INTERVAL_SECONDS = 30;
 // Default buffer size in bytes
 constexpr uint64_t DEFAULT_BUFFER_SIZE_BYTES = 262144;
 
+// Endpoint URL for sending kernel trace data
+constexpr const char* TRACE_ENDPOINT_URL = "http://localhost:8001/kernel_trace";
+
 class KernelTracer {
   public:
     KernelTracer();
