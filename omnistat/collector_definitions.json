@@ -5,13 +5,13 @@
         {
             "runtime_option": "enable_rocm_smi",
             "enabled_by_default": true,
-            "file": "omnistat.collector_smi",
+            "file": "omnistat.collector_rocmsmi",
             "class_name": "ROCMSMI"
         },
         {
             "runtime_option": "enable_amd_smi",
             "enabled_by_default": false,
-            "file": "omnistat.collector_smi_v2",
+            "file": "omnistat.collector_amdsmi",
             "class_name": "AMDSMI"
         },
         {
