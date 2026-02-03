@@ -27,6 +27,7 @@
 #include <rocprofiler-sdk/fwd.h>
 #include <rocprofiler-sdk/registration.h>
 
+#include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
@@ -48,6 +49,28 @@
     }
 
 namespace omnistat {
+
+// Helper function to parse an unsigned integer from an environment variable
+// Returns the value, defaulting to default_value if invalid or not set
+unsigned int parse_env_uint(const char* env_var_name, unsigned int default_value) {
+    const char* env_value = std::getenv(env_var_name);
+
+    if (env_value == nullptr) {
+        return default_value;
+    }
+
+    try {
+        int value = std::stoi(env_value);
+        if (value > 0) {
+            return static_cast<unsigned int>(value);
+        }
+    } catch (const std::exception&) {
+    }
+
+    std::cerr << "Invalid " << env_var_name << " value (" << env_value << "), using default "
+              << default_value << std::endl;
+    return default_value;
+}
 
 std::vector<rocprofiler_agent_v0_t> get_rocprofiler_agents() {
     std::vector<rocprofiler_agent_v0_t> agents;
