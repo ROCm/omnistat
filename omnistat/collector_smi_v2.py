@@ -25,10 +25,10 @@
 """amd-smi based data collector
 
 Implements a number of prometheus gauge metrics based on GPU data collected from
-the amd-smi library interface.  The ROCm runtime must be pre-installed to use this data
-collector. This data collector gathers statistics on a per GPU basis and exposes
-metrics with "amdsmi_{metric_name}" with labels for each GPU number. The following
-highlights example metrics:
+the amd-smi Python library interface.  The ROCm runtime must be pre-installed to use
+this data collector. This data collector gathers statistics on a per GPU basis and
+exposes metrics with a "rocm" prefix with individual cards denoted by labels. The
+following highlights example metrics:
 
 rocm_vram_total_bytes{card="0"} 3.4342961152e+010
 rocm_temperature_celsius{card="0",location="edge"} 42.0
@@ -43,10 +43,10 @@ rocm_slck_clock_mhz{card="0"} 300.0
 
 import configparser
 import logging
-import statistics
+from pathlib import Path
+import os
 import sys
 
-import amdsmi as smi
 import packaging.version
 from prometheus_client import Gauge
 
@@ -56,6 +56,64 @@ from omnistat.utils import (
     get_occupancy,
     gpu_index_mapping_based_on_guids,
 )
+
+# Global to store dynamically loaded amdsmi module
+smi = None
+
+
+def load_amdsmi_interface(rocm_path):
+    """Dynamically load amdsmi Python module from ROCm installation.
+
+    This allows using the Python interface without requiring 'pip install amdsmi'.
+    The module is loaded from <rocm_path>/share/amd_smi/amdsmi/ directory
+
+    Args:
+        rocm_path: Path to ROCm installation (e.g., "/opt/rocm-6.4.1")
+    """
+    global smi
+
+    if smi is not None:
+        return smi
+
+    amdsmi_dir = Path(rocm_path) / "share" / "amd_smi"
+    amdsmi_pkg_dir = amdsmi_dir / "amdsmi"
+
+    if not amdsmi_pkg_dir.exists():
+        logging.error("")
+        logging.error("ERROR: Unable to find AMD SMI python interface directory")
+        logging.error("--> looking for %s" % amdsmi_pkg_dir)
+        logging.error('--> please verify path and update "rocm_path" in runtime config file if necesssary.')
+        sys.exit(1)
+
+    # Set ROCM_PATH environment variable to match what is provided via runtime config. Needed
+    # to ensure the Python wrapper loads the matching C library version. The wrapper's find_smi_library()
+    # function checks ROCM_PATH first, so this takes precedence over LD_LIBRARY_PATH.
+    old_rocm_path = os.environ.get("ROCM_PATH", "")
+    os.environ["ROCM_PATH"] = rocm_path
+
+    logging.debug(f"Set ROCM_PATH to {rocm_path} to ensure library version consistency")
+
+    # Add parent directory to sys.path so the package can be imported
+    amdsmi_parent = str(amdsmi_dir)
+    if amdsmi_parent not in sys.path:
+        sys.path.insert(0, amdsmi_parent)
+
+    # Import the package normally now that it's in sys.path
+    try:
+        import amdsmi
+
+        smi = amdsmi
+        logging.info(f"Loading AMD SMI Python interface from {amdsmi_pkg_dir}")
+    except (ImportError, AttributeError) as e:
+        # Restore ROCM_PATH on failure
+        if old_rocm_path:
+            os.environ["ROCM_PATH"] = old_rocm_path
+        else:
+            os.environ.pop("ROCM_PATH", None)
+        logging.error("ERROR: Unable to load AMD SMI python interface")
+        logging.error(f"--> attempted to load from {amdsmi_pkg_dir}")
+        logging.error(f"--> {e}")
+        exit(1)
 
 
 def check_min_version(minVersion):
