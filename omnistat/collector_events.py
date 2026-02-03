@@ -25,15 +25,16 @@
 import _thread
 import configparser
 import logging
-import os
 import sys
 import time
 
-from amdsmi import *
-from amdsmi import amdsmi_interface
 from prometheus_client import CollectorRegistry, Gauge, generate_latest
 
 from omnistat.collector_base import Collector
+from omnistat.utils import get_amdsmi_module
+
+# Shared amdsmi module
+smi = get_amdsmi_module()
 
 
 class ROCMEvents(Collector):
@@ -46,25 +47,30 @@ class ROCMEvents(Collector):
         """
 
         logging.debug("Initializing ROCm SMI event collector")
+
+        global smi
+        smi = get_amdsmi_module()
+        try:
+            smi.amdsmi_init()
+            logging.debug("AMD SMI library API initialized")
+        except:
+            logging.error("ERROR: Unable to initialize AMD SMI python library")
+            sys.exit(4)
+
         self.__prefix = "rocm_"
         self.__events = []
-        self.__desiredEventTypes = [AmdSmiEvtNotificationType.THERMAL_THROTTLE]
+        self.__desiredEventTypes = [smi.AmdSmiEvtNotificationType.THERMAL_THROTTLE]
 
         try:
-            amdsmi_init()
-        except AmdSmiException as e:
-            logging.error(e)
-
-        try:
-            devices = amdsmi_get_processor_handles()
+            devices = smi.amdsmi_get_processor_handles()
             if len(devices) == 0:
                 logging.error("No GPUs detected on host")
                 sys.exit(1)
             else:
                 self.__numGpus = len(devices)
                 for device in devices:
-                    self.__events.append(AmdSmiEventReader(device, self.__desiredEventTypes))
-        except AmdSmiException as e:
+                    self.__events.append(smi.AmdSmiEventReader(device, self.__desiredEventTypes))
+        except smi.AmdSmiException as e:
             logging.error("unable to get processor handles")
             logging.error(e)
             sys.exit(1)
@@ -79,7 +85,7 @@ class ROCMEvents(Collector):
             logging.error("Error: Unable to start new thread. %s" % (e))
             sys.exit(1)
 
-        logging.info("SMI event collector initialized")
+        logging.debug("SMI event collector initialized")
 
         self.__GPUmetrics = {}
         self.__throttle_count = []
