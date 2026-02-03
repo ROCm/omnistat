@@ -58,7 +58,7 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
             static_cast<rocprofiler_callback_tracing_code_object_kernel_symbol_register_data_t*>(
                 record.payload);
         if (record.phase == ROCPROFILER_CALLBACK_PHASE_LOAD) {
-            tracer.kernels_.emplace(data->kernel_id, *data);
+            tracer.kernels_.emplace(data->kernel_id, data->kernel_name);
         } else if (record.phase == ROCPROFILER_CALLBACK_PHASE_UNLOAD) {
             ROCPROFILER_CALL(rocprofiler_flush_buffer(tracer.buffer_), "flush buffer");
             tracer.kernels_.erase(data->kernel_id);
@@ -94,7 +94,7 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
             auto* record =
                 static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
             data_stream << agent_map[record->dispatch_info.agent_id.handle] << ","
-                        << tracer.kernels_.at(record->dispatch_info.kernel_id).kernel_name << ","
+                        << tracer.kernels_.at(record->dispatch_info.kernel_id) << ","
                         << record->start_timestamp << "," << record->end_timestamp << "\n";
         } else {
             auto msg = std::stringstream{};
