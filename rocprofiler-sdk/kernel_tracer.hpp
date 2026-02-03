@@ -54,6 +54,7 @@ class KernelTracer {
 
     // Records the current timestamp whenever the flush callback is called
     void record_flush_time();
+    void record_flush_stats(size_t num_headers, bool failed);
 
     // Members used directly by the rocprofiler-sdk tool API
     rocprofiler_context_id_t context_ = {.handle = 0};
@@ -75,6 +76,12 @@ class KernelTracer {
     std::condition_variable periodic_cv_;
     std::atomic<bool> stop_requested_{false};
     std::atomic<std::chrono::steady_clock::time_point> last_flush_time_;
+
+    // Counters for summary statistics
+    std::atomic<uint64_t> total_flushes_{0};
+    std::atomic<uint64_t> total_records_{0};
+    std::atomic<uint64_t> failed_flushes_{0};
+    std::atomic<uint64_t> failed_records_{0};
 };
 
 } // namespace omnistat
