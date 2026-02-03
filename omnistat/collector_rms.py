@@ -73,33 +73,6 @@ class RMSJob(Collector):
             "step_detection_file", "/tmp/omni_rmsjobinfo_step"
         )
 
-        # jobMode
-        if self.__rmsJobMode == "file-based":
-            logging.info(
-                "collector_rms: reading job information from prolog/epilog derived file (%s)" % self.__rmsJobFile
-            )
-        elif self.__rmsJobMode == "squeue":
-            logging.info("collector_rms: configured to poll slurm periodically with squeue")
-
-            # setup squeue binary path to query slurm to determine node ownership
-            command = utils.resolvePath("squeue", "SLURM_PATH")
-            if command is None:
-                logging.error("")
-                logging.error("Please verify SLURM is installed and squeue binary is available")
-                logging.error("")
-                sys.exit(4)
-            # command-line flags for use with squeue to obtained desired metrics
-            hostname = platform.node().split(".", 1)[0]
-            flags = "-w " + hostname + " -h  --Format=JobID::,UserName::,Partition::,NumNodes::,BatchFlag"
-            # cache query command with options
-            self.__squeue_query = [command] + flags.split()
-            # job step query command
-            flags = "-s -w " + hostname + " -h --Format=StepID"
-            self.__squeue_steps = [command] + flags.split()
-            logging.debug("squeue_exec = %s" % self.__squeue_query)
-        else:
-            logging.error("Unsupported slurm job data collection mode")
-
     def querySlurmJob(self, timeout=1, exit_on_error=False, mode="squeue"):
         """
         Query SLURM and return job info for local host.
@@ -177,7 +150,34 @@ class RMSJob(Collector):
     def registerMetrics(self):
         """Register metrics of interest"""
 
-        # alternate approach - define an info metric
+        # check jobMode
+        if self.__rmsJobMode == "file-based":
+            logging.info(
+                "collector_rms: reading job information from prolog/epilog derived file (%s)" % self.__rmsJobFile
+            )
+        elif self.__rmsJobMode == "squeue":
+            logging.info("collector_rms: configured to poll slurm periodically with squeue")
+
+            # setup squeue binary path to query slurm to determine node ownership
+            command = utils.resolvePath("squeue", "SLURM_PATH")
+            if command is None:
+                logging.error("")
+                logging.error("Please verify SLURM is installed and squeue binary is available")
+                logging.error("")
+                sys.exit(4)
+            # command-line flags for use with squeue to obtained desired metrics
+            hostname = platform.node().split(".", 1)[0]
+            flags = "-w " + hostname + " -h  --Format=JobID::,UserName::,Partition::,NumNodes::,BatchFlag"
+            # cache query command with options
+            self.__squeue_query = [command] + flags.split()
+            # job step query command
+            flags = "-s -w " + hostname + " -h --Format=StepID"
+            self.__squeue_steps = [command] + flags.split()
+            logging.debug("squeue_exec = %s" % self.__squeue_query)
+        else:
+            logging.error("Unsupported slurm job data collection mode")
+
+        # define an info metric
         # (https://ypereirareis.github.io/blog/2020/02/21/how-to-join-prometheus-metrics-by-label-with-promql/)
         labels = ["jobid", "user", "partition", "nodes", "batchflag", "jobstep", "type"]
         self.__RMSMetrics["info"] = Gauge(self.__prefix + "info", "RMS job details", labels)
