@@ -7211,8 +7211,8 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (instance,node_id) ((increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
-              "legendFormat": "GPU: {{instance}}/{{node_id}}",
+              "expr": "avg by (instance,card) ((increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+              "legendFormat": "GPU: {{instance}}/{{card}}",
               "range": true,
               "refId": "A"
             }
@@ -7322,7 +7322,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (instance,node_id) (increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "expr": "avg by (instance,card) (increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
               "hide": false,
               "instant": false,
@@ -7336,7 +7336,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (instance,node_id) (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}))",
+              "expr": "avg by (instance,card) (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}))",
               "format": "table",
               "hide": false,
               "instant": false,
@@ -7376,7 +7376,7 @@
                   "kernel": {
                     "aggregations": []
                   },
-                  "node_id": {
+                  "card": {
                     "aggregations": [],
                     "operation": "groupby"
                   }
@@ -7397,7 +7397,7 @@
                   "Value #B (sum)": 2,
                   "Value #C (sum)": 3,
                   "instance": 0,
-                  "node_id": 1
+                  "card": 1
                 },
                 "renameByName": {
                   "Value #A (logmin)": "Min",
@@ -7408,7 +7408,7 @@
                   "Value #C (sum)": "# Dispatches",
                   "instance": "Node",
                   "kernel": "Kernel",
-                  "node_id": "GPU Node ID"
+                  "card": "GPU ID"
                 }
               }
             },
