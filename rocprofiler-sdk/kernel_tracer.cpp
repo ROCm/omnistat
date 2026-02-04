@@ -26,7 +26,9 @@
 #include "common.hpp"
 
 #include <chrono>
+#include <cxxabi.h>
 #include <fstream>
+#include <memory>
 #include <thread>
 
 namespace omnistat {
@@ -37,6 +39,14 @@ static KernelTracer tracer;
 
 // Map per-process agent IDs to GPU node IDs.
 static std::unordered_map<uint64_t, uint32_t> agent_map = {};
+
+// Demangle kernel names
+static std::string demangle(const char* mangled_name) {
+    int status = -1;
+    std::unique_ptr<char, void (*)(void*)> result(
+        abi::__cxa_demangle(mangled_name, nullptr, nullptr, &status), std::free);
+    return (status == 0) ? result.get() : mangled_name;
+}
 
 // Callback used to register kernels when loading code objects. Forces a flush
 // on every kernel unload; the expectation is that only happens at the end of
@@ -58,7 +68,7 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
             static_cast<rocprofiler_callback_tracing_code_object_kernel_symbol_register_data_t*>(
                 record.payload);
         if (record.phase == ROCPROFILER_CALLBACK_PHASE_LOAD) {
-            tracer.kernels_.emplace(data->kernel_id, data->kernel_name);
+            tracer.kernels_.emplace(data->kernel_id, demangle(data->kernel_name));
         } else if (record.phase == ROCPROFILER_CALLBACK_PHASE_UNLOAD) {
             ROCPROFILER_CALL(rocprofiler_flush_buffer(tracer.buffer_), "flush buffer");
             tracer.kernels_.erase(data->kernel_id);
@@ -93,8 +103,8 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
             header->kind == ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH) {
             auto* record =
                 static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
-            data_stream << agent_map[record->dispatch_info.agent_id.handle] << ","
-                        << tracer.kernels_.at(record->dispatch_info.kernel_id) << ","
+            data_stream << agent_map[record->dispatch_info.agent_id.handle] << ",\""
+                        << tracer.kernels_.at(record->dispatch_info.kernel_id) << "\","
                         << record->start_timestamp << "," << record->end_timestamp << "\n";
         } else {
             auto msg = std::stringstream{};
