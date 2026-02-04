@@ -48,7 +48,7 @@ class KernelTrace(EndpointCollector):
         self.__dispatches_lock = threading.Lock()
 
         # Accumulated metric values for. Keys and values are both tuples:
-        #   Keys: (node_id, kernel_name)
+        #   Keys: (gpu_id, kernel_name)
         #   Values: (duration, num_dispatches)
         self.__values = {}
 
@@ -78,11 +78,11 @@ class KernelTrace(EndpointCollector):
             csv_reader = csv.reader(csv_file)
 
             dispatches = []
-            for node_id, kernel, start_ns, end_ns in csv_reader:
+            for gpu_id, kernel, start_ns, end_ns in csv_reader:
                 start_ns = int(start_ns)
                 end_ns = int(end_ns)
                 duration_ns = end_ns - start_ns
-                dispatch = (node_id, kernel, end_ns, duration_ns)
+                dispatch = (gpu_id, kernel, end_ns, duration_ns)
                 dispatches.append(dispatch)
 
             with self.__dispatches_lock:
@@ -121,7 +121,7 @@ class KernelTrace(EndpointCollector):
 
         print(f"{current_bin}: first_bin = {first_bin} last_bin = {last_bin} ts_len = {len(self.__ts)}")
 
-        for node_id, name, end_ns, duration_ns in dispatches:
+        for gpu_id, name, end_ns, duration_ns in dispatches:
             end_ms = (end_ns + self.__offset_ns) // 1_000_000
             end_bin = ((end_ms // self.__interval_ms) * self.__interval_ms) + self.__interval_ms
 
@@ -129,7 +129,7 @@ class KernelTrace(EndpointCollector):
                 logging.info(f"Ignore out of range dispatch of kernel {name} = {end_bin}")
                 continue
 
-            key = (node_id, name)
+            key = (gpu_id, name)
             if not key in self.__values:
                 self.__values[key] = (0, 0)
 
@@ -150,11 +150,11 @@ class KernelTrace(EndpointCollector):
             push_intervals.append(item)
 
         for interval_bin, kernels in push_intervals:
-            for (node_id, name), (num_dispatches, total_duration) in kernels.items():
+            for (gpu_id, name), (num_dispatches, total_duration) in kernels.items():
                 entries.append(
                     [
                         "omnistat_kernel_dispatch_count",
-                        f'node_id="{node_id}",kernel="{name}"',
+                        f'card="{gpu_id}",kernel="{name}"',
                         num_dispatches,
                         interval_bin,
                     ]
@@ -162,7 +162,7 @@ class KernelTrace(EndpointCollector):
                 entries.append(
                     [
                         "omnistat_kernel_total_duration_ns",
-                        f'node_id="{node_id}",kernel="{name}"',
+                        f'card="{gpu_id}",kernel="{name}"',
                         total_duration,
                         interval_bin,
                     ]

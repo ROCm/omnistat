@@ -100,7 +100,7 @@ std::unordered_map<uint64_t, uint32_t> build_agent_map() {
 
     std::unordered_map<uint64_t, uint32_t> agent_map;
     for (const auto& agent : agents) {
-        agent_map[agent.id.handle] = agent.node_id;
+        agent_map[agent.id.handle] = agent.logical_node_type_id;
     }
 
     return agent_map;
