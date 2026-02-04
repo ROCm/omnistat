@@ -1554,7 +1554,7 @@ class QueryMetrics:
             (
                 "kernel-trace",
                 ["omnistat_kernel_dispatch_count", "omnistat_kernel_total_duration_ns"],
-                ["instance", "node_id", "kernel"],
+                ["instance", "card", "kernel"],
             ),
         ]
 
