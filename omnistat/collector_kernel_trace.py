@@ -55,7 +55,7 @@ class KernelTrace(EndpointCollector):
         # Buffer to accumulate time series data before pushing it to the
         # database. This buffer is necessary for two different scenarios: 1)
         # to handle long-running kernels, and 2) to handle applications or
-        # sectiosn with a low rate of kernel dispatches.
+        # sections with a low rate of kernel dispatches.
         self.__ts = OrderedDict()
 
         # Initialize time series window buffer
@@ -93,23 +93,47 @@ class KernelTrace(EndpointCollector):
         except Exception as e:
             return jsonify({"error": str(e)}), 400
 
-    # This method is called periodically on every interval and is used to:
-    #  1) process the data coming from endpoint requests
-    #  2) accumulate values and convert data to time series metrics
-    #  3) return data that is ready to be pushed
     def updateMetrics(self):
         logging.debug("Checking kernel tracing data...")
+        last_bin = self.__process_dispatches()
 
+        # Return all time-series data outside of the accumulation window
+        return self.__extract_metrics(last_bin - self.__window_ms)
+
+    def flushMetrics(self):
+        logging.debug("Flushing kernel tracing data...")
+        last_bin = self.__process_dispatches()
+
+        # Return all time-series data
+        return self.__extract_metrics(last_bin)
+
+    def __process_dispatches(self):
+        """Process pending dispatches and update time-series bins
+
+        Consumes dispatch data from the queue (self.__dispatches) and performs
+        two key operations:
+        1. Extends the time-series buffer (self.__ts) to include bins up to the
+           current time, creating empty bins as needed at self.__interval_ms
+           intervals.
+        2. Accumulates dispatch metrics using a dual-tracking approach:
+           - self.__ts: Snapshots of these totals at specific time bins
+           - self.__values: Global running totals per (gpu_id, kernel_name)
+
+        Each dispatch is assigned to a bin based on its end timestamp. The
+        snapshot stored in self.__ts[bin] represents the cumulative state of
+        all dispatches that completed by that bin.
+
+        Returns:
+            int: The last (most recent) bin in the time series (in ms).
+        """
         dispatches = []
-        push_intervals = []
-        entries = []
 
         time_ms = time.time_ns() // 1_000_000
         current_bin = ((time_ms // self.__interval_ms) + 1) * self.__interval_ms
         first_bin = next(iter(self.__ts))
         last_bin = next(reversed(self.__ts))
 
-        # Keep dictionary of time series intervals in order
+        # Keep in-order dictionary of time series intervals
         for i in range(last_bin + self.__interval_ms, current_bin + 1, self.__interval_ms):
             self.__ts[i] = {}
             last_bin = i
@@ -118,8 +142,6 @@ class KernelTrace(EndpointCollector):
             with self.__dispatches_lock:
                 dispatches = self.__dispatches.copy()
                 self.__dispatches.clear()
-
-        print(f"{current_bin}: first_bin = {first_bin} last_bin = {last_bin} ts_len = {len(self.__ts)}")
 
         for gpu_id, name, end_ns, duration_ns in dispatches:
             end_ms = (end_ns + self.__offset_ns) // 1_000_000
@@ -138,9 +160,33 @@ class KernelTrace(EndpointCollector):
             self.__values[key] = value
             self.__ts[end_bin][key] = value
 
+        return last_bin
+
+    def __extract_metrics(self, cutoff_bin):
+        """Extract accumulated kernel metrics as database entries
+
+        Pops time-series bins from the internal buffer (self.__ts) up to the
+        specified cutoff point and converts them into metric entries ready for
+        database ingestion. Bins after the cutoff remain in the buffer.
+
+        Args:
+            cutoff_bin: Extract bins up to and including this timestamp (in
+                ms). Bins after this point remain in the buffer for future
+                accumulation.
+
+        Returns:
+            List of metric entries, where each entry is a list:
+            [metric_name, labels_string, value, timestamp_bin].
+
+            Two metrics are generated per kernel dispatch:
+            - omnistat_kernel_dispatch_count: number of dispatches
+            - omnistat_kernel_total_duration_ns: cumulative duration in nanoseconds
+        """
+        entries = []
+
         num_push_intervals = 0
         for interval_bin, _ in self.__ts.items():
-            if interval_bin > current_bin - self.__window_ms:
+            if interval_bin > cutoff_bin:
                 break
             num_push_intervals += 1
 
@@ -151,20 +197,20 @@ class KernelTrace(EndpointCollector):
 
         for interval_bin, kernels in push_intervals:
             for (gpu_id, name), (num_dispatches, total_duration) in kernels.items():
-                entries.append(
+                entries.extend(
                     [
-                        "omnistat_kernel_dispatch_count",
-                        f'card="{gpu_id}",kernel="{name}"',
-                        num_dispatches,
-                        interval_bin,
-                    ]
-                )
-                entries.append(
-                    [
-                        "omnistat_kernel_total_duration_ns",
-                        f'card="{gpu_id}",kernel="{name}"',
-                        total_duration,
-                        interval_bin,
+                        [
+                            "omnistat_kernel_dispatch_count",
+                            f'card="{gpu_id}",kernel="{name}"',
+                            num_dispatches,
+                            interval_bin,
+                        ],
+                        [
+                            "omnistat_kernel_total_duration_ns",
+                            f'card="{gpu_id}",kernel="{name}"',
+                            total_duration,
+                            interval_bin,
+                        ],
                     ]
                 )
 
