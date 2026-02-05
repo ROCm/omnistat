@@ -68,3 +68,14 @@ class EndpointCollector(ABC):
     @abstractmethod
     def updateMetrics(self):
         pass
+
+    def flushMetrics(self):
+        """Flush any remaining metrics to the database when exporters are stopped.
+
+        Default implementation is a no-op. Override in subclasses that rely on
+        buffers and need to push remaining data when shutting down.
+
+        Returns:
+            A list of metric entries to be pushed to the database.
+        """
+        return []
