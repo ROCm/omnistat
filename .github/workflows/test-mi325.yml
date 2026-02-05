@@ -11,7 +11,7 @@ on:
 
 jobs:
   gpu-collectors-325:
-    runs-on: [linux-mi325-1gpu-ossci-rocm-frac]
+    runs-on: [linux-mi325-1gpu-ossci-rocm]
     strategy:
       matrix:
         rocm: [6.4.4, 7.0.2, 7.1, 7.2]
@@ -45,11 +45,18 @@ jobs:
       - name: Interrogate
         run: |
           rocm-smi
+          amd-smi
           which python3
+          which amd-smi
+          which rocm-smi
           amd-smi version
           cat /etc/os-release
           rocm-smi --showenergycounter
-          amd-smi metric -E
+          ls /opt
+          ls -l /usr/bin/amd-smi
+          ls -l /etc/alternatives/amd-smi
+          amd-smi metric -p -g 0
+#          amd-smi metric -E
 
       - name: Checkout code
         uses: actions/checkout@v4
