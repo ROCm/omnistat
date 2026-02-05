@@ -50,6 +50,7 @@ jobs:
           cat /etc/os-release
           rocm-smi --showenergycounter
           which amd-smi
+          ls /opt
           amd-smi metric -p
           amd-smi metric -E
 
