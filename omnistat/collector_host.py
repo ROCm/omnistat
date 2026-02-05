@@ -276,6 +276,15 @@ class HOST(Collector):
             f"--> initiated background CPU load sampling thread (interval: {self.__cpu_load_sampling_interval} sec)"
         )
 
+        # Initialize disk device tracking for local I/O stats
+        self.__tracked_devices = self.init_read_local_disk_io()
+        if self.__tracked_devices:
+            logging.info(
+                f"--> tracking {len(self.__tracked_devices)} local disk device(s): {sorted(self.__tracked_devices)}"
+            )
+        else:
+            logging.warning("--> no local disk devices found to track")
+
     def updateMetrics(self):
         """Update registered metrics of interest"""
 
@@ -414,15 +423,69 @@ class HOST(Collector):
 
         return read_rchar, write_wchar
 
-    def read_local_disk_io(self):
-        """Read /proc/diskstats and return total read and write bytes across all local physical disks.
+    def init_read_local_disk_io(self):
+        """Initialize tracking of local disk devices.
 
-        Sums I/O for whole physical disks only (e.g., sda, nvme0n1), excluding:
-        - Partitions (e.g., sda1, nvme0n1p1) to avoid double-counting
-        - Virtual devices (loop, ram, dm-, md, sr, zram)
+        Reads /proc/diskstats once to identify devices to track, applying filters to:
+        1. Skip virtual/pseudo devices (loop, ram, dm-, md, sr, zram)
+        2. Skip likely partitions to avoid overcounting (e.g., nvme0n1 vs nvme0)
+          a. Filter out partitions (devices whose names are prefixed by another device)
+          b. Deduplicate devices with identical read/write stats (keeping shortest name)
 
         Returns:
-            int: (read_bytes, write_bytes)
+            set: Device names to track for I/O statistics
+        """
+        devices = {}
+
+        try:
+            # Cache non-virtual devices and their current stats
+            with open("/proc/diskstats", "r") as f:
+                for line in f:
+                    parts = line.split()
+                    if len(parts) < 14:
+                        continue
+
+                    dev_name = parts[2]
+
+                    # Skip virtual/pseudo devices
+                    if dev_name.startswith(("loop", "ram", "dm-", "md", "sr", "zram")):
+                        continue
+
+                    sectors_read = int(parts[5])
+                    sectors_written = int(parts[9])
+                    devices[dev_name] = (sectors_read, sectors_written)
+
+            # Filter out partitions
+            whole_devices = set()
+            for dev_name in devices:
+                is_partition = any(other_name != dev_name and dev_name.startswith(other_name) for other_name in devices)
+                if not is_partition:
+                    whole_devices.add(dev_name)
+
+            # Filter out devices with identical stats
+            stats_to_devices = {}
+            for dev_name in whole_devices:
+                stats = devices[dev_name]
+                if stats not in stats_to_devices:
+                    stats_to_devices[stats] = []
+                stats_to_devices[stats].append(dev_name)
+
+            # Keep shortest name for each unique stat set
+            tracked_devices = set()
+            for dev_list in stats_to_devices.values():
+                tracked_devices.add(min(dev_list, key=len))
+
+            return tracked_devices
+
+        except Exception as e:
+            logging.warning(f"Failed to initialize disk tracking: {e}")
+            return set()
+
+    def read_local_disk_io(self):
+        """Read /proc/diskstats and return total read and write bytes across tracked local disks.
+
+        Returns:
+            tuple: (read_bytes, write_bytes)
         """
         read_bytes = 0
         write_bytes = 0
@@ -435,19 +498,16 @@ class HOST(Collector):
                         continue
 
                     dev_name = parts[2]
-
-                    # Skip virtual/pseudo devices and partitions
-                    if (
-                        dev_name.startswith(("loop", "ram", "dm-", "md", "sr", "zram")) or dev_name[-1].isdigit()
-                    ):  # Skip partitions (sda1, nvme0n1p1)
+                    if dev_name not in self.__tracked_devices:
                         continue
 
                     # parts[5] is sectors read, parts[9] is sectors written
-                    # /proc/diskstats always reports in 512-byte sectors regardless of physical sector size
+                    # /proc/diskstats always reports in 512-byte sectors
                     sectors_read = int(parts[5])
                     sectors_written = int(parts[9])
                     read_bytes += sectors_read * 512
                     write_bytes += sectors_written * 512
+
         except Exception as e:
             return (0, 0)
 
