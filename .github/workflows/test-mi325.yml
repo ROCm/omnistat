@@ -54,6 +54,7 @@ jobs:
           rocm-smi --showenergycounter
           ls /opt
           ls -l /usr/bin/amd-smi
+          ls -l /etc/alternatives/amd-smi
           amd-smi metric -p -g 0
 #          amd-smi metric -E
 
