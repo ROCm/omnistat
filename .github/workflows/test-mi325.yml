@@ -45,14 +45,17 @@ jobs:
       - name: Interrogate
         run: |
           rocm-smi
+	  amd-smi
           which python3
+          which amd-smi
+          which rocm-smi
           amd-smi version
           cat /etc/os-release
           rocm-smi --showenergycounter
-          which amd-smi
           ls /opt
-          amd-smi metric -p
-          amd-smi metric -E
+          ls -l /usr/bin/amd-smi
+          amd-smi metric -p -g 0
+#          amd-smi metric -E
 
       - name: Checkout code
         uses: actions/checkout@v4
