@@ -45,7 +45,7 @@ jobs:
       - name: Interrogate
         run: |
           rocm-smi
-	  amd-smi
+          amd-smi
           which python3
           which amd-smi
           which rocm-smi
