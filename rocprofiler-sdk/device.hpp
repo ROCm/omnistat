@@ -38,7 +38,7 @@ class DeviceSampler {
   public:
     DeviceSampler(rocprofiler_agent_id_t agent);
 
-    void start(const std::vector<std::string> &counters);
+    void start(const std::vector<std::string>& counters);
     void stop();
 
     std::vector<double> sample();
@@ -69,6 +69,6 @@ class DeviceSampler {
 
 void initialize();
 
-const std::vector<std::shared_ptr<DeviceSampler>> &get_samplers();
+const std::vector<std::shared_ptr<DeviceSampler>>& get_samplers();
 
 } // namespace omnistat

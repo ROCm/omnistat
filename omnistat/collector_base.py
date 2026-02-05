@@ -31,6 +31,8 @@
 import configparser
 from abc import ABC, abstractmethod
 
+from flask import Flask
+
 
 class Collector(ABC):
     # Optional method(s)
@@ -52,3 +54,28 @@ class Collector(ABC):
     def updateMetrics(self):
         """Updates defined metrics with latest values. Called at every polling interval."""
         pass
+
+
+class EndpointCollector(ABC):
+    @abstractmethod
+    def __init__(self, config: configparser.ConfigParser, route: Flask.route, interval: float):
+        pass
+
+    @abstractmethod
+    def handleRequest(self):
+        pass
+
+    @abstractmethod
+    def updateMetrics(self):
+        pass
+
+    def flushMetrics(self):
+        """Flush any remaining metrics to the database when exporters are stopped.
+
+        Default implementation is a no-op. Override in subclasses that rely on
+        buffers and need to push remaining data when shutting down.
+
+        Returns:
+            A list of metric entries to be pushed to the database.
+        """
+        return []

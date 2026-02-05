@@ -29,6 +29,8 @@
 
 import argparse
 import ctypes
+import importlib
+import json
 import logging
 import os
 import platform
@@ -132,6 +134,26 @@ class Standalone:
                 "[ERROR]: Please set fom_check_freqeuncy_secs  >= 5 seconds (%s)" % self.__fomCheckFrequencySecs
             )
             sys.exit(1)
+
+        # Load endpoint definitions
+        definitions_path = os.path.join(os.path.dirname(__file__), "collector_definitions.json")
+        try:
+            with open(definitions_path, "r") as f:
+                data = json.load(f)
+                endpoints = data["endpoints"]
+        except Exception as e:
+            logging.error(f"Failed to load endpoint definitions from file: {definitions_path}: {e}")
+            sys.exit(1)
+
+        self.__endpoints = []
+        for endpoint in endpoints:
+            runtime_option = endpoint["runtime_option"]
+            default = endpoint["enabled_by_default"]
+            enabled = config["omnistat.collectors"].getboolean(runtime_option, default)
+            if enabled:
+                module = importlib.import_module(endpoint["file"])
+                cls = getattr(module, endpoint["class_name"])
+                self.__endpoints.append(cls(config=config, route=app.route, interval=args.interval))
 
         logflask = logging.getLogger("werkzeug")
         logflask.setLevel(logging.ERROR)
@@ -246,6 +268,12 @@ class Standalone:
                     except:
                         pass
 
+                for endpoint in self.__endpoints:
+                    entries = endpoint.updateMetrics()
+                    for metric, labels, value, timestamp in entries:
+                        entry = f"{metric}{{{self.__labelDefaults},{labels}}} {value} {timestamp}"
+                        self.__dataVM.append(entry)
+
                 # periodically check for figure-of-merit (FOM) data
                 if fom_check_duration > self.__fomCheckFrequencySecs:
                     logging.debug("Checking on FOM data...")
@@ -299,6 +327,14 @@ class Standalone:
                 logging.info("Registered %i sample(s) of FOM data" % len(fomData))
                 num_fom_samples += len(fomData)
                 fomData.clear()
+
+        # Flush any remaining data from endpoints collectors before shutdown
+        logging.info("Flushing remaining data from endpoints...")
+        for endpoint in self.__endpoints:
+            entries = endpoint.flushMetrics()
+            for metric, labels, value, timestamp in entries:
+                entry = f"{metric}{{{self.__labelDefaults},{labels}}} {value} {timestamp}"
+                self.__dataVM.append(entry)
 
         if len(self.__dataVM) > 0:
             logging.info("Initiating final data push...")
