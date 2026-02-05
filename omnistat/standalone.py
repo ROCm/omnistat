@@ -328,6 +328,14 @@ class Standalone:
                 num_fom_samples += len(fomData)
                 fomData.clear()
 
+        # Flush any remaining data from endpoints collectors before shutdown
+        logging.info("Flushing remaining data from endpoints...")
+        for endpoint in self.__endpoints:
+            entries = endpoint.flushMetrics()
+            for metric, labels, value, timestamp in entries:
+                entry = f"{metric}{{{self.__labelDefaults},{labels}}} {value} {timestamp}"
+                self.__dataVM.append(entry)
+
         if len(self.__dataVM) > 0:
             logging.info("Initiating final data push...")
             push_to_victoria_metrics(self.__dataVM, self.__victoriaURL)
