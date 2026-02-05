@@ -1,0 +1,38 @@
+name: MI325
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 */12 * * *"    
+
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  gpu-collectors-325:
+    runs-on: [linux-mi325-1gpu-ossci-rocm]
+    strategy:
+      matrix:
+        rocm: [6.4.4]
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash
+    steps:
+
+      - name: Interrogate
+        run: |
+          rocm-smi
+          amd-smi
+          which python3
+          which amd-smi
+          which rocm-smi
+          amd-smi version
+          cat /etc/os-release
+          rocm-smi --showenergycounter
+          ls /opt
+          ls -l /usr/bin/amd-smi
+          ls -l /etc/alternatives/amd-smi
+          amd-smi metric -p -g 0
+          amd-smi metric -E
