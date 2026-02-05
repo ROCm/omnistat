@@ -1,4 +1,4 @@
-name: MI325
+name: debug-MI325
 
 on:
   workflow_dispatch:
