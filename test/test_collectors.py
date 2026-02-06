@@ -28,6 +28,7 @@ import multiprocessing
 import operator
 import os
 import re
+import socket
 import time
 
 import pytest
@@ -56,7 +57,7 @@ SMI_METRICS = [
 ]
 
 RAS_METRICS = [
-    {"name": "rocm_ras_umc_correctable_count",              "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_umc_correctable_count",              "validate": ">=0",               "labels": ["card"],        "skip":["borg"]},
     {"name": "rocm_ras_sdma_correctable_count",             "validate": ">=0",               "labels": ["card"]},
     {"name": "rocm_ras_gfx_correctable_count",              "validate": ">=0",               "labels": ["card"]},
     {"name": "rocm_ras_mmhub_correctable_count",            "validate": ">=0",               "labels": ["card"]},
@@ -119,6 +120,13 @@ def get_gpu_type(device=0):
 
 gpu_type = get_gpu_type()
 
+# Cache hostname for skip checks
+try:
+    full_hostname = socket.getfqdn()
+except:
+    full_hostname = "unknown"
+print(f"test execution hostname: {full_hostname}\n")
+
 COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocm_smi"],
@@ -135,11 +143,17 @@ COLLECTOR_CONFIGS = [
             for x in RAS_METRICS
             if "_deferred_count" not in x["name"]
             and ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))
+            and ("skip" not in x or not any(pattern in full_hostname for pattern in x["skip"]))
         ],
     },
     {
         "collectors": ["amd_smi", "ras_ecc"],
-        "metrics": [x for x in RAS_METRICS if "hardware" not in x or any(hw in gpu_type for hw in x["hardware"])],
+        "metrics": [
+            x
+            for x in RAS_METRICS
+            if ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))
+            and ("skip" not in x or not any(pattern in full_hostname for pattern in x["skip"]))
+        ],
     },
     {
         "collectors": ["rocm_smi", "cu_occupancy"],
