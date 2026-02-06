@@ -57,19 +57,19 @@ SMI_METRICS = [
 ]
 
 RAS_METRICS = [
-    {"name": "rocm_ras_umc_correctable_count",              "validate": ">=0",               "labels": ["card"],        "skip":["borg"]},
+    {"name": "rocm_ras_umc_correctable_count",              "validate": ">=0",               "labels": ["card"],        "skip":["borg","frontier"]},
     {"name": "rocm_ras_sdma_correctable_count",             "validate": ">=0",               "labels": ["card"]},
     {"name": "rocm_ras_gfx_correctable_count",              "validate": ">=0",               "labels": ["card"]},
     {"name": "rocm_ras_mmhub_correctable_count",            "validate": ">=0",               "labels": ["card"]},
     {"name": "rocm_ras_pcie_bif_correctable_count",         "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
     {"name": "rocm_ras_hdp_correctable_count",              "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
-    {"name": "rocm_ras_umc_uncorrectable_count",            "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_umc_uncorrectable_count",            "validate": ">=0",               "labels": ["card"],        "skip":["borg","frontier"]},
     {"name": "rocm_ras_sdma_uncorrectable_count",           "validate": ">=0",               "labels": ["card"]},
     {"name": "rocm_ras_gfx_uncorrectable_count",            "validate": ">=0",               "labels": ["card"]},
     {"name": "rocm_ras_mmhub_uncorrectable_count",          "validate": ">=0",               "labels": ["card"]},
     {"name": "rocm_ras_pcie_bif_uncorrectable_count",       "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
     {"name": "rocm_ras_hdp_uncorrectable_count",            "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
-    {"name": "rocm_ras_umc_deferred_count",                 "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_umc_deferred_count",                 "validate": ">=0",               "labels": ["card"],        "skip":["borg","frontier"]},
     {"name": "rocm_ras_sdma_deferred_count",                "validate": ">=0",               "labels": ["card"]},
     {"name": "rocm_ras_gfx_deferred_count",                 "validate": ">=0",               "labels": ["card"]},
     {"name": "rocm_ras_mmhub_deferred_count",               "validate": ">=0",               "labels": ["card"]},
