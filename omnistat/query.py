@@ -24,12 +24,15 @@
 # -------------------------------------------------------------------------------
 
 import argparse
+import json
 import logging
 import os
 import shutil
 import subprocess
 import sys
 import timeit
+import urllib.parse
+import urllib.request
 from datetime import datetime, timedelta
 from pathlib import Path
 from string import Template
@@ -176,6 +179,29 @@ class QueryMetrics:
     def __del__(self):
         if self.enable_redirect:
             self.output.close()
+
+    def _prometheus_label_values(self, label_name, match=None):
+        """
+        Query Prometheus/VictoriaMetrics label values API.
+
+        Returns:
+            list[str]: label values (empty on non-success responses)
+        """
+        base = self.config["prometheus_url"].rstrip("/")
+        url = f"{base}/api/v1/label/{urllib.parse.quote(label_name, safe='')}/values"
+
+        params = []
+        if match:
+            params.append(("match[]", match))
+        if params:
+            url = f"{url}?{urllib.parse.urlencode(params)}"
+
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+
+        if payload.get("status") != "success":
+            return []
+        return payload.get("data", []) or []
 
     def find_job_info(self):
         found = self._estimate_range()
@@ -1420,6 +1446,40 @@ class QueryMetrics:
     def export(self, export_path):
         export_prefix = "omnistat-"
 
+        # Try to discover CXI metrics from the backend so new counters/derived
+        # metrics automatically appear in exports without hardcoding names.
+        # Fall back to a minimal list if discovery fails.
+        cxi_tc_metrics = [
+            "omnistat_network_cxi_pkts_sent_by_tc",
+            "omnistat_network_cxi_pkts_recv_by_tc",
+            "omnistat_network_cxi_pause_recv",
+            "omnistat_network_cxi_pause_xoff_sent",
+            "omnistat_network_cxi_discard_cntr",
+        ]
+        cxi_bucket_metrics = [
+            "omnistat_network_cxi_rx_ok_packets_bucket",
+            "omnistat_network_cxi_tx_ok_packets_bucket",
+        ]
+        cxi_telemetry_metric = "omnistat_network_cxi_telemetry"
+
+        cxi_interface_metrics = []
+        try:
+            # Use match[] when supported to avoid fetching all metric names.
+            names = self._prometheus_label_values("__name__", match='{__name__=~"omnistat_network_cxi_.*"}')
+            if not names:
+                names = self._prometheus_label_values("__name__")
+            cxi_all = {n for n in names if n.startswith("omnistat_network_cxi_")}
+            excluded = set(cxi_tc_metrics) | set(cxi_bucket_metrics) | {cxi_telemetry_metric}
+            cxi_interface_metrics = sorted(cxi_all - excluded)
+        except Exception as e:
+            logging.info(f"[WARNING]: unable to discover CXI metrics from backend: {e}")
+            # Minimal fallback (keeps older behavior working).
+            cxi_interface_metrics = [
+                "omnistat_network_cxi_tx_bandwidth_bytes_per_second",
+                "omnistat_network_cxi_rx_bandwidth_bytes_per_second",
+                "omnistat_network_cxi_packet_send_rate_packets_per_second",
+            ]
+
         # List files to be generated for different subsets of metrics. Values
         # are tuples containing 1) file name, 2) a list of metrics, and 3) a
         # list of labels to be used for hierarchical indexing.
@@ -1433,6 +1493,26 @@ class QueryMetrics:
                 "network",
                 ["omnistat_network_rx_bytes", "omnistat_network_tx_bytes"],
                 ["instance", "device_class", "interface"],
+            ),
+            (
+                "cxi",
+                cxi_interface_metrics,
+                ["instance", "interface"],
+            ),
+            (
+                "cxi-tc",
+                cxi_tc_metrics,
+                ["instance", "interface", "traffic_class"],
+            ),
+            (
+                "cxi-buckets",
+                cxi_bucket_metrics,
+                ["instance", "interface", "bucket_min", "bucket_max"],
+            ),
+            (
+                "cxi-telemetry",
+                [cxi_telemetry_metric],
+                ["instance", "interface", "counter"],
             ),
             (
                 "rocprofiler",

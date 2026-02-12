@@ -303,3 +303,77 @@ Slingshot.
 | :-------------------------- | :----------------------------------- |
 | `omnistat_network_tx_bytes` | Total bytes transmitted by network interface. Labels: `device_class`, `interface`. |
 | `omnistat_network_rx_bytes` | Total bytes received by network interface. Labels: `device_class`, `interface`. |
+
+### Slingshot (CXI) telemetry
+
+On Slingshot systems, Omnistat can optionally expose additional Cassini/CXI
+telemetry counters from `/sys/class/cxi/*/device/telemetry/`. These are exported
+as raw counter values (use `rate()` / `increase()` in Prometheus to derive
+rates).
+
+| Node Metric                                  | Description                          |
+| :------------------------------------------- | :----------------------------------- |
+| `omnistat_network_cxi_telemetry`             | CXI telemetry counter value. Labels: `interface`, `counter`. |
+| `omnistat_network_cxi_tx_ok_octets`          | Transmitted fabric bytes (OK). Labels: `interface`. |
+| `omnistat_network_cxi_rx_ok_octets`          | Received fabric bytes (OK). Labels: `interface`. |
+| `omnistat_network_cxi_tx_octets_multi`       | Transmitted multicast bytes. Labels: `interface`. |
+| `omnistat_network_cxi_tx_octets_ieee`        | Transmitted IEEE-framed bytes. Labels: `interface`. |
+| `omnistat_network_cxi_tx_octets_opt`         | Transmitted optimized-protocol bytes. Labels: `interface`. |
+| `omnistat_network_cxi_pkts_sent_by_tc`       | Packets sent by traffic class. Labels: `interface`, `traffic_class`. |
+| `omnistat_network_cxi_pkts_recv_by_tc`       | Packets received by traffic class. Labels: `interface`, `traffic_class`. |
+| `omnistat_network_cxi_rx_ok_packets_bucket`  | OK receive packet counts by message-size bucket. Labels: `interface`, `bucket_min`, `bucket_max`. |
+| `omnistat_network_cxi_tx_ok_packets_bucket`  | OK transmit packet counts by message-size bucket. Labels: `interface`, `bucket_min`, `bucket_max`. |
+| `omnistat_network_cxi_pause_sent`            | Pause events sent. Labels: `interface`. |
+| `omnistat_network_cxi_pause_recv`            | Pause events received by traffic class. Labels: `interface`, `traffic_class`. |
+| `omnistat_network_cxi_pause_xoff_sent`       | XOFF events sent by traffic class. Labels: `interface`, `traffic_class`. |
+| `omnistat_network_cxi_discard_cntr`          | Discard counters by traffic class. Labels: `interface`, `traffic_class`. |
+| `omnistat_network_cxi_fgfc_discard`          | Flow-control discard counter. Labels: `interface`. |
+| `omnistat_network_cxi_tx_bad_octets`         | Bad transmitted octets. Labels: `interface`. |
+| `omnistat_network_cxi_rx_bad_octets`         | Bad received octets. Labels: `interface`. |
+| `omnistat_network_cxi_pcs_corrected_cw`      | Corrected PCS codewords. Labels: `interface`. |
+| `omnistat_network_cxi_pcs_uncorrected_cw`    | Uncorrected PCS codewords. Labels: `interface`. |
+
+### Slingshot (CXI) derived metrics
+
+The following CXI metrics are computed directly in Omnistat using the formulas
+in `features.tex` (deltas between consecutive samples).
+
+| Node Metric                                                      | Description |
+| :--------------------------------------------------------------- | :---------- |
+| `omnistat_network_cxi_tx_bandwidth_bytes_per_second`             | TX bandwidth (bytes/s). Labels: `interface`. |
+| `omnistat_network_cxi_rx_bandwidth_bytes_per_second`             | RX bandwidth (bytes/s). Labels: `interface`. |
+| `omnistat_network_cxi_bidirectional_bandwidth_bytes_per_second`  | TX+RX bandwidth (bytes/s). Labels: `interface`. |
+| `omnistat_network_cxi_tx_to_rx_balance_ratio`                    | TX/RX bandwidth ratio. Labels: `interface`. |
+| `omnistat_network_cxi_multicast_tx_share_fraction`               | Multicast TX share (fraction). Labels: `interface`. |
+| `omnistat_network_cxi_ieee_tx_share_fraction`                    | IEEE TX share (fraction). Labels: `interface`. |
+| `omnistat_network_cxi_optimized_tx_share_fraction`               | Optimized TX share (fraction). Labels: `interface`. |
+| `omnistat_network_cxi_packet_send_rate_packets_per_second`       | Packet send rate (pkts/s). Labels: `interface`. |
+| `omnistat_network_cxi_packet_receive_rate_packets_per_second`    | Packet receive rate (pkts/s). Labels: `interface`. |
+| `omnistat_network_cxi_avg_bytes_per_tx_packet`                   | Average bytes per TX packet. Labels: `interface`. |
+| `omnistat_network_cxi_small_packet_fraction_tx`                  | Small packet fraction (TX). Labels: `interface`. |
+| `omnistat_network_cxi_large_packet_fraction_tx`                  | Large packet fraction (TX). Labels: `interface`. |
+| `omnistat_network_cxi_link_busy_fraction`                        | Link busy fraction. Labels: `interface`. |
+| `omnistat_network_cxi_link_stall_per_flit`                       | Link stalls per flit. Labels: `interface`. |
+| `omnistat_network_cxi_cq_blocked_cycles_per_second`              | CQ blocked cycles (cycles/s). Labels: `interface`. |
+| `omnistat_network_cxi_nic_no_work_cycles_per_second`             | NIC no-work proxy (cycles/s). Labels: `interface`. |
+| `omnistat_network_cxi_pause_received_per_second`                 | Pause receive rate (events/s). Labels: `interface`. |
+| `omnistat_network_cxi_pause_sent_per_second`                     | Pause send rate (events/s). Labels: `interface`. |
+| `omnistat_network_cxi_xoff_sent_per_second`                      | XOFF send rate (events/s). Labels: `interface`. |
+| `omnistat_network_cxi_ecn_marking_ratio_request_fraction`        | ECN marking ratio (request). Labels: `interface`. |
+| `omnistat_network_cxi_ecn_marking_ratio_response_fraction`       | ECN marking ratio (response). Labels: `interface`. |
+| `omnistat_network_cxi_congestion_discard_per_second`             | Congestion discard rate (events/s). Labels: `interface`. |
+| `omnistat_network_cxi_command_credits_in_use_per_second`         | Command credits-in-use proxy (1/s). Labels: `interface`. |
+| `omnistat_network_cxi_receive_fifo_credits_in_use_per_second`    | Receive FIFO credits-in-use proxy (1/s). Labels: `interface`. |
+| `omnistat_network_cxi_pi_posted_credits_in_use_per_second`       | PI posted credits-in-use proxy (1/s). Labels: `interface`. |
+| `omnistat_network_cxi_resource_busy_per_second`                  | Resource busy rate (events/s). Labels: `interface`. |
+| `omnistat_network_cxi_endpoint_table_pressure_fraction`          | Endpoint table pressure proxy (fraction). Labels: `interface`. |
+| `omnistat_network_cxi_ordered_to_unordered_ratio`                | Ordered/unordered ratio. Labels: `interface`. |
+| `omnistat_network_cxi_unordered_fraction`                        | Unordered fraction. Labels: `interface`. |
+| `omnistat_network_cxi_ordered_request_fraction`                  | Ordered request fraction. Labels: `interface`. |
+| `omnistat_network_cxi_mean_rsp_latency_bin_index`                | Mean response latency proxy (bin index). Labels: `interface`. |
+| `omnistat_network_cxi_tail_latency_fraction_top10pct_bins`       | Tail latency fraction (top bins). Labels: `interface`. |
+| `omnistat_network_cxi_timeout_per_second`                        | Timeout rate (events/s). Labels: `interface`. |
+| `omnistat_network_cxi_bad_tx_octets_per_second`                  | Bad TX octet rate (octets/s). Labels: `interface`. |
+| `omnistat_network_cxi_bad_rx_octets_per_second`                  | Bad RX octet rate (octets/s). Labels: `interface`. |
+| `omnistat_network_cxi_ecc_corrected_cw_per_second`               | ECC corrected codewords (cw/s). Labels: `interface`. |
+| `omnistat_network_cxi_ecc_uncorrected_cw_per_second`             | ECC uncorrected codewords (cw/s). Labels: `interface`. |
