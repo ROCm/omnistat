@@ -32,7 +32,7 @@ def install(package):
 # -- Project information -----------------------------------------------------
 
 project = "Omnistat"
-copyright = "2023-2025, Advanced Micro Devices, Inc. All Rights Reserved"
+copyright = "2023-2026, Advanced Micro Devices, Inc. All Rights Reserved"
 author = "AMD Research"
 
 # The short X.Y version
