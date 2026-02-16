@@ -1,5 +1,5 @@
 {
-    "license": "MIT License. Copyright (c) 2025 Advanced Micro Devices, Inc. All Rights Reserved.",
+    "license": "MIT License. Copyright (c) 2023 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.",
     "info": "Omnistat data collector definitions (metadata to support dynamic loading)",
     "collectors": [
         {
