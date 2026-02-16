@@ -20,10 +20,12 @@ jobs:
         run: >
           sed -i "s/enable_rocm_smi = True/enable_rocm_smi = False/" \
             test/docker/slurm/omnistat-system.config
+      - name: Build container image
+        run: docker compose -f test/docker/slurm/compose.yaml build controller
       - name: Start containerized environment
         env:
           TEST_OMNISTAT_EXECUTION: ${{ matrix.execution }}
-        run: docker compose -f test/docker/slurm/compose.yaml up -d
+        run: docker compose -f test/docker/slurm/compose.yaml up -d --no-build
       - name: Wait for Prometheus
         run: >
           timeout 1m bash -c \

@@ -6,7 +6,7 @@ x-node: &node
   build:
     context: ../../../
     dockerfile: test/docker/slurm/Dockerfile
-  image: slurm
+  image: slurm:latest
   command: node-system
   volumes:
     - jobs_dir:/jobs
@@ -31,7 +31,7 @@ x-controller: &controller
   build:
     context: ../../../
     dockerfile: test/docker/slurm/Dockerfile
-  image: slurm
+  image: slurm:latest
   command: controller-system
   volumes:
     - jobs_dir:/jobs
