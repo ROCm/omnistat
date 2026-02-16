@@ -40,6 +40,10 @@ version = repo_version
 # The full version, including alpha/beta/rc tags
 release = repo_version
 
+# Include version in the project name for sidebar display (as newer
+# Sphinx did away with this convenient setting)
+project = f"{project} (v{version})"
+
 # -- General configuration ---------------------------------------------------
 
 install("sphinx_rtd_theme")
@@ -146,7 +150,6 @@ html_theme_options = {
     "analytics_id": "G-8K5QQMVD1V",  #  Provided by Google in your dashboard
     "analytics_anonymize_ip": False,
     "logo_only": False,
-    "display_version": True,
     "prev_next_buttons_location": "bottom",
     "style_external_links": False,
     "vcs_pageview_mode": "",
