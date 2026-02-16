@@ -445,7 +445,9 @@ class NETWORK(Collector):
             if num_buckets > 0:
                 metric = self.__prefix + f"cxi_{kind}_ok_packets_bucket"
                 description = f"CXI ok packet counts by message-size bucket ({kind})"
-                self.__cxi_bucket_gauges[kind] = Gauge(metric, description, labelnames=["interface", "bucket_min", "bucket_max"])
+                self.__cxi_bucket_gauges[kind] = Gauge(
+                    metric, description, labelnames=["interface", "bucket_min", "bucket_max"]
+                )
                 logging.info(f"--> [registered] {metric} -> {description} (gauge)")
 
         if sum(len(counters) for counters in self.__cxi_feature_counter_paths.values()) > 0:
@@ -462,17 +464,29 @@ class NETWORK(Collector):
         ):
             self.__register_cxi_derived_metric("tx_bandwidth_bytes_per_second", "CXI TX bandwidth (bytes/s)")
             self.__register_cxi_derived_metric("rx_bandwidth_bytes_per_second", "CXI RX bandwidth (bytes/s)")
-            self.__register_cxi_derived_metric("bidirectional_bandwidth_bytes_per_second", "CXI bidirectional bandwidth (bytes/s)")
+            self.__register_cxi_derived_metric(
+                "bidirectional_bandwidth_bytes_per_second", "CXI bidirectional bandwidth (bytes/s)"
+            )
             self.__register_cxi_derived_metric("tx_to_rx_balance_ratio", "CXI TX/RX bandwidth balance ratio")
-            self.__register_cxi_derived_metric("multicast_tx_share_fraction", "CXI multicast TX share (fraction of TX bytes)")
+            self.__register_cxi_derived_metric(
+                "multicast_tx_share_fraction", "CXI multicast TX share (fraction of TX bytes)"
+            )
             self.__register_cxi_derived_metric("ieee_tx_share_fraction", "CXI IEEE TX share (fraction of TX bytes)")
-            self.__register_cxi_derived_metric("optimized_tx_share_fraction", "CXI optimized-protocol TX share (fraction of TX bytes)")
+            self.__register_cxi_derived_metric(
+                "optimized_tx_share_fraction", "CXI optimized-protocol TX share (fraction of TX bytes)"
+            )
 
             self.__register_cxi_derived_metric("packet_send_rate_packets_per_second", "CXI packet send rate (pkts/s)")
-            self.__register_cxi_derived_metric("packet_receive_rate_packets_per_second", "CXI packet receive rate (pkts/s)")
+            self.__register_cxi_derived_metric(
+                "packet_receive_rate_packets_per_second", "CXI packet receive rate (pkts/s)"
+            )
             self.__register_cxi_derived_metric("avg_bytes_per_tx_packet", "CXI average bytes per TX packet (bytes/pkt)")
-            self.__register_cxi_derived_metric("small_packet_fraction_tx", "CXI small packet fraction TX (fraction of TX packets)")
-            self.__register_cxi_derived_metric("large_packet_fraction_tx", "CXI large packet fraction TX (fraction of TX packets)")
+            self.__register_cxi_derived_metric(
+                "small_packet_fraction_tx", "CXI small packet fraction TX (fraction of TX packets)"
+            )
+            self.__register_cxi_derived_metric(
+                "large_packet_fraction_tx", "CXI large packet fraction TX (fraction of TX packets)"
+            )
 
             self.__register_cxi_derived_metric("link_busy_fraction", "CXI link busy fraction")
             self.__register_cxi_derived_metric("link_stall_per_flit", "CXI link stalls per flit")
@@ -482,28 +496,48 @@ class NETWORK(Collector):
             self.__register_cxi_derived_metric("pause_received_per_second", "CXI pause received rate (events/s)")
             self.__register_cxi_derived_metric("pause_sent_per_second", "CXI pause sent rate (events/s)")
             self.__register_cxi_derived_metric("xoff_sent_per_second", "CXI XOFF sent rate (events/s)")
-            self.__register_cxi_derived_metric("ecn_marking_ratio_request_fraction", "CXI ECN marking ratio (request side)")
-            self.__register_cxi_derived_metric("ecn_marking_ratio_response_fraction", "CXI ECN marking ratio (response side)")
-            self.__register_cxi_derived_metric("congestion_discard_per_second", "CXI congestion discard rate (events/s)")
+            self.__register_cxi_derived_metric(
+                "ecn_marking_ratio_request_fraction", "CXI ECN marking ratio (request side)"
+            )
+            self.__register_cxi_derived_metric(
+                "ecn_marking_ratio_response_fraction", "CXI ECN marking ratio (response side)"
+            )
+            self.__register_cxi_derived_metric(
+                "congestion_discard_per_second", "CXI congestion discard rate (events/s)"
+            )
 
-            self.__register_cxi_derived_metric("command_credits_in_use_per_second", "CXI command credits in use rate proxy (1/s)")
-            self.__register_cxi_derived_metric("receive_fifo_credits_in_use_per_second", "CXI receive FIFO credits in use rate proxy (1/s)")
-            self.__register_cxi_derived_metric("pi_posted_credits_in_use_per_second", "CXI PI posted credits in use rate proxy (1/s)")
+            self.__register_cxi_derived_metric(
+                "command_credits_in_use_per_second", "CXI command credits in use rate proxy (1/s)"
+            )
+            self.__register_cxi_derived_metric(
+                "receive_fifo_credits_in_use_per_second", "CXI receive FIFO credits in use rate proxy (1/s)"
+            )
+            self.__register_cxi_derived_metric(
+                "pi_posted_credits_in_use_per_second", "CXI PI posted credits in use rate proxy (1/s)"
+            )
             self.__register_cxi_derived_metric("resource_busy_per_second", "CXI resource busy rate (events/s)")
-            self.__register_cxi_derived_metric("endpoint_table_pressure_fraction", "CXI endpoint table pressure proxy (fraction)")
+            self.__register_cxi_derived_metric(
+                "endpoint_table_pressure_fraction", "CXI endpoint table pressure proxy (fraction)"
+            )
 
             self.__register_cxi_derived_metric("ordered_to_unordered_ratio", "CXI ordered/unordered packet ratio")
             self.__register_cxi_derived_metric("unordered_fraction", "CXI unordered packet fraction")
             self.__register_cxi_derived_metric("ordered_request_fraction", "CXI ordered request fraction")
 
-            self.__register_cxi_derived_metric("mean_rsp_latency_bin_index", "CXI mean response latency proxy (bin index)")
-            self.__register_cxi_derived_metric("tail_latency_fraction_top10pct_bins", "CXI tail latency fraction (top 10% bins)")
+            self.__register_cxi_derived_metric(
+                "mean_rsp_latency_bin_index", "CXI mean response latency proxy (bin index)"
+            )
+            self.__register_cxi_derived_metric(
+                "tail_latency_fraction_top10pct_bins", "CXI tail latency fraction (top 10% bins)"
+            )
             self.__register_cxi_derived_metric("timeout_per_second", "CXI timeout rate (events/s)")
 
             self.__register_cxi_derived_metric("bad_tx_octets_per_second", "CXI bad TX octet rate (octets/s)")
             self.__register_cxi_derived_metric("bad_rx_octets_per_second", "CXI bad RX octet rate (octets/s)")
             self.__register_cxi_derived_metric("ecc_corrected_cw_per_second", "CXI ECC corrected codeword rate (cw/s)")
-            self.__register_cxi_derived_metric("ecc_uncorrected_cw_per_second", "CXI ECC uncorrected codeword rate (cw/s)")
+            self.__register_cxi_derived_metric(
+                "ecc_uncorrected_cw_per_second", "CXI ECC uncorrected codeword rate (cw/s)"
+            )
 
     def updateMetrics(self):
         """Update registered metrics of interest"""
@@ -528,8 +562,10 @@ class NETWORK(Collector):
         # Prefer exact fabric octet counters if available; otherwise, estimate a
         # lower bound from the message-size histogram buckets.
         for kind, metric in [("rx", self.__rx_metric), ("tx", self.__tx_metric)]:
-            for nic in set(self.__cxi_rx_data_paths.keys()) | set(self.__cxi_tx_data_paths.keys()) | set(
-                self.__cxi_ok_octets_paths[kind].keys()
+            for nic in (
+                set(self.__cxi_rx_data_paths.keys())
+                | set(self.__cxi_tx_data_paths.keys())
+                | set(self.__cxi_ok_octets_paths[kind].keys())
             ):
                 total = None
                 path = self.__cxi_ok_octets_paths[kind].get(nic)
@@ -540,7 +576,9 @@ class NETWORK(Collector):
                         total = None
 
                 if total is None:
-                    buckets = self.__cxi_rx_data_paths.get(nic, {}) if kind == "rx" else self.__cxi_tx_data_paths.get(nic, {})
+                    buckets = (
+                        self.__cxi_rx_data_paths.get(nic, {}) if kind == "rx" else self.__cxi_tx_data_paths.get(nic, {})
+                    )
                     total = 0
                     for size, bucket_path in buckets.items():
                         try:
@@ -711,7 +749,9 @@ class NETWORK(Collector):
                 rx_bw = delta_rx_ok / dt if delta_rx_ok else 0.0
                 self.__cxi_derived_gauges["tx_bandwidth_bytes_per_second"].labels(interface=nic).set(tx_bw)
                 self.__cxi_derived_gauges["rx_bandwidth_bytes_per_second"].labels(interface=nic).set(rx_bw)
-                self.__cxi_derived_gauges["bidirectional_bandwidth_bytes_per_second"].labels(interface=nic).set((delta_tx_ok + delta_rx_ok) / dt)
+                self.__cxi_derived_gauges["bidirectional_bandwidth_bytes_per_second"].labels(interface=nic).set(
+                    (delta_tx_ok + delta_rx_ok) / dt
+                )
                 self.__cxi_derived_gauges["tx_to_rx_balance_ratio"].labels(interface=nic).set(tx_bw / max(rx_bw, eps))
 
                 self.__cxi_derived_gauges["multicast_tx_share_fraction"].labels(interface=nic).set(
@@ -726,25 +766,47 @@ class NETWORK(Collector):
 
                 delta_pkts_tx = d("hni_pkts_sent_by_tc_sum")
                 delta_pkts_rx = d("hni_pkts_recv_by_tc_sum")
-                self.__cxi_derived_gauges["packet_send_rate_packets_per_second"].labels(interface=nic).set(delta_pkts_tx / dt)
-                self.__cxi_derived_gauges["packet_receive_rate_packets_per_second"].labels(interface=nic).set(delta_pkts_rx / dt)
-                self.__cxi_derived_gauges["avg_bytes_per_tx_packet"].labels(interface=nic).set(delta_tx_ok / max(delta_pkts_tx, 1))
+                self.__cxi_derived_gauges["packet_send_rate_packets_per_second"].labels(interface=nic).set(
+                    delta_pkts_tx / dt
+                )
+                self.__cxi_derived_gauges["packet_receive_rate_packets_per_second"].labels(interface=nic).set(
+                    delta_pkts_rx / dt
+                )
+                self.__cxi_derived_gauges["avg_bytes_per_tx_packet"].labels(interface=nic).set(
+                    delta_tx_ok / max(delta_pkts_tx, 1)
+                )
 
                 delta_small_pkts = sum(d(f"hni_tx_ok_bucket_{m}") for m in [64, 65, 128])
                 delta_large_pkts = sum(d(f"hni_tx_ok_bucket_{m}") for m in [1024, 2048, 4096, 8192])
-                self.__cxi_derived_gauges["small_packet_fraction_tx"].labels(interface=nic).set(delta_small_pkts / max(delta_pkts_tx, 1))
-                self.__cxi_derived_gauges["large_packet_fraction_tx"].labels(interface=nic).set(delta_large_pkts / max(delta_pkts_tx, 1))
+                self.__cxi_derived_gauges["small_packet_fraction_tx"].labels(interface=nic).set(
+                    delta_small_pkts / max(delta_pkts_tx, 1)
+                )
+                self.__cxi_derived_gauges["large_packet_fraction_tx"].labels(interface=nic).set(
+                    delta_large_pkts / max(delta_pkts_tx, 1)
+                )
 
                 delta_flits = d("cq_cq_oxe_num_flits")
                 delta_idles = d("cq_cq_oxe_num_idles")
-                self.__cxi_derived_gauges["link_busy_fraction"].labels(interface=nic).set(delta_flits / max(delta_flits + delta_idles, 1))
-                self.__cxi_derived_gauges["link_stall_per_flit"].labels(interface=nic).set(d("cq_cq_oxe_num_stalls") / max(delta_flits, 1))
-                self.__cxi_derived_gauges["cq_blocked_cycles_per_second"].labels(interface=nic).set(d("cq_cycles_blocked_sum") / dt)
-                self.__cxi_derived_gauges["nic_no_work_cycles_per_second"].labels(interface=nic).set(d("oxe_channel_idle") / dt)
+                self.__cxi_derived_gauges["link_busy_fraction"].labels(interface=nic).set(
+                    delta_flits / max(delta_flits + delta_idles, 1)
+                )
+                self.__cxi_derived_gauges["link_stall_per_flit"].labels(interface=nic).set(
+                    d("cq_cq_oxe_num_stalls") / max(delta_flits, 1)
+                )
+                self.__cxi_derived_gauges["cq_blocked_cycles_per_second"].labels(interface=nic).set(
+                    d("cq_cycles_blocked_sum") / dt
+                )
+                self.__cxi_derived_gauges["nic_no_work_cycles_per_second"].labels(interface=nic).set(
+                    d("oxe_channel_idle") / dt
+                )
 
-                self.__cxi_derived_gauges["pause_received_per_second"].labels(interface=nic).set(d("hni_pause_recv_sum") / dt)
+                self.__cxi_derived_gauges["pause_received_per_second"].labels(interface=nic).set(
+                    d("hni_pause_recv_sum") / dt
+                )
                 self.__cxi_derived_gauges["pause_sent_per_second"].labels(interface=nic).set(d("hni_pause_sent") / dt)
-                self.__cxi_derived_gauges["xoff_sent_per_second"].labels(interface=nic).set(d("hni_pause_xoff_sent_sum") / dt)
+                self.__cxi_derived_gauges["xoff_sent_per_second"].labels(interface=nic).set(
+                    d("hni_pause_xoff_sent_sum") / dt
+                )
 
                 delta_req_ecn = d("ixe_tc_req_ecn_pkts_sum")
                 delta_req_no = d("ixe_tc_req_no_ecn_pkts_sum")
@@ -769,7 +831,9 @@ class NETWORK(Collector):
                 self.__cxi_derived_gauges["pi_posted_credits_in_use_per_second"].labels(interface=nic).set(
                     d("parbs_sts_credits_in_use_tarb_pi_posted_credits") / dt
                 )
-                self.__cxi_derived_gauges["resource_busy_per_second"].labels(interface=nic).set(d("pct_resource_busy") / dt)
+                self.__cxi_derived_gauges["resource_busy_per_second"].labels(interface=nic).set(
+                    d("pct_resource_busy") / dt
+                )
                 self.__cxi_derived_gauges["endpoint_table_pressure_fraction"].labels(interface=nic).set(
                     d("pct_prf_tct_status_tct_in_use") / max(d("pct_prf_tct_status_max_tct_in_use"), 1)
                 )
@@ -779,7 +843,9 @@ class NETWORK(Collector):
                 )
                 ordered = d("oxe_ioi_pkts_ordered")
                 unordered = d("oxe_ioi_pkts_unordered")
-                self.__cxi_derived_gauges["unordered_fraction"].labels(interface=nic).set(unordered / max(ordered + unordered, 1))
+                self.__cxi_derived_gauges["unordered_fraction"].labels(interface=nic).set(
+                    unordered / max(ordered + unordered, 1)
+                )
 
                 delta_req_ordered = d("pct_req_ordered")
                 delta_req_unordered = d("pct_req_unordered")
@@ -816,10 +882,18 @@ class NETWORK(Collector):
                     (d("pct_sct_timeouts") + d("pct_tct_timeouts") + d("pct_trs_replay_pend_drops")) / dt
                 )
 
-                self.__cxi_derived_gauges["bad_tx_octets_per_second"].labels(interface=nic).set(d("hni_sts_tx_bad_octets") / dt)
-                self.__cxi_derived_gauges["bad_rx_octets_per_second"].labels(interface=nic).set(d("hni_sts_rx_bad_octets") / dt)
-                self.__cxi_derived_gauges["ecc_corrected_cw_per_second"].labels(interface=nic).set(d("hni_pcs_corrected_cw") / dt)
-                self.__cxi_derived_gauges["ecc_uncorrected_cw_per_second"].labels(interface=nic).set(d("hni_pcs_uncorrected_cw") / dt)
+                self.__cxi_derived_gauges["bad_tx_octets_per_second"].labels(interface=nic).set(
+                    d("hni_sts_tx_bad_octets") / dt
+                )
+                self.__cxi_derived_gauges["bad_rx_octets_per_second"].labels(interface=nic).set(
+                    d("hni_sts_rx_bad_octets") / dt
+                )
+                self.__cxi_derived_gauges["ecc_corrected_cw_per_second"].labels(interface=nic).set(
+                    d("hni_pcs_corrected_cw") / dt
+                )
+                self.__cxi_derived_gauges["ecc_uncorrected_cw_per_second"].labels(interface=nic).set(
+                    d("hni_pcs_uncorrected_cw") / dt
+                )
 
                 self.__cxi_prev_samples[nic] = {"ts": now, "values": current}
 
