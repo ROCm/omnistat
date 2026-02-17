@@ -101,7 +101,6 @@ class AMDSMI(Collector):
 
         logging.debug("Initializing AMD SMI data collector")
         self.__prefix = "rocm_"
-        self.__schema = 1.0
         self.__num_gpus = 0
         self.__devices = []
         self.__GPUMetrics = {}
@@ -180,7 +179,7 @@ class AMDSMI(Collector):
         version_metric = Gauge(
             self.__prefix + "version_info",
             "GPU versioning information",
-            labelnames=["card", "driver_ver", "vbios", "type", "schema"],
+            labelnames=["card", "driver_ver", "vbios", "type"],
         )
 
         for idx, device in enumerate(self.__devices):
@@ -193,9 +192,7 @@ class AMDSMI(Collector):
             driver_info = smi.amdsmi_get_gpu_driver_info(device)
             gpuDriverVer = driver_info["driver_version"]
 
-            version_metric.labels(
-                card=gpuLabel, driver_ver=gpuDriverVer, vbios=vbios, type=devtype, schema=self.__schema
-            ).set(1)
+            version_metric.labels(card=gpuLabel, driver_ver=gpuDriverVer, vbios=vbios, type=devtype).set(1)
 
         # Register memory related metrics
         self.__GPUMetrics["vram_total_bytes"] = Gauge(
