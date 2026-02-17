@@ -269,7 +269,6 @@ class ROCMSMI(Collector):
 
         logging.debug("Initializing ROCm SMI data collector")
         self.__prefix = "rocm_"
-        self.__schema = 1.0
         self.__minSMIVersionRequired = (7, 0, 0)
         self.__minROCmVersion = "6.1.0"
         self.__eccBlocks = {}
@@ -370,7 +369,7 @@ class ROCMSMI(Collector):
         version_metric = Gauge(
             self.__prefix + "version_info",
             "GPU versioning information",
-            labelnames=["card", "driver_ver", "vbios", "type", "schema"],
+            labelnames=["card", "driver_ver", "vbios", "type"],
         )
         for i in range(self.__num_gpus):
             gpuLabel = self.__indexMapping[i]
@@ -384,7 +383,10 @@ class ROCMSMI(Collector):
             devtype = ver_str.value.decode()
 
             version_metric.labels(
-                card=gpuLabel, driver_ver=self.__gpuDriverVer, vbios=vbios, type=devtype, schema=self.__schema
+                card=gpuLabel,
+                driver_ver=self.__gpuDriverVer,
+                vbios=vbios,
+                type=devtype,
             ).set(1)
 
         # register desired metric names
