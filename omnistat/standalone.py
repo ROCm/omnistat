@@ -242,7 +242,16 @@ class Standalone:
                         push_thread.start()
                         self.__dataVM = []
                         num_pushes += 1
-                        push_time_accumulation += time.perf_counter() - push_start_time
+                        push_end_time = time.perf_counter()
+                        # include push time as published metric
+                        entry = "%s{%s} %s %i" % (
+                            "omnistat_perf_push_seconds",
+                            self.__labelDefaults,
+                            push_end_time - push_start_time,
+                            timestamp_msecs,
+                        )
+                        self.__dataVM.append(entry)
+                        push_time_accumulation += push_end_time - push_start_time
                     except:
                         pass
 
