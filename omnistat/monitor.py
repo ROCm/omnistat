@@ -44,7 +44,7 @@ from omnistat import utils
 
 
 class Monitor:
-    def __init__(self, config, logFile=None):
+    def __init__(self, config, logFile=None, mode="Unknown", interval_secs="Unknown", push_interval_mins="Unknown"):
 
         self.config = config  # cache runtime configuration
 
@@ -59,6 +59,19 @@ class Monitor:
             )
         else:
             logging.basicConfig(format="%(message)s", level=logLevel, stream=sys.stdout)
+
+        # embed additional info into runtime config
+        if not self.config.has_section("omnistat.internal"):
+            self.config.add_section("omnistat.internal")
+            self.config["omnistat.internal"]["mode"] = mode
+            self.config["omnistat.internal"]["interval_secs"] = str(interval_secs)
+            try:
+                if int(push_interval_mins) > 0:
+                    self.config["omnistat.internal"]["push_interval_secs"] = str(60 * push_interval_mins)
+                else:
+                    self.config["omnistat.internal"]["push_interval_secs"] = "Unknown"
+            except (ValueError, TypeError):
+                self.config["omnistat.internal"]["push_interval_secs"] = "Unknown"
 
         self.enforce_global_runtime_constraints()
 
@@ -131,7 +144,10 @@ class Monitor:
         for collector in COLLECTORS:
             runtime_option = collector["runtime_option"]
             default = collector["enabled_by_default"]
-            enabled = self.config["omnistat.collectors"].getboolean(runtime_option, default)
+            if runtime_option:
+                enabled = self.config["omnistat.collectors"].getboolean(runtime_option, default)
+            else:
+                enabled = default
             if enabled:
                 module = importlib.import_module(collector["file"])
                 cls = getattr(module, collector["class_name"])
