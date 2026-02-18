@@ -1766,7 +1766,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1917
+            "y": 1936
           },
           "id": 88,
           "interval": "$interval",
@@ -1876,7 +1876,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1917
+            "y": 1936
           },
           "id": 89,
           "interval": "$interval",
@@ -2026,7 +2026,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2394
+            "y": 2413
           },
           "id": 91,
           "interval": "$interval",
@@ -2177,7 +2177,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 2402
+            "y": 2421
           },
           "id": 99,
           "interval": "$interval",
@@ -2341,7 +2341,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 2402
+            "y": 2421
           },
           "id": 100,
           "interval": "$interval",
@@ -2490,7 +2490,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1918
+            "y": 1937
           },
           "id": 28,
           "interval": "$interval",
@@ -2552,7 +2552,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1918
+            "y": 1937
           },
           "id": 86,
           "interval": "$interval",
@@ -2665,7 +2665,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 2304
+            "y": 2323
           },
           "id": 29,
           "interval": "$interval",
@@ -2727,7 +2727,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 2304
+            "y": 2323
           },
           "id": 31,
           "interval": "$interval",
@@ -2868,7 +2868,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2312
+            "y": 2331
           },
           "id": 24,
           "interval": "$interval",
@@ -2942,7 +2942,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1919
+            "y": 1938
           },
           "id": 27,
           "interval": "$interval",
@@ -3052,7 +3052,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1919
+            "y": 1938
           },
           "id": 87,
           "interval": "$interval",
@@ -3202,7 +3202,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1930
+            "y": 1949
           },
           "id": 90,
           "interval": "$interval",
@@ -3369,7 +3369,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1938
+            "y": 1957
           },
           "id": 98,
           "interval": "$interval",
@@ -3549,7 +3549,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1938
+            "y": 1957
           },
           "id": 95,
           "interval": "$interval",
@@ -3820,7 +3820,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 1947
+            "y": 1966
           },
           "id": 52,
           "interval": "$interval",
@@ -3973,7 +3973,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 813
+            "y": 832
           },
           "id": 142,
           "interval": "$interval",
@@ -4082,7 +4082,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1453
+            "y": 1472
           },
           "id": 33,
           "interval": "$interval",
@@ -4191,7 +4191,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1461
+            "y": 1480
           },
           "id": 128,
           "interval": "$interval",
@@ -4300,7 +4300,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1469
+            "y": 1488
           },
           "id": 129,
           "interval": "$interval",
@@ -4409,7 +4409,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1477
+            "y": 1496
           },
           "id": 130,
           "interval": "$interval",
@@ -4518,7 +4518,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1477
+            "y": 1496
           },
           "id": 131,
           "interval": "$interval",
@@ -4641,7 +4641,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2323
+            "y": 2342
           },
           "id": 143,
           "interval": "$interval",
@@ -4741,7 +4741,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2331
+            "y": 2350
           },
           "id": 127,
           "interval": "$interval",
@@ -4841,7 +4841,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2339
+            "y": 2358
           },
           "id": 104,
           "interval": "$interval",
@@ -4941,7 +4941,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2347
+            "y": 2366
           },
           "id": 22,
           "interval": "$interval",
@@ -5041,7 +5041,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2355
+            "y": 2374
           },
           "id": 25,
           "interval": "$interval",
@@ -5141,7 +5141,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2355
+            "y": 2374
           },
           "id": 23,
           "interval": "$interval",
@@ -5255,7 +5255,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1743
+            "y": 1762
           },
           "id": 144,
           "interval": "$interval",
@@ -5364,7 +5364,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1823
+            "y": 1842
           },
           "id": 137,
           "interval": "$interval",
@@ -5473,7 +5473,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1831
+            "y": 1850
           },
           "id": 138,
           "interval": "$interval",
@@ -5582,7 +5582,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1839
+            "y": 1858
           },
           "id": 139,
           "interval": "$interval",
@@ -5691,7 +5691,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1847
+            "y": 1866
           },
           "id": 140,
           "interval": "$interval",
@@ -5800,7 +5800,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1847
+            "y": 1866
           },
           "id": 141,
           "interval": "$interval",
@@ -5925,7 +5925,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 322
+            "y": 341
           },
           "id": 134,
           "interval": "$interval",
@@ -6050,7 +6050,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 502
+            "y": 521
           },
           "id": 156,
           "interval": "$interval",
@@ -6162,7 +6162,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 502
+            "y": 521
           },
           "id": 158,
           "interval": "$interval",
@@ -6287,7 +6287,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 849
+            "y": 868
           },
           "id": 151,
           "interval": "$interval",
@@ -6415,7 +6415,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 986
+            "y": 1005
           },
           "id": 125,
           "interval": "$interval",
@@ -6825,7 +6825,7 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "Average floating-point operations per second (FLOPS) per GPU. Averaged over time.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `SQ_INSTS_VALU_*` counters. Works with the following **rocprofiler** sampling modes: `constant` or `gpu-id`.",
+          "description": "Average floating-point operations per second (FLOPS) per GPU during the selected time range, averaged over time.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `SQ_INSTS_VALU_*` counters. Works with the following **rocprofiler** sampling modes: `constant` or `gpu-id`.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6893,7 +6893,7 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "Total floating-point operations per second (FLOPS) achieved by all GPUs. Measured as the average FLOPS per GPU multiplied by number of GPUs.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `SQ_INSTS_VALU_*` counters. Works with the following **rocprofiler** sampling modes: `constant` or `gpu-id`.",
+          "description": "Total floating-point operations per second (FLOPS) achieved by all GPUs during the selected time range. Measured as the average FLOPS per GPU multiplied by number of GPUs.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `SQ_INSTS_VALU_*` counters. Works with the following **rocprofiler** sampling modes: `constant` or `gpu-id`.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -7037,7 +7037,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 83
+            "y": 102
           },
           "id": 120,
           "options": {
@@ -7235,7 +7235,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 83
+            "y": 102
           },
           "id": 121,
           "options": {
@@ -7445,7 +7445,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 324
+            "y": 343
           },
           "id": 43,
           "interval": "$interval",
@@ -7555,7 +7555,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 324
+            "y": 343
           },
           "id": 48,
           "interval": "$interval",
@@ -7679,7 +7679,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 396
+            "y": 415
           },
           "id": 105,
           "interval": "$interval",
@@ -7790,7 +7790,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 396
+            "y": 415
           },
           "id": 106,
           "interval": "$interval",
@@ -7915,7 +7915,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 397
+            "y": 416
           },
           "id": 116,
           "interval": "$interval",
@@ -8026,7 +8026,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 397
+            "y": 416
           },
           "id": 117,
           "interval": "$interval",
@@ -8152,7 +8152,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 168
+            "y": 187
           },
           "id": 46,
           "interval": "$interval",
@@ -8264,7 +8264,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 168
+            "y": 187
           },
           "id": 45,
           "interval": "$interval",
@@ -8377,7 +8377,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 176
+            "y": 195
           },
           "id": 159,
           "interval": "$interval",
@@ -8490,7 +8490,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 176
+            "y": 195
           },
           "id": 160,
           "interval": "$interval",
@@ -8565,7 +8565,7 @@
             "h": 3,
             "w": 12,
             "x": 0,
-            "y": 184
+            "y": 203
           },
           "id": 161,
           "interval": "$interval",
@@ -8642,7 +8642,7 @@
             "h": 3,
             "w": 12,
             "x": 12,
-            "y": 184
+            "y": 203
           },
           "id": 162,
           "interval": "$interval",
@@ -8770,7 +8770,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 407
+            "y": 426
           },
           "id": 146,
           "interval": "$interval",
@@ -8881,7 +8881,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 415
+            "y": 434
           },
           "id": 149,
           "interval": "$interval",
@@ -8990,7 +8990,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 423
+            "y": 442
           },
           "id": 147,
           "interval": "$interval",
@@ -9099,7 +9099,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 431
+            "y": 450
           },
           "id": 148,
           "interval": "$interval",
@@ -9223,7 +9223,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4560
+            "y": 4579
           },
           "id": 135,
           "interval": "$interval",
@@ -9387,7 +9387,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4609
+            "y": 4628
           },
           "id": 56,
           "interval": "$interval",
@@ -9611,7 +9611,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18610
+            "y": 18629
           },
           "id": 107,
           "interval": "$interval",
@@ -9806,7 +9806,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18610
+            "y": 18629
           },
           "id": 112,
           "interval": "$interval",
@@ -9965,7 +9965,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18618
+            "y": 18637
           },
           "id": 108,
           "interval": "$interval",
@@ -10193,7 +10193,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18618
+            "y": 18637
           },
           "id": 113,
           "interval": "$interval",
@@ -10348,7 +10348,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18626
+            "y": 18645
           },
           "id": 109,
           "interval": "$interval",
@@ -10576,7 +10576,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18626
+            "y": 18645
           },
           "id": 115,
           "interval": "$interval",
@@ -10732,7 +10732,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18634
+            "y": 18653
           },
           "id": 110,
           "interval": "$interval",
@@ -10956,7 +10956,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18634
+            "y": 18653
           },
           "id": 114,
           "interval": "$interval",
