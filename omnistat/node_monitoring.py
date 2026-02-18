@@ -78,7 +78,7 @@ def main():
 
     # Setup Flask app for data collection
     app = Flask("omnistat")
-    monitor = Monitor(config)
+    monitor = Monitor(config, mode="system")
 
     # Enforce network restrictions
     @app.before_request

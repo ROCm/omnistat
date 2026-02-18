@@ -413,7 +413,9 @@ def main():
     config = utils.readConfig(utils.findConfigFile(args.configfile))
 
     # Initialize GPU monitoring
-    monitor = Monitor(config, logFile=args.logfile)
+    monitor = Monitor(
+        config, logFile=args.logfile, mode="user", interval_secs=args.interval, push_interval_mins=args.pushinterval
+    )
     monitor.initMetrics()
 
     app.config["SAMPLING_INTERVAL"] = args.interval
