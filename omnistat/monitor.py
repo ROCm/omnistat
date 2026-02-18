@@ -36,9 +36,10 @@ import os
 import platform
 import re
 import sys
+import time
 from pathlib import Path
 
-from prometheus_client import CollectorRegistry, generate_latest
+from prometheus_client import CollectorRegistry, generate_latest, Gauge
 
 from omnistat import utils
 
@@ -161,11 +162,32 @@ class Monitor:
             collector.registerMetrics()
             logging.getLogger().removeFilter(prefix_filter)
 
+        # Register performance runtime metric(s)
+        self.__subtimers = self.config["omnistat.collectors"].getboolean("enable_perf_collector_subtimers", False)
+        labels = ["collector"]
+        logging.info(
+            "\nRegistering performance metrics for collector timing (subtimers enabled = %s)" % self.__subtimers
+        )
+
+        self.__perfMetric = Gauge(
+            "omnistat_perf_runtime_seconds", "Time to complete one data collection sample in seconds", labelnames=labels
+        )
+
         # Gather metrics on startup
-        for collector in self.__collectors:
-            collector.updateMetrics()
+        self.updateAllMetrics()
 
     def updateAllMetrics(self):
+        start_time_total = time.perf_counter()
+
         for collector in self.__collectors:
+            start_time = time.perf_counter()
             collector.updateMetrics()
-        return generate_latest()
+            if self.__subtimers:
+                elapsed_time = time.perf_counter() - start_time
+                self.__perfMetric.labels(collector.__class__.__name__).set(elapsed_time)
+        latest = generate_latest()
+
+        elapsed_time_total = time.perf_counter() - start_time_total
+        self.__perfMetric.labels("total").set(elapsed_time_total)
+
+        return latest
