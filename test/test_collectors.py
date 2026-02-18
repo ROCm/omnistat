@@ -167,6 +167,14 @@ COLLECTOR_CONFIGS = [
         "collectors": ["host_metrics", "omnistat.collectors.host::enable_proc_io_stats"],
         "metrics": HOST_METRICS,
     },
+    # general info metrics expected to be present regardless of collector config
+    {
+        "collectors": ["rocm_smi"],
+        "metrics": [
+            {"name": "omnistat_info", "validate": "==1.0", "labels": ["version", "mode", "schema"]},
+            {"name": "omnistat_perf_runtime_seconds", "validate": ">0.0", "labels": ["collector"]},
+        ],
+    },
 ]
 
 
