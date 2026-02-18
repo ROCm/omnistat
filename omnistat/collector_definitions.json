@@ -61,6 +61,12 @@
             "enabled_by_default": true,
             "file": "omnistat.collector_host",
             "class_name": "HOST"
+        },
+        {
+            "runtime_option": null,
+            "enabled_by_default": true,
+            "file": "omnistat.collector_info",
+            "class_name": "INFO"
         }
     ]
 }
