@@ -197,7 +197,7 @@ class OmnistatTestServer:
     def __init__(self, collectors):
         self.address = f"localhost:{test.config.port}"
         self.url = f"http://{self.address}/metrics"
-        self.timeout = 3.0
+        self.timeout = 5.0
         self.collectors = collectors
 
         config = self.generate_config(self.collectors)
@@ -220,7 +220,13 @@ class OmnistatTestServer:
         assert running is True, "Failed to start Omnistat monitor"
 
     def stop(self):
-        self._process.terminate()
+        if self._process.is_alive():
+            self._process.terminate()
+            self._process.join(timeout=3)
+            if self._process.is_alive():
+                self._process.kill()
+                self._process.join(timeout=1)
+        time.sleep(1.0)
 
     def generate_config(self, enabled_collectors):
         config = configparser.ConfigParser()
