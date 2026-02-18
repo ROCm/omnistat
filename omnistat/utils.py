@@ -476,7 +476,7 @@ def getMemoryUsageMB():
     return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
 
 
-def getVersion():
+def getVersion(includeGitSHA=True):
     """Return omnistat version info"""
     try:
         return version("omnistat")
@@ -491,22 +491,23 @@ def getVersion():
         except EnvironmentError:
             error("Cannot find VERSION file at {}".format(versionFile))
 
-        # git version query
-        SHA = None
-        gitDir = os.path.join(omnistat_home, ".git")
-        if (shutil.which("git") is not None) and os.path.exists(gitDir):
-            gitQuery = subprocess.run(
-                ["git", "log", "--pretty=format:%h", "-n", "1"],
-                cwd=gitDir,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL,
-            )
-            if gitQuery.returncode == 0:
-                SHA = gitQuery.stdout.decode("utf-8")
-
         versionInfo = VER
-        if SHA:
-            versionInfo += " (%s)" % SHA
+
+        # git version query
+        if includeGitSHA:
+            SHA = None
+            gitDir = os.path.join(omnistat_home, ".git")
+            if (shutil.which("git") is not None) and os.path.exists(gitDir):
+                gitQuery = subprocess.run(
+                    ["git", "log", "--pretty=format:%h", "-n", "1"],
+                    cwd=gitDir,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                )
+                if gitQuery.returncode == 0:
+                    SHA = gitQuery.stdout.decode("utf-8")
+            if SHA:
+                versionInfo += " (%s)" % SHA
 
         return versionInfo
 
