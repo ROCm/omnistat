@@ -44,7 +44,7 @@ from omnistat.utils import runShellCommand
 # fmt: off
 SMI_METRICS = [
     {"name":"rocm_num_gpus",                                "validate":">=1",                "labels":None},
-    {"name":"rocm_version_info",                            "validate":"==1.0",              "labels":["card","driver_ver","schema","type"]},
+    {"name":"rocm_version_info",                            "validate":"==1.0",              "labels":["card","driver_ver","type"]},
     {"name":"rocm_temperature_celsius",                     "validate":">=10",               "labels":["card","location"]},
     {"name":"rocm_temperature_memory_celsius",              "validate":">=10",               "labels":["card","location"]},
     {"name":"rocm_average_socket_power_watts",              "validate":">=10",               "labels":["card"]},
