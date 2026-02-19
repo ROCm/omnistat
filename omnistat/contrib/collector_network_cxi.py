@@ -22,10 +22,9 @@
 # SOFTWARE.
 # -------------------------------------------------------------------------------
 
-"""Network monitoring
+"""Network CXI monitoring
 
-Implements a prometheus info metric to track network traffic data for interfaces
-exposed under /sys/class/net and /sys/class/cxi.
+Implements a prometheus info metric to track additional CXI specific network data.
 """
 
 import configparser
@@ -58,16 +57,12 @@ class NETWORK_CXI(Collector):
         self.__rx_metric = None
         self.__tx_metric = None
 
-        # # Files to check for IP devices.
-        # self.__net_rx_data_paths = {}
-        # self.__net_tx_data_paths = {}
-
         # Files to check for for slingshot (CXI) devices.
         self.__cxi_rx_data_paths = {}
         self.__cxi_tx_data_paths = {}
         self.__cxi_bucket_max_sizes = {"rx": {}, "tx": {}}
 
-        # Additional CXI telemetry counters (see features.tex).
+        # Additional CXI telemetry counters.
         # Maps counter group -> interface -> (optional) index -> sysfs path.
         self.__cxi_ok_octets_paths = {"rx": {}, "tx": {}}
         self.__cxi_simple_counter_paths = {}
@@ -81,11 +76,6 @@ class NETWORK_CXI(Collector):
         self.__cxi_feature_counter_gauge = None
         self.__cxi_derived_gauges = {}
         self.__cxi_prev_samples = {}
-
-        # # Files to check for for infiniband devices.
-        # self.__ib_rx_data_paths = {}
-        # self.__ib_tx_data_paths = {}
-        # self.__warned_sysfs_read_paths = set()
 
     @staticmethod
     def __read_sysfs_counter(path: Path) -> int:
@@ -194,28 +184,6 @@ class NETWORK_CXI(Collector):
 
     def registerMetrics(self):
         """Register metrics of interest"""
-
-        # Standard IP (/sys/class/net): store data paths to sysfs
-        # statistics files for local NICs, indexed by interface ID. For
-        # example, for Rx bandwidth:
-        #   __net_rx_data_paths = {
-        #       "eth0": "/sys/class/net/eth0/statistics/rx_bytes"
-        #   }
-        for nic in Path("/sys/class/net").iterdir():
-            if not nic.is_dir():
-                continue
-
-            nic_name = nic.name
-            if nic_name == "lo":
-                continue
-
-            rx_path = nic / "statistics/rx_bytes"
-            if rx_path.is_file() and rx_path.stat().st_size > 0:
-                self.__net_rx_data_paths[nic_name] = rx_path
-
-            tx_path = nic / "statistics/tx_bytes"
-            if tx_path.is_file() and tx_path.stat().st_size > 0:
-                self.__net_tx_data_paths[nic_name] = tx_path
 
         # Slingshot CXI traffic (/sys/class/cxi): store data paths to binned
         # telemetry files, indexed by interface ID and minimum size of the
@@ -368,60 +336,6 @@ class NETWORK_CXI(Collector):
                 len(self.__cxi_feature_counter_paths.get(nic_name, {})),
             )
 
-        # # Infiniband traffic (/sys/class/infiniband): store data paths to
-        # # counters, indexed by interface ID and port ID. For example, for Rx
-        # # bandwidth:
-        # #   __infiniband_rx_data_paths = {
-        # #       "mlx5_0:1": "/sys/class/infiniband/mlx5_0/ports/1/counters/port_rcv_data",
-        # #       "mlx5_1:1": "/sys/class/infiniband/mlx5_1/ports/1/counters/port_rcv_data",
-        # #       }
-        # #   }
-        # ib_base_path = Path("/sys/class/infiniband")
-
-        # ib_nics = []
-        # if ib_base_path.is_dir():
-        #     ib_nics = ib_base_path.iterdir()
-
-        # for nic in ib_nics:
-        #     if not nic.is_dir():
-        #         continue
-
-        #     ports = nic / "ports"
-        #     for port in ports.iterdir():
-        #         nic_name = f"{nic.name}:{port.name}"
-
-        #         rx_path = port / "counters" / "port_rcv_data"
-        #         if rx_path.is_file() and rx_path.stat().st_size > 0:
-        #             self.__ib_rx_data_paths[nic_name] = rx_path
-
-        #         tx_path = port / "counters" / "port_xmit_data"
-        #         if tx_path.is_file() and tx_path.stat().st_size > 0:
-        #             self.__ib_tx_data_paths[nic_name] = tx_path
-
-        # Register Prometheus metrics for Rx and Tx. Devices are identified by
-        # device class and interface name. For example, the Prometheus metric
-        # for Rx bytes in the standard network device eth0:
-        #   network_rx_bytes{device_class="net",interface="eth0"}
-        # labels = ["device_class", "interface"]
-
-        # rx_data_paths = [self.__net_rx_data_paths, self.__cxi_rx_data_paths, self.__ib_rx_data_paths]
-        # num_rx = sum([len(x) for x in rx_data_paths]) + len(self.__cxi_ok_octets_paths["rx"])
-        # if num_rx > 0:
-        #     logging.debug(self.__net_rx_data_paths)
-        #     metric = self.__prefix + "rx_bytes"
-        #     description = "Network received (bytes)"
-        #     self.__rx_metric = Gauge(metric, description, labelnames=labels)
-        #     logging.info(f"--> [registered] {metric} -> {description} (gauge)")
-
-        # tx_data_paths = [self.__net_tx_data_paths, self.__cxi_tx_data_paths, self.__ib_tx_data_paths]
-        # num_tx = sum([len(x) for x in tx_data_paths]) + len(self.__cxi_ok_octets_paths["tx"])
-        # if num_tx > 0:
-        #     logging.debug(self.__net_tx_data_paths)
-        #     metric = self.__prefix + "tx_bytes"
-        #     description = "Network transmitted (bytes)"
-        #     self.__tx_metric = Gauge(metric, description, labelnames=labels)
-        #     logging.info(f"--> [registered] {metric} -> {description} (gauge)")
-
         # Additional CXI telemetry: expose raw counters to enable derived rates
         # and ratios in Prometheus.
         for suffix in sorted(self.__cxi_simple_counter_paths.keys()):
@@ -541,22 +455,6 @@ class NETWORK_CXI(Collector):
 
     def updateMetrics(self):
         """Update registered metrics of interest"""
-
-        net_data = [
-            (self.__net_rx_data_paths, self.__rx_metric),
-            (self.__net_tx_data_paths, self.__tx_metric),
-        ]
-
-        for data_paths, metric in net_data:
-            if metric is None:
-                continue
-            for nic, path in data_paths.items():
-                try:
-                    with open(path, "r") as f:
-                        data = int(f.read().strip())
-                        metric.labels(device_class="net", interface=nic).set(data)
-                except:
-                    pass
 
         # CXI counters.
         # Prefer exact fabric octet counters if available; otherwise, estimate a
@@ -896,23 +794,5 @@ class NETWORK_CXI(Collector):
                 )
 
                 self.__cxi_prev_samples[nic] = {"ts": now, "values": current}
-
-        # ib_data = [
-        #     (self.__ib_rx_data_paths, self.__rx_metric),
-        #     (self.__ib_tx_data_paths, self.__tx_metric),
-        # ]
-
-        # for data_paths, metric in ib_data:
-        #     if metric is None:
-        #         continue
-        #     for nic, path in data_paths.items():
-        #         try:
-        #             with open(path, "r") as f:
-        #                 data = int(f.read().strip())
-        #                 # Counters for infiniband are reported as "octets divided by 4";
-        #                 # multiply to collect the expected value in bytes.
-        #                 metric.labels(device_class="infiniband", interface=nic).set(data * 4)
-        #         except:
-        #             pass
 
         return
