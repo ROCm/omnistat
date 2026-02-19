@@ -1766,7 +1766,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1936
+            "y": 1955
           },
           "id": 88,
           "interval": "$interval",
@@ -1876,7 +1876,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1936
+            "y": 1955
           },
           "id": 89,
           "interval": "$interval",
@@ -2026,7 +2026,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2413
+            "y": 2432
           },
           "id": 91,
           "interval": "$interval",
@@ -2177,7 +2177,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 2421
+            "y": 2440
           },
           "id": 99,
           "interval": "$interval",
@@ -2341,7 +2341,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 2421
+            "y": 2440
           },
           "id": 100,
           "interval": "$interval",
@@ -2490,7 +2490,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1937
+            "y": 1956
           },
           "id": 28,
           "interval": "$interval",
@@ -2552,7 +2552,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1937
+            "y": 1956
           },
           "id": 86,
           "interval": "$interval",
@@ -2665,7 +2665,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 2323
+            "y": 2342
           },
           "id": 29,
           "interval": "$interval",
@@ -2727,7 +2727,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 2323
+            "y": 2342
           },
           "id": 31,
           "interval": "$interval",
@@ -2868,7 +2868,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2331
+            "y": 2350
           },
           "id": 24,
           "interval": "$interval",
@@ -2942,7 +2942,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1938
+            "y": 1957
           },
           "id": 27,
           "interval": "$interval",
@@ -3052,7 +3052,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1938
+            "y": 1957
           },
           "id": 87,
           "interval": "$interval",
@@ -3202,7 +3202,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1949
+            "y": 1968
           },
           "id": 90,
           "interval": "$interval",
@@ -3369,7 +3369,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 1957
+            "y": 1976
           },
           "id": 98,
           "interval": "$interval",
@@ -3549,7 +3549,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 1957
+            "y": 1976
           },
           "id": 95,
           "interval": "$interval",
@@ -3820,7 +3820,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 1966
+            "y": 1985
           },
           "id": 52,
           "interval": "$interval",
@@ -3973,7 +3973,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 832
+            "y": 851
           },
           "id": 142,
           "interval": "$interval",
@@ -4082,7 +4082,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1472
+            "y": 1491
           },
           "id": 33,
           "interval": "$interval",
@@ -4191,7 +4191,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1480
+            "y": 1499
           },
           "id": 128,
           "interval": "$interval",
@@ -4300,7 +4300,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1488
+            "y": 1507
           },
           "id": 129,
           "interval": "$interval",
@@ -4409,7 +4409,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1496
+            "y": 1515
           },
           "id": 130,
           "interval": "$interval",
@@ -4518,7 +4518,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1496
+            "y": 1515
           },
           "id": 131,
           "interval": "$interval",
@@ -4641,7 +4641,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2342
+            "y": 2361
           },
           "id": 143,
           "interval": "$interval",
@@ -4741,7 +4741,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2350
+            "y": 2369
           },
           "id": 127,
           "interval": "$interval",
@@ -4841,7 +4841,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2358
+            "y": 2377
           },
           "id": 104,
           "interval": "$interval",
@@ -4941,7 +4941,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2366
+            "y": 2385
           },
           "id": 22,
           "interval": "$interval",
@@ -5041,7 +5041,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2374
+            "y": 2393
           },
           "id": 25,
           "interval": "$interval",
@@ -5141,7 +5141,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2374
+            "y": 2393
           },
           "id": 23,
           "interval": "$interval",
@@ -5255,7 +5255,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1762
+            "y": 1781
           },
           "id": 144,
           "interval": "$interval",
@@ -5364,7 +5364,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1842
+            "y": 1861
           },
           "id": 137,
           "interval": "$interval",
@@ -5473,7 +5473,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1850
+            "y": 1869
           },
           "id": 138,
           "interval": "$interval",
@@ -5582,7 +5582,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1858
+            "y": 1877
           },
           "id": 139,
           "interval": "$interval",
@@ -5691,7 +5691,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1866
+            "y": 1885
           },
           "id": 140,
           "interval": "$interval",
@@ -5800,7 +5800,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1866
+            "y": 1885
           },
           "id": 141,
           "interval": "$interval",
@@ -5925,7 +5925,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 341
+            "y": 360
           },
           "id": 134,
           "interval": "$interval",
@@ -6050,7 +6050,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 521
+            "y": 540
           },
           "id": 156,
           "interval": "$interval",
@@ -6162,7 +6162,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 521
+            "y": 540
           },
           "id": 158,
           "interval": "$interval",
@@ -6287,7 +6287,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 868
+            "y": 887
           },
           "id": 151,
           "interval": "$interval",
@@ -6415,7 +6415,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1005
+            "y": 1024
           },
           "id": 125,
           "interval": "$interval",
@@ -6825,11 +6825,45 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "Average floating-point operations per second (FLOPS) per GPU during the selected time range, averaged over time.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `SQ_INSTS_VALU_*` counters. Works with the following **rocprofiler** sampling modes: `constant` or `gpu-id`.",
+          "description": "Total number of floating-point operations per second (FLOPS) achieved by all sampled GPUs.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `SQ_INSTS_VALU_*` counters. Works with the following **rocprofiler** sampling modes: `constant` or `gpu-id`. If the **rocprofiler** collector is configured with `gpu-id` and multiple sets of counters, only a subset of FLOPS may be reflected in this panel.",
           "fieldConfig": {
             "defaults": {
               "color": {
-                "mode": "fixed"
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
               },
               "mappings": [],
               "thresholds": {
@@ -6838,6 +6872,10 @@
                   {
                     "color": "green",
                     "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
                   }
                 ]
               },
@@ -6846,27 +6884,26 @@
             "overrides": []
           },
           "gridPos": {
-            "h": 3,
-            "w": 12,
+            "h": 8,
+            "w": 24,
             "x": 0,
             "y": 52
           },
-          "id": 164,
+          "id": 165,
           "interval": "$interval",
           "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "percentChangeColorMode": "standard",
-            "reduceOptions": {
+            "legend": {
               "calcs": [],
-              "fields": "",
-              "values": false
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": false
             },
-            "showPercentChange": false,
-            "textMode": "auto",
-            "wideLayout": true
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
           },
           "pluginVersion": "12.3.1",
           "targets": [
@@ -6876,85 +6913,16 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "exemplar": false,
-              "expr": "avg_over_time(avg(rate((\n    (64 * (\n        (\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\n        )\n        +\n        (\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\n        )\n        +\n        (\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\n        )\n    ))\n    +\n    (512 * (\n        (\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\n        )\n    ))\n)[$__rate_interval:]))[$__range])",
+              "expr": "rate((\r\n    (64 * (\r\n        (\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F66\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n    ))\r\n    +\r\n    (512 * (\r\n        (\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (sum(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\r\n        )\r\n    ))\r\n)[$__rate_interval:]) != 0",
               "instant": false,
               "interval": "$interval",
-              "legendFormat": "__auto",
+              "legendFormat": "Total FLOPS",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Average FLOPS per GPU",
-          "type": "stat"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${source}"
-          },
-          "description": "Total floating-point operations per second (FLOPS) achieved by all GPUs during the selected time range. Measured as the average FLOPS per GPU multiplied by number of GPUs.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `SQ_INSTS_VALU_*` counters. Works with the following **rocprofiler** sampling modes: `constant` or `gpu-id`.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "fixed"
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  }
-                ]
-              },
-              "unit": "flops"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 3,
-            "w": 12,
-            "x": 12,
-            "y": 52
-          },
-          "id": 163,
-          "interval": "$interval",
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "percentChangeColorMode": "standard",
-            "reduceOptions": {
-              "calcs": [],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "12.3.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${source}"
-              },
-              "editorMode": "code",
-              "exemplar": false,
-              "expr": "avg_over_time(avg(rate((\n    (64 * (\n        (\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\n        )\n        +\n        (\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\n        )\n        +\n        (\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\n        )\n    ))\n    +\n    (512 * (\n        (\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\n        )\n    ))\n)[$__rate_interval:]))[$__range]) * (count(rmsjob_info{jobid=\"$jobid\"}) * avg(rocm_num_gpus * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
-              "instant": false,
-              "interval": "$interval",
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "Total FLOPS",
-          "type": "stat"
+          "title": "Total FLOPS across sampled GPUs",
+          "type": "timeseries"
         }
       ],
       "title": "GPU Counters - Metrics",
@@ -7037,7 +7005,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 102
+            "y": 121
           },
           "id": 120,
           "options": {
@@ -7235,7 +7203,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 102
+            "y": 121
           },
           "id": 121,
           "options": {
@@ -7445,7 +7413,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 343
+            "y": 362
           },
           "id": 43,
           "interval": "$interval",
@@ -7555,7 +7523,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 343
+            "y": 362
           },
           "id": 48,
           "interval": "$interval",
@@ -7679,7 +7647,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 415
+            "y": 434
           },
           "id": 105,
           "interval": "$interval",
@@ -7790,7 +7758,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 415
+            "y": 434
           },
           "id": 106,
           "interval": "$interval",
@@ -7915,7 +7883,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 416
+            "y": 435
           },
           "id": 116,
           "interval": "$interval",
@@ -8026,7 +7994,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 416
+            "y": 435
           },
           "id": 117,
           "interval": "$interval",
@@ -8152,7 +8120,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 187
+            "y": 206
           },
           "id": 46,
           "interval": "$interval",
@@ -8264,7 +8232,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 187
+            "y": 206
           },
           "id": 45,
           "interval": "$interval",
@@ -8389,7 +8357,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4579
+            "y": 4598
           },
           "id": 135,
           "interval": "$interval",
@@ -8553,7 +8521,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4628
+            "y": 4647
           },
           "id": 56,
           "interval": "$interval",
@@ -8777,7 +8745,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18629
+            "y": 18648
           },
           "id": 107,
           "interval": "$interval",
@@ -8972,7 +8940,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18629
+            "y": 18648
           },
           "id": 112,
           "interval": "$interval",
@@ -9131,7 +9099,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18637
+            "y": 18656
           },
           "id": 108,
           "interval": "$interval",
@@ -9359,7 +9327,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18637
+            "y": 18656
           },
           "id": 113,
           "interval": "$interval",
@@ -9514,7 +9482,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18645
+            "y": 18664
           },
           "id": 109,
           "interval": "$interval",
@@ -9742,7 +9710,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18645
+            "y": 18664
           },
           "id": 115,
           "interval": "$interval",
@@ -9898,7 +9866,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18653
+            "y": 18672
           },
           "id": 110,
           "interval": "$interval",
@@ -10122,7 +10090,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18653
+            "y": 18672
           },
           "id": 114,
           "interval": "$interval",
