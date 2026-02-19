@@ -54,6 +54,9 @@ class NETWORK_CXI(Collector):
         logging.debug("Initializing CXI network data collector")
 
         self.__prefix = "omnistat_network_"
+        self.__derived_metrics = config["omnistat.collectors.network_cxi"].getboolean(
+            "enable_derived_metrics", fallback=False
+        )
         self.__rx_metric = None
         self.__tx_metric = None
 
@@ -371,87 +374,99 @@ class NETWORK_CXI(Collector):
             logging.info(f"--> [registered] {metric} -> {description} (gauge)")
 
         # Derived CXI metrics defined in features.tex (computed from deltas).
-        if (
-            len(self.__cxi_feature_counter_paths) > 0
-            or len(self.__cxi_ok_octets_paths["rx"]) > 0
-            or len(self.__cxi_ok_octets_paths["tx"]) > 0
-        ):
-            self.__register_cxi_derived_metric("tx_bandwidth_bytes_per_second", "CXI TX bandwidth (bytes/s)")
-            self.__register_cxi_derived_metric("rx_bandwidth_bytes_per_second", "CXI RX bandwidth (bytes/s)")
-            self.__register_cxi_derived_metric(
-                "bidirectional_bandwidth_bytes_per_second", "CXI bidirectional bandwidth (bytes/s)"
-            )
-            self.__register_cxi_derived_metric("tx_to_rx_balance_ratio", "CXI TX/RX bandwidth balance ratio")
-            self.__register_cxi_derived_metric(
-                "multicast_tx_share_fraction", "CXI multicast TX share (fraction of TX bytes)"
-            )
-            self.__register_cxi_derived_metric("ieee_tx_share_fraction", "CXI IEEE TX share (fraction of TX bytes)")
-            self.__register_cxi_derived_metric(
-                "optimized_tx_share_fraction", "CXI optimized-protocol TX share (fraction of TX bytes)"
-            )
 
-            self.__register_cxi_derived_metric("packet_send_rate_packets_per_second", "CXI packet send rate (pkts/s)")
-            self.__register_cxi_derived_metric(
-                "packet_receive_rate_packets_per_second", "CXI packet receive rate (pkts/s)"
-            )
-            self.__register_cxi_derived_metric("avg_bytes_per_tx_packet", "CXI average bytes per TX packet (bytes/pkt)")
-            self.__register_cxi_derived_metric(
-                "small_packet_fraction_tx", "CXI small packet fraction TX (fraction of TX packets)"
-            )
-            self.__register_cxi_derived_metric(
-                "large_packet_fraction_tx", "CXI large packet fraction TX (fraction of TX packets)"
-            )
+        if self.__derived_metrics:
+            if (
+                len(self.__cxi_feature_counter_paths) > 0
+                or len(self.__cxi_ok_octets_paths["rx"]) > 0
+                or len(self.__cxi_ok_octets_paths["tx"]) > 0
+            ):
+                self.__register_cxi_derived_metric("tx_bandwidth_bytes_per_second", "CXI TX bandwidth (bytes/s)")
+                self.__register_cxi_derived_metric("rx_bandwidth_bytes_per_second", "CXI RX bandwidth (bytes/s)")
+                self.__register_cxi_derived_metric(
+                    "bidirectional_bandwidth_bytes_per_second", "CXI bidirectional bandwidth (bytes/s)"
+                )
+                self.__register_cxi_derived_metric("tx_to_rx_balance_ratio", "CXI TX/RX bandwidth balance ratio")
+                self.__register_cxi_derived_metric(
+                    "multicast_tx_share_fraction", "CXI multicast TX share (fraction of TX bytes)"
+                )
+                self.__register_cxi_derived_metric("ieee_tx_share_fraction", "CXI IEEE TX share (fraction of TX bytes)")
+                self.__register_cxi_derived_metric(
+                    "optimized_tx_share_fraction", "CXI optimized-protocol TX share (fraction of TX bytes)"
+                )
 
-            self.__register_cxi_derived_metric("link_busy_fraction", "CXI link busy fraction")
-            self.__register_cxi_derived_metric("link_stall_per_flit", "CXI link stalls per flit")
-            self.__register_cxi_derived_metric("cq_blocked_cycles_per_second", "CXI CQ blocked cycles rate (cycles/s)")
-            self.__register_cxi_derived_metric("nic_no_work_cycles_per_second", "CXI NIC no-work rate proxy (cycles/s)")
+                self.__register_cxi_derived_metric(
+                    "packet_send_rate_packets_per_second", "CXI packet send rate (pkts/s)"
+                )
+                self.__register_cxi_derived_metric(
+                    "packet_receive_rate_packets_per_second", "CXI packet receive rate (pkts/s)"
+                )
+                self.__register_cxi_derived_metric(
+                    "avg_bytes_per_tx_packet", "CXI average bytes per TX packet (bytes/pkt)"
+                )
+                self.__register_cxi_derived_metric(
+                    "small_packet_fraction_tx", "CXI small packet fraction TX (fraction of TX packets)"
+                )
+                self.__register_cxi_derived_metric(
+                    "large_packet_fraction_tx", "CXI large packet fraction TX (fraction of TX packets)"
+                )
 
-            self.__register_cxi_derived_metric("pause_received_per_second", "CXI pause received rate (events/s)")
-            self.__register_cxi_derived_metric("pause_sent_per_second", "CXI pause sent rate (events/s)")
-            self.__register_cxi_derived_metric("xoff_sent_per_second", "CXI XOFF sent rate (events/s)")
-            self.__register_cxi_derived_metric(
-                "ecn_marking_ratio_request_fraction", "CXI ECN marking ratio (request side)"
-            )
-            self.__register_cxi_derived_metric(
-                "ecn_marking_ratio_response_fraction", "CXI ECN marking ratio (response side)"
-            )
-            self.__register_cxi_derived_metric(
-                "congestion_discard_per_second", "CXI congestion discard rate (events/s)"
-            )
+                self.__register_cxi_derived_metric("link_busy_fraction", "CXI link busy fraction")
+                self.__register_cxi_derived_metric("link_stall_per_flit", "CXI link stalls per flit")
+                self.__register_cxi_derived_metric(
+                    "cq_blocked_cycles_per_second", "CXI CQ blocked cycles rate (cycles/s)"
+                )
+                self.__register_cxi_derived_metric(
+                    "nic_no_work_cycles_per_second", "CXI NIC no-work rate proxy (cycles/s)"
+                )
 
-            self.__register_cxi_derived_metric(
-                "command_credits_in_use_per_second", "CXI command credits in use rate proxy (1/s)"
-            )
-            self.__register_cxi_derived_metric(
-                "receive_fifo_credits_in_use_per_second", "CXI receive FIFO credits in use rate proxy (1/s)"
-            )
-            self.__register_cxi_derived_metric(
-                "pi_posted_credits_in_use_per_second", "CXI PI posted credits in use rate proxy (1/s)"
-            )
-            self.__register_cxi_derived_metric("resource_busy_per_second", "CXI resource busy rate (events/s)")
-            self.__register_cxi_derived_metric(
-                "endpoint_table_pressure_fraction", "CXI endpoint table pressure proxy (fraction)"
-            )
+                self.__register_cxi_derived_metric("pause_received_per_second", "CXI pause received rate (events/s)")
+                self.__register_cxi_derived_metric("pause_sent_per_second", "CXI pause sent rate (events/s)")
+                self.__register_cxi_derived_metric("xoff_sent_per_second", "CXI XOFF sent rate (events/s)")
+                self.__register_cxi_derived_metric(
+                    "ecn_marking_ratio_request_fraction", "CXI ECN marking ratio (request side)"
+                )
+                self.__register_cxi_derived_metric(
+                    "ecn_marking_ratio_response_fraction", "CXI ECN marking ratio (response side)"
+                )
+                self.__register_cxi_derived_metric(
+                    "congestion_discard_per_second", "CXI congestion discard rate (events/s)"
+                )
 
-            self.__register_cxi_derived_metric("ordered_to_unordered_ratio", "CXI ordered/unordered packet ratio")
-            self.__register_cxi_derived_metric("unordered_fraction", "CXI unordered packet fraction")
-            self.__register_cxi_derived_metric("ordered_request_fraction", "CXI ordered request fraction")
+                self.__register_cxi_derived_metric(
+                    "command_credits_in_use_per_second", "CXI command credits in use rate proxy (1/s)"
+                )
+                self.__register_cxi_derived_metric(
+                    "receive_fifo_credits_in_use_per_second", "CXI receive FIFO credits in use rate proxy (1/s)"
+                )
+                self.__register_cxi_derived_metric(
+                    "pi_posted_credits_in_use_per_second", "CXI PI posted credits in use rate proxy (1/s)"
+                )
+                self.__register_cxi_derived_metric("resource_busy_per_second", "CXI resource busy rate (events/s)")
+                self.__register_cxi_derived_metric(
+                    "endpoint_table_pressure_fraction", "CXI endpoint table pressure proxy (fraction)"
+                )
 
-            self.__register_cxi_derived_metric(
-                "mean_rsp_latency_bin_index", "CXI mean response latency proxy (bin index)"
-            )
-            self.__register_cxi_derived_metric(
-                "tail_latency_fraction_top10pct_bins", "CXI tail latency fraction (top 10% bins)"
-            )
-            self.__register_cxi_derived_metric("timeout_per_second", "CXI timeout rate (events/s)")
+                self.__register_cxi_derived_metric("ordered_to_unordered_ratio", "CXI ordered/unordered packet ratio")
+                self.__register_cxi_derived_metric("unordered_fraction", "CXI unordered packet fraction")
+                self.__register_cxi_derived_metric("ordered_request_fraction", "CXI ordered request fraction")
 
-            self.__register_cxi_derived_metric("bad_tx_octets_per_second", "CXI bad TX octet rate (octets/s)")
-            self.__register_cxi_derived_metric("bad_rx_octets_per_second", "CXI bad RX octet rate (octets/s)")
-            self.__register_cxi_derived_metric("ecc_corrected_cw_per_second", "CXI ECC corrected codeword rate (cw/s)")
-            self.__register_cxi_derived_metric(
-                "ecc_uncorrected_cw_per_second", "CXI ECC uncorrected codeword rate (cw/s)"
-            )
+                self.__register_cxi_derived_metric(
+                    "mean_rsp_latency_bin_index", "CXI mean response latency proxy (bin index)"
+                )
+                self.__register_cxi_derived_metric(
+                    "tail_latency_fraction_top10pct_bins", "CXI tail latency fraction (top 10% bins)"
+                )
+                self.__register_cxi_derived_metric("timeout_per_second", "CXI timeout rate (events/s)")
+
+                self.__register_cxi_derived_metric("bad_tx_octets_per_second", "CXI bad TX octet rate (octets/s)")
+                self.__register_cxi_derived_metric("bad_rx_octets_per_second", "CXI bad RX octet rate (octets/s)")
+                self.__register_cxi_derived_metric(
+                    "ecc_corrected_cw_per_second", "CXI ECC corrected codeword rate (cw/s)"
+                )
+                self.__register_cxi_derived_metric(
+                    "ecc_uncorrected_cw_per_second", "CXI ECC uncorrected codeword rate (cw/s)"
+                )
 
     def updateMetrics(self):
         """Update registered metrics of interest"""
