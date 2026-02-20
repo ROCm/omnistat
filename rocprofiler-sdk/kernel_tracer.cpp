@@ -41,9 +41,6 @@ namespace fmt = std;
 
 namespace omnistat {
 
-// Map per-process agent IDs to GPU node IDs.
-static std::unordered_map<uint64_t, uint32_t> agent_map = {};
-
 // Demangle kernel names
 static std::string demangle(const char* mangled_name) {
     int status = -1;
@@ -106,7 +103,7 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
             auto* record =
                 static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
             fmt::format_to(std::back_inserter(data), "{},\"{}\",{},{}\n",
-                           agent_map[record->dispatch_info.agent_id.handle],
+                           tracer->agent_map_[record->dispatch_info.agent_id.handle],
                            tracer->kernels_.at(record->dispatch_info.kernel_id),
                            record->start_timestamp, record->end_timestamp);
         } else {
@@ -253,7 +250,7 @@ void KernelTracer::record_flush_stats(size_t num_headers, bool failed) {
 
 int tool_init(rocprofiler_client_finalize_t fini_func [[maybe_unused]], void* tool_data) {
     auto* tracer = static_cast<omnistat::KernelTracer*>(tool_data);
-    omnistat::agent_map = omnistat::build_agent_map();
+    tracer->agent_map_ = omnistat::build_agent_map();
     return tracer->initialize();
 }
 
