@@ -28,8 +28,16 @@
 #include <chrono>
 #include <cxxabi.h>
 #include <fstream>
+#include <iterator>
 #include <memory>
 #include <thread>
+
+#if defined(HAS_STD_FORMAT)
+#include <format>
+namespace fmt = std;
+#else
+#include <fmt/core.h>
+#endif
 
 namespace omnistat {
 
@@ -79,11 +87,7 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
 void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
                           rocprofiler_buffer_id_t buffer_id [[maybe_unused]],
                           rocprofiler_record_header_t** headers, size_t num_headers,
-                          void* tool_data, uint64_t drop_count [[maybe_unused]]) {
-    auto* http_client = static_cast<httplib::Client*>(tool_data);
-
-    std::ostringstream data_stream;
-
+                          void* tool_data [[maybe_unused]], uint64_t drop_count [[maybe_unused]]) {
     if (num_headers == 0) {
         throw std::runtime_error{
             "rocprofiler invoked a buffer callback with no headers. this should never happen"};
@@ -92,6 +96,7 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
                                  "array of headers. this should never happen"};
     }
 
+    std::string data;
     for (size_t i = 0; i < num_headers; ++i) {
         auto* header = headers[i];
 
@@ -99,31 +104,20 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
             header->kind == ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH) {
             auto* record =
                 static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
-            data_stream << agent_map[record->dispatch_info.agent_id.handle] << ",\""
-                        << tracer.kernels_.at(record->dispatch_info.kernel_id) << "\","
-                        << record->start_timestamp << "," << record->end_timestamp << "\n";
+            fmt::format_to(std::back_inserter(data), "{},\"{}\",{},{}\n",
+                           agent_map[record->dispatch_info.agent_id.handle],
+                           tracer.kernels_.at(record->dispatch_info.kernel_id),
+                           record->start_timestamp, record->end_timestamp);
         } else {
-            auto msg = std::stringstream{};
-            msg << "unexpected rocprofiler_record_header_t category + kind: (" << header->category
-                << " + " << header->kind << ")";
-            throw std::runtime_error{msg.str()};
+            throw std::runtime_error{
+                fmt::format("unexpected rocprofiler_record_header_t category + kind: ({} + {})",
+                            header->category, header->kind)};
         }
     }
 
-    tracer.record_flush_time();
-
-    std::string data = data_stream.str();
-
-    bool failed = false;
-
-    // Perform HTTP POST request
-    auto res = http_client->Post("/kernel_trace", data, "text/plain");
-    if (!res || res->status >= 400) {
+    if (!tracer.flush(data, num_headers)) {
         std::cerr << "Omnistat: failed to post kernel trace data" << std::endl;
-        failed = true;
     }
-
-    tracer.record_flush_stats(num_headers, failed);
 }
 
 KernelTracer::KernelTracer()
@@ -132,7 +126,12 @@ KernelTracer::KernelTracer()
       buffer_size_bytes_(parse_env_uint("OMNISTAT_TRACE_BUFFER_SIZE", DEFAULT_BUFFER_SIZE_BYTES)) {
 }
 
-int KernelTracer::initialize(void* tool_data) {
+int KernelTracer::initialize() {
+    http_client_ = std::make_unique<httplib::Client>("localhost", DEFAULT_TRACE_ENDPOINT_PORT);
+    http_client_->set_connection_timeout(5, 0);
+    http_client_->set_read_timeout(5, 0);
+    http_client_->set_write_timeout(5, 0);
+
     ROCPROFILER_CALL(rocprofiler_create_context(&context_), "create context");
 
     auto code_object_ops = std::vector<rocprofiler_tracing_operation_t>{
@@ -147,7 +146,7 @@ int KernelTracer::initialize(void* tool_data) {
 
     ROCPROFILER_CALL(rocprofiler_create_buffer(context_, buffer_size_bytes_, buffer_watermark_bytes,
                                                ROCPROFILER_BUFFER_POLICY_LOSSLESS,
-                                               full_buffer_callback, tool_data, &buffer_),
+                                               full_buffer_callback, nullptr, &buffer_),
                      "create buffer");
 
     ROCPROFILER_CALL(rocprofiler_configure_buffer_tracing_service(
@@ -194,6 +193,16 @@ void KernelTracer::finalize() {
                   << " processed records (" << successful_flushes << "/" << total_flushes_
                   << " successful flushes)" << std::endl;
     }
+
+    http_client_.reset();
+}
+
+bool KernelTracer::flush(std::string_view data, size_t num_records) {
+    record_flush_time();
+    auto res = http_client_->Post("/kernel_trace", data.data(), data.size(), "text/plain");
+    bool success = res && res->status < 400;
+    record_flush_stats(num_records, !success);
+    return success;
 }
 
 void KernelTracer::periodic_flush() {
@@ -245,31 +254,23 @@ void KernelTracer::record_flush_stats(size_t num_headers, bool failed) {
 // ROCProfiler SDK tool initialization
 // ------------------------------------------------------------------------------------------------
 
-int tool_init(rocprofiler_client_finalize_t fini_func, void* tool_data) {
+int tool_init(rocprofiler_client_finalize_t fini_func [[maybe_unused]],
+              void* tool_data [[maybe_unused]]) {
     omnistat::agent_map = omnistat::build_agent_map();
-    return omnistat::tracer.initialize(tool_data);
+    return omnistat::tracer.initialize();
 }
 
-void tool_fini(void* tool_data) {
+void tool_fini(void* tool_data [[maybe_unused]]) {
     omnistat::tracer.finalize();
-    auto* http_client = static_cast<httplib::Client*>(tool_data);
-    delete http_client;
 }
 
-extern "C" rocprofiler_tool_configure_result_t* rocprofiler_configure(uint32_t version,
-                                                                      const char* runtime_version,
-                                                                      uint32_t priority,
-                                                                      rocprofiler_client_id_t* id) {
+extern "C" rocprofiler_tool_configure_result_t*
+rocprofiler_configure(uint32_t version [[maybe_unused]], const char* runtime_version [[maybe_unused]],
+                      uint32_t priority [[maybe_unused]], rocprofiler_client_id_t* id) {
     id->name = "omnistat-kernel-trace";
 
-    auto* http_client = new httplib::Client("localhost", omnistat::DEFAULT_TRACE_ENDPOINT_PORT);
-    http_client->set_connection_timeout(5, 0); // 5 second timeout
-    http_client->set_read_timeout(5, 0);
-    http_client->set_write_timeout(5, 0);
-
-    static auto cfg =
-        rocprofiler_tool_configure_result_t{sizeof(rocprofiler_tool_configure_result_t), &tool_init,
-                                            &tool_fini, static_cast<void*>(http_client)};
+    static auto cfg = rocprofiler_tool_configure_result_t{
+        sizeof(rocprofiler_tool_configure_result_t), &tool_init, &tool_fini, nullptr};
 
     return &cfg;
 }
