@@ -7,7 +7,6 @@ Version 1.10 (20 Februrary 2026)
   * addition of optional network collector to enable more counters on Slingshot CXI
     interconnects - thanks to @gitrepoidoscar for the contribution (#260, #265)
 
-
 Version 1.9 (09 December 2025)
 
   * enum bug fix for newer Python versions (#237)
