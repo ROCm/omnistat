@@ -30,7 +30,9 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <memory>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace omnistat {
@@ -50,12 +52,11 @@ class KernelTracer {
     ~KernelTracer();
 
     // Methods called during rocprofiler-sdk's tool initialization and finalization
-    int initialize(void* tool_data);
+    int initialize();
     void finalize();
 
-    // Records the current timestamp whenever the flush callback is called
-    void record_flush_time();
-    void record_flush_stats(size_t num_headers, bool failed);
+    // Sends kernel trace data to the HTTP endpoint and records flush stats.
+    bool flush(std::string_view data, size_t num_records);
 
     // Members used directly by the rocprofiler-sdk tool API
     rocprofiler_context_id_t context_ = {.handle = 0};
@@ -66,6 +67,10 @@ class KernelTracer {
     // Thread for periodic record flushing, which happens in addition to the
     // flushing triggered by full buffers
     void periodic_flush();
+
+    // Internal helpers for flush()
+    void record_flush_time();
+    void record_flush_stats(size_t num_records, bool failed);
 
     const std::chrono::seconds periodic_flush_interval_;
     const uint64_t buffer_size_bytes_;
@@ -81,6 +86,9 @@ class KernelTracer {
     std::atomic<uint64_t> total_records_{0};
     std::atomic<uint64_t> failed_flushes_{0};
     std::atomic<uint64_t> failed_records_{0};
+
+    // HTTP client for sending trace data
+    std::unique_ptr<httplib::Client> http_client_;
 };
 
 } // namespace omnistat
