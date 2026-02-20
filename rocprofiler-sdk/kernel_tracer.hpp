@@ -61,6 +61,7 @@ class KernelTracer {
     rocprofiler_context_id_t context_ = {.handle = 0};
     rocprofiler_buffer_id_t buffer_ = {};
     std::unordered_map<rocprofiler_kernel_id_t, std::string> kernels_ = {};
+    std::unordered_map<uint64_t, uint32_t> agent_map_ = {};
 
   private:
     // Thread for periodic record flushing, which happens in addition to the
