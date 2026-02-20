@@ -27,7 +27,6 @@
 
 #include <chrono>
 #include <cxxabi.h>
-#include <fstream>
 #include <iterator>
 #include <memory>
 #include <thread>
@@ -194,8 +193,6 @@ KernelTracer::~KernelTracer() {
                   << " processed records (" << successful_flushes << "/" << total_flushes_
                   << " successful flushes)" << std::endl;
     }
-
-    http_client_.reset();
 }
 
 bool KernelTracer::flush(std::string_view data, size_t num_records) {
