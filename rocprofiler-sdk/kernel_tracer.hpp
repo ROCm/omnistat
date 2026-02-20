@@ -57,11 +57,10 @@ class KernelTracer {
     // Sends kernel trace data to the HTTP endpoint and records flush stats.
     bool flush(std::string_view data, size_t num_records);
 
-    // Members used directly by the rocprofiler-sdk tool API
-    rocprofiler_context_id_t context_ = {.handle = 0};
-    rocprofiler_buffer_id_t buffer_ = {};
-    std::unordered_map<rocprofiler_kernel_id_t, std::string> kernels_ = {};
-    std::unordered_map<uint64_t, uint32_t> agent_map_ = {};
+    // Members used directly by the rocprofiler-sdk tool callbacks
+    rocprofiler_buffer_id_t buffer = {};
+    std::unordered_map<rocprofiler_kernel_id_t, std::string> kernels = {};
+    std::unordered_map<uint64_t, uint32_t> agents = {};
 
   private:
     // Thread for periodic record flushing, which happens in addition to the
@@ -71,6 +70,8 @@ class KernelTracer {
     // Internal helpers for flush()
     void record_flush_time();
     void record_flush_stats(size_t num_records, bool failed);
+
+    rocprofiler_context_id_t context_ = {.handle = 0};
 
     const std::chrono::seconds periodic_flush_interval_;
     const uint64_t buffer_size_bytes_;
