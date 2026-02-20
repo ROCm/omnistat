@@ -26,7 +26,7 @@
 
 #include <rocprofiler-sdk/rocprofiler.h>
 
-#include <curl/curl.h>
+#include <httplib.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -41,8 +41,8 @@ constexpr uint64_t DEFAULT_FLUSH_INTERVAL_SECONDS = 30;
 // Default buffer size in bytes
 constexpr uint64_t DEFAULT_BUFFER_SIZE_BYTES = 262144;
 
-// Endpoint URL for sending kernel trace data
-constexpr const char* TRACE_ENDPOINT_URL = "http://localhost:8001/kernel_trace";
+// Endpoint port for sending kernel trace data
+constexpr uint64_t DEFAULT_TRACE_ENDPOINT_PORT = 8001;
 
 class KernelTracer {
   public:
