@@ -41,10 +41,6 @@ namespace fmt = std;
 
 namespace omnistat {
 
-// Global variable to keep track of kernel tracing, necessary so that all
-// rocprofiler-sdk callbacks have access to tracing data.
-static KernelTracer tracer;
-
 // Map per-process agent IDs to GPU node IDs.
 static std::unordered_map<uint64_t, uint32_t> agent_map = {};
 
@@ -60,13 +56,16 @@ static std::string demangle(const char* mangled_name) {
 // on every kernel unload; the expectation is that only happens at the end of
 // the application and it's only triggered once for the first kernel unload.
 void code_object_callback(rocprofiler_callback_tracing_record_t record,
-                          rocprofiler_user_data_t* user_data, void* callback_data) {
+                          rocprofiler_user_data_t* user_data [[maybe_unused]],
+                          void* tool_data) {
+    auto* tracer = static_cast<KernelTracer*>(tool_data);
+
     if (record.kind == ROCPROFILER_CALLBACK_TRACING_CODE_OBJECT &&
         record.operation == ROCPROFILER_CODE_OBJECT_LOAD) {
         if (record.phase == ROCPROFILER_CALLBACK_PHASE_UNLOAD) {
             // Never reached when using the tool with the ROCP_TOOL_LIBRARIES
             // environment variable, hence the need to flush on kernel unload.
-            auto flush_status = rocprofiler_flush_buffer(tracer.buffer_);
+            auto flush_status = rocprofiler_flush_buffer(tracer->buffer_);
             if (flush_status != ROCPROFILER_STATUS_ERROR_BUFFER_BUSY)
                 ROCPROFILER_CALL(flush_status, "flush buffer");
         }
@@ -76,10 +75,10 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
             static_cast<rocprofiler_callback_tracing_code_object_kernel_symbol_register_data_t*>(
                 record.payload);
         if (record.phase == ROCPROFILER_CALLBACK_PHASE_LOAD) {
-            tracer.kernels_.emplace(data->kernel_id, demangle(data->kernel_name));
+            tracer->kernels_.emplace(data->kernel_id, demangle(data->kernel_name));
         } else if (record.phase == ROCPROFILER_CALLBACK_PHASE_UNLOAD) {
-            ROCPROFILER_CALL(rocprofiler_flush_buffer(tracer.buffer_), "flush buffer");
-            tracer.kernels_.erase(data->kernel_id);
+            ROCPROFILER_CALL(rocprofiler_flush_buffer(tracer->buffer_), "flush buffer");
+            tracer->kernels_.erase(data->kernel_id);
         }
     }
 }
@@ -87,7 +86,9 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
 void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
                           rocprofiler_buffer_id_t buffer_id [[maybe_unused]],
                           rocprofiler_record_header_t** headers, size_t num_headers,
-                          void* tool_data [[maybe_unused]], uint64_t drop_count [[maybe_unused]]) {
+                          void* tool_data, uint64_t drop_count [[maybe_unused]]) {
+    auto* tracer = static_cast<KernelTracer*>(tool_data);
+
     if (num_headers == 0) {
         throw std::runtime_error{
             "rocprofiler invoked a buffer callback with no headers. this should never happen"};
@@ -106,7 +107,7 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
                 static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
             fmt::format_to(std::back_inserter(data), "{},\"{}\",{},{}\n",
                            agent_map[record->dispatch_info.agent_id.handle],
-                           tracer.kernels_.at(record->dispatch_info.kernel_id),
+                           tracer->kernels_.at(record->dispatch_info.kernel_id),
                            record->start_timestamp, record->end_timestamp);
         } else {
             throw std::runtime_error{
@@ -115,7 +116,7 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
         }
     }
 
-    if (!tracer.flush(data, num_headers)) {
+    if (!tracer->flush(data, num_headers)) {
         std::cerr << "Omnistat: failed to post kernel trace data" << std::endl;
     }
 }
@@ -139,14 +140,14 @@ int KernelTracer::initialize() {
 
     ROCPROFILER_CALL(rocprofiler_configure_callback_tracing_service(
                          context_, ROCPROFILER_CALLBACK_TRACING_CODE_OBJECT, code_object_ops.data(),
-                         code_object_ops.size(), code_object_callback, nullptr),
+                         code_object_ops.size(), code_object_callback, this),
                      "configure code object tracing service");
 
     const auto buffer_watermark_bytes = buffer_size_bytes_ - (buffer_size_bytes_ / 8);
 
     ROCPROFILER_CALL(rocprofiler_create_buffer(context_, buffer_size_bytes_, buffer_watermark_bytes,
                                                ROCPROFILER_BUFFER_POLICY_LOSSLESS,
-                                               full_buffer_callback, nullptr, &buffer_),
+                                               full_buffer_callback, this, &buffer_),
                      "create buffer");
 
     ROCPROFILER_CALL(rocprofiler_configure_buffer_tracing_service(
@@ -174,10 +175,6 @@ int KernelTracer::initialize() {
 }
 
 KernelTracer::~KernelTracer() {
-    finalize();
-}
-
-void KernelTracer::finalize() {
     {
         std::lock_guard<std::mutex> lock(periodic_mutex_);
         stop_requested_.store(true);
@@ -254,14 +251,15 @@ void KernelTracer::record_flush_stats(size_t num_headers, bool failed) {
 // ROCProfiler SDK tool initialization
 // ------------------------------------------------------------------------------------------------
 
-int tool_init(rocprofiler_client_finalize_t fini_func [[maybe_unused]],
-              void* tool_data [[maybe_unused]]) {
+int tool_init(rocprofiler_client_finalize_t fini_func [[maybe_unused]], void* tool_data) {
+    auto* tracer = static_cast<omnistat::KernelTracer*>(tool_data);
     omnistat::agent_map = omnistat::build_agent_map();
-    return omnistat::tracer.initialize();
+    return tracer->initialize();
 }
 
-void tool_fini(void* tool_data [[maybe_unused]]) {
-    omnistat::tracer.finalize();
+void tool_fini(void* tool_data) {
+    auto* tracer = static_cast<omnistat::KernelTracer*>(tool_data);
+    delete tracer;
 }
 
 extern "C" rocprofiler_tool_configure_result_t*
@@ -269,8 +267,10 @@ rocprofiler_configure(uint32_t version [[maybe_unused]], const char* runtime_ver
                       uint32_t priority [[maybe_unused]], rocprofiler_client_id_t* id) {
     id->name = "omnistat-kernel-trace";
 
+    auto* tracer = new omnistat::KernelTracer();
+
     static auto cfg = rocprofiler_tool_configure_result_t{
-        sizeof(rocprofiler_tool_configure_result_t), &tool_init, &tool_fini, nullptr};
+        sizeof(rocprofiler_tool_configure_result_t), &tool_init, &tool_fini, tracer};
 
     return &cfg;
 }
