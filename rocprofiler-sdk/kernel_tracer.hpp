@@ -51,9 +51,8 @@ class KernelTracer {
     KernelTracer();
     ~KernelTracer();
 
-    // Methods called during rocprofiler-sdk's tool initialization and finalization
+    // Method called during rocprofiler-sdk's tool initialization
     int initialize();
-    void finalize();
 
     // Sends kernel trace data to the HTTP endpoint and records flush stats.
     bool flush(std::string_view data, size_t num_records);
