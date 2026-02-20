@@ -94,7 +94,12 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
                                  "array of headers. this should never happen"};
     }
 
+    // Estimate bytes per record to reserve memory upfront. Likely
+    // overestimating, but some kernel names can be very long (>700 bytes).
+    constexpr size_t max_bytes_per_record = 1024;
+
     std::string data;
+    data.reserve(num_headers * max_bytes_per_record);
     for (size_t i = 0; i < num_headers; ++i) {
         auto* header = headers[i];
 
