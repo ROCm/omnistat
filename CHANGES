@@ -1,3 +1,13 @@
+Version 1.10 (20 Februrary 2026)
+
+  * updated loading mechanism for amd-smi python interface (#258)
+  * fix for local NVMe I/O tracking observed on external system (#259)
+  * introduction of new info and internal performance timing metrics (#263)  
+  * various dashboard updates and fixes (#256, #264)
+  * addition of optional network collector to enable more counters on Slingshot CXI
+    interconnects - thanks to @gitrepoidoscar for the contribution (#260, #265)
+
+
 Version 1.9 (09 December 2025)
 
   * enum bug fix for newer Python versions (#237)
