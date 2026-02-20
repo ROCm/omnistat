@@ -49,8 +49,19 @@ if (NOT BUILD_KERNEL_TRACE_LIB)
     install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
 else()
     find_package(rocprofiler-sdk REQUIRED)
-    find_package(CURL REQUIRED)
+
+    # Download cpp-httplib header-only library from GitHub
+    include(FetchContent)
+    FetchContent_Declare(
+        httplib
+        URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.3.tar.gz
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+    FetchContent_MakeAvailable(httplib)
 
     add_library(rsdk_kernel_trace SHARED kernel_tracer.cpp)
-    target_link_libraries(rsdk_kernel_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk CURL::libcurl)
+    target_link_libraries(rsdk_kernel_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk)
+
+    # Include cpp-httplib header
+    target_include_directories(rsdk_kernel_trace PRIVATE ${httplib_SOURCE_DIR})
 endif()

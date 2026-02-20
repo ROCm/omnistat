@@ -76,15 +76,11 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
     }
 }
 
-static size_t write_callback(char* ptr, size_t size, size_t nmemb, void* userdata) {
-    return size * nmemb;
-}
-
 void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
                           rocprofiler_buffer_id_t buffer_id [[maybe_unused]],
                           rocprofiler_record_header_t** headers, size_t num_headers,
                           void* tool_data, uint64_t drop_count [[maybe_unused]]) {
-    auto* curl = static_cast<CURL*>(tool_data);
+    auto* http_client = static_cast<httplib::Client*>(tool_data);
 
     std::ostringstream data_stream;
 
@@ -117,17 +113,13 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
     tracer.record_flush_time();
 
     std::string data = data_stream.str();
-    curl_easy_setopt(curl, CURLOPT_POST, 1L);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, data.length());
-
-    std::string response_buffer;
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_buffer);
 
     bool failed = false;
-    auto res = curl_easy_perform(curl);
-    if (res != CURLE_OK) {
-        std::cerr << curl_easy_strerror(res) << std::endl;
+
+    // Perform HTTP POST request
+    auto res = http_client->Post("/kernel_trace", data, "text/plain");
+    if (!res || res->status >= 400) {
+        std::cerr << "Omnistat: failed to post kernel trace data" << std::endl;
         failed = true;
     }
 
@@ -260,9 +252,8 @@ int tool_init(rocprofiler_client_finalize_t fini_func, void* tool_data) {
 
 void tool_fini(void* tool_data) {
     omnistat::tracer.finalize();
-    auto* curl = static_cast<CURL*>(tool_data);
-    curl_easy_cleanup(curl);
-    curl_global_cleanup();
+    auto* http_client = static_cast<httplib::Client*>(tool_data);
+    delete http_client;
 }
 
 extern "C" rocprofiler_tool_configure_result_t* rocprofiler_configure(uint32_t version,
@@ -271,22 +262,14 @@ extern "C" rocprofiler_tool_configure_result_t* rocprofiler_configure(uint32_t v
                                                                       rocprofiler_client_id_t* id) {
     id->name = "omnistat-kernel-trace";
 
-    curl_global_init(CURL_GLOBAL_ALL);
-
-    CURL* curl = curl_easy_init();
-    if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, omnistat::TRACE_ENDPOINT_URL);
-    }
-
-    struct curl_slist* http_headers = NULL;
-    http_headers = curl_slist_append(http_headers, "Content-Type: text/plain");
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, http_headers);
-
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &omnistat::write_callback);
+    auto* http_client = new httplib::Client("localhost", omnistat::DEFAULT_TRACE_ENDPOINT_PORT);
+    http_client->set_connection_timeout(5, 0); // 5 second timeout
+    http_client->set_read_timeout(5, 0);
+    http_client->set_write_timeout(5, 0);
 
     static auto cfg =
         rocprofiler_tool_configure_result_t{sizeof(rocprofiler_tool_configure_result_t), &tool_init,
-                                            &tool_fini, static_cast<void*>(curl)};
+                                            &tool_fini, static_cast<void*>(http_client)};
 
     return &cfg;
 }
