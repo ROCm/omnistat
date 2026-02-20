@@ -62,7 +62,7 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
         if (record.phase == ROCPROFILER_CALLBACK_PHASE_UNLOAD) {
             // Never reached when using the tool with the ROCP_TOOL_LIBRARIES
             // environment variable, hence the need to flush on kernel unload.
-            auto flush_status = rocprofiler_flush_buffer(tracer->buffer_);
+            auto flush_status = rocprofiler_flush_buffer(tracer->buffer);
             if (flush_status != ROCPROFILER_STATUS_ERROR_BUFFER_BUSY)
                 ROCPROFILER_CALL(flush_status, "flush buffer");
         }
@@ -72,10 +72,10 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
             static_cast<rocprofiler_callback_tracing_code_object_kernel_symbol_register_data_t*>(
                 record.payload);
         if (record.phase == ROCPROFILER_CALLBACK_PHASE_LOAD) {
-            tracer->kernels_.emplace(data->kernel_id, demangle(data->kernel_name));
+            tracer->kernels.emplace(data->kernel_id, demangle(data->kernel_name));
         } else if (record.phase == ROCPROFILER_CALLBACK_PHASE_UNLOAD) {
-            ROCPROFILER_CALL(rocprofiler_flush_buffer(tracer->buffer_), "flush buffer");
-            tracer->kernels_.erase(data->kernel_id);
+            ROCPROFILER_CALL(rocprofiler_flush_buffer(tracer->buffer), "flush buffer");
+            tracer->kernels.erase(data->kernel_id);
         }
     }
 }
@@ -103,8 +103,8 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
             auto* record =
                 static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
             fmt::format_to(std::back_inserter(data), "{},\"{}\",{},{}\n",
-                           tracer->agent_map_[record->dispatch_info.agent_id.handle],
-                           tracer->kernels_.at(record->dispatch_info.kernel_id),
+                           tracer->agents.at(record->dispatch_info.agent_id.handle),
+                           tracer->kernels.at(record->dispatch_info.kernel_id),
                            record->start_timestamp, record->end_timestamp);
         } else {
             throw std::runtime_error{
@@ -130,6 +130,8 @@ int KernelTracer::initialize() {
     http_client_->set_read_timeout(5, 0);
     http_client_->set_write_timeout(5, 0);
 
+    agents = omnistat::build_agent_map();
+
     ROCPROFILER_CALL(rocprofiler_create_context(&context_), "create context");
 
     auto code_object_ops = std::vector<rocprofiler_tracing_operation_t>{
@@ -144,17 +146,17 @@ int KernelTracer::initialize() {
 
     ROCPROFILER_CALL(rocprofiler_create_buffer(context_, buffer_size_bytes_, buffer_watermark_bytes,
                                                ROCPROFILER_BUFFER_POLICY_LOSSLESS,
-                                               full_buffer_callback, this, &buffer_),
+                                               full_buffer_callback, this, &buffer),
                      "create buffer");
 
     ROCPROFILER_CALL(rocprofiler_configure_buffer_tracing_service(
-                         context_, ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH, nullptr, 0, buffer_),
+                         context_, ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH, nullptr, 0, buffer),
                      "configure buffer tracing service for kernel dispatches");
 
     auto thread = rocprofiler_callback_thread_t{};
     ROCPROFILER_CALL(rocprofiler_create_callback_thread(&thread), "create thread");
 
-    ROCPROFILER_CALL(rocprofiler_assign_callback_thread(buffer_, thread),
+    ROCPROFILER_CALL(rocprofiler_assign_callback_thread(buffer, thread),
                      "assign thread for buffer");
 
     int valid = 0;
@@ -218,7 +220,7 @@ void KernelTracer::periodic_flush() {
         }
 
         // Timeout occurred, perform periodic flush
-        auto flush_status = rocprofiler_flush_buffer(buffer_);
+        auto flush_status = rocprofiler_flush_buffer(buffer);
 
         // Ignore BUFFER_BUSY errors as the buffer might be in use
         if (flush_status != ROCPROFILER_STATUS_SUCCESS &&
@@ -250,7 +252,6 @@ void KernelTracer::record_flush_stats(size_t num_headers, bool failed) {
 
 int tool_init(rocprofiler_client_finalize_t fini_func [[maybe_unused]], void* tool_data) {
     auto* tracer = static_cast<omnistat::KernelTracer*>(tool_data);
-    tracer->agent_map_ = omnistat::build_agent_map();
     return tracer->initialize();
 }
 
