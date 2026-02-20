@@ -52,8 +52,7 @@ static std::string demangle(const char* mangled_name) {
 // on every kernel unload; the expectation is that only happens at the end of
 // the application and it's only triggered once for the first kernel unload.
 void code_object_callback(rocprofiler_callback_tracing_record_t record,
-                          rocprofiler_user_data_t* user_data [[maybe_unused]],
-                          void* tool_data) {
+                          rocprofiler_user_data_t* user_data [[maybe_unused]], void* tool_data) {
     auto* tracer = static_cast<KernelTracer*>(tool_data);
 
     if (record.kind == ROCPROFILER_CALLBACK_TRACING_CODE_OBJECT &&
@@ -263,7 +262,8 @@ void tool_fini(void* tool_data) {
 }
 
 extern "C" rocprofiler_tool_configure_result_t*
-rocprofiler_configure(uint32_t version [[maybe_unused]], const char* runtime_version [[maybe_unused]],
+rocprofiler_configure(uint32_t version [[maybe_unused]],
+                      const char* runtime_version [[maybe_unused]],
                       uint32_t priority [[maybe_unused]], rocprofiler_client_id_t* id) {
     id->name = "omnistat-kernel-trace";
 
