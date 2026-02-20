@@ -50,8 +50,10 @@ if (NOT BUILD_KERNEL_TRACE_LIB)
 else()
     find_package(rocprofiler-sdk REQUIRED)
 
-    # Download cpp-httplib header-only library from GitHub
     include(FetchContent)
+    include(CheckCXXSourceCompiles)
+
+    # Download cpp-httplib header-only library from GitHub
     FetchContent_Declare(
         httplib
         URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.3.tar.gz
@@ -60,8 +62,32 @@ else()
     FetchContent_MakeAvailable(httplib)
 
     add_library(rsdk_kernel_trace SHARED kernel_tracer.cpp)
+    target_compile_features(rsdk_kernel_trace PRIVATE cxx_std_20)
     target_link_libraries(rsdk_kernel_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk)
-
-    # Include cpp-httplib header
     target_include_directories(rsdk_kernel_trace PRIVATE ${httplib_SOURCE_DIR})
+
+    # Check if the compiler supports std::format
+    set(CMAKE_REQUIRED_FLAGS "-std=c++20")
+    check_cxx_source_compiles("
+        #include <format>
+        #include <string>
+        int main() {
+            std::string s = std::format(\"{}\", 42);
+            return 0;
+        }
+    " HAS_STD_FORMAT)
+
+    if (HAS_STD_FORMAT)
+        target_compile_definitions(rsdk_kernel_trace PRIVATE HAS_STD_FORMAT)
+    else()
+        message(STATUS "std::format not available, using fmt library")
+        FetchContent_Declare(
+            fmt
+            URL https://github.com/fmtlib/fmt/archive/refs/tags/11.0.2.tar.gz
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        )
+        FetchContent_MakeAvailable(fmt)
+        target_compile_definitions(rsdk_kernel_trace PRIVATE FMT_HEADER_ONLY)
+        target_include_directories(rsdk_kernel_trace PRIVATE ${fmt_SOURCE_DIR}/include)
+    endif()
 endif()
