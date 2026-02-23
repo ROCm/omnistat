@@ -65,6 +65,17 @@ class PM_COUNTERS(Collector):
         # metric data structure for gpu oriented
         self.__pm_files_host = []  # entries: (gauge metric, filepath, gpuindex)
 
+        # data structure for open file handles
+        self.__open_files = {}
+
+    def __del__(self):
+        """Cleanup: close all open file handles"""
+        for filepath, fh in self.__open_files.items():
+            try:
+                fh.close()
+            except:
+                pass
+
     def registerMetrics(self):
         """Register metrics of interest"""
 
@@ -113,6 +124,13 @@ class PM_COUNTERS(Collector):
                         metric_entry = (gauge, str(file), gpu_id)
                         self.__pm_files_gpu.append(metric_entry)
 
+                        # Cache open files for performance
+                        if str(file) not in self.__open_files:
+                            try:
+                                self.__open_files[str(file)] = open(file, "r")
+                            except Exception as e:
+                                logging.error(f"Failed to open {file}: {e}")
+
                     else:
                         metric_name = file.name + f"_{units}"
                         description = f"Node-level {metric_name} ({units_short})"
@@ -120,6 +138,13 @@ class PM_COUNTERS(Collector):
                         metric_entry = (gauge, str(file))
                         self.__pm_files_host.append(metric_entry)
                         logging.info("--> [registered] %s -> %s (gauge)" % (self.__prefix + metric_name, description))
+
+                        # Cache open files for performance
+                        if str(file) not in self.__open_files:
+                            try:
+                                self.__open_files[str(file)] = open(file, "r")
+                            except Exception as e:
+                                logging.error(f"Failed to open {file}: {e}")
 
     def updateMetrics(self):
         """Update registered metrics of interest"""
@@ -129,9 +154,19 @@ class PM_COUNTERS(Collector):
             gaugeMetric = entry[0]
             filePath = entry[1]
             try:
-                with open(filePath, "r") as f:
+                f = self.__open_files.get(filePath)
+                if f:
+                    f.seek(0)  # Rewind to beginning
                     data = f.readline().strip().split()
                     gaugeMetric.labels(vendor=self.__vendor).set(float(data[0]))
+            except (IOError, OSError):
+                # File may have been removed or changed; reopen on next iteration
+                if filePath in self.__open_files:
+                    try:
+                        self.__open_files[filePath].close()
+                    except:
+                        pass
+                    del self.__open_files[filePath]
             except:
                 pass
 
@@ -141,10 +176,19 @@ class PM_COUNTERS(Collector):
             filePath = entry[1]
             gpuIndex = entry[2]
             try:
-                with open(filePath, "r") as f:
+                f = self.__open_files.get(filePath)
+                if f:
+                    f.seek(0)  # Rewind to beginning
                     data = f.readline().strip().split()
                     gaugeMetric.labels(accel=gpuIndex, vendor=self.__vendor).set(data[0])
-
+            except (IOError, OSError):
+                # File may have been removed or changed; reopen on next iteration
+                if filePath in self.__open_files:
+                    try:
+                        self.__open_files[filePath].close()
+                    except:
+                        pass
+                    del self.__open_files[filePath]
             except:
                 pass
 
