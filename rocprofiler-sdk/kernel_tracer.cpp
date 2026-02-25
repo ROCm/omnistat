@@ -48,6 +48,10 @@ static std::string demangle(const char* mangled_name) {
     return (status == 0) ? result.get() : mangled_name;
 }
 
+static size_t write_callback(char* ptr, size_t size, size_t nmemb, void* userdata) {
+    return size * nmemb;
+}
+
 // Callback used to register kernels when loading code objects. Forces a flush
 // on every kernel unload; the expectation is that only happens at the end of
 // the application and it's only triggered once for the first kernel unload.
@@ -128,10 +132,20 @@ KernelTracer::KernelTracer()
 }
 
 int KernelTracer::initialize() {
-    http_client_ = std::make_unique<httplib::Client>("localhost", DEFAULT_TRACE_ENDPOINT_PORT);
-    http_client_->set_connection_timeout(5, 0);
-    http_client_->set_read_timeout(5, 0);
-    http_client_->set_write_timeout(5, 0);
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    curl_handle_ = curl_easy_init();
+    if (!curl_handle_) {
+        std::cerr << "Omnistat: failed to initialize libcurl" << std::endl;
+        return -1;
+    }
+
+    std::string url = fmt::format("http://localhost:{}/kernel_trace", DEFAULT_TRACE_ENDPOINT_PORT);
+    curl_easy_setopt(curl_handle_, CURLOPT_URL, url.c_str());
+    struct curl_slist* http_headers = NULL;
+    http_headers = curl_slist_append(http_headers, "Content-Type: text/plain");
+    curl_easy_setopt(curl_handle_, CURLOPT_HTTPHEADER, http_headers);
+    curl_easy_setopt(curl_handle_, CURLOPT_WRITEFUNCTION, &omnistat::write_callback);
 
     agents = omnistat::build_agent_map();
 
@@ -192,12 +206,31 @@ KernelTracer::~KernelTracer() {
                   << " processed records (" << successful_flushes << "/" << total_flushes_
                   << " successful flushes)" << std::endl;
     }
+
+    if (curl_handle_) {
+        curl_easy_cleanup(curl_handle_);
+    }
 }
 
 bool KernelTracer::flush(std::string_view data, size_t num_records) {
     record_flush_time();
-    auto res = http_client_->Post("/kernel_trace", data.data(), data.size(), "text/plain");
-    bool success = res && res->status < 400;
+
+    curl_easy_setopt(curl_handle_, CURLOPT_POST, 1L);
+    curl_easy_setopt(curl_handle_, CURLOPT_POSTFIELDSIZE, static_cast<long>(data.size()));
+    curl_easy_setopt(curl_handle_, CURLOPT_POSTFIELDS, data.data());
+
+    std::string response_buffer;
+    curl_easy_setopt(curl_handle_, CURLOPT_WRITEDATA, &response_buffer);
+
+    CURLcode res = curl_easy_perform(curl_handle_);
+
+    bool success = false;
+    if (res == CURLE_OK) {
+        long http_code = 0;
+        curl_easy_getinfo(curl_handle_, CURLINFO_RESPONSE_CODE, &http_code);
+        success = http_code < 400;
+    }
+
     record_flush_stats(num_records, !success);
     return success;
 }
