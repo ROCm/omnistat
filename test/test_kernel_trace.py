@@ -97,7 +97,7 @@ class TestKernelTrace:
         with flask_app.test_request_context(data=json_data, content_type='application/json'):
             response, status = collector_instance.handleRequest()
 
-            assert status == 200
+            assert status == 204
             assert len(collector_instance._KernelTrace__dispatches) == 2
 
             dispatch1 = collector_instance._KernelTrace__dispatches[0]
@@ -110,7 +110,7 @@ class TestKernelTrace:
         with flask_app.test_request_context(data=json_data, content_type='application/json'):
             response, status = collector_instance.handleRequest()
 
-            assert status == 200
+            assert status == 204
             assert len(collector_instance._KernelTrace__dispatches) == 0
 
     def test_handleRequest_complex_kernel_names(self, collector_instance, flask_app):
@@ -120,7 +120,7 @@ class TestKernelTrace:
         with flask_app.test_request_context(data=json_data, content_type='application/json'):
             response, status = collector_instance.handleRequest()
 
-            assert status == 200
+            assert status == 204
             dispatch = collector_instance._KernelTrace__dispatches[0]
             assert dispatch[1] == 'std::vector<int>::push_back(int const&)'
 
