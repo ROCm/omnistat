@@ -29,7 +29,7 @@ import time
 from collections import OrderedDict
 
 import orjson
-from flask import Flask, jsonify, request
+from flask import Flask, request
 
 from omnistat.collector_base import EndpointCollector
 
@@ -83,10 +83,10 @@ class KernelTrace(EndpointCollector):
             with self.__dispatches_lock:
                 self.__dispatches.extend(dispatches)
 
-            return jsonify({"status": "ok"}), 200
+            return "", 204
 
         except Exception as e:
-            return jsonify({"error": str(e)}), 400
+            return str(e), 400
 
     def updateMetrics(self):
         logging.debug("Checking kernel tracing data...")
