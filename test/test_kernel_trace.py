@@ -3,7 +3,9 @@ import time
 from collections import OrderedDict
 from unittest.mock import MagicMock, Mock, patch
 
+import orjson
 import pytest
+from flask import Flask
 
 from omnistat.collector_kernel_trace import KernelTrace
 
@@ -20,6 +22,12 @@ class TestKernelTrace:
             mock_time_ns.return_value = 1_000_000_000
             mock_clock_gettime_ns.return_value = 1_000_000_000
             yield {"time_ns": mock_time_ns, "clock_gettime_ns": mock_clock_gettime_ns, "offset_ns": 1_000_000_000}
+
+    @pytest.fixture
+    def flask_app(self):
+        """Create a Flask app for testing request contexts."""
+        app = Flask(__name__)
+        return app
 
     @pytest.fixture
     def collector_instance(self, mock_time):
@@ -81,3 +89,46 @@ class TestKernelTrace:
 
         # Verify dispatch queue was cleared
         assert len(collector_instance._KernelTrace__dispatches) == 0
+
+    def test_handleRequest_json_format(self, collector_instance, flask_app):
+        """Test handling JSON array of arrays format."""
+        json_data = b'[[0,"kernel_a",1000000000,2000000000],[1,"kernel_b",3000000000,4000000000]]'
+
+        with flask_app.test_request_context(data=json_data, content_type='application/json'):
+            response, status = collector_instance.handleRequest()
+
+            assert status == 200
+            assert len(collector_instance._KernelTrace__dispatches) == 2
+
+            dispatch1 = collector_instance._KernelTrace__dispatches[0]
+            assert dispatch1 == (0, "kernel_a", 2000000000, 1000000000)
+
+    def test_handleRequest_empty_json_array(self, collector_instance, flask_app):
+        """Test handling empty JSON array."""
+        json_data = b'[]'
+
+        with flask_app.test_request_context(data=json_data, content_type='application/json'):
+            response, status = collector_instance.handleRequest()
+
+            assert status == 200
+            assert len(collector_instance._KernelTrace__dispatches) == 0
+
+    def test_handleRequest_complex_kernel_names(self, collector_instance, flask_app):
+        """Test kernel names with C++ template syntax."""
+        json_data = orjson.dumps([[0, "std::vector<int>::push_back(int const&)", 100, 200]])
+
+        with flask_app.test_request_context(data=json_data, content_type='application/json'):
+            response, status = collector_instance.handleRequest()
+
+            assert status == 200
+            dispatch = collector_instance._KernelTrace__dispatches[0]
+            assert dispatch[1] == 'std::vector<int>::push_back(int const&)'
+
+    def test_handleRequest_malformed_json(self, collector_instance, flask_app):
+        """Test error handling for malformed JSON."""
+        json_data = b'[invalid'
+
+        with flask_app.test_request_context(data=json_data, content_type='application/json'):
+            response, status = collector_instance.handleRequest()
+
+            assert status == 400

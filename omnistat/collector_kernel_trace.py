@@ -23,13 +23,12 @@
 # -------------------------------------------------------------------------------
 
 import configparser
-import csv
 import logging
 import threading
 import time
 from collections import OrderedDict
-from io import StringIO
 
+import orjson
 from flask import Flask, jsonify, request
 
 from omnistat.collector_base import EndpointCollector
@@ -73,16 +72,12 @@ class KernelTrace(EndpointCollector):
 
     def handleRequest(self):
         try:
-            csv_data = request.data.decode("utf-8").strip()
-            csv_file = StringIO(csv_data)
-            csv_reader = csv.reader(csv_file)
+            # Parse JSON array of arrays
+            records = orjson.loads(request.data)
 
             dispatches = []
-            for gpu_id, kernel, start_ns, end_ns in csv_reader:
-                start_ns = int(start_ns)
-                end_ns = int(end_ns)
-                duration_ns = end_ns - start_ns
-                dispatch = (gpu_id, kernel, end_ns, duration_ns)
+            for gpu_id, kernel, start_ns, end_ns in records:
+                dispatch = (gpu_id, kernel, end_ns, end_ns - start_ns)
                 dispatches.append(dispatch)
 
             with self.__dispatches_lock:

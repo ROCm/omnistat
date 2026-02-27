@@ -102,6 +102,10 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
 
     std::string data;
     data.reserve(num_headers * max_bytes_per_record);
+
+    // Start JSON array
+    data.push_back('[');
+
     for (size_t i = 0; i < num_headers; ++i) {
         auto* header = headers[i];
 
@@ -109,7 +113,9 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
             header->kind == ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH) {
             auto* record =
                 static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
-            fmt::format_to(std::back_inserter(data), "{},\"{}\",{},{}\n",
+
+            // Build array element: [gpu_id, "kernel_name", start_ns, end_ns]
+            fmt::format_to(std::back_inserter(data), "[{},\"{}\",{},{}],",
                            tracer->agents.at(record->dispatch_info.agent_id.handle),
                            tracer->kernels.at(record->dispatch_info.kernel_id),
                            record->start_timestamp, record->end_timestamp);
@@ -119,6 +125,9 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
                             header->category, header->kind)};
         }
     }
+
+    // Replace trailing comma with closing bracket
+    data.back() = ']';
 
     if (!tracer->flush(data, num_headers)) {
         std::cerr << "Omnistat: failed to post kernel trace data" << std::endl;
@@ -143,7 +152,7 @@ int KernelTracer::initialize() {
     std::string url = fmt::format("http://localhost:{}/kernel_trace", DEFAULT_TRACE_ENDPOINT_PORT);
     curl_easy_setopt(curl_handle_, CURLOPT_URL, url.c_str());
     struct curl_slist* http_headers = NULL;
-    http_headers = curl_slist_append(http_headers, "Content-Type: text/plain");
+    http_headers = curl_slist_append(http_headers, "Content-Type: application/json");
     curl_easy_setopt(curl_handle_, CURLOPT_HTTPHEADER, http_headers);
     curl_easy_setopt(curl_handle_, CURLOPT_WRITEFUNCTION, &omnistat::write_callback);
 
