@@ -135,8 +135,8 @@ class KernelTrace(EndpointCollector):
 
         if len(self.__dispatches) > 0:
             with self.__dispatches_lock:
-                dispatches = self.__dispatches.copy()
-                self.__dispatches.clear()
+                dispatches = self.__dispatches
+                self.__dispatches = []
 
         for gpu_id, name, end_ns, duration_ns in dispatches:
             end_ms = (end_ns + self.__offset_ns) // 1_000_000
