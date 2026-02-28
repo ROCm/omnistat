@@ -56,6 +56,10 @@ dataDeliveredEvent = threading.Event()
 fomData = []
 fomLock = threading.Lock()
 
+# Max metrics per push when flushing endpoint data at shutdown. Limits
+# payload size to avoid memory spikes from large accumulated buffers.
+FLUSH_BATCH_SIZE = 50_000
+
 
 def push_to_victoria_metrics(metrics_data_list, victoria_url, timer=None):
     start_time = time.perf_counter()
@@ -357,18 +361,32 @@ class Standalone:
                 num_fom_samples += len(fomData)
                 fomData.clear()
 
-        # Flush any remaining data from endpoints collectors before shutdown
-        logging.info("Flushing remaining data from endpoints...")
+        # Flush any remaining data from endpoints collectors before shutdown.
+        # Pushes to the database are batched to avoid very large payloads.
+        flush_batches = 0
         for endpoint in self.__endpoints:
             entries = endpoint.flushMetrics()
             for metric, labels, value, timestamp in entries:
                 entry = f"{metric}{{{self.__labelDefaults},{labels}}} {value} {timestamp}"
                 self.__dataVM.append(entry)
+                if len(self.__dataVM) >= FLUSH_BATCH_SIZE:
+                    push_to_victoria_metrics(self.__dataVM, self.__victoriaURL)
+                    flush_batches += 1
+                    self.__dataVM = []
 
         if len(self.__dataVM) > 0:
             logging.info("Initiating final data push...")
             bg_thread_timer = {}
             push_to_victoria_metrics(self.__dataVM, self.__victoriaURL, bg_thread_timer)
+<<<<<<< HEAD
+=======
+            if bg_thread_timer:
+                logging.info("--> completed final data push in %.2f seconds" % bg_thread_timer["duration_secs"])
+            flush_batches += 1
+
+        if flush_batches > 0:
+            logging.info(f"Final data push: flushed remaining metrics in {flush_batches} batch(es)")
+>>>>>>> 4ffd275 (Improve memory usage during final flush)
 
         logging.info("")
         logging.info("--> Sampling interval          = %.4f (secs)" % interval_secs)

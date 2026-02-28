@@ -158,52 +158,31 @@ class KernelTrace(EndpointCollector):
         """Extract accumulated kernel metrics as database entries
 
         Pops time-series bins from the internal buffer (self.__ts) up to the
-        specified cutoff point and converts them into metric entries ready for
-        database ingestion. Bins after the cutoff remain in the buffer.
+        specified cutoff point and yields metric entries for database
+        ingestion. Bins after the cutoff remain in the buffer.
 
         Args:
             cutoff_bin: Extract bins up to and including this timestamp (in
                 ms). Bins after this point remain in the buffer for future
                 accumulation.
 
-        Returns:
-            List of metric entries, where each entry is a list:
+        Yields:
+            Metric entries as lists:
             [metric_name, labels_string, value, timestamp_bin].
 
             Two metrics are generated per kernel dispatch:
             - omnistat_kernel_dispatch_count: number of dispatches
             - omnistat_kernel_total_duration_ns: cumulative duration in nanoseconds
         """
-        entries = []
-
         num_push_intervals = 0
         for interval_bin, _ in self.__ts.items():
             if interval_bin > cutoff_bin:
                 break
             num_push_intervals += 1
 
-        push_intervals = []
         for _ in range(num_push_intervals):
-            item = self.__ts.popitem(last=False)
-            push_intervals.append(item)
-
-        for interval_bin, kernels in push_intervals:
+            interval_bin, kernels = self.__ts.popitem(last=False)
             for (gpu_id, name), (num_dispatches, total_duration) in kernels.items():
-                entries.extend(
-                    [
-                        [
-                            "omnistat_kernel_dispatch_count",
-                            f'card="{gpu_id}",kernel="{name}"',
-                            num_dispatches,
-                            interval_bin,
-                        ],
-                        [
-                            "omnistat_kernel_total_duration_ns",
-                            f'card="{gpu_id}",kernel="{name}"',
-                            total_duration,
-                            interval_bin,
-                        ],
-                    ]
-                )
-
-        return entries
+                labels = f'card="{gpu_id}",kernel="{name}"'
+                yield ["omnistat_kernel_dispatch_count", labels, num_dispatches, interval_bin]
+                yield ["omnistat_kernel_total_duration_ns", labels, total_duration, interval_bin]
