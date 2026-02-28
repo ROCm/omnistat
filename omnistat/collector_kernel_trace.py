@@ -26,7 +26,7 @@ import configparser
 import logging
 import threading
 import time
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 import orjson
 from flask import Flask, request
@@ -46,10 +46,10 @@ class KernelTrace(EndpointCollector):
         self.__dispatches = []
         self.__dispatches_lock = threading.Lock()
 
-        # Accumulated metric values for. Keys and values are both tuples:
+        # Accumulated metric values. Keys are tuples, values are lists:
         #   Keys: (gpu_id, kernel_name)
-        #   Values: (duration, num_dispatches)
-        self.__values = {}
+        #   Values: [num_dispatches, total_duration]
+        self.__values = defaultdict(lambda: [0, 0])
 
         # Buffer to accumulate time series data before pushing it to the
         # database. This buffer is necessary for two different scenarios: 1)
@@ -147,12 +147,9 @@ class KernelTrace(EndpointCollector):
                 continue
 
             key = (gpu_id, name)
-            if not key in self.__values:
-                self.__values[key] = (0, 0)
-
-            num_dispatches, total_duration = self.__values[key]
-            value = (num_dispatches + 1, total_duration + duration_ns)
-            self.__values[key] = value
+            value = self.__values[key]
+            value[0] += 1
+            value[1] += duration_ns
             self.__ts[end_bin][key] = value
 
         return last_bin

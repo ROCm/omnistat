@@ -80,12 +80,12 @@ class TestKernelTrace:
 
         key = ("0", "kernel_a")
         assert key in values
-        assert values[key] == (1, duration_ns)
+        assert values[key] == [1, duration_ns]
 
         expected_bin = mock_time["time_ns"].return_value // 1_000_000
         assert expected_bin in ts
         assert key in ts[expected_bin]
-        assert ts[expected_bin][key] == (1, duration_ns)
+        assert ts[expected_bin][key] == [1, duration_ns]
 
         # Verify dispatch queue was cleared
         assert len(collector_instance._KernelTrace__dispatches) == 0
