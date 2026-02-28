@@ -37,7 +37,7 @@
 namespace omnistat {
 
 // Default periodic flush interval in seconds
-constexpr uint64_t DEFAULT_FLUSH_INTERVAL_SECONDS = 30;
+constexpr uint64_t DEFAULT_FLUSH_INTERVAL_SECONDS = 13;
 
 // Default buffer size in bytes
 constexpr uint64_t DEFAULT_BUFFER_SIZE_BYTES = 262144;

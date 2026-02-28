@@ -39,7 +39,7 @@ class KernelTrace(EndpointCollector):
         logging.debug("Initializing kernel trace collector")
 
         self.__interval_ms = max(1, int(interval * 1_000))
-        self.__window_ms = 30_000
+        self.__window_ms = 15_000
 
         # Unprocessed dispatch data, almost the same as recieved from
         # rsdk-based library, but parsed to extract specific fields
