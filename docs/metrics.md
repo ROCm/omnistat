@@ -229,7 +229,7 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 
 <hr style="border: 1px solid black;">
 
-## ROCprofiler
+## Hardware Counters
 
 The ROCprofiler data collector provides access to low-level GPU hardware
 counters for in-depth performance analysis. Counters are collected by sampling
@@ -269,8 +269,8 @@ Each profile defines a sampling mode and a set of counters to be collected:
     counters = [["FETCH_SIZE"], ["WRITE_SIZE"]]
   ```
 
-The ROCprofiler data collector requires [building the ROCprofiler
-extension](./installation/extensions.md#rocprofiler).
+The ROCprofiler data collector requires [building the hardware counters
+extension](./installation/extensions.md#hardware-counters).
 
 To ensure all performance counters are collected correctly, the collector has
 the following requirements depending on how Omnistat is executed:
@@ -287,6 +287,31 @@ the following requirements depending on how Omnistat is executed:
 | GPU Metric                                    | Description                          |
 | :-------------------------------------------- | :----------------------------------- |
 | `omnistat_hardware_counter`                   | GPU hardware counter value from ROCprofiler. Labels: `source`, `name`. |
+
+<hr style="border: 1px solid black;">
+
+## Kernel Tracing
+
+The kernel tracing data collector traces individual GPU kernel dispatches,
+recording kernel names, execution durations, and GPU IDs. It produces
+per-kernel time series metrics that enable detailed analysis of GPU workload
+composition over time.
+
+The collector requires [building the kernel tracing
+library](./installation/extensions.md#kernel-tracing). To intercept kernel
+dispatches, the `ROCP_TOOL_LIBRARIES` environment variable must be set in the
+GPU application's runtime environment pointing to the built library:
+
+```shell
+export ROCP_TOOL_LIBRARIES=/path/to/build-trace/librsdk_kernel_trace.so
+```
+
+**Collector**: `enable_kernel_trace`
+
+| GPU Metric | Description |
+| :--- | :--- |
+| `omnistat_kernel_dispatch_count` | Cumulative number of kernel dispatches. Labels: `card`, `kernel`. |
+| `omnistat_kernel_total_duration_ns` | Cumulative kernel execution time (ns). Labels: `card`, `kernel`. |
 
 <hr style="border: 1px solid black;">
 
