@@ -50,29 +50,52 @@ from omnistat import utils
 from omnistat.monitor import Monitor
 
 app = Flask(__name__)
+
 terminateFlagEvent = threading.Event()
 dataDeliveredEvent = threading.Event()
 
 fomData = []
 fomLock = threading.Lock()
 
-# Max metrics per push when flushing endpoint data at shutdown. Limits
-# payload size to avoid memory spikes from large accumulated buffers.
-FLUSH_BATCH_SIZE = 50_000
+def generate_metrics_stream(dataVM, rawDataVM, label_defaults):
+    """Stream metrics to the HTTP request body, formatting tuples on-the-fly.
+
+    Iterates over both lists and yields encoded bytes for chunked HTTP streaming.
+    Pre-formatted strings (dataVM) are passed through directly. Raw tuples
+    (rawDataVM) are formatted lazily, avoiding the memory cost of storing
+    millions of full label strings.
+
+    Args:
+        dataVM: Pre-formatted Prometheus text lines (gauges, FOM data)
+        rawDataVM: Raw (metric, labels, value, timestamp) tuples from
+            endpoint collectors. labels is a list of (name, value) pairs,
+            e.g. [("card", "0"), ("kernel", "kernel_name")]
+        label_defaults: Default labels to prepend (e.g., 'instance="host",user="user"')
+    """
+    for item in dataVM:
+        if item:
+            yield item.encode("utf-8")
+            yield b"\n"
+    for metric, labels, value, timestamp in rawDataVM:
+        label_str = ",".join(f'{k}="{v}"' for k, v in labels)
+        line = f"{metric}{{{label_defaults},{label_str}}} {value} {timestamp}"
+        yield line.encode("utf-8")
+        yield b"\n"
 
 
-def push_to_victoria_metrics(metrics_data_list, victoria_url, timer=None):
+def push_to_victoria_metrics(dataVM, rawDataVM, label_defaults, victoria_url, timer=None):
     start_time = time.perf_counter()
     timestamp_msecs = int(datetime.now(timezone.utc).timestamp() * 1000.0)
 
     logging.info("Pushing local node telemetry to VictoriaMetrics endpoint -> %s" % victoria_url)
-    headers = {
-        "Content-Type": "text/plain",
-    }
+    headers = {"Content-Type": "text/plain"}
 
-    metrics_data = "\n".join(metrics_data_list)
     try:
-        response = requests.post(victoria_url + "/api/v1/import/prometheus", data=metrics_data, headers=headers)
+        response = requests.post(
+            victoria_url + "/api/v1/import/prometheus",
+            data=generate_metrics_stream(dataVM, rawDataVM, label_defaults),
+            headers=headers,
+        )
     except requests.ConnectionError:
         logging.error("")
         logging.error(
@@ -92,15 +115,14 @@ def push_to_victoria_metrics(metrics_data_list, victoria_url, timer=None):
     else:
         logging.info("Metrics pushed successfully!")
 
-    # notify on backfill event
-    endpoints = ["/internal/resetRollupResultCache", "/internal/force_flush"]
-    for endpoint in endpoints:
+    # Notify VictoriaMetrics to flush ingested data
+    for vm_endpoint in ["/internal/resetRollupResultCache", "/internal/force_flush"]:
         try:
-            response = requests.get(victoria_url + endpoint)
-            logging.debug("--> Response from victoria endpoint %s = %s" % (endpoint, response.status_code))
+            response = requests.get(victoria_url + vm_endpoint)
+            logging.debug("--> Response from victoria endpoint %s = %s" % (vm_endpoint, response.status_code))
         except Exception as e:
             logging.error("")
-            logging.error("[FAILED]: Unable to GET Victoria endpoint -> %s" % endpoint)
+            logging.error("[FAILED]: Unable to GET Victoria endpoint -> %s" % vm_endpoint)
             logging.error(e)
             return
 
@@ -119,7 +141,11 @@ def push_to_victoria_metrics(metrics_data_list, victoria_url, timer=None):
 class Standalone:
     def __init__(self, args, config):
         logging.basicConfig(format="%(message)s", level=logging.ERROR, stream=sys.stdout, flush=True)
+        # Pre-formatted metric strings (Prometheus gauges, FOM) ready for push
         self.__dataVM = []
+        # Raw tuples (metric, labels, value, timestamp) from endpoint collectors;
+        # formatted on-the-fly during HTTP streaming to avoid storing large strings
+        self.__rawDataVM = []
         self.__hostname = platform.node().split(".", 1)[0]
         self.__instanceLabel = 'instance="%s"' % self.__hostname
 
@@ -281,12 +307,14 @@ class Standalone:
                     try:
                         push_start_time = time.perf_counter()
                         dataToPush = self.__dataVM
+                        rawDataToPush = self.__rawDataVM
                         bg_thread_timer = {}
                         push_thread = threading.Thread(
-                            target=push_to_victoria_metrics, args=(dataToPush, self.__victoriaURL, bg_thread_timer)
+                            target=push_to_victoria_metrics, args=(dataToPush, rawDataToPush, self.__victoriaURL, bg_thread_timer)
                         )
                         push_thread.start()
                         self.__dataVM = []
+                        self.__rawDataVM = []
                         num_pushes += 1
                         push_end_time = time.perf_counter()
                         # include push time as published metric
@@ -302,10 +330,8 @@ class Standalone:
                         pass
 
                 for endpoint in self.__endpoints:
-                    entries = endpoint.updateMetrics()
-                    for metric, labels, value, timestamp in entries:
-                        entry = f"{metric}{{{self.__labelDefaults},{labels}}} {value} {timestamp}"
-                        self.__dataVM.append(entry)
+                    for entry in endpoint.updateMetrics():
+                        self.__rawDataVM.append(entry)
 
                 # periodically check for figure-of-merit (FOM) data
                 if fom_check_duration > self.__fomCheckFrequencySecs:
@@ -362,31 +388,18 @@ class Standalone:
                 fomData.clear()
 
         # Flush any remaining data from endpoints collectors before shutdown.
-        # Pushes to the database are batched to avoid very large payloads.
-        flush_batches = 0
         for endpoint in self.__endpoints:
-            entries = endpoint.flushMetrics()
-            for metric, labels, value, timestamp in entries:
-                entry = f"{metric}{{{self.__labelDefaults},{labels}}} {value} {timestamp}"
-                self.__dataVM.append(entry)
-                if len(self.__dataVM) >= FLUSH_BATCH_SIZE:
-                    push_to_victoria_metrics(self.__dataVM, self.__victoriaURL)
-                    flush_batches += 1
-                    self.__dataVM = []
+            for entry in endpoint.flushMetrics():
+                self.__rawDataVM.append(entry)
 
-        if len(self.__dataVM) > 0:
+        if len(self.__dataVM) + len(self.__rawDataVM) > 0:
             logging.info("Initiating final data push...")
             bg_thread_timer = {}
-            push_to_victoria_metrics(self.__dataVM, self.__victoriaURL, bg_thread_timer)
-<<<<<<< HEAD
-=======
-            if bg_thread_timer:
-                logging.info("--> completed final data push in %.2f seconds" % bg_thread_timer["duration_secs"])
+            push_to_victoria_metrics(self.__dataVM, self.__rawDataVM, self.__labelDefaults, self.__victoriaURL, bg_thread_timer)
             flush_batches += 1
 
         if flush_batches > 0:
             logging.info(f"Final data push: flushed remaining metrics in {flush_batches} batch(es)")
->>>>>>> 4ffd275 (Improve memory usage during final flush)
 
         logging.info("")
         logging.info("--> Sampling interval          = %.4f (secs)" % interval_secs)
