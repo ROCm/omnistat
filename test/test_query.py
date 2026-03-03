@@ -82,7 +82,7 @@ class TestQuery:
         trace.add_constant_load("all", num_nodes, gpu_values)
         metrics = trace.generate()
 
-        push_to_victoria_metrics(metrics, [], "", URL)
+        push_to_victoria_metrics(metrics, [], URL)
 
         query = QueryMetrics(interval, job_id, configfile=CONFIG_FILE)
         query.find_job_info()
@@ -140,7 +140,7 @@ class TestQuery:
             trace.add_constant_load(f"load{i}", num_nodes=1, gpu_values=gpu_values_list[i])
         metrics = trace.generate()
 
-        push_to_victoria_metrics(metrics, [], "", URL)
+        push_to_victoria_metrics(metrics, [], URL)
 
         query = QueryMetrics(interval, job_id, configfile=CONFIG_FILE)
         query.find_job_info()
@@ -189,7 +189,7 @@ class TestQuery:
         trace.add_constant_load("all", num_nodes, gpu_values)
         metrics = trace.generate()
 
-        push_to_victoria_metrics(metrics, [], "", URL)
+        push_to_victoria_metrics(metrics, [], URL)
 
         query = QueryMetrics(interval, job_id, configfile=CONFIG_FILE)
         try:
@@ -220,7 +220,7 @@ class TestQuery:
         trace.add_constant_load("all", num_nodes, gpu_values)
         metrics = trace.generate()
 
-        push_to_victoria_metrics(metrics, [], "", URL)
+        push_to_victoria_metrics(metrics, [], URL)
 
         query = QueryMetrics(interval, job_id, configfile=CONFIG_FILE)
         with pytest.raises(SystemExit) as exit_info:
@@ -275,7 +275,7 @@ class TestQuery:
         trace.add_constant_step("default", "step", start, end, step_gpu_values)
         metrics = trace.generate()
 
-        push_to_victoria_metrics(metrics, [], "", URL)
+        push_to_victoria_metrics(metrics, [], URL)
 
         job = QueryMetrics(interval, job_id, configfile=CONFIG_FILE)
         job.find_job_info()
@@ -351,7 +351,7 @@ class TestQuery:
         trace.add_constant_load("all", num_nodes, gpu_values)
         metrics = trace.generate()
 
-        push_to_victoria_metrics(metrics, [], "", URL)
+        push_to_victoria_metrics(metrics, [], URL)
 
         query = QueryMetrics(interval, job_id, configfile=CONFIG_FILE)
         query.find_job_info()
