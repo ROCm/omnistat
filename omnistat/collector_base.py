@@ -69,13 +69,15 @@ class EndpointCollector(ABC):
     def updateMetrics(self):
         pass
 
-    def flushMetrics(self):
-        """Flush any remaining metrics to the database when exporters are stopped.
+    @abstractmethod
+    def formatMetrics(self, label_defaults, flush=False):
+        """Format metrics as encoded byte strings for HTTP streaming.
 
-        Default implementation is a no-op. Override in subclasses that rely on
-        buffers and need to push remaining data when shutting down.
+        Args:
+            label_defaults: Pre-formatted default labels string
+            flush: If True, flush all remaining data (used at shutdown)
 
-        Returns:
-            A list of metric entries to be pushed to the database.
+        Yields:
+            Encoded byte strings (metric line + newline) for chunked HTTP POST.
         """
-        return []
+        pass

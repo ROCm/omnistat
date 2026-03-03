@@ -100,17 +100,33 @@ class KernelTrace(EndpointCollector):
 
     def updateMetrics(self):
         logging.debug("Checking kernel tracing data...")
+        self.__process_dispatches()
+        return
+
+    def formatMetrics(self, label_defaults, flush=False):
         last_bin = self.__process_dispatches()
+        cutoff = last_bin if flush else last_bin - self.__window_ms
+        bins = self.__pop_bins(cutoff)
+        return self.__format_bins(bins, label_defaults)
 
-        # Return all time-series data outside of the accumulation window
-        return self.__extract_metrics(last_bin - self.__window_ms)
+    def __pop_bins(self, cutoff_bin):
+        num_pop = 0
+        for interval_bin in self.__ts:
+            if interval_bin > cutoff_bin:
+                break
+            num_pop += 1
+        bins = []
+        for _ in range(num_pop):
+            bins.append(self.__ts.popitem(last=False))
+        return bins
 
-    def flushMetrics(self):
-        logging.debug("Flushing kernel tracing data...")
-        last_bin = self.__process_dispatches()
-
-        # Return all time-series data
-        return self.__extract_metrics(last_bin)
+    def __format_bins(self, bins, label_defaults):
+        for interval_bin, kernels in bins:
+            for (gpu_id, name), value in kernels.items():
+                yield f'omnistat_kernel_dispatch_count{{{label_defaults},card="{gpu_id}",kernel="{name}"}} {value[0]} {interval_bin}'.encode()
+                yield b"\n"
+                yield f'omnistat_kernel_total_duration_ns{{{label_defaults},card="{gpu_id}",kernel="{name}"}} {value[1]} {interval_bin}'.encode()
+                yield b"\n"
 
     def __process_dispatches(self):
         """Process pending dispatches and update time-series bins
@@ -163,39 +179,3 @@ class KernelTrace(EndpointCollector):
             self.__ts[end_bin][key] = value
 
         return last_bin
-
-    def __extract_metrics(self, cutoff_bin):
-        """Extract accumulated kernel metrics as database entries
-
-        Pops time-series bins from the internal buffer (self.__ts) up to the
-        specified cutoff point and yields metric entries for database
-        ingestion. Bins after the cutoff remain in the buffer.
-
-        Args:
-            cutoff_bin: Extract bins up to and including this timestamp (in
-                ms). Bins after this point remain in the buffer for future
-                accumulation.
-
-        Yields:
-            Metric entries as tuples:
-            (metric_name, labels, value, timestamp_bin)
-
-            where labels is a list of (name, value) tuples, e.g.
-            [("card", "0"), ("kernel", "kernel_name")].
-
-            Two metrics are generated per kernel dispatch:
-            - omnistat_kernel_dispatch_count: number of dispatches
-            - omnistat_kernel_total_duration_ns: cumulative duration in nanoseconds
-        """
-        num_push_intervals = 0
-        for interval_bin, _ in self.__ts.items():
-            if interval_bin > cutoff_bin:
-                break
-            num_push_intervals += 1
-
-        for _ in range(num_push_intervals):
-            interval_bin, kernels = self.__ts.popitem(last=False)
-            for (gpu_id, name), (num_dispatches, total_duration) in kernels.items():
-                labels = [("card", gpu_id), ("kernel", name)]
-                yield ("omnistat_kernel_dispatch_count", labels, num_dispatches, interval_bin)
-                yield ("omnistat_kernel_total_duration_ns", labels, total_duration, interval_bin)

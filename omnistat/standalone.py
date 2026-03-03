@@ -57,33 +57,25 @@ dataDeliveredEvent = threading.Event()
 fomData = []
 fomLock = threading.Lock()
 
-def generate_metrics_stream(dataVM, rawDataVM, label_defaults):
-    """Stream metrics to the HTTP request body, formatting tuples on-the-fly.
+def generate_metrics_stream(dataVM, endpoint_streams):
+    """Stream metrics to the HTTP request body.
 
-    Iterates over both lists and yields encoded bytes for chunked HTTP streaming.
-    Pre-formatted strings (dataVM) are passed through directly. Raw tuples
-    (rawDataVM) are formatted lazily, avoiding the memory cost of storing
-    millions of full label strings.
+    Iterates over pre-formatted strings and endpoint byte streams, yielding
+    encoded bytes for chunked HTTP streaming.
 
     Args:
         dataVM: Pre-formatted Prometheus text lines (gauges, FOM data)
-        rawDataVM: Raw (metric, labels, value, timestamp) tuples from
-            endpoint collectors. labels is a list of (name, value) pairs,
-            e.g. [("card", "0"), ("kernel", "kernel_name")]
-        label_defaults: Default labels to prepend (e.g., 'instance="host",user="user"')
+        endpoint_streams: Iterables of pre-encoded bytes from endpoint collectors
     """
     for item in dataVM:
         if item:
             yield item.encode("utf-8")
             yield b"\n"
-    for metric, labels, value, timestamp in rawDataVM:
-        label_str = ",".join(f'{k}="{v}"' for k, v in labels)
-        line = f"{metric}{{{label_defaults},{label_str}}} {value} {timestamp}"
-        yield line.encode("utf-8")
-        yield b"\n"
+    for stream in endpoint_streams:
+        yield from stream
 
 
-def push_to_victoria_metrics(dataVM, rawDataVM, label_defaults, victoria_url, timer=None):
+def push_to_victoria_metrics(dataVM, endpoint_streams, victoria_url, timer=None):
     start_time = time.perf_counter()
     timestamp_msecs = int(datetime.now(timezone.utc).timestamp() * 1000.0)
 
@@ -93,7 +85,7 @@ def push_to_victoria_metrics(dataVM, rawDataVM, label_defaults, victoria_url, ti
     try:
         response = requests.post(
             victoria_url + "/api/v1/import/prometheus",
-            data=generate_metrics_stream(dataVM, rawDataVM, label_defaults),
+            data=generate_metrics_stream(dataVM, endpoint_streams),
             headers=headers,
         )
     except requests.ConnectionError:
@@ -143,9 +135,6 @@ class Standalone:
         logging.basicConfig(format="%(message)s", level=logging.ERROR, stream=sys.stdout, flush=True)
         # Pre-formatted metric strings (Prometheus gauges, FOM) ready for push
         self.__dataVM = []
-        # Raw tuples (metric, labels, value, timestamp) from endpoint collectors;
-        # formatted on-the-fly during HTTP streaming to avoid storing large strings
-        self.__rawDataVM = []
         self.__hostname = platform.node().split(".", 1)[0]
         self.__instanceLabel = 'instance="%s"' % self.__hostname
 
@@ -282,8 +271,13 @@ class Standalone:
             while not terminateFlagEvent.is_set():
                 start_time = time.perf_counter()
                 timestamp_msecs = int(datetime.now(timezone.utc).timestamp() * 1000.0)
+
                 monitor.updateAllMetrics()
                 self.getMetrics(timestamp_msecs)
+
+                for endpoint in self.__endpoints:
+                    endpoint.updateMetrics()
+
                 num_samples += 1
                 sample_duration += time.perf_counter() - start_time
 
@@ -307,14 +301,13 @@ class Standalone:
                     try:
                         push_start_time = time.perf_counter()
                         dataToPush = self.__dataVM
-                        rawDataToPush = self.__rawDataVM
+                        endpoint_streams = [ep.formatMetrics(self.__labelDefaults) for ep in self.__endpoints]
                         bg_thread_timer = {}
                         push_thread = threading.Thread(
-                            target=push_to_victoria_metrics, args=(dataToPush, rawDataToPush, self.__victoriaURL, bg_thread_timer)
+                            target=push_to_victoria_metrics, args=(dataToPush, endpoint_streams, self.__victoriaURL, bg_thread_timer)
                         )
                         push_thread.start()
                         self.__dataVM = []
-                        self.__rawDataVM = []
                         num_pushes += 1
                         push_end_time = time.perf_counter()
                         # include push time as published metric
@@ -328,10 +321,6 @@ class Standalone:
                         push_time_accumulation += push_end_time - push_start_time
                     except:
                         pass
-
-                for endpoint in self.__endpoints:
-                    for entry in endpoint.updateMetrics():
-                        self.__rawDataVM.append(entry)
 
                 # periodically check for figure-of-merit (FOM) data
                 if fom_check_duration > self.__fomCheckFrequencySecs:
@@ -387,19 +376,11 @@ class Standalone:
                 num_fom_samples += len(fomData)
                 fomData.clear()
 
-        # Flush any remaining data from endpoints collectors before shutdown.
-        for endpoint in self.__endpoints:
-            for entry in endpoint.flushMetrics():
-                self.__rawDataVM.append(entry)
-
-        if len(self.__dataVM) + len(self.__rawDataVM) > 0:
-            logging.info("Initiating final data push...")
-            bg_thread_timer = {}
-            push_to_victoria_metrics(self.__dataVM, self.__rawDataVM, self.__labelDefaults, self.__victoriaURL, bg_thread_timer)
-            flush_batches += 1
-
-        if flush_batches > 0:
-            logging.info(f"Final data push: flushed remaining metrics in {flush_batches} batch(es)")
+        # Flush any remaining data from endpoint collectors before shutdown.
+        logging.info("Initiating final data push...")
+        endpoint_streams = [ep.formatMetrics(self.__labelDefaults, flush=True) for ep in self.__endpoints]
+        bg_thread_timer = {}
+        push_to_victoria_metrics(self.__dataVM, endpoint_streams, self.__victoriaURL, bg_thread_timer)
 
         logging.info("")
         logging.info("--> Sampling interval          = %.4f (secs)" % interval_secs)
