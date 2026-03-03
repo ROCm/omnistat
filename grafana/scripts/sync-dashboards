@@ -57,7 +57,7 @@ def download_dashboard(grafana_url, headers, dashboard_uid, dashboard_name, save
     # Set of variables with values that need to be synchronized.
     #  - interval: track default value
     #  - counters & figures: multi-value variables that need to be set to "all"
-    keep_variables = {"interval", "counters", "figures"}
+    keep_variables = {"interval", "counters", "figures", "top_kernels"}
 
     data = response.json()
     dashboard_data = data["dashboard"]
