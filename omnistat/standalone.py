@@ -57,6 +57,7 @@ dataDeliveredEvent = threading.Event()
 fomData = []
 fomLock = threading.Lock()
 
+
 def generate_metrics_stream(dataVM, endpoint_streams):
     """Stream metrics to the HTTP request body.
 
