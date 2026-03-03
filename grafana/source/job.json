@@ -7490,16 +7490,16 @@
                     ],
                     "operation": "aggregate"
                   },
+                  "card": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
                   "instance": {
                     "aggregations": [],
                     "operation": "groupby"
                   },
                   "kernel": {
                     "aggregations": []
-                  },
-                  "card": {
-                    "aggregations": [],
-                    "operation": "groupby"
                   }
                 }
               }
@@ -7517,8 +7517,8 @@
                   "Value #A (mean)": 4,
                   "Value #B (sum)": 2,
                   "Value #C (sum)": 3,
-                  "instance": 0,
-                  "card": 1
+                  "card": 1,
+                  "instance": 0
                 },
                 "renameByName": {
                   "Value #A (logmin)": "Min",
@@ -7527,9 +7527,9 @@
                   "Value #A (stdDev)": "Standard Deviation",
                   "Value #B (sum)": "Total Duration",
                   "Value #C (sum)": "# Dispatches",
+                  "card": "GPU ID",
                   "instance": "Node",
-                  "kernel": "Kernel",
-                  "card": "GPU ID"
+                  "kernel": "Kernel"
                 }
               }
             },
