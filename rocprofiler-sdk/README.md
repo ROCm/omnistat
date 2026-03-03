@@ -1,10 +1,17 @@
-# ROCProfiler-SDK Python Extension
+# Omnistat ROCProfiler-SDK Integration
+
+- [Performance Counter Sampling (Python Extension)](#performance-counter-sampling-python-extension)
+- [Kernel Tracing Library](#kernel-tracing-library)
+
+---
+
+## Performance Counter Sampling (Python Extension)
 
 Python bindings for ROCProfiler-SDK that enables GPU performance counter
 sampling for AMD GPUs. This extension provides a simple interface to collect
 hardware counters from AMD GPUs directly in Python applications.
 
-## Requirements
+### Requirements
 
 - ROCm 6.4+ with ROCProfiler-SDK
 - Python 3.8+ with development headers
@@ -12,7 +19,7 @@ hardware counters from AMD GPUs directly in Python applications.
 - [cmake-build-extension](https://github.com/diegoferigo/cmake-build-extension)
 - [nanobind](https://github.com/wjakob/nanobind)
 
-## Installation
+### Installation
 
 For standard installations of the extension as part of Omnistat, refer to the
 documentation to [build the ROCprofiler extensions](https://rocm.github.io/omnistat/installation/building-extensions.html#rocprofiler).
@@ -37,7 +44,7 @@ cmake --build build/
 cmake --install build/ --prefix .
 ```
 
-## Example
+### Example
 
 The following example shows how to use and test the extension, loading it
 directly without Omnistat's collector.
@@ -72,3 +79,58 @@ for sampler in samplers:
 Refer to the documentation of the [ROCprofiler
 collector](https://rocm.github.io/omnistat/metrics.html#rocprofiler) for more
 advanced usage using Omnistat.
+
+---
+
+## Kernel Tracing Library
+
+A standalone C++ shared library (`librsdk_kernel_trace.so`) that traces GPU
+kernel dispatches and streams the data to omnistat-standalone via HTTP.
+
+### Requirements
+
+- ROCm 6.4+ with ROCProfiler-SDK
+- libcurl
+- C++20 compiler (GCC 13+ or Clang 16+)
+- CMake 3.15+
+
+CMake automatically fetches the `fmt` library if the compiler lacks
+`std::format`.
+
+### Building
+
+```bash
+cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
+cmake --build build-trace/
+```
+
+This produces `build-trace/librsdk_kernel_trace.so`.
+
+### Usage
+
+The library is loaded via rocprofiler-sdk's tool loading mechanism. Point the
+`ROCP_TOOL_LIBRARIES` environment variable at the built shared library, then
+run any application and kernel dispatches are traced automatically.
+
+```bash
+export ROCP_TOOL_LIBRARIES=/path/to/librsdk_kernel_trace.so
+```
+
+Dispatch records are JSON-encoded and sent via HTTP POST to
+`localhost:8001/kernel_trace`. This requires Omnistat to be running with the
+kernel tracing collector enabled.
+
+### Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `OMNISTAT_TRACE_MAX_INTERVAL` | `13` (seconds) | Max time between periodic buffer flushes |
+| `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | rocprofiler-sdk buffer size for dispatch records |
+
+### Exit Summary
+
+On application exit the library prints a summary line:
+
+```
+Omnistat trace summary: 12345/12345 processed records (42/42 successful flushes)
+```
