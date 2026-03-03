@@ -94,7 +94,7 @@ class TestKernelTrace:
         """Test handling JSON array of arrays format."""
         json_data = b'[[0,"kernel_a",1000000000,2000000000],[1,"kernel_b",3000000000,4000000000]]'
 
-        with flask_app.test_request_context(data=json_data, content_type='application/json'):
+        with flask_app.test_request_context(data=json_data, content_type="application/json"):
             response, status = collector_instance.handleRequest()
 
             assert status == 204
@@ -105,9 +105,9 @@ class TestKernelTrace:
 
     def test_handleRequest_empty_json_array(self, collector_instance, flask_app):
         """Test handling empty JSON array."""
-        json_data = b'[]'
+        json_data = b"[]"
 
-        with flask_app.test_request_context(data=json_data, content_type='application/json'):
+        with flask_app.test_request_context(data=json_data, content_type="application/json"):
             response, status = collector_instance.handleRequest()
 
             assert status == 204
@@ -117,18 +117,18 @@ class TestKernelTrace:
         """Test kernel names with C++ template syntax."""
         json_data = orjson.dumps([[0, "std::vector<int>::push_back(int const&)", 100, 200]])
 
-        with flask_app.test_request_context(data=json_data, content_type='application/json'):
+        with flask_app.test_request_context(data=json_data, content_type="application/json"):
             response, status = collector_instance.handleRequest()
 
             assert status == 204
             dispatch = collector_instance._KernelTrace__dispatches[0]
-            assert dispatch[1] == 'std::vector<int>::push_back(int const&)'
+            assert dispatch[1] == "std::vector<int>::push_back(int const&)"
 
     def test_handleRequest_malformed_json(self, collector_instance, flask_app):
         """Test error handling for malformed JSON."""
-        json_data = b'[invalid'
+        json_data = b"[invalid"
 
-        with flask_app.test_request_context(data=json_data, content_type='application/json'):
+        with flask_app.test_request_context(data=json_data, content_type="application/json"):
             response, status = collector_instance.handleRequest()
 
             assert status == 400
