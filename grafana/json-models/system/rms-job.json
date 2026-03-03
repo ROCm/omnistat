@@ -6934,7 +6934,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 38
       },
       "id": 122,
       "panels": [
@@ -10288,6 +10288,32 @@
         "refresh": 2,
         "regex": "/.*name=\"([^\"]*).*/",
         "sort": 1,
+        "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${source}"
+        },
+        "definition": "query_result(topk(10, sum by (kernel) (increase(omnistat_kernel_total_duration_ns{}[${__range}]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))))",
+        "hide": 2,
+        "includeAll": true,
+        "label": "Kernels",
+        "multi": true,
+        "name": "top_kernels",
+        "options": [],
+        "query": {
+          "qryType": 3,
+          "query": "query_result(topk(10, sum by (kernel) (increase(omnistat_kernel_total_duration_ns{}[${__range}]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))))",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/.*kernel=\"([^\"]*).*/",
         "type": "query"
       }
     ]
