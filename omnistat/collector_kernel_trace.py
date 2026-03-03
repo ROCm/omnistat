@@ -68,6 +68,12 @@ class KernelTrace(EndpointCollector):
         unix_time_ns = time.time_ns()
         self.__offset_ns = unix_time_ns - boot_time_ns
 
+        # Pool of interned kernel name strings. Each unique name is stored
+        # once and all references (dispatches, time-series keys, yielded
+        # tuples) share the same object, avoiding duplicate kernel name
+        # strings which can be 600+ byte strings.
+        self.__kernel_names = {}
+
         route("/kernel_trace", methods=["POST"])(self.handleRequest)
 
     def handleRequest(self):
@@ -77,7 +83,11 @@ class KernelTrace(EndpointCollector):
 
             dispatches = []
             for gpu_id, kernel, start_ns, end_ns in records:
-                dispatch = (gpu_id, kernel, end_ns, end_ns - start_ns)
+                kernel_ref = self.__kernel_names.get(kernel)
+                if kernel_ref is None:
+                    self.__kernel_names[kernel] = kernel
+                    kernel_ref = kernel
+                dispatch = (gpu_id, kernel_ref, end_ns, end_ns - start_ns)
                 dispatches.append(dispatch)
 
             with self.__dispatches_lock:
@@ -167,8 +177,11 @@ class KernelTrace(EndpointCollector):
                 accumulation.
 
         Yields:
-            Metric entries as lists:
-            [metric_name, labels_string, value, timestamp_bin].
+            Metric entries as tuples:
+            (metric_name, labels, value, timestamp_bin)
+
+            where labels is a list of (name, value) tuples, e.g.
+            [("card", "0"), ("kernel", "kernel_name")].
 
             Two metrics are generated per kernel dispatch:
             - omnistat_kernel_dispatch_count: number of dispatches
@@ -183,6 +196,6 @@ class KernelTrace(EndpointCollector):
         for _ in range(num_push_intervals):
             interval_bin, kernels = self.__ts.popitem(last=False)
             for (gpu_id, name), (num_dispatches, total_duration) in kernels.items():
-                labels = f'card="{gpu_id}",kernel="{name}"'
-                yield ["omnistat_kernel_dispatch_count", labels, num_dispatches, interval_bin]
-                yield ["omnistat_kernel_total_duration_ns", labels, total_duration, interval_bin]
+                labels = [("card", gpu_id), ("kernel", name)]
+                yield ("omnistat_kernel_dispatch_count", labels, num_dispatches, interval_bin)
+                yield ("omnistat_kernel_total_duration_ns", labels, total_duration, interval_bin)
