@@ -31,7 +31,7 @@ path accessible from all nodes.
    [user@login]$ tar xfz omnistat-{__VERSION__}.tar.gz
    ```
 
-2. Install dependencies. Optionally, [build extensions](./extensions.md).
+2. Install dependencies. Optionally, [build optional components](./extensions.md).
    ```shell-session
    [user@login]$ cd omnistat-{__VERSION__}
    [user@login]$ pip install --user -r requirements.txt

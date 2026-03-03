@@ -15,4 +15,4 @@ The installation/usage process differs based on the desired usage mode and addit
 
 * {doc}`System-wide deployment </installation/system-install>`
 * {doc}`User-mode execution </installation/user-mode>`
-* {doc}`Building extensions </installation/extensions>`
+* {doc}`Building optional components </installation/extensions>`
