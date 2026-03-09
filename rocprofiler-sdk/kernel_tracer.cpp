@@ -137,7 +137,8 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
 KernelTracer::KernelTracer()
     : periodic_flush_interval_(std::chrono::seconds(
           parse_env_uint("OMNISTAT_TRACE_MAX_INTERVAL", DEFAULT_FLUSH_INTERVAL_SECONDS))),
-      buffer_size_bytes_(parse_env_uint("OMNISTAT_TRACE_BUFFER_SIZE", DEFAULT_BUFFER_SIZE_BYTES)) {
+      buffer_size_bytes_(parse_env_uint("OMNISTAT_TRACE_BUFFER_SIZE", DEFAULT_BUFFER_SIZE_BYTES)),
+      endpoint_port_(parse_env_uint("OMNISTAT_TRACE_ENDPOINT_PORT", DEFAULT_TRACE_ENDPOINT_PORT)) {
 }
 
 int KernelTracer::initialize() {
@@ -149,7 +150,7 @@ int KernelTracer::initialize() {
         return -1;
     }
 
-    std::string url = fmt::format("http://localhost:{}/kernel_trace", DEFAULT_TRACE_ENDPOINT_PORT);
+    std::string url = fmt::format("http://localhost:{}/kernel_trace", endpoint_port_);
     curl_easy_setopt(curl_handle_, CURLOPT_URL, url.c_str());
     struct curl_slist* http_headers = NULL;
     http_headers = curl_slist_append(http_headers, "Content-Type: application/json");

@@ -117,7 +117,8 @@ export ROCP_TOOL_LIBRARIES=/path/to/librsdk_kernel_trace.so
 ```
 
 Dispatch records are JSON-encoded and sent via HTTP POST to
-`localhost:8001/kernel_trace`. This requires Omnistat to be running with the
+`localhost:<port>/kernel_trace` (default port 8001, configurable via
+`OMNISTAT_TRACE_ENDPOINT_PORT`). This requires Omnistat to be running with the
 kernel tracing collector enabled.
 
 ### Environment Variables
@@ -126,6 +127,7 @@ kernel tracing collector enabled.
 |---|---|---|
 | `OMNISTAT_TRACE_MAX_INTERVAL` | `13` (seconds) | Max time between periodic buffer flushes |
 | `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | rocprofiler-sdk buffer size for dispatch records |
+| `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001` | Port for the HTTP endpoint receiving kernel trace data |
 
 ### Exit Summary
 
