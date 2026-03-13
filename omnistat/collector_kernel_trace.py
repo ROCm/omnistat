@@ -176,6 +176,6 @@ class KernelTrace(EndpointCollector):
             value = self.__values[key]
             value[0] += 1
             value[1] += duration_ns
-            self.__ts[end_bin][key] = value
+            self.__ts[end_bin][key] = value[:]
 
         return last_bin
