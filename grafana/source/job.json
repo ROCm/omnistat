@@ -1766,7 +1766,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1979
+            "y": 2083
           },
           "id": 88,
           "interval": "$interval",
@@ -1876,7 +1876,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1979
+            "y": 2083
           },
           "id": 89,
           "interval": "$interval",
@@ -2026,7 +2026,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2456
+            "y": 2560
           },
           "id": 91,
           "interval": "$interval",
@@ -2177,7 +2177,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 2464
+            "y": 2568
           },
           "id": 99,
           "interval": "$interval",
@@ -2341,7 +2341,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 2464
+            "y": 2568
           },
           "id": 100,
           "interval": "$interval",
@@ -2490,7 +2490,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1980
+            "y": 2084
           },
           "id": 28,
           "interval": "$interval",
@@ -2552,7 +2552,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1980
+            "y": 2084
           },
           "id": 86,
           "interval": "$interval",
@@ -2665,7 +2665,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 2366
+            "y": 2470
           },
           "id": 29,
           "interval": "$interval",
@@ -2727,7 +2727,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 2366
+            "y": 2470
           },
           "id": 31,
           "interval": "$interval",
@@ -2868,7 +2868,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2374
+            "y": 2478
           },
           "id": 24,
           "interval": "$interval",
@@ -2942,7 +2942,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1981
+            "y": 2085
           },
           "id": 27,
           "interval": "$interval",
@@ -3052,7 +3052,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1981
+            "y": 2085
           },
           "id": 87,
           "interval": "$interval",
@@ -3202,7 +3202,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1992
+            "y": 2096
           },
           "id": 90,
           "interval": "$interval",
@@ -3369,7 +3369,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 2000
+            "y": 2104
           },
           "id": 98,
           "interval": "$interval",
@@ -3549,7 +3549,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 2000
+            "y": 2104
           },
           "id": 95,
           "interval": "$interval",
@@ -3820,7 +3820,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 2009
+            "y": 2113
           },
           "id": 52,
           "interval": "$interval",
@@ -3973,7 +3973,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 875
+            "y": 979
           },
           "id": 142,
           "interval": "$interval",
@@ -4082,7 +4082,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1515
+            "y": 1619
           },
           "id": 33,
           "interval": "$interval",
@@ -4191,7 +4191,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1523
+            "y": 1627
           },
           "id": 128,
           "interval": "$interval",
@@ -4300,7 +4300,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1531
+            "y": 1635
           },
           "id": 129,
           "interval": "$interval",
@@ -4409,7 +4409,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1539
+            "y": 1643
           },
           "id": 130,
           "interval": "$interval",
@@ -4518,7 +4518,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1539
+            "y": 1643
           },
           "id": 131,
           "interval": "$interval",
@@ -4641,7 +4641,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2385
+            "y": 2489
           },
           "id": 143,
           "interval": "$interval",
@@ -4741,7 +4741,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2393
+            "y": 2497
           },
           "id": 127,
           "interval": "$interval",
@@ -4841,7 +4841,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2401
+            "y": 2505
           },
           "id": 104,
           "interval": "$interval",
@@ -4941,7 +4941,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2409
+            "y": 2513
           },
           "id": 22,
           "interval": "$interval",
@@ -5041,7 +5041,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2417
+            "y": 2521
           },
           "id": 25,
           "interval": "$interval",
@@ -5141,7 +5141,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2417
+            "y": 2521
           },
           "id": 23,
           "interval": "$interval",
@@ -5255,7 +5255,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1805
+            "y": 1909
           },
           "id": 144,
           "interval": "$interval",
@@ -5364,7 +5364,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1885
+            "y": 1989
           },
           "id": 137,
           "interval": "$interval",
@@ -5473,7 +5473,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1893
+            "y": 1997
           },
           "id": 138,
           "interval": "$interval",
@@ -5582,7 +5582,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1901
+            "y": 2005
           },
           "id": 139,
           "interval": "$interval",
@@ -5691,7 +5691,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1909
+            "y": 2013
           },
           "id": 140,
           "interval": "$interval",
@@ -5800,7 +5800,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1909
+            "y": 2013
           },
           "id": 141,
           "interval": "$interval",
@@ -5925,7 +5925,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 384
+            "y": 488
           },
           "id": 134,
           "interval": "$interval",
@@ -6050,7 +6050,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 564
+            "y": 668
           },
           "id": 156,
           "interval": "$interval",
@@ -6162,7 +6162,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 564
+            "y": 668
           },
           "id": 158,
           "interval": "$interval",
@@ -6287,7 +6287,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 911
+            "y": 1015
           },
           "id": 151,
           "interval": "$interval",
@@ -6385,6 +6385,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -6399,7 +6400,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6415,7 +6417,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1048
+            "y": 35
           },
           "id": 125,
           "interval": "$interval",
@@ -6434,7 +6436,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.3.1",
           "repeat": "counters",
           "repeatDirection": "h",
           "targets": [
@@ -6800,7 +6802,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "rate((\r\n    (64 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n    ))\r\n    +\r\n    (512 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\r\n        )\r\n    ))\r\n)[$__rate_interval:]) != 0",
+              "expr": "rate((\r\n  64 * (\r\n    # F16 operations\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) * 2 +\r\n    \r\n    # F32 operations  \r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) * 2 +\r\n    \r\n    # F64 operations\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) * 2\r\n  ) +\r\n  512 * (\r\n    # MFMA operations\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"}))\r\n  )\r\n)[$__rate_interval:]) != 0",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -6913,10 +6915,10 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(\r\n    (64 * (\r\n        (\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0) * 2))\r\n        )\r\n        +\r\n        (\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0) * 2))\r\n        )\r\n        +\r\n        (\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F66\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0) * 2))\r\n        )\r\n    ))\r\n    +\r\n    (512 * (\r\n        (\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0)))\r\n        )\r\n    ))\r\n)>0",
+              "expr": "(\r\n  64 * (\r\n    # F16 operations\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2) +\r\n    \r\n    # F32 operations\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2) +\r\n    \r\n    # F64 operations\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n  ) +\r\n  \r\n  512 * (\r\n    # MFMA operations\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\r\n  )\r\n) > 0",
               "instant": false,
               "interval": "$interval",
-              "legendFormat": "Total FLOPS",
+              "legendFormat": "Total FLOPS across sampled GPUs",
               "range": true,
               "refId": "A"
             }
@@ -6960,8 +6962,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -6990,7 +6991,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 125
+            "y": 229
           },
           "id": 169,
           "interval": "$interval",
@@ -7175,8 +7176,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -7192,7 +7192,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 133
+            "y": 237
           },
           "id": 170,
           "interval": "$interval",
@@ -7288,8 +7288,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -7305,7 +7304,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 126
+            "y": 230
           },
           "id": 172,
           "interval": "$interval",
@@ -7363,8 +7362,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -7405,7 +7403,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 126
+            "y": 230
           },
           "id": 173,
           "interval": "$interval",
@@ -7560,6 +7558,240 @@
         "x": 0,
         "y": 38
       },
+      "id": 44,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 490
+          },
+          "id": 43,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "(omnistat_host_cpu_aggregate_core_utilization / omnistat_host_cpu_num_logical_cores) * on (instance) (rmsjob_info{jobid=\"$jobid\"}) * 100",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "CPU - Utilization (%)",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "(.*):(.*)",
+                "renamePattern": "Node: $1"
+              }
+            }
+          ],
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 490
+          },
+          "id": 48,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "100 * ((omnistat_host_mem_total_bytes - omnistat_host_mem_free_bytes) / omnistat_host_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Main Memory - Utilization (%)",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "(.*):(.*)",
+                "renamePattern": "Node: $1"
+              }
+            }
+          ],
+          "type": "timeseries"
+        }
+      ],
+      "title": "CPU Usage",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
       "id": 122,
       "panels": [
         {
@@ -7629,7 +7861,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 145
+            "y": 249
           },
           "id": 120,
           "options": {
@@ -7827,7 +8059,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 145
+            "y": 249
           },
           "id": 121,
           "options": {
@@ -7968,241 +8200,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
-      },
-      "id": 44,
-      "panels": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${source}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 386
-          },
-          "id": 43,
-          "interval": "$interval",
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.1.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${source}"
-              },
-              "editorMode": "code",
-              "expr": "(omnistat_host_cpu_aggregate_core_utilization / omnistat_host_cpu_num_logical_cores) * on (instance) (rmsjob_info{jobid=\"$jobid\"}) * 100",
-              "instant": false,
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "CPU - Utilization (%)",
-          "transformations": [
-            {
-              "id": "renameByRegex",
-              "options": {
-                "regex": "(.*):(.*)",
-                "renamePattern": "Node: $1"
-              }
-            }
-          ],
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${source}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 386
-          },
-          "id": 48,
-          "interval": "$interval",
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.1.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${source}"
-              },
-              "editorMode": "code",
-              "expr": "100 * ((omnistat_host_mem_total_bytes - omnistat_host_mem_free_bytes) / omnistat_host_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
-              "instant": false,
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "Main Memory - Utilization (%)",
-          "transformations": [
-            {
-              "id": "renameByRegex",
-              "options": {
-                "regex": "(.*):(.*)",
-                "renamePattern": "Node: $1"
-              }
-            }
-          ],
-          "type": "timeseries"
-        }
-      ],
-      "title": "CPU Usage",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 38
+        "y": 40
       },
       "id": 101,
       "panels": [
@@ -8271,7 +8269,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 458
+            "y": 562
           },
           "id": 105,
           "interval": "$interval",
@@ -8382,7 +8380,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 458
+            "y": 562
           },
           "id": 106,
           "interval": "$interval",
@@ -8438,7 +8436,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 41
       },
       "id": 41,
       "panels": [
@@ -8507,7 +8505,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 459
+            "y": 563
           },
           "id": 116,
           "interval": "$interval",
@@ -8618,7 +8616,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 459
+            "y": 563
           },
           "id": 117,
           "interval": "$interval",
@@ -8674,7 +8672,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 42
       },
       "id": 83,
       "panels": [
@@ -8744,7 +8742,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 230
+            "y": 334
           },
           "id": 46,
           "interval": "$interval",
@@ -8856,7 +8854,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 230
+            "y": 334
           },
           "id": 45,
           "interval": "$interval",
@@ -8969,7 +8967,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 238
+            "y": 342
           },
           "id": 159,
           "interval": "$interval",
@@ -9082,7 +9080,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 238
+            "y": 342
           },
           "id": 160,
           "interval": "$interval",
@@ -9157,7 +9155,7 @@
             "h": 3,
             "w": 12,
             "x": 0,
-            "y": 246
+            "y": 350
           },
           "id": 161,
           "interval": "$interval",
@@ -9234,7 +9232,7 @@
             "h": 3,
             "w": 12,
             "x": 12,
-            "y": 246
+            "y": 350
           },
           "id": 162,
           "interval": "$interval",
@@ -9292,7 +9290,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 41
+        "y": 43
       },
       "id": 145,
       "panels": [
@@ -9362,7 +9360,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 469
+            "y": 573
           },
           "id": 146,
           "interval": "$interval",
@@ -9473,7 +9471,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 477
+            "y": 581
           },
           "id": 149,
           "interval": "$interval",
@@ -9582,7 +9580,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 485
+            "y": 589
           },
           "id": 147,
           "interval": "$interval",
@@ -9691,7 +9689,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 493
+            "y": 597
           },
           "id": 148,
           "interval": "$interval",
@@ -9746,7 +9744,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 44
       },
       "id": 132,
       "panels": [
@@ -9815,7 +9813,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4622
+            "y": 4726
           },
           "id": 135,
           "interval": "$interval",
@@ -9872,7 +9870,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 45
       },
       "id": 57,
       "panels": [
@@ -9979,7 +9977,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4671
+            "y": 4775
           },
           "id": 56,
           "interval": "$interval",
@@ -10072,7 +10070,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 46
       },
       "id": 111,
       "panels": [
@@ -10203,7 +10201,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18672
+            "y": 18776
           },
           "id": 107,
           "interval": "$interval",
@@ -10398,7 +10396,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18672
+            "y": 18776
           },
           "id": 112,
           "interval": "$interval",
@@ -10557,7 +10555,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18680
+            "y": 18784
           },
           "id": 108,
           "interval": "$interval",
@@ -10785,7 +10783,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18680
+            "y": 18784
           },
           "id": 113,
           "interval": "$interval",
@@ -10940,7 +10938,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18688
+            "y": 18792
           },
           "id": 109,
           "interval": "$interval",
@@ -11168,7 +11166,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18688
+            "y": 18792
           },
           "id": 115,
           "interval": "$interval",
@@ -11324,7 +11322,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18696
+            "y": 18800
           },
           "id": 110,
           "interval": "$interval",
@@ -11548,7 +11546,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18696
+            "y": 18800
           },
           "id": 114,
           "interval": "$interval",
@@ -11704,7 +11702,7 @@
           "type": "prometheus",
           "uid": "${source}"
         },
-        "definition": "query_result(group by (name) (omnistat_hardware_counter * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+        "definition": "query_result(group by (name) (count_over_time(omnistat_hardware_counter[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
         "hide": 2,
         "includeAll": true,
         "label": "Counters",
@@ -11713,7 +11711,7 @@
         "options": [],
         "query": {
           "qryType": 3,
-          "query": "query_result(group by (name) (omnistat_hardware_counter * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+          "query": "query_result(group by (name) (count_over_time(omnistat_hardware_counter[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
