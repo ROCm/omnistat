@@ -55,11 +55,17 @@ def panel_contains_title(panel, pattern):
 
 
 def rewrite_matcher(obj, use_regex):
-    """Rewrite kernel label matchers for $top_kernels to use = or =~ depending on target."""
+    """Rewrite kernel label matchers for $top_kernels in repeat-by-variable panels.
+
+    Non-repeat panels use $top_kernels as a multi-value variable and always
+    require =~. Repeat panels match a single kernel per panel instance, so
+    they use = by default (VictoriaMetrics) and =~ for prom-label-proxy.
+    """
     if isinstance(obj, dict):
-        if "expr" in obj:
-            if use_regex:
-                obj["expr"] = obj["expr"].replace('kernel="$top_kernels"', 'kernel=~"$top_kernels"')
+        if obj.get("repeat") == "top_kernels":
+            for target in obj.get("targets", []):
+                if "expr" in target and use_regex:
+                    target["expr"] = target["expr"].replace('kernel="$top_kernels"', 'kernel=~"$top_kernels"')
         for v in obj.values():
             rewrite_matcher(v, use_regex)
     elif isinstance(obj, list):

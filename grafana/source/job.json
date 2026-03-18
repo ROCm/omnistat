@@ -7255,7 +7255,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (kernel) ((increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+              "expr": "avg by (kernel) ((increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
