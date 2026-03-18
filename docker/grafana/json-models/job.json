@@ -1753,7 +1753,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1979
+            "y": 2355
           },
           "id": 88,
           "interval": "$interval",
@@ -1863,7 +1863,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1979
+            "y": 2355
           },
           "id": 89,
           "interval": "$interval",
@@ -2013,7 +2013,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2456
+            "y": 2832
           },
           "id": 91,
           "interval": "$interval",
@@ -2164,7 +2164,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 2464
+            "y": 2840
           },
           "id": 99,
           "interval": "$interval",
@@ -2328,7 +2328,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 2464
+            "y": 2840
           },
           "id": 100,
           "interval": "$interval",
@@ -2477,7 +2477,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 1980
+            "y": 2356
           },
           "id": 28,
           "interval": "$interval",
@@ -2539,7 +2539,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 1980
+            "y": 2356
           },
           "id": 86,
           "interval": "$interval",
@@ -2652,7 +2652,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 2366
+            "y": 2742
           },
           "id": 29,
           "interval": "$interval",
@@ -2714,7 +2714,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 2366
+            "y": 2742
           },
           "id": 31,
           "interval": "$interval",
@@ -2855,7 +2855,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2374
+            "y": 2750
           },
           "id": 24,
           "interval": "$interval",
@@ -2929,7 +2929,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 1981
+            "y": 2357
           },
           "id": 27,
           "interval": "$interval",
@@ -3039,7 +3039,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 1981
+            "y": 2357
           },
           "id": 87,
           "interval": "$interval",
@@ -3189,7 +3189,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1992
+            "y": 2368
           },
           "id": 90,
           "interval": "$interval",
@@ -3356,7 +3356,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 2000
+            "y": 2376
           },
           "id": 98,
           "interval": "$interval",
@@ -3536,7 +3536,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 2000
+            "y": 2376
           },
           "id": 95,
           "interval": "$interval",
@@ -3807,7 +3807,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 2009
+            "y": 2385
           },
           "id": 52,
           "interval": "$interval",
@@ -3960,7 +3960,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 875
+            "y": 1251
           },
           "id": 142,
           "interval": "$interval",
@@ -4069,7 +4069,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1515
+            "y": 1891
           },
           "id": 33,
           "interval": "$interval",
@@ -4178,7 +4178,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1523
+            "y": 1899
           },
           "id": 128,
           "interval": "$interval",
@@ -4287,7 +4287,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1531
+            "y": 1907
           },
           "id": 129,
           "interval": "$interval",
@@ -4396,7 +4396,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1539
+            "y": 1915
           },
           "id": 130,
           "interval": "$interval",
@@ -4505,7 +4505,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1539
+            "y": 1915
           },
           "id": 131,
           "interval": "$interval",
@@ -4628,7 +4628,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2385
+            "y": 2761
           },
           "id": 143,
           "interval": "$interval",
@@ -4728,7 +4728,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2393
+            "y": 2769
           },
           "id": 127,
           "interval": "$interval",
@@ -4828,7 +4828,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2401
+            "y": 2777
           },
           "id": 104,
           "interval": "$interval",
@@ -4928,7 +4928,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2409
+            "y": 2785
           },
           "id": 22,
           "interval": "$interval",
@@ -5028,7 +5028,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2417
+            "y": 2793
           },
           "id": 25,
           "interval": "$interval",
@@ -5128,7 +5128,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2417
+            "y": 2793
           },
           "id": 23,
           "interval": "$interval",
@@ -5242,7 +5242,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1805
+            "y": 2181
           },
           "id": 144,
           "interval": "$interval",
@@ -5351,7 +5351,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1885
+            "y": 2261
           },
           "id": 137,
           "interval": "$interval",
@@ -5460,7 +5460,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1893
+            "y": 2269
           },
           "id": 138,
           "interval": "$interval",
@@ -5569,7 +5569,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1901
+            "y": 2277
           },
           "id": 139,
           "interval": "$interval",
@@ -5678,7 +5678,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1909
+            "y": 2285
           },
           "id": 140,
           "interval": "$interval",
@@ -5787,7 +5787,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1909
+            "y": 2285
           },
           "id": 141,
           "interval": "$interval",
@@ -5912,7 +5912,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 384
+            "y": 760
           },
           "id": 134,
           "interval": "$interval",
@@ -6037,7 +6037,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 564
+            "y": 940
           },
           "id": 156,
           "interval": "$interval",
@@ -6149,7 +6149,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 564
+            "y": 940
           },
           "id": 158,
           "interval": "$interval",
@@ -6274,7 +6274,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 911
+            "y": 1287
           },
           "id": 151,
           "interval": "$interval",
@@ -6372,6 +6372,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -6386,7 +6387,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6402,7 +6404,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1048
+            "y": 35
           },
           "id": 125,
           "interval": "$interval",
@@ -6421,7 +6423,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.3.1",
           "repeat": "counters",
           "repeatDirection": "h",
           "targets": [
@@ -6760,7 +6762,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 44
+            "y": 316
           },
           "id": 155,
           "interval": "$interval",
@@ -6787,7 +6789,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "rate((\r\n    (64 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n        +\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n        )\r\n    ))\r\n    +\r\n    (512 * (\r\n        (\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n            (avg by (instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\r\n        )\r\n    ))\r\n)[$__rate_interval:]) != 0",
+              "expr": "rate((\r\n  64 * (\r\n    # F16 operations\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) * 2 +\r\n    \r\n    # F32 operations  \r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) * 2 +\r\n    \r\n    # F64 operations\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) * 2\r\n  ) +\r\n  512 * (\r\n    # MFMA operations\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n    (avg by(instance) (omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"} * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"}))\r\n  )\r\n)[$__rate_interval:]) != 0",
               "instant": false,
               "interval": "$interval",
               "legendFormat": "__auto",
@@ -6874,7 +6876,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 52
+            "y": 324
           },
           "id": 165,
           "interval": "$interval",
@@ -6900,10 +6902,10 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(\r\n    (64 * (\r\n        (\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0) * 2))\r\n        )\r\n        +\r\n        (\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0) * 2))\r\n        )\r\n        +\r\n        (\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F66\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0) * 2))\r\n        )\r\n    ))\r\n    +\r\n    (512 * (\r\n        (\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0))) +\r\n            (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"}[$__rate_interval:] * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or on() vector(0)))\r\n        )\r\n    ))\r\n)>0",
+              "expr": "(\r\n  64 * (\r\n    # F16 operations\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2) +\r\n    \r\n    # F32 operations\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F32\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F32\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F32\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F32\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2) +\r\n    \r\n    # F64 operations\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_ADD_F64\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MUL_F64\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_TRANS_F64\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_FMA_F64\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)) * 2)\r\n  ) +\r\n  \r\n  512 * (\r\n    # MFMA operations\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_BF16\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F32\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F64\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F8\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0))) +\r\n    (sum(rate(omnistat_hardware_counter{name=\"SQ_INSTS_VALU_MFMA_MOPS_F6F4\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"}) or on() vector(0)))\r\n  )\r\n) > 0",
               "instant": false,
               "interval": "$interval",
-              "legendFormat": "Total FLOPS",
+              "legendFormat": "Total FLOPS across sampled GPUs",
               "range": true,
               "refId": "A"
             }
@@ -6930,6 +6932,7 @@
             "type": "prometheus",
             "uid": "${source}"
           },
+          "description": "Aggregated kernel statistics for the selected time range, grouped by kernel name.\n\nTotal Duration, # Dispatches, and Mean Duration are computed over the entire selected time range and always reflect the exact totals and true per-dispatch average.\n\nMin and Max are derived from per-sampling-window averages (each window averaging all dispatches across all nodes within that interval). They describe how the kernel's average duration varied over time, and will change slightly with the Resolution setting: a finer resolution produces smaller windows and more data points, potentially capturing shorter-lived fluctuations; a coarser resolution smooths them out.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6940,6 +6943,9 @@
                 "cellOptions": {
                   "type": "auto"
                 },
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
               "mappings": [],
@@ -6948,7 +6954,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -6977,23 +6983,15 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 125
+            "y": 37
           },
           "id": 169,
           "interval": "$interval",
           "options": {
             "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
             "showHeader": true
           },
-          "pluginVersion": "11.5.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "datasource": {
@@ -7001,8 +6999,10 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(increase(omnistat_kernel_total_duration_ns) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) > 0",
+              "exemplar": false,
+              "expr": "(increase(omnistat_kernel_total_duration_ns[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
+              "instant": false,
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -7013,12 +7013,13 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (kernel) (increase(omnistat_kernel_total_duration_ns) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "exemplar": false,
+              "expr": "sum by (kernel) (increase(omnistat_kernel_total_duration_ns[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
               "hide": false,
-              "instant": false,
+              "instant": true,
               "legendFormat": "__auto",
-              "range": true,
+              "range": false,
               "refId": "B"
             },
             {
@@ -7027,16 +7028,32 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (kernel) (increase(omnistat_kernel_dispatch_count))",
+              "exemplar": false,
+              "expr": "sum by (kernel) (increase(omnistat_kernel_dispatch_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
               "hide": false,
-              "instant": false,
+              "instant": true,
               "legendFormat": "__auto",
-              "range": true,
+              "range": false,
               "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (kernel) (increase(omnistat_kernel_total_duration_ns[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / sum by (kernel) (increase(omnistat_kernel_dispatch_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "D"
             }
           ],
-          "title": "GPU Average Kernel Stats",
+          "title": "GPU Kernel Stats",
           "transformations": [
             {
               "id": "groupBy",
@@ -7044,8 +7061,6 @@
                 "fields": {
                   "Value #A": {
                     "aggregations": [
-                      "mean",
-                      "stdDev",
                       "logmin",
                       "max"
                     ],
@@ -7063,6 +7078,12 @@
                     ],
                     "operation": "aggregate"
                   },
+                  "Value #D": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  },
                   "kernel": {
                     "aggregations": [],
                     "operation": "groupby"
@@ -7075,26 +7096,42 @@
               "options": {}
             },
             {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  {
+                    "config": {
+                      "id": "greater",
+                      "options": {
+                        "value": 0
+                      }
+                    },
+                    "fieldName": "Value #B (sum)"
+                  }
+                ],
+                "match": "all",
+                "type": "include"
+              }
+            },
+            {
               "id": "organize",
               "options": {
                 "excludeByName": {},
                 "includeByName": {},
                 "indexByName": {
-                  "Value #A (logmin)": 5,
-                  "Value #A (max)": 6,
-                  "Value #A (mean)": 3,
-                  "Value #A (stdDev)": 4,
+                  "Value #A (logmin)": 4,
+                  "Value #A (max)": 5,
                   "Value #B (sum)": 1,
                   "Value #C (sum)": 2,
+                  "Value #D (sum)": 3,
                   "kernel": 0
                 },
                 "renameByName": {
                   "Value #A (logmin)": "Min",
                   "Value #A (max)": "Max",
-                  "Value #A (mean)": "Mean",
-                  "Value #A (stdDev)": "Standard Deviation",
                   "Value #B (sum)": "Total Duration",
                   "Value #C (sum)": "# Dispatches",
+                  "Value #D (sum)": "Mean",
                   "kernel": "Kernel"
                 }
               }
@@ -7148,6 +7185,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -7163,7 +7201,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7179,7 +7217,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 133
+            "y": 61
           },
           "id": 170,
           "interval": "$interval",
@@ -7196,7 +7234,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "datasource": {
@@ -7204,7 +7242,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (kernel) ((increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+              "expr": "avg by (kernel) ((increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -7261,6 +7299,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -7276,7 +7315,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7292,7 +7331,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 126
+            "y": 38
           },
           "id": 172,
           "interval": "$interval",
@@ -7309,7 +7348,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.5.1",
+          "pluginVersion": "12.3.1",
           "repeat": "top_kernels",
           "repeatDirection": "v",
           "targets": [
@@ -7319,7 +7358,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (instance,card) ((increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+              "expr": "avg by (instance,card) ((increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
               "legendFormat": "GPU: {{instance}}/{{card}}",
               "range": true,
               "refId": "A"
@@ -7343,6 +7382,9 @@
                 "cellOptions": {
                   "type": "auto"
                 },
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
               "mappings": [],
@@ -7351,7 +7393,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -7377,7 +7419,7 @@
               {
                 "matcher": {
                   "id": "byName",
-                  "options": "GPU Node ID"
+                  "options": "GPU ID"
                 },
                 "properties": [
                   {
@@ -7392,23 +7434,15 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 126
+            "y": 38
           },
           "id": 173,
           "interval": "$interval",
           "options": {
             "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
             "showHeader": true
           },
-          "pluginVersion": "11.5.1",
+          "pluginVersion": "12.3.1",
           "repeat": "top_kernels",
           "repeatDirection": "v",
           "targets": [
@@ -7418,10 +7452,12 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "(increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "exemplar": false,
+              "expr": "sum by (instance,card) (increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / sum by (instance,card) (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
+              "instant": true,
               "legendFormat": "__auto",
-              "range": true,
+              "range": false,
               "refId": "A"
             },
             {
@@ -7430,12 +7466,13 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (instance,card) (increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "exemplar": false,
+              "expr": "sum by (instance,card) (increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
               "hide": false,
-              "instant": false,
+              "instant": true,
               "legendFormat": "__auto",
-              "range": true,
+              "range": false,
               "refId": "B"
             },
             {
@@ -7444,12 +7481,13 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (instance,card) (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}))",
+              "exemplar": false,
+              "expr": "sum by (instance,card) (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
               "hide": false,
-              "instant": false,
+              "instant": true,
               "legendFormat": "__auto",
-              "range": true,
+              "range": false,
               "refId": "C"
             }
           ],
@@ -7461,19 +7499,19 @@
                 "fields": {
                   "Value #A": {
                     "aggregations": [
-                      "mean"
+                      "lastNotNull"
                     ],
                     "operation": "aggregate"
                   },
                   "Value #B": {
                     "aggregations": [
-                      "sum"
+                      "lastNotNull"
                     ],
                     "operation": "aggregate"
                   },
                   "Value #C": {
                     "aggregations": [
-                      "sum"
+                      "lastNotNull"
                     ],
                     "operation": "aggregate"
                   },
@@ -7501,19 +7539,16 @@
                 "excludeByName": {},
                 "includeByName": {},
                 "indexByName": {
-                  "Value #A (mean)": 4,
-                  "Value #B (sum)": 2,
-                  "Value #C (sum)": 3,
+                  "Value #A (lastNotNull)": 4,
+                  "Value #B (lastNotNull)": 2,
+                  "Value #C (lastNotNull)": 3,
                   "card": 1,
                   "instance": 0
                 },
                 "renameByName": {
-                  "Value #A (logmin)": "Min",
-                  "Value #A (max)": "Max",
-                  "Value #A (mean)": "Mean",
-                  "Value #A (stdDev)": "Standard Deviation",
-                  "Value #B (sum)": "Total Duration",
-                  "Value #C (sum)": "# Dispatches",
+                  "Value #A (lastNotNull)": "Mean",
+                  "Value #B (lastNotNull)": "Total Duration",
+                  "Value #C (lastNotNull)": "# Dispatches",
                   "card": "GPU ID",
                   "instance": "Node",
                   "kernel": "Kernel"
@@ -7546,6 +7581,240 @@
         "w": 24,
         "x": 0,
         "y": 38
+      },
+      "id": 44,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 762
+          },
+          "id": 43,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "(omnistat_host_cpu_aggregate_core_utilization / omnistat_host_cpu_num_logical_cores) * on (instance) (rmsjob_info{jobid=\"$jobid\"}) * 100",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "CPU - Utilization (%)",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "(.*):(.*)",
+                "renamePattern": "Node: $1"
+              }
+            }
+          ],
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 762
+          },
+          "id": 48,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "100 * ((omnistat_host_mem_total_bytes - omnistat_host_mem_free_bytes) / omnistat_host_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Main Memory - Utilization (%)",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "(.*):(.*)",
+                "renamePattern": "Node: $1"
+              }
+            }
+          ],
+          "type": "timeseries"
+        }
+      ],
+      "title": "CPU Usage",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
       },
       "id": 122,
       "panels": [
@@ -7616,7 +7885,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 145
+            "y": 521
           },
           "id": 120,
           "options": {
@@ -7814,7 +8083,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 145
+            "y": 521
           },
           "id": 121,
           "options": {
@@ -7955,241 +8224,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
-      },
-      "id": 44,
-      "panels": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${source}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 386
-          },
-          "id": 43,
-          "interval": "$interval",
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.1.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${source}"
-              },
-              "editorMode": "code",
-              "expr": "(omnistat_host_cpu_aggregate_core_utilization / omnistat_host_cpu_num_logical_cores) * on (instance) (rmsjob_info{jobid=\"$jobid\"}) * 100",
-              "instant": false,
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "CPU - Utilization (%)",
-          "transformations": [
-            {
-              "id": "renameByRegex",
-              "options": {
-                "regex": "(.*):(.*)",
-                "renamePattern": "Node: $1"
-              }
-            }
-          ],
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${source}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 386
-          },
-          "id": 48,
-          "interval": "$interval",
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.1.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${source}"
-              },
-              "editorMode": "code",
-              "expr": "100 * ((omnistat_host_mem_total_bytes - omnistat_host_mem_free_bytes) / omnistat_host_mem_total_bytes) * on (instance) (rmsjob_info{jobid=\"$jobid\"})",
-              "instant": false,
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "Main Memory - Utilization (%)",
-          "transformations": [
-            {
-              "id": "renameByRegex",
-              "options": {
-                "regex": "(.*):(.*)",
-                "renamePattern": "Node: $1"
-              }
-            }
-          ],
-          "type": "timeseries"
-        }
-      ],
-      "title": "CPU Usage",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 38
+        "y": 40
       },
       "id": 101,
       "panels": [
@@ -8258,7 +8293,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 458
+            "y": 834
           },
           "id": 105,
           "interval": "$interval",
@@ -8369,7 +8404,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 458
+            "y": 834
           },
           "id": 106,
           "interval": "$interval",
@@ -8425,7 +8460,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 41
       },
       "id": 41,
       "panels": [
@@ -8494,7 +8529,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 459
+            "y": 835
           },
           "id": 116,
           "interval": "$interval",
@@ -8605,7 +8640,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 459
+            "y": 835
           },
           "id": 117,
           "interval": "$interval",
@@ -8661,7 +8696,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 42
       },
       "id": 83,
       "panels": [
@@ -8731,7 +8766,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 230
+            "y": 606
           },
           "id": 46,
           "interval": "$interval",
@@ -8843,7 +8878,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 230
+            "y": 606
           },
           "id": 45,
           "interval": "$interval",
@@ -8956,7 +8991,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 238
+            "y": 614
           },
           "id": 159,
           "interval": "$interval",
@@ -9069,7 +9104,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 238
+            "y": 614
           },
           "id": 160,
           "interval": "$interval",
@@ -9144,7 +9179,7 @@
             "h": 3,
             "w": 12,
             "x": 0,
-            "y": 246
+            "y": 622
           },
           "id": 161,
           "interval": "$interval",
@@ -9221,7 +9256,7 @@
             "h": 3,
             "w": 12,
             "x": 12,
-            "y": 246
+            "y": 622
           },
           "id": 162,
           "interval": "$interval",
@@ -9279,7 +9314,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 44
       },
       "id": 132,
       "panels": [
@@ -9348,7 +9383,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4622
+            "y": 4998
           },
           "id": 135,
           "interval": "$interval",
@@ -9405,7 +9440,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 45
       },
       "id": 57,
       "panels": [
@@ -9512,7 +9547,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4671
+            "y": 5047
           },
           "id": 56,
           "interval": "$interval",
@@ -9605,7 +9640,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 46
       },
       "id": 111,
       "panels": [
@@ -9736,7 +9771,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18672
+            "y": 19048
           },
           "id": 107,
           "interval": "$interval",
@@ -9931,7 +9966,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18672
+            "y": 19048
           },
           "id": 112,
           "interval": "$interval",
@@ -10090,7 +10125,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18680
+            "y": 19056
           },
           "id": 108,
           "interval": "$interval",
@@ -10318,7 +10353,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18680
+            "y": 19056
           },
           "id": 113,
           "interval": "$interval",
@@ -10473,7 +10508,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18688
+            "y": 19064
           },
           "id": 109,
           "interval": "$interval",
@@ -10701,7 +10736,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18688
+            "y": 19064
           },
           "id": 115,
           "interval": "$interval",
@@ -10857,7 +10892,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18696
+            "y": 19072
           },
           "id": 110,
           "interval": "$interval",
@@ -11081,7 +11116,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18696
+            "y": 19072
           },
           "id": 114,
           "interval": "$interval",
@@ -11237,7 +11272,7 @@
           "type": "prometheus",
           "uid": "${source}"
         },
-        "definition": "query_result(group by (name) (omnistat_hardware_counter * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+        "definition": "query_result(group by (name) (count_over_time(omnistat_hardware_counter[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
         "hide": 2,
         "includeAll": true,
         "label": "Counters",
@@ -11246,7 +11281,7 @@
         "options": [],
         "query": {
           "qryType": 3,
-          "query": "query_result(group by (name) (omnistat_hardware_counter * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+          "query": "query_result(group by (name) (count_over_time(omnistat_hardware_counter[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
