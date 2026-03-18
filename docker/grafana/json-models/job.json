@@ -7242,7 +7242,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (kernel) ((increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+              "expr": "avg by (kernel) ((increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -7358,7 +7358,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (instance,card) ((increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+              "expr": "avg by (instance,card) ((increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
               "legendFormat": "GPU: {{instance}}/{{card}}",
               "range": true,
               "refId": "A"
@@ -7453,7 +7453,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (instance,card) (increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / sum by (instance,card) (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "expr": "sum by (instance,card) (increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / sum by (instance,card) (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -7467,7 +7467,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (instance,card) (increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "expr": "sum by (instance,card) (increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
               "hide": false,
               "instant": true,
@@ -7482,7 +7482,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (instance,card) (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "expr": "sum by (instance,card) (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
               "hide": false,
               "instant": true,
