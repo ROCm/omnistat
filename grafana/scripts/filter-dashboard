@@ -39,6 +39,7 @@
 #  3. Remove links with titles that match strings passed using the
 #     `--exclude-link` argument.
 #  4. Rewrite dashboard UID and update all URLs accordingly.
+#  5. Rewrite matcher for prometheus proxy.
 
 import argparse
 import json
@@ -51,6 +52,19 @@ def panel_contains_title(panel, pattern):
     if re.search(pattern, title, re.IGNORECASE):
         return True
     return False
+
+
+def rewrite_matcher(obj, use_regex):
+    """Rewrite kernel label matchers for $top_kernels to use = or =~ depending on target."""
+    if isinstance(obj, dict):
+        if "expr" in obj:
+            if use_regex:
+                obj["expr"] = obj["expr"].replace('kernel="$top_kernels"', 'kernel=~"$top_kernels"')
+        for v in obj.values():
+            rewrite_matcher(v, use_regex)
+    elif isinstance(obj, list):
+        for item in obj:
+            rewrite_matcher(item, use_regex)
 
 
 def panel_contains_expr(panel, pattern):
@@ -91,6 +105,12 @@ parser.add_argument("-n", "--replace-name", help="Replace dashboard title and ui
 parser.add_argument("--expand-rows", help="Expand all collapsible rows", action="store_true", default=False)
 parser.add_argument("--default-interval", help="Set the default interval", required=False, type=str)
 parser.add_argument("--show-source", help="Show data source selection", action="store_true", default=False)
+parser.add_argument(
+    "--proxy-datasource",
+    help="Use regex label matchers (=~) to support prom-label-proxy",
+    action="store_true",
+    default=False,
+)
 args = parser.parse_args()
 
 # Patterns to include/exclude panels and links.
@@ -197,5 +217,7 @@ for link in links:
 
 if args.replace_name:
     update_attribute(dashboard, "url", convert_url, old=old.lower(), new=new.lower())
+
+rewrite_matcher(dashboard, args.proxy_datasource)
 
 print(json.dumps(dashboard, indent=2))
