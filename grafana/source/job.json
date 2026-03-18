@@ -7074,7 +7074,7 @@
                 "fields": {
                   "Value #A": {
                     "aggregations": [
-                      "min",
+                      "logmin",
                       "max"
                     ],
                     "operation": "aggregate"
@@ -7109,13 +7109,31 @@
               "options": {}
             },
             {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  {
+                    "config": {
+                      "id": "greater",
+                      "options": {
+                        "value": 0
+                      }
+                    },
+                    "fieldName": "Value #B (sum)"
+                  }
+                ],
+                "match": "all",
+                "type": "include"
+              }
+            },
+            {
               "id": "organize",
               "options": {
                 "excludeByName": {},
                 "includeByName": {},
                 "indexByName": {
                   "Value #A (max)": 5,
-                  "Value #A (min)": 4,
+                  "Value #A (logmin)": 4,
                   "Value #B (sum)": 1,
                   "Value #C (sum)": 2,
                   "Value #D (sum)": 3,
@@ -7123,7 +7141,7 @@
                 },
                 "renameByName": {
                   "Value #A (max)": "Max",
-                  "Value #A (min)": "Min",
+                  "Value #A (logmin)": "Min",
                   "Value #B (sum)": "Total Duration",
                   "Value #C (sum)": "# Dispatches",
                   "Value #D (sum)": "Mean",
