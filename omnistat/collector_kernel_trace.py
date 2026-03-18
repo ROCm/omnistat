@@ -151,6 +151,11 @@ class KernelTrace(EndpointCollector):
 
         time_ms = time.time_ns() // 1_000_000
         current_bin = ((time_ms // self.__interval_ms) + 1) * self.__interval_ms
+
+        # Re-seed if __ts has been emptied (e.g. a flush=True formatMetrics call)
+        if not self.__ts:
+            self.__ts[current_bin] = {}
+
         first_bin = next(iter(self.__ts))
         last_bin = next(reversed(self.__ts))
 
