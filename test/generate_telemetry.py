@@ -11,7 +11,7 @@ GPU_METRIC_NAMES = [
 ]
 
 
-class TraceGenerator:
+class TelemetryGenerator:
     """
     Generate synthetic Omnistat traces. A trace consists of one or more
     "loads". Loads represent collections of nodes exhibiting identical
