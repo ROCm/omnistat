@@ -68,6 +68,9 @@ class KernelTrace(EndpointCollector):
         unix_time_ns = time.time_ns()
         self.__offset_ns = unix_time_ns - boot_time_ns
 
+        # Cumulative count of dispatches dropped due to out-of-range bins
+        self.__dropped_dispatches = 0
+
         # Pool of interned kernel name strings. Each unique name is stored
         # once and all references (dispatches, time-series keys, yielded
         # tuples) share the same object, avoiding duplicate kernel name
@@ -127,6 +130,8 @@ class KernelTrace(EndpointCollector):
                 yield b"\n"
                 yield f'omnistat_kernel_total_duration_ns{{{label_defaults},card="{gpu_id}",kernel="{name}"}} {value[1]} {interval_bin}'.encode()
                 yield b"\n"
+            yield f'omnistat_kernel_dropped_dispatches{{{label_defaults}}} {self.__dropped_dispatches} {interval_bin}'.encode()
+            yield b"\n"
 
     def __process_dispatches(self):
         """Process pending dispatches and update time-series bins
@@ -175,6 +180,7 @@ class KernelTrace(EndpointCollector):
 
             if end_bin < first_bin or end_bin > last_bin:
                 logging.info(f"Ignore out of range dispatch of kernel {name} = {end_bin}")
+                self.__dropped_dispatches += 1
                 continue
 
             key = (gpu_id, name)
