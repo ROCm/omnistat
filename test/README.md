@@ -53,7 +53,7 @@ file to `docker compose`:
    docker compose -f test/docker/slurm/compose.yaml -f test/docker/slurm/compose-user.yaml down -v
    ```
 
-### Deploy and Test Query Tool
+### Deploy and Test Database
 
 1. Start containers.
    ```
@@ -62,7 +62,7 @@ file to `docker compose`:
 
 2. Run tests with `pytest`:
    ```
-   pytest test/test_query.py
+   pytest test/test_tsdb_query.py test/test_tsdb_kernel_trace.py
    ```
 
 3. Stop containers.

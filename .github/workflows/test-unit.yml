@@ -1,12 +1,12 @@
-name: Unit tests
+name: Unit
 on:
   push:
     branches: [ main, dev ]
   pull_request:
     branches: [ main, dev ]
 jobs:
-  unit-tests:
-    name: Unit tests
+  test:
+    name: Unit testing
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repository code
@@ -14,4 +14,4 @@ jobs:
       - name: Install dependencies
         run: pip3 install -r requirements.txt -r test/requirements.txt
       - name: Run unit tests
-        run: pytest -v test/test_kernel_trace.py
+        run: pytest -v test/test_unit_kernel_trace.py

@@ -34,7 +34,7 @@ import pytest
 from omnistat.query import QueryMetrics
 from omnistat.standalone import push_to_victoria_metrics
 from omnistat.utils import readConfig
-from test.trace_generator import GPU_METRIC_NAMES, TraceGenerator
+from test.generate_telemetry import GPU_METRIC_NAMES, TelemetryGenerator
 
 test_path = Path(__file__).resolve().parent
 CONFIG_FILE = f"{test_path}/docker/victoriametrics/omnistat-query.config"
@@ -78,7 +78,7 @@ class TestQuery:
         duration = 60
         interval = 1.0
 
-        trace = TraceGenerator(duration, interval, job_id, num_nodes)
+        trace = TelemetryGenerator(duration, interval, job_id, num_nodes)
         trace.add_constant_load("all", num_nodes, gpu_values)
         metrics = trace.generate()
 
@@ -135,7 +135,7 @@ class TestQuery:
         duration = 60
         interval = 1.0
 
-        trace = TraceGenerator(duration, interval, job_id, num_nodes)
+        trace = TelemetryGenerator(duration, interval, job_id, num_nodes)
         for i in range(num_nodes):
             trace.add_constant_load(f"load{i}", num_nodes=1, gpu_values=gpu_values_list[i])
         metrics = trace.generate()
@@ -185,7 +185,7 @@ class TestQuery:
         num_nodes = 2
         gpu_values = [100] * num_nodes
 
-        trace = TraceGenerator(duration, interval, job_id, num_nodes)
+        trace = TelemetryGenerator(duration, interval, job_id, num_nodes)
         trace.add_constant_load("all", num_nodes, gpu_values)
         metrics = trace.generate()
 
@@ -216,7 +216,7 @@ class TestQuery:
         num_nodes = 1
         gpu_values = [100] * num_nodes
 
-        trace = TraceGenerator(duration, interval, job_id, num_nodes)
+        trace = TelemetryGenerator(duration, interval, job_id, num_nodes)
         trace.add_constant_load("all", num_nodes, gpu_values)
         metrics = trace.generate()
 
@@ -270,7 +270,7 @@ class TestQuery:
         interval = 1.0
         num_nodes = 1
 
-        trace = TraceGenerator(duration, interval, job_id, num_nodes)
+        trace = TelemetryGenerator(duration, interval, job_id, num_nodes)
         trace.add_constant_load("default", num_nodes, base_gpu_values)
         trace.add_constant_step("default", "step", start, end, step_gpu_values)
         metrics = trace.generate()
@@ -347,7 +347,7 @@ class TestQuery:
         gpu_values = [100] * num_nodes
         output = f"/tmp/{job_id}.pdf"
 
-        trace = TraceGenerator(duration, interval, job_id, num_nodes)
+        trace = TelemetryGenerator(duration, interval, job_id, num_nodes)
         trace.add_constant_load("all", num_nodes, gpu_values)
         metrics = trace.generate()
 
