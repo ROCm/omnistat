@@ -130,7 +130,7 @@ class KernelTrace(EndpointCollector):
                 yield b"\n"
                 yield f'omnistat_kernel_total_duration_ns{{{label_defaults},card="{gpu_id}",kernel="{name}"}} {value[1]} {interval_bin}'.encode()
                 yield b"\n"
-            yield f'omnistat_kernel_dropped_dispatches{{{label_defaults}}} {self.__dropped_dispatches} {interval_bin}'.encode()
+            yield f"omnistat_kernel_dropped_dispatches{{{label_defaults}}} {self.__dropped_dispatches} {interval_bin}".encode()
             yield b"\n"
 
     def __process_dispatches(self):
