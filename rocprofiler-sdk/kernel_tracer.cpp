@@ -30,6 +30,7 @@
 #include <iterator>
 #include <memory>
 #include <thread>
+#include <unistd.h>
 
 #if defined(HAS_STD_FORMAT)
 #include <format>
@@ -138,7 +139,8 @@ KernelTracer::KernelTracer()
     : periodic_flush_interval_(std::chrono::seconds(
           parse_env_uint("OMNISTAT_TRACE_MAX_INTERVAL", DEFAULT_FLUSH_INTERVAL_SECONDS))),
       buffer_size_bytes_(parse_env_uint("OMNISTAT_TRACE_BUFFER_SIZE", DEFAULT_BUFFER_SIZE_BYTES)),
-      endpoint_port_(parse_env_uint("OMNISTAT_TRACE_ENDPOINT_PORT", DEFAULT_TRACE_ENDPOINT_PORT)) {
+      endpoint_port_(parse_env_uint("OMNISTAT_TRACE_ENDPOINT_PORT", DEFAULT_TRACE_ENDPOINT_PORT)),
+      log_enabled_(parse_env_uint("OMNISTAT_TRACE_LOG", 0) != 0) {
 }
 
 int KernelTracer::initialize() {
@@ -210,11 +212,17 @@ KernelTracer::~KernelTracer() {
     if (periodic_thread_.joinable()) {
         periodic_thread_.join();
 
-        auto successful_records = total_records_ - failed_records_;
-        auto successful_flushes = total_flushes_ - failed_flushes_;
-        std::cout << "Omnistat trace summary: " << successful_records << "/" << total_records_
-                  << " processed records (" << successful_flushes << "/" << total_flushes_
-                  << " successful flushes)" << std::endl;
+        if (log_enabled_) {
+            char hostname[256];
+            gethostname(hostname, sizeof(hostname));
+
+            auto successful_records = total_records_ - failed_records_;
+            auto successful_flushes = total_flushes_ - failed_flushes_;
+            std::cout << "[" << hostname << "][" << getpid()
+                      << "][omnistat] Trace summary: " << successful_records << "/"
+                      << total_records_ << " processed records (" << successful_flushes << "/"
+                      << total_flushes_ << " successful flushes)" << std::endl;
+        }
     }
 
     if (curl_handle_) {
