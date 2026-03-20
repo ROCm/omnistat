@@ -336,7 +336,7 @@ class Standalone:
         logging.debug("setting shutdown delivery event")
         dataDeliveredEvent.set()
         logging.debug("shutdown delivery event is set")
-        time.sleep(0.5)
+        time.sleep(2.0)
 
         logging.info("Terminating execution...")
         logging.shutdown()
@@ -368,18 +368,20 @@ def terminate():
     terminateFlagEvent.set()
 
     # spin loop till notice recieved that last data was pushed
-    maxChecks = 0
     if "SAMPLING_INTERVAL" in app.config:
         interval = app.config["SAMPLING_INTERVAL"]
     else:
         interval = 5.0
     wait_interval = max(1, interval / 2.0)
+    max_wait_secs = 120
+    elapsed = 0.0
     while not dataDeliveredEvent.isSet():
         logging.debug("waiting for data delivery event...(%.2f secs)" % wait_interval)
-        maxChecks += 1
-        if maxChecks > 10:
-            break
         time.sleep(wait_interval)
+        elapsed += wait_interval
+        if elapsed > max_wait_secs:
+            logging.error("Timed out waiting %.2f seconds - proceeding with shutdown." % elapsed)
+            break
 
     return jsonify({"message": "Shutting down..."}), 200
 
