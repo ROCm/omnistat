@@ -303,7 +303,7 @@ dispatches, the `ROCP_TOOL_LIBRARIES` environment variable must be set in the
 GPU application's runtime environment pointing to the built library:
 
 ```shell
-export ROCP_TOOL_LIBRARIES=/path/to/build-trace/librsdk_kernel_trace.so
+export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
 ```
 
 **Collector**: `enable_kernel_trace`

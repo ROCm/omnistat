@@ -54,9 +54,9 @@ else()
     include(FetchContent)
     include(CheckCXXSourceCompiles)
 
-    add_library(rsdk_kernel_trace SHARED kernel_tracer.cpp)
-    target_compile_features(rsdk_kernel_trace PRIVATE cxx_std_20)
-    target_link_libraries(rsdk_kernel_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk CURL::libcurl)
+    add_library(omnistat_trace SHARED kernel_tracer.cpp)
+    target_compile_features(omnistat_trace PRIVATE cxx_std_20)
+    target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk CURL::libcurl)
 
     # Check if the compiler supports std::format
     set(CMAKE_REQUIRED_FLAGS "-std=c++20")
@@ -70,7 +70,7 @@ else()
     " HAS_STD_FORMAT)
 
     if (HAS_STD_FORMAT)
-        target_compile_definitions(rsdk_kernel_trace PRIVATE HAS_STD_FORMAT)
+        target_compile_definitions(omnistat_trace PRIVATE HAS_STD_FORMAT)
     else()
         message(STATUS "std::format not available, using fmt library")
         FetchContent_Declare(
@@ -79,7 +79,7 @@ else()
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
         )
         FetchContent_MakeAvailable(fmt)
-        target_compile_definitions(rsdk_kernel_trace PRIVATE FMT_HEADER_ONLY)
-        target_include_directories(rsdk_kernel_trace PRIVATE ${fmt_SOURCE_DIR}/include)
+        target_compile_definitions(omnistat_trace PRIVATE FMT_HEADER_ONLY)
+        target_include_directories(omnistat_trace PRIVATE ${fmt_SOURCE_DIR}/include)
     endif()
 endif()
