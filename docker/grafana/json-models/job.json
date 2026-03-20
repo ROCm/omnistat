@@ -1753,7 +1753,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 2355
+            "y": 634
           },
           "id": 88,
           "interval": "$interval",
@@ -1809,7 +1809,7 @@
               "reverse": false
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "datasource": {
@@ -1863,7 +1863,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 2355
+            "y": 634
           },
           "id": 89,
           "interval": "$interval",
@@ -1919,7 +1919,7 @@
               "reverse": false
             }
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "datasource": {
@@ -2013,7 +2013,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2832
+            "y": 681
           },
           "id": 91,
           "interval": "$interval",
@@ -2164,7 +2164,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 2840
+            "y": 689
           },
           "id": 99,
           "interval": "$interval",
@@ -2328,7 +2328,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 2840
+            "y": 689
           },
           "id": 100,
           "interval": "$interval",
@@ -2477,7 +2477,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 2356
+            "y": 3580
           },
           "id": 28,
           "interval": "$interval",
@@ -2539,7 +2539,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 2356
+            "y": 3580
           },
           "id": 86,
           "interval": "$interval",
@@ -2652,7 +2652,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 2742
+            "y": 3966
           },
           "id": 29,
           "interval": "$interval",
@@ -2714,7 +2714,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 2742
+            "y": 3966
           },
           "id": 31,
           "interval": "$interval",
@@ -2855,7 +2855,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2750
+            "y": 3974
           },
           "id": 24,
           "interval": "$interval",
@@ -2929,7 +2929,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 2357
+            "y": 3581
           },
           "id": 27,
           "interval": "$interval",
@@ -3039,7 +3039,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 2357
+            "y": 3581
           },
           "id": 87,
           "interval": "$interval",
@@ -3189,7 +3189,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2368
+            "y": 3592
           },
           "id": 90,
           "interval": "$interval",
@@ -3356,7 +3356,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 2376
+            "y": 3600
           },
           "id": 98,
           "interval": "$interval",
@@ -3536,7 +3536,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 2376
+            "y": 3600
           },
           "id": 95,
           "interval": "$interval",
@@ -3807,7 +3807,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 2385
+            "y": 3609
           },
           "id": 52,
           "interval": "$interval",
@@ -3960,7 +3960,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1251
+            "y": 2475
           },
           "id": 142,
           "interval": "$interval",
@@ -4069,7 +4069,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1891
+            "y": 3115
           },
           "id": 33,
           "interval": "$interval",
@@ -4178,7 +4178,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1899
+            "y": 3123
           },
           "id": 128,
           "interval": "$interval",
@@ -4287,7 +4287,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1907
+            "y": 3131
           },
           "id": 129,
           "interval": "$interval",
@@ -4396,7 +4396,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1915
+            "y": 3139
           },
           "id": 130,
           "interval": "$interval",
@@ -4505,7 +4505,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1915
+            "y": 3139
           },
           "id": 131,
           "interval": "$interval",
@@ -4628,7 +4628,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2761
+            "y": 3985
           },
           "id": 143,
           "interval": "$interval",
@@ -4728,7 +4728,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2769
+            "y": 3993
           },
           "id": 127,
           "interval": "$interval",
@@ -4828,7 +4828,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2777
+            "y": 4001
           },
           "id": 104,
           "interval": "$interval",
@@ -4928,7 +4928,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2785
+            "y": 4009
           },
           "id": 22,
           "interval": "$interval",
@@ -5028,7 +5028,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2793
+            "y": 4017
           },
           "id": 25,
           "interval": "$interval",
@@ -5128,7 +5128,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2793
+            "y": 4017
           },
           "id": 23,
           "interval": "$interval",
@@ -5242,7 +5242,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2181
+            "y": 3405
           },
           "id": 144,
           "interval": "$interval",
@@ -5351,7 +5351,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2261
+            "y": 3485
           },
           "id": 137,
           "interval": "$interval",
@@ -5460,7 +5460,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2269
+            "y": 3493
           },
           "id": 138,
           "interval": "$interval",
@@ -5569,7 +5569,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2277
+            "y": 3501
           },
           "id": 139,
           "interval": "$interval",
@@ -5678,7 +5678,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2285
+            "y": 3509
           },
           "id": 140,
           "interval": "$interval",
@@ -5787,7 +5787,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2285
+            "y": 3509
           },
           "id": 141,
           "interval": "$interval",
@@ -5912,7 +5912,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 760
+            "y": 1984
           },
           "id": 134,
           "interval": "$interval",
@@ -6037,7 +6037,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 940
+            "y": 2164
           },
           "id": 156,
           "interval": "$interval",
@@ -6149,7 +6149,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 940
+            "y": 2164
           },
           "id": 158,
           "interval": "$interval",
@@ -6274,7 +6274,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1287
+            "y": 2511
           },
           "id": 151,
           "interval": "$interval",
@@ -6404,7 +6404,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 35
+            "y": 1251
           },
           "id": 125,
           "interval": "$interval",
@@ -6534,7 +6534,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 36
+            "y": 1252
           },
           "id": 153,
           "interval": "$interval",
@@ -6648,7 +6648,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 36
+            "y": 1252
           },
           "id": 154,
           "interval": "$interval",
@@ -6762,7 +6762,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 316
+            "y": 1540
           },
           "id": 155,
           "interval": "$interval",
@@ -6876,7 +6876,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 324
+            "y": 1548
           },
           "id": 165,
           "interval": "$interval",
@@ -6927,6 +6927,225 @@
       },
       "id": 168,
       "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Number of distinct kernel names during the selected time range.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 8,
+            "x": 0,
+            "y": 645
+          },
+          "id": 174,
+          "interval": "$interval",
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count(group by (kernel) (last_over_time(omnistat_kernel_dispatch_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "# Kernels",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Total number of kernel dispatches during the selected time range.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 8,
+            "x": 8,
+            "y": 645
+          },
+          "id": 175,
+          "interval": "$interval",
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(omnistat_kernel_dispatch_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "# Dispatches",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Number of dispatches dropped by Omnistat during the selected time range. A non-zero value indicates data for some dispatches is missing from the Omnistat trace because their completion time fell outside the collection window. It doesn't have an impact on the execution of the application.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 8,
+            "x": 16,
+            "y": 645
+          },
+          "id": 176,
+          "interval": "$interval",
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(omnistat_kernel_dropped_dispatches[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "# Dropped Dispatches",
+          "type": "stat"
+        },
         {
           "datasource": {
             "type": "prometheus",
@@ -6983,7 +7202,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 37
+            "y": 647
           },
           "id": 169,
           "interval": "$interval",
@@ -7217,7 +7436,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 61
+            "y": 655
           },
           "id": 170,
           "interval": "$interval",
@@ -7331,7 +7550,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 38
+            "y": 1254
           },
           "id": 172,
           "interval": "$interval",
@@ -7434,7 +7653,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 38
+            "y": 1254
           },
           "id": 173,
           "interval": "$interval",
@@ -7649,7 +7868,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 762
+            "y": 1986
           },
           "id": 43,
           "interval": "$interval",
@@ -7759,7 +7978,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 762
+            "y": 1986
           },
           "id": 48,
           "interval": "$interval",
@@ -7885,7 +8104,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 521
+            "y": 1745
           },
           "id": 120,
           "options": {
@@ -8083,7 +8302,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 521
+            "y": 1745
           },
           "id": 121,
           "options": {
@@ -8293,7 +8512,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 834
+            "y": 2058
           },
           "id": 105,
           "interval": "$interval",
@@ -8404,7 +8623,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 834
+            "y": 2058
           },
           "id": 106,
           "interval": "$interval",
@@ -8529,7 +8748,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 835
+            "y": 2059
           },
           "id": 116,
           "interval": "$interval",
@@ -8640,7 +8859,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 835
+            "y": 2059
           },
           "id": 117,
           "interval": "$interval",
@@ -8766,7 +8985,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 606
+            "y": 1830
           },
           "id": 46,
           "interval": "$interval",
@@ -8878,7 +9097,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 606
+            "y": 1830
           },
           "id": 45,
           "interval": "$interval",
@@ -8991,7 +9210,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 614
+            "y": 1838
           },
           "id": 159,
           "interval": "$interval",
@@ -9104,7 +9323,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 614
+            "y": 1838
           },
           "id": 160,
           "interval": "$interval",
@@ -9179,7 +9398,7 @@
             "h": 3,
             "w": 12,
             "x": 0,
-            "y": 622
+            "y": 1846
           },
           "id": 161,
           "interval": "$interval",
@@ -9256,7 +9475,7 @@
             "h": 3,
             "w": 12,
             "x": 12,
-            "y": 622
+            "y": 1846
           },
           "id": 162,
           "interval": "$interval",
@@ -9383,7 +9602,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4998
+            "y": 6222
           },
           "id": 135,
           "interval": "$interval",
@@ -9547,7 +9766,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 5047
+            "y": 6271
           },
           "id": 56,
           "interval": "$interval",
@@ -9771,7 +9990,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 19048
+            "y": 20272
           },
           "id": 107,
           "interval": "$interval",
@@ -9966,7 +10185,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 19048
+            "y": 20272
           },
           "id": 112,
           "interval": "$interval",
@@ -10125,7 +10344,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 19056
+            "y": 20280
           },
           "id": 108,
           "interval": "$interval",
@@ -10353,7 +10572,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 19056
+            "y": 20280
           },
           "id": 113,
           "interval": "$interval",
@@ -10508,7 +10727,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 19064
+            "y": 20288
           },
           "id": 109,
           "interval": "$interval",
@@ -10736,7 +10955,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 19064
+            "y": 20288
           },
           "id": 115,
           "interval": "$interval",
@@ -10892,7 +11111,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 19072
+            "y": 20296
           },
           "id": 110,
           "interval": "$interval",
@@ -11116,7 +11335,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 19072
+            "y": 20296
           },
           "id": 114,
           "interval": "$interval",
