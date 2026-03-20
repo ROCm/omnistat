@@ -41,7 +41,7 @@ BUILD_ROCPROFILER_SDK_EXTENSION=1 ~/venv/omnistat/bin/python -m pip install .[qu
 ## Kernel Tracing
 
 The kernel tracing extension is a standalone C++ shared library
-(`librsdk_kernel_trace.so`) that intercepts GPU kernel dispatches at runtime to
+(`libomnistat_trace.so`) that intercepts GPU kernel dispatches at runtime to
 collect per-kernel timing and execution metrics. Unlike the ROCprofiler
 extension above, it does not require a Python build step.
 
@@ -63,5 +63,5 @@ cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
 cmake --build build-trace/
 ```
 
-The resulting library is located at `build-trace/librsdk_kernel_trace.so`. See
+The resulting library is located at `build-trace/libomnistat_trace.so`. See
 [Kernel Tracing metrics](../metrics.md#kernel-tracing) for usage instructions.

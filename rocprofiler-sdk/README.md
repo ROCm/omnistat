@@ -84,7 +84,7 @@ advanced usage using Omnistat.
 
 ## Kernel Tracing Library
 
-A standalone C++ shared library (`librsdk_kernel_trace.so`) that traces GPU
+A standalone C++ shared library (`libomnistat_trace.so`) that traces GPU
 kernel dispatches and streams the data to omnistat-standalone via HTTP.
 
 ### Requirements
@@ -104,7 +104,7 @@ cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
 cmake --build build-trace/
 ```
 
-This produces `build-trace/librsdk_kernel_trace.so`.
+This produces `build-trace/libomnistat_trace.so`.
 
 ### Usage
 
@@ -113,7 +113,7 @@ The library is loaded via rocprofiler-sdk's tool loading mechanism. Point the
 run any application and kernel dispatches are traced automatically.
 
 ```bash
-export ROCP_TOOL_LIBRARIES=/path/to/librsdk_kernel_trace.so
+export ROCP_TOOL_LIBRARIES=/path/to/libomnistat_trace.so
 ```
 
 Dispatch records are JSON-encoded and sent via HTTP POST to
