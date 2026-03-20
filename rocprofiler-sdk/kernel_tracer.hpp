@@ -75,6 +75,7 @@ class KernelTracer {
     const std::chrono::seconds periodic_flush_interval_;
     const uint64_t buffer_size_bytes_;
     const uint64_t endpoint_port_;
+    const bool log_enabled_;
 
     std::thread periodic_thread_;
     std::mutex periodic_mutex_;

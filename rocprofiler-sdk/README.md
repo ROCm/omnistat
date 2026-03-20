@@ -128,11 +128,13 @@ kernel tracing collector enabled.
 | `OMNISTAT_TRACE_MAX_INTERVAL` | `13` (seconds) | Max time between periodic buffer flushes |
 | `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | rocprofiler-sdk buffer size for dispatch records |
 | `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001` | Port for the HTTP endpoint receiving kernel trace data |
+| `OMNISTAT_TRACE_LOG` | `0` | Set to `1` to print a trace summary to stdout on exit |
 
 ### Exit Summary
 
-On application exit the library prints a summary line:
+When `OMNISTAT_TRACE_LOG=1` is set, the library prints a summary line on
+application exit:
 
 ```
-Omnistat trace summary: 12345/12345 processed records (42/42 successful flushes)
+[hostname][12345][omnistat] Trace summary: 1234/1234 processed records (12/12 successful flushes)
 ```
