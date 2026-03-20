@@ -11264,6 +11264,27 @@
       },
       {
         "allowCustomValue": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${source}"
+        },
+        "definition": "query_result(last_over_time(omnistat_info[${__range}]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Sampling interval",
+        "name": "sampling_interval",
+        "options": [],
+        "query": {
+          "qryType": 3,
+          "query": "query_result(last_over_time(omnistat_info[${__range}]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/interval_secs=\"([^\"]*)\"/",
+        "type": "query"
+      },
+      {
+        "allowCustomValue": false,
         "current": {
           "text": "All",
           "value": "$__all"
