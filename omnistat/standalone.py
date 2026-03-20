@@ -55,7 +55,10 @@ fomData = []
 fomLock = threading.Lock()
 
 
-def push_to_victoria_metrics(metrics_data_list, victoria_url):
+def push_to_victoria_metrics(metrics_data_list, victoria_url, timer=None):
+    start_time = time.perf_counter()
+    timestamp_msecs = int(datetime.now(timezone.utc).timestamp() * 1000.0)
+
     logging.info("Pushing local node telemetry to VictoriaMetrics endpoint -> %s" % victoria_url)
     headers = {
         "Content-Type": "text/plain",
@@ -97,6 +100,12 @@ def push_to_victoria_metrics(metrics_data_list, victoria_url):
 
         if response.status_code != 200:
             logging.warning(f"[WARN] Unexpected return code from VM endpoint: {endpoint} = {response.status_code}")
+
+    duration = time.perf_counter() - start_time
+
+    if timer is not None:
+        timer["duration_secs"] = duration
+        timer["timestamp_msecs"] = timestamp_msecs
 
     return
 
@@ -212,6 +221,7 @@ class Standalone:
         mem_mb_base = utils.getMemoryUsageMB()
         base_start_time = time.perf_counter()
         push_thread = None
+        bg_thread_timer = {}
         fom_check_duration = 0.0
 
         # ---
@@ -233,11 +243,21 @@ class Standalone:
                         logging.info("Previous metric push is still running - blocking till complete.")
                         push_thread.join()
                         logging.info("Resuming after previous metric push complete.")
+                    # log previous bg thread timing
+                    if bg_thread_timer:
+                        entry = "%s{%s} %s %i" % (
+                            "omnistat_perf_push_background_seconds",
+                            self.__labelDefaults,
+                            bg_thread_timer["duration_secs"],
+                            bg_thread_timer["timestamp_msecs"],
+                        )
+                        self.__dataVM.append(entry)
                     try:
                         push_start_time = time.perf_counter()
                         dataToPush = self.__dataVM
+                        bg_thread_timer = {}
                         push_thread = threading.Thread(
-                            target=push_to_victoria_metrics, args=(dataToPush, self.__victoriaURL)
+                            target=push_to_victoria_metrics, args=(dataToPush, self.__victoriaURL, bg_thread_timer)
                         )
                         push_thread.start()
                         self.__dataVM = []
@@ -311,7 +331,10 @@ class Standalone:
 
         if len(self.__dataVM) > 0:
             logging.info("Initiating final data push...")
-            push_to_victoria_metrics(self.__dataVM, self.__victoriaURL)
+            bg_thread_timer = {}
+            push_to_victoria_metrics(self.__dataVM, self.__victoriaURL, bg_thread_timer)
+            if bg_thread_timer:
+                logging.info("--> completed final data push in %.2f seconds" % bg_thread_timer["duration_secs"])
 
         logging.info("")
         logging.info("--> Sampling interval          = %.4f (secs)" % interval_secs)
