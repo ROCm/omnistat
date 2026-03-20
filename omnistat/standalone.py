@@ -305,7 +305,8 @@ class Standalone:
                         endpoint_streams = [ep.formatMetrics(self.__labelDefaults) for ep in self.__endpoints]
                         bg_thread_timer = {}
                         push_thread = threading.Thread(
-                            target=push_to_victoria_metrics, args=(dataToPush, endpoint_streams, self.__victoriaURL, bg_thread_timer)
+                            target=push_to_victoria_metrics,
+                            args=(dataToPush, endpoint_streams, self.__victoriaURL, bg_thread_timer),
                         )
                         push_thread.start()
                         self.__dataVM = []
