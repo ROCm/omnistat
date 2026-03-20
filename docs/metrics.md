@@ -310,8 +310,12 @@ export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
 
 | GPU Metric | Description |
 | :--- | :--- |
-| `omnistat_kernel_dispatch_count` | Cumulative number of kernel dispatches. Labels: `card`, `kernel`. |
-| `omnistat_kernel_total_duration_ns` | Cumulative kernel execution time (ns). Labels: `card`, `kernel`. |
+| `omnistat_kernel_dispatch_count` | Cumulative number of kernel dispatches. Labels: `kernel`. |
+| `omnistat_kernel_total_duration_ns` | Cumulative kernel execution time (ns). Labels: `kernel`. |
+
+| Node Metric | Description |
+| :--- | :--- |
+| `omnistat_kernel_dropped_dispatches` | Cumulative number of dispatches excluded from metrics collection because their timestamps fell outside the valid time range. This is an Omnistat bookkeeping metric and does not affect GPU execution. |
 
 <hr style="border: 1px solid black;">
 
