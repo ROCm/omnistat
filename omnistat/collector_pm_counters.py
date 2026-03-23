@@ -33,8 +33,8 @@ import logging
 import os
 import re
 import sys
-import time
 import threading
+import time
 from pathlib import Path
 
 from prometheus_client import Gauge
