@@ -1,3 +1,10 @@
+Version 1.11 (24 March 2026)
+
+  * introduction of new optional data collector to support application-level kernel traces (#241)
+  * adjustments to user-mode teardown process (#268)
+  * performance refactoring for `pm_counter` (vendor counters) data collector  (#269)
+  * modifications to default runtime configuration options (#270)
+
 Version 1.10 (20 Februrary 2026)
 
   * updated loading mechanism for amd-smi python interface (#258)
