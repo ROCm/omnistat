@@ -5,8 +5,16 @@
    :hidden:
 ```
 
-Omnistat includes optional components that can be built and installed to
-provide additional data collectors.
+Omnistat includes two optional components that can be built and installed to
+provide additional data collector capabilities.
+
+1. [Hardware counters](#hardware-counters)
+2. [Kernel tracing](#kernel-tracing)
+
+Both rely on C++ compilations via `cmake` and additional instructions for each optional component
+are outlined below.
+
+---
 
 ## Hardware Counters
 
