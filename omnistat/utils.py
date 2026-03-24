@@ -547,6 +547,22 @@ def format_bytes(data_bytes):
         return f"{data_bytes:6.1f} B"
 
 
+def format_ops(n):
+    """Format an operation count with a human-readable suffix (K, M, B, T)"""
+    for scale, suffix in [(1e12, "T"), (1e9, "B"), (1e6, "M"), (1e3, "K")]:
+        if n >= scale:
+            return "%d%s" % (round(n / scale), suffix)
+    return "%d" % n
+
+
+def format_flops(n):
+    """Format a FLOPS value with a human-readable suffix (MFLOPS, GFLOPS, TFLOPS, PFLOPS)"""
+    for scale, suffix in [(1e15, "P"), (1e12, "T"), (1e9, "G"), (1e6, "M")]:
+        if n >= scale:
+            return "%.2f %sFLOPS" % (n / scale, suffix)
+    return "%.2f FLOPS" % n
+
+
 def execute_ssh_command_nohup(
     hostname: str,
     command: str,
