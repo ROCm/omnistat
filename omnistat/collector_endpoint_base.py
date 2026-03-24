@@ -24,31 +24,38 @@
 
 # Prometheus data collector for HPC systems.
 #
-# Base Collector class - defines required methods for all metric collectors
-# implemented as a child class.
+# Base EndpointCollector class - defines required methods for all endpoint
+# metric collectors implemented as a child class.
 # --
 
 import configparser
 from abc import ABC, abstractmethod
 
+from flask import Flask
 
-class Collector(ABC):
-    # Optional method(s)
-    def __init__(self, config: configparser.ConfigParser):
-        """Optional initializer for Collector.
 
-        Args:
-            config (configparser.ConfigParser): Cached copy of runtime configuration that can be used to further control collector behavior.
-        """
-        self.runtimeConfig = config
-
-    # Required methods to be implemented by child classes
+class EndpointCollector(ABC):
     @abstractmethod
-    def registerMetrics(self):
-        """Defines desired metrics to monitor with Omnistat data collector. Called once during initialization."""
+    def __init__(self, config: configparser.ConfigParser, route: Flask.route, interval: float):
+        pass
+
+    @abstractmethod
+    def handleRequest(self):
         pass
 
     @abstractmethod
     def updateMetrics(self):
-        """Updates defined metrics with latest values. Called at every polling interval."""
+        pass
+
+    @abstractmethod
+    def formatMetrics(self, label_defaults, flush=False):
+        """Format metrics as encoded byte strings for HTTP streaming.
+
+        Args:
+            label_defaults: Pre-formatted default labels string
+            flush: If True, flush all remaining data (used at shutdown)
+
+        Yields:
+            Encoded byte strings (metric line + newline) for chunked HTTP POST.
+        """
         pass

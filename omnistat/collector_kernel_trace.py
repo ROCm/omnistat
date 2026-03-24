@@ -31,7 +31,7 @@ from collections import OrderedDict, defaultdict
 import orjson
 from flask import Flask, request
 
-from omnistat.collector_base import EndpointCollector
+from omnistat.collector_endpoint_base import EndpointCollector
 
 
 class KernelTrace(EndpointCollector):
