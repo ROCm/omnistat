@@ -120,6 +120,11 @@ class QueryMetrics:
         {"metric": "rocm_average_socket_power_watts", "title": "GPU Average Power (W)", "title_short": "Power (W)"},
     ]
 
+    # FP instruction counter definitions
+    ALL_PRECISIONS = ["F64", "F32", "F16", "BF16", "F8", "F6F4"]
+    VALU_PRECISIONS = ["F64", "F32", "F16"]
+    VALU_OPS = ["ADD", "MUL", "TRANS", "FMA"]
+
     def __init__(self, interval, jobid, jobstep=None, marker=None, configfile=None, output_file=None):
         self.timer_start = timeit.default_timer()
 
@@ -148,6 +153,7 @@ class QueryMetrics:
         self.enable_redirect = False
         self.vendorData = False
         self.hostData = False
+        self.counterData = False
         self.output = None
         self.output_file = output_file
 
@@ -482,6 +488,71 @@ class QueryMetrics:
                     total_bytes += max_value
                 self.total_io[metric] = total_bytes
 
+    def gather_counter_data(self):
+        """Query hardware counter data and detect which FP counters were collected."""
+        self.fp_counter_ops = {}
+        self.peak_flops = None
+        self.mean_flops = None
+
+        fp_counter_names = [f"SQ_INSTS_VALU_{op}_{prec}" for op in self.VALU_OPS for prec in self.VALU_PRECISIONS]
+        fp_counter_names += [f"SQ_INSTS_VALU_MFMA_MOPS_{prec}" for prec in self.ALL_PRECISIONS]
+
+        # Compute total operations for each FP counter by summing (last - first)
+        # across all host/GPU time series (same pattern as energy in gather_vendor_data).
+        # Use group_left() to handle many-to-one join (multiple cards per instance).
+        for counter_name in fp_counter_names:
+            query = (
+                f'omnistat_hardware_counter{{name="{counter_name}"}}'
+                f" * on (instance) group_left() (max by (instance) (rmsjob_info{{$job,$step}}))"
+            )
+            try:
+                results = self.query_job_range(query)
+                if results:
+                    total = 0
+                    for series in results:
+                        values = np.asarray(series["values"])[:, 1].astype(float)
+                        total += values[-1] - values[0]
+                    self.fp_counter_ops[counter_name] = int(total)
+            except Exception:
+                pass
+
+        # Only show the FP counter table if at least one OPS counter was collected
+        if not self.fp_counter_ops:
+            return
+
+        self.counterData = True
+
+        # Compute peak and mean FLOPS across all sampled GPUs.
+        def _rate_term(counter, multiplier=1):
+            return (
+                f"(sum(rate("
+                f'omnistat_hardware_counter{{name="{counter}"}} '
+                f"* on (instance) group_left() (rmsjob_info{{$job,$step}})"
+                f")) or on() vector(0)) * {multiplier}"
+            )
+
+        # VALU terms: 64 ops/instr, FMA gets 2x
+        valu_terms = []
+        for op in self.VALU_OPS:
+            mult = 2 if op == "FMA" else 1
+            for prec in self.VALU_PRECISIONS:
+                valu_terms.append(_rate_term(f"SQ_INSTS_VALU_{op}_{prec}", multiplier=mult))
+
+        # MFMA terms: 512 ops/instr
+        mfma_terms = [_rate_term(f"SQ_INSTS_VALU_MFMA_MOPS_{prec}") for prec in self.ALL_PRECISIONS]
+
+        flops_query = f"(64 * ({' + '.join(valu_terms)})) + " f"(512 * ({' + '.join(mfma_terms)}))"
+
+        try:
+            results = self.query_job_range(flops_query)
+            if len(results) > 0:
+                values = np.asarray(results[0]["values"])
+                flops_values = values[:, 1].astype(float)
+                self.peak_flops = np.max(flops_values)
+                self.mean_flops = np.mean(flops_values)
+        except Exception:
+            pass
+
     def gather_vendor_data(self):
         # node-level data: total energy usage
         times_raw, values_raw, hosts = self.query_time_series_data("omnistat_vendor_energy_joules")
@@ -773,6 +844,51 @@ class QueryMetrics:
                     end="",
                 )
             print("")
+
+        if self.counterData:
+            cols = self.VALU_OPS + ["MFMA"]
+            mfma_only = set(self.ALL_PRECISIONS) - set(self.VALU_PRECISIONS)
+
+            print("")
+            print("Hardware Counters: FP Instruction Mix and Rate")
+            print("")
+
+            col_w = 8
+            header = "    %5s |" % "" + "".join(" %-*s |" % (col_w, c) for c in cols)
+            sep = "    " + "-" * (len(header) - 4)
+            print(header)
+            print(sep)
+
+            for prec in self.ALL_PRECISIONS:
+                # Skip rows where no counters were collected
+                row_counters = [f"SQ_INSTS_VALU_MFMA_MOPS_{prec}"]
+                if prec not in mfma_only:
+                    row_counters += [f"SQ_INSTS_VALU_{op}_{prec}" for op in self.VALU_OPS]
+                if not any(c in self.fp_counter_ops for c in row_counters):
+                    continue
+
+                row_str = "    %5s |" % prec
+                for op in cols:
+                    if op != "MFMA" and prec in mfma_only:
+                        row_str += " %*s |" % (col_w, "n/a")
+                        continue
+
+                    if op == "MFMA":
+                        name = f"SQ_INSTS_VALU_MFMA_MOPS_{prec}"
+                    else:
+                        name = f"SQ_INSTS_VALU_{op}_{prec}"
+
+                    if name in self.fp_counter_ops:
+                        row_str += " %*s |" % (col_w, utils.format_ops(self.fp_counter_ops[name]))
+                    else:
+                        row_str += " %*s |" % (col_w, "-")
+
+                print(row_str)
+
+            if self.peak_flops is not None:
+                print("")
+                print("    Peak = %s" % utils.format_flops(self.peak_flops))
+                print("    Mean = %s" % utils.format_flops(self.mean_flops))
 
         print("")
         print("--")
@@ -1594,6 +1710,7 @@ def main():
     query.gather_data(saveTimeSeries=True)
     query.gather_vendor_data()
     query.gather_host_data()
+    query.gather_counter_data()
     query.generate_report_card()
 
     if args.pdf:
