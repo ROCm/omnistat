@@ -61,7 +61,11 @@ extension above, it does not require a Python build step.
 - CMake 3.15+
 
 ```{note}
-The build automatically fetches the [fmt](https://github.com/fmtlib/fmt) library via CMake's `FetchContent`.
+If the compiler does not support `std::format`, the build automatically fetches the [fmt](https://github.com/fmtlib/fmt) library via CMake's `FetchContent`.
+For offline builds, download the fmt source tree ahead of time and point CMake at it:
+
+    cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON \
+      -DFETCHCONTENT_SOURCE_DIR_FMT=/path/to/fmt
 ```
 
 ### Build
