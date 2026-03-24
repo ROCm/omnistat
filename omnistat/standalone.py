@@ -333,8 +333,6 @@ class Standalone:
             logging.info("Initiating final data push...")
             bg_thread_timer = {}
             push_to_victoria_metrics(self.__dataVM, self.__victoriaURL, bg_thread_timer)
-            if bg_thread_timer:
-                logging.info("--> completed final data push in %.2f seconds" % bg_thread_timer["duration_secs"])
 
         logging.info("")
         logging.info("--> Sampling interval          = %.4f (secs)" % interval_secs)
@@ -354,6 +352,8 @@ class Standalone:
         logging.info("--> Memory growth at stop      = %.3f MB" % (utils.getMemoryUsageMB() - mem_mb_base))
         if num_fom_samples > 0:
             logging.info("--> Total # of FOM samples     = %i" % num_fom_samples)
+        if bg_thread_timer:
+            logging.info("--> Final data push duration   = %.2f (secs)" % bg_thread_timer["duration_secs"])
 
         # deliver event to shutdown procedure
         logging.debug("setting shutdown delivery event")
