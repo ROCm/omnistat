@@ -153,7 +153,8 @@ class QueryMetrics:
         self.enable_redirect = False
         self.vendorData = False
         self.hostData = False
-        self.counterData = False
+        self.flopsData = False
+        self.hbmData = False
         self.output = None
         self.output_file = output_file
 
@@ -489,7 +490,11 @@ class QueryMetrics:
                 self.total_io[metric] = total_bytes
 
     def gather_counter_data(self):
-        """Query hardware counter data and detect which FP counters were collected."""
+        self.gather_counter_flops()
+        self.gather_counter_hbm()
+
+    def gather_counter_flops(self):
+        """Query FP hardware counters and compute FLOPS rates."""
         self.fp_counter_ops = {}
         self.peak_flops = None
         self.mean_flops = None
@@ -520,7 +525,7 @@ class QueryMetrics:
         if not self.fp_counter_ops:
             return
 
-        self.counterData = True
+        self.flopsData = True
 
         # Compute peak and mean FLOPS across all sampled GPUs.
         def _rate_term(counter, multiplier=1):
@@ -552,6 +557,49 @@ class QueryMetrics:
                 self.mean_flops = np.mean(flops_values)
         except Exception:
             pass
+
+    def gather_counter_hbm(self):
+        """Query HBM bandwidth counters (FETCH_SIZE/WRITE_SIZE) for total transfer and per-GPU rates."""
+        self.hbm_total_bytes = {}
+        self.hbm_peak = {}
+        self.hbm_mean = {}
+
+        hbm_counters = {"Read": "FETCH_SIZE", "Write": "WRITE_SIZE"}
+        for op, counter_name in hbm_counters.items():
+            # Total bytes: sum (last - first) across all GPU time series (KB -> bytes)
+            total_query = (
+                f'omnistat_hardware_counter{{name="{counter_name}"}}'
+                f" * on (instance) group_left() (max by (instance) (rmsjob_info{{$job,$step}}))"
+            )
+            try:
+                results = self.query_job_range(total_query)
+                if results:
+                    total_kb = 0
+                    for series in results:
+                        values = np.asarray(series["values"])[:, 1].astype(float)
+                        total_kb += values[-1] - values[0]
+                    self.hbm_total_bytes[op] = total_kb * 1024
+                    self.hbmData = True
+            except Exception:
+                pass
+
+            # Per-GPU average rate: avg(rate(...)) gives mean rate per GPU in KB/s
+            rate_query = (
+                f"avg(rate("
+                f'omnistat_hardware_counter{{name="{counter_name}"}} '
+                f"* on (instance) group_left() (rmsjob_info{{$job,$step}})"
+                f"))"
+            )
+            try:
+                results = self.query_job_range(rate_query)
+                if results and len(results) > 0:
+                    values = np.asarray(results[0]["values"])[:, 1].astype(float)
+                    # rate() gives KB/s; convert to bytes/s for format_bytes_rate()
+                    self.hbm_peak[op] = np.max(values) * 1024
+                    self.hbm_mean[op] = np.mean(values) * 1024
+                    self.hbmData = True
+            except Exception:
+                pass
 
     def gather_vendor_data(self):
         # node-level data: total energy usage
@@ -845,7 +893,7 @@ class QueryMetrics:
                 )
             print("")
 
-        if self.counterData:
+        if self.flopsData:
             cols = self.VALU_OPS + ["MFMA"]
             mfma_only = set(self.ALL_PRECISIONS) - set(self.VALU_PRECISIONS)
 
@@ -889,6 +937,34 @@ class QueryMetrics:
                 print("")
                 print("    Peak = %s" % utils.format_flops(self.peak_flops))
                 print("    Mean = %s" % utils.format_flops(self.mean_flops))
+
+        if self.hbmData:
+            print("")
+            print("Hardware Counters: HBM Bandwidth and Transfer")
+            print("")
+            sub_w = 13
+            bw_w = sub_w * 2 + 2
+            tot_w = 19
+            header1 = "    %7s | %s | %s |" % (
+                "",
+                "Bandwidth (per GPU)".center(bw_w),
+                "Transfer (all GPUs)".center(tot_w),
+            )
+            header2 = "    %7s | %s  %s | %s |" % (
+                "",
+                "Peak".center(sub_w),
+                "Mean".center(sub_w),
+                "Total".center(tot_w),
+            )
+            sep = "    " + "-" * (len(header1) - 4)
+            print(header1)
+            print(header2)
+            print(sep)
+            for op in ["Read", "Write"]:
+                peak_str = utils.format_bytes_rate(self.hbm_peak[op]) if op in self.hbm_peak else ""
+                mean_str = utils.format_bytes_rate(self.hbm_mean[op]) if op in self.hbm_mean else ""
+                total_str = utils.format_bytes(self.hbm_total_bytes[op]) if op in self.hbm_total_bytes else ""
+                print("    %7s | %*s  %*s | %*s |" % (op, sub_w, peak_str, sub_w, mean_str, tot_w, total_str))
 
         print("")
         print("--")
