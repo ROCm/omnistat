@@ -413,7 +413,6 @@ class Standalone:
 
         logging.info("Terminating execution...")
         logging.shutdown()
-        os.kill(os.getpid(), signal.SIGTERM)
         return
 
 
@@ -506,6 +505,9 @@ def main():
 
     caching = Standalone(args, config)
 
+    # Handle SIGTERM gracefully
+    signal.signal(signal.SIGTERM, lambda signum, frame: terminateFlagEvent.set())
+
     # Enforce network restrictions
     @app.before_request
     def restrict_ips():
@@ -517,6 +519,7 @@ def main():
 
     # Launch flask app as separate thread so we can respond to remote shutdown requests
     flask_thread = threading.Thread(target=runFlask, args=[config])
+    flask_thread.daemon = True
     flask_thread.start()
 
     # Initiate main polling loop/data collection
