@@ -620,13 +620,16 @@ class ROCMSMI(Collector):
 
             # --
             # clock speeds [Hz, converted to megaHz]
-            metric = self.__prefix + "sclk_clock_mhz"
-            ret = self.__libsmi.rsmi_dev_gpu_clk_freq_get(device, freq_system_clock, ctypes.byref(freq))
-            self.__GPUmetrics[metric].labels(card=gpuLabel).set(freq.frequency[freq.current] / 1000000.0)
+            try:
+                metric = self.__prefix + "sclk_clock_mhz"
+                ret = self.__libsmi.rsmi_dev_gpu_clk_freq_get(device, freq_system_clock, ctypes.byref(freq))
+                self.__GPUmetrics[metric].labels(card=gpuLabel).set(freq.frequency[freq.current] / 1000000.0)
 
-            metric = self.__prefix + "mclk_clock_mhz"
-            ret = self.__libsmi.rsmi_dev_gpu_clk_freq_get(device, freq_mem_clock, ctypes.byref(freq))
-            self.__GPUmetrics[metric].labels(card=gpuLabel).set(freq.frequency[freq.current] / 1000000.0)
+                metric = self.__prefix + "mclk_clock_mhz"
+                ret = self.__libsmi.rsmi_dev_gpu_clk_freq_get(device, freq_mem_clock, ctypes.byref(freq))
+                self.__GPUmetrics[metric].labels(card=gpuLabel).set(freq.frequency[freq.current] / 1000000.0)
+            except:
+                pass
 
             # --
             # gpu memory [total_vram in bytes]
