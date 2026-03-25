@@ -1766,7 +1766,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 634
+            "y": 806
           },
           "id": 88,
           "interval": "$interval",
@@ -1876,7 +1876,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 634
+            "y": 806
           },
           "id": 89,
           "interval": "$interval",
@@ -2026,7 +2026,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 681
+            "y": 853
           },
           "id": 91,
           "interval": "$interval",
@@ -2177,7 +2177,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 689
+            "y": 861
           },
           "id": 99,
           "interval": "$interval",
@@ -2341,7 +2341,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 689
+            "y": 861
           },
           "id": 100,
           "interval": "$interval",
@@ -2490,7 +2490,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 3580
+            "y": 3752
           },
           "id": 28,
           "interval": "$interval",
@@ -2552,7 +2552,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 3580
+            "y": 3752
           },
           "id": 86,
           "interval": "$interval",
@@ -2665,7 +2665,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 3966
+            "y": 4138
           },
           "id": 29,
           "interval": "$interval",
@@ -2727,7 +2727,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 3966
+            "y": 4138
           },
           "id": 31,
           "interval": "$interval",
@@ -2868,7 +2868,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3974
+            "y": 4146
           },
           "id": 24,
           "interval": "$interval",
@@ -2942,7 +2942,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 3581
+            "y": 3753
           },
           "id": 27,
           "interval": "$interval",
@@ -3052,7 +3052,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 3581
+            "y": 3753
           },
           "id": 87,
           "interval": "$interval",
@@ -3202,7 +3202,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3592
+            "y": 3764
           },
           "id": 90,
           "interval": "$interval",
@@ -3369,7 +3369,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 3600
+            "y": 3772
           },
           "id": 98,
           "interval": "$interval",
@@ -3549,7 +3549,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 3600
+            "y": 3772
           },
           "id": 95,
           "interval": "$interval",
@@ -3820,7 +3820,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 3609
+            "y": 3781
           },
           "id": 52,
           "interval": "$interval",
@@ -3973,7 +3973,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2475
+            "y": 2647
           },
           "id": 142,
           "interval": "$interval",
@@ -4082,7 +4082,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3115
+            "y": 3287
           },
           "id": 33,
           "interval": "$interval",
@@ -4191,7 +4191,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3123
+            "y": 3295
           },
           "id": 128,
           "interval": "$interval",
@@ -4300,7 +4300,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3131
+            "y": 3303
           },
           "id": 129,
           "interval": "$interval",
@@ -4409,7 +4409,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3139
+            "y": 3311
           },
           "id": 130,
           "interval": "$interval",
@@ -4518,7 +4518,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3139
+            "y": 3311
           },
           "id": 131,
           "interval": "$interval",
@@ -4641,7 +4641,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3985
+            "y": 4157
           },
           "id": 143,
           "interval": "$interval",
@@ -4741,7 +4741,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3993
+            "y": 4165
           },
           "id": 127,
           "interval": "$interval",
@@ -4841,7 +4841,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4001
+            "y": 4173
           },
           "id": 104,
           "interval": "$interval",
@@ -4941,7 +4941,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4009
+            "y": 4181
           },
           "id": 22,
           "interval": "$interval",
@@ -5041,7 +5041,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 4017
+            "y": 4189
           },
           "id": 25,
           "interval": "$interval",
@@ -5141,7 +5141,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 4017
+            "y": 4189
           },
           "id": 23,
           "interval": "$interval",
@@ -5255,7 +5255,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3405
+            "y": 3577
           },
           "id": 144,
           "interval": "$interval",
@@ -5364,7 +5364,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3485
+            "y": 3657
           },
           "id": 137,
           "interval": "$interval",
@@ -5473,7 +5473,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3493
+            "y": 3665
           },
           "id": 138,
           "interval": "$interval",
@@ -5582,7 +5582,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3501
+            "y": 3673
           },
           "id": 139,
           "interval": "$interval",
@@ -5691,7 +5691,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3509
+            "y": 3681
           },
           "id": 140,
           "interval": "$interval",
@@ -5800,7 +5800,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3509
+            "y": 3681
           },
           "id": 141,
           "interval": "$interval",
@@ -5925,7 +5925,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1984
+            "y": 2156
           },
           "id": 134,
           "interval": "$interval",
@@ -6050,7 +6050,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2164
+            "y": 2336
           },
           "id": 156,
           "interval": "$interval",
@@ -6162,7 +6162,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2164
+            "y": 2336
           },
           "id": 158,
           "interval": "$interval",
@@ -6287,7 +6287,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2511
+            "y": 2683
           },
           "id": 151,
           "interval": "$interval",
@@ -6417,7 +6417,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1251
+            "y": 1423
           },
           "id": 125,
           "interval": "$interval",
@@ -6547,7 +6547,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1252
+            "y": 1424
           },
           "id": 153,
           "interval": "$interval",
@@ -6661,7 +6661,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1252
+            "y": 1424
           },
           "id": 154,
           "interval": "$interval",
@@ -6775,7 +6775,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1540
+            "y": 1712
           },
           "id": 155,
           "interval": "$interval",
@@ -6889,7 +6889,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1548
+            "y": 1720
           },
           "id": 165,
           "interval": "$interval",
@@ -6973,7 +6973,7 @@
             "h": 2,
             "w": 8,
             "x": 0,
-            "y": 645
+            "y": 817
           },
           "id": 174,
           "interval": "$interval",
@@ -7046,7 +7046,7 @@
             "h": 2,
             "w": 8,
             "x": 8,
-            "y": 645
+            "y": 817
           },
           "id": 175,
           "interval": "$interval",
@@ -7119,7 +7119,7 @@
             "h": 2,
             "w": 8,
             "x": 16,
-            "y": 645
+            "y": 817
           },
           "id": 176,
           "interval": "$interval",
@@ -7215,7 +7215,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 647
+            "y": 819
           },
           "id": 169,
           "interval": "$interval",
@@ -7449,7 +7449,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 655
+            "y": 827
           },
           "id": 170,
           "interval": "$interval",
@@ -7563,7 +7563,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1254
+            "y": 1426
           },
           "id": 172,
           "interval": "$interval",
@@ -7666,7 +7666,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1254
+            "y": 1426
           },
           "id": 173,
           "interval": "$interval",
@@ -7881,7 +7881,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1986
+            "y": 2158
           },
           "id": 43,
           "interval": "$interval",
@@ -7991,7 +7991,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1986
+            "y": 2158
           },
           "id": 48,
           "interval": "$interval",
@@ -8117,7 +8117,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1745
+            "y": 1917
           },
           "id": 120,
           "options": {
@@ -8315,7 +8315,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1745
+            "y": 1917
           },
           "id": 121,
           "options": {
@@ -8525,7 +8525,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2058
+            "y": 2230
           },
           "id": 105,
           "interval": "$interval",
@@ -8636,7 +8636,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2058
+            "y": 2230
           },
           "id": 106,
           "interval": "$interval",
@@ -8761,7 +8761,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2059
+            "y": 2231
           },
           "id": 116,
           "interval": "$interval",
@@ -8872,7 +8872,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2059
+            "y": 2231
           },
           "id": 117,
           "interval": "$interval",
@@ -8998,7 +8998,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1830
+            "y": 2002
           },
           "id": 46,
           "interval": "$interval",
@@ -9110,7 +9110,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1830
+            "y": 2002
           },
           "id": 45,
           "interval": "$interval",
@@ -9223,7 +9223,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1838
+            "y": 2010
           },
           "id": 159,
           "interval": "$interval",
@@ -9336,7 +9336,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1838
+            "y": 2010
           },
           "id": 160,
           "interval": "$interval",
@@ -9411,7 +9411,7 @@
             "h": 3,
             "w": 12,
             "x": 0,
-            "y": 1846
+            "y": 2018
           },
           "id": 161,
           "interval": "$interval",
@@ -9488,7 +9488,7 @@
             "h": 3,
             "w": 12,
             "x": 12,
-            "y": 1846
+            "y": 2018
           },
           "id": 162,
           "interval": "$interval",
@@ -9616,7 +9616,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2069
+            "y": 2241
           },
           "id": 146,
           "interval": "$interval",
@@ -9727,7 +9727,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2077
+            "y": 2249
           },
           "id": 149,
           "interval": "$interval",
@@ -9836,7 +9836,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2085
+            "y": 2257
           },
           "id": 147,
           "interval": "$interval",
@@ -9945,7 +9945,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2093
+            "y": 2265
           },
           "id": 148,
           "interval": "$interval",
@@ -10069,7 +10069,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 6222
+            "y": 6394
           },
           "id": 135,
           "interval": "$interval",
@@ -10233,7 +10233,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 6271
+            "y": 6443
           },
           "id": 56,
           "interval": "$interval",
@@ -10345,6 +10345,9 @@
                 "cellOptions": {
                   "type": "auto"
                 },
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
               "mappings": [],
@@ -10352,7 +10355,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -10418,7 +10422,7 @@
                 },
                 "properties": [
                   {
-                    "id": "custom.hidden",
+                    "id": "custom.hideFrom.viz",
                     "value": false
                   },
                   {
@@ -10434,7 +10438,7 @@
                 },
                 "properties": [
                   {
-                    "id": "custom.hidden",
+                    "id": "custom.hideFrom.viz",
                     "value": true
                   }
                 ]
@@ -10457,24 +10461,16 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 20272
+            "y": 47
           },
           "id": 107,
           "interval": "$interval",
           "options": {
             "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
             "frameIndex": 0,
             "showHeader": true
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "datasource": {
@@ -10603,7 +10599,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -10652,7 +10649,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 20272
+            "y": 47
           },
           "id": 112,
           "interval": "$interval",
@@ -10680,7 +10677,7 @@
             "xTickLabelRotation": 0,
             "xTickLabelSpacing": 100
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "datasource": {
@@ -10727,6 +10724,9 @@
                 "cellOptions": {
                   "type": "auto"
                 },
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
               "mappings": [],
@@ -10734,7 +10734,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -10800,7 +10801,7 @@
                 },
                 "properties": [
                   {
-                    "id": "custom.hidden",
+                    "id": "custom.hideFrom.viz",
                     "value": true
                   }
                 ]
@@ -10811,24 +10812,16 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 20280
+            "y": 155
           },
           "id": 108,
           "interval": "$interval",
           "options": {
             "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
             "frameIndex": 1,
             "showHeader": true
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "datasource": {
@@ -10974,7 +10967,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -11039,7 +11033,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 20280
+            "y": 155
           },
           "id": 113,
           "interval": "$interval",
@@ -11067,7 +11061,7 @@
             "xTickLabelRotation": 0,
             "xTickLabelSpacing": 0
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "datasource": {
@@ -11110,6 +11104,9 @@
                 "cellOptions": {
                   "type": "auto"
                 },
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
               "mappings": [],
@@ -11117,7 +11114,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -11183,7 +11181,7 @@
                 },
                 "properties": [
                   {
-                    "id": "custom.hidden",
+                    "id": "custom.hideFrom.viz",
                     "value": true
                   }
                 ]
@@ -11194,24 +11192,16 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 20288
+            "y": 163
           },
           "id": 109,
           "interval": "$interval",
           "options": {
             "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
             "frameIndex": 1,
             "showHeader": true
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "datasource": {
@@ -11357,7 +11347,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -11422,7 +11413,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 20288
+            "y": 163
           },
           "id": 115,
           "interval": "$interval",
@@ -11450,7 +11441,7 @@
             "xTickLabelRotation": 0,
             "xTickLabelSpacing": 0
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "datasource": {
@@ -11578,7 +11569,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 20296
+            "y": 171
           },
           "id": 110,
           "interval": "$interval",
@@ -11802,7 +11793,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 20296
+            "y": 171
           },
           "id": 114,
           "interval": "$interval",
@@ -11860,6 +11851,709 @@
         }
       ],
       "title": "Job Steps - Summary",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 47
+      },
+      "id": 177,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 4,
+            "x": 0,
+            "y": 48
+          },
+          "id": 178,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "/^version$/",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "omnistat_info * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"}",
+              "format": "table",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Version",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 4,
+            "x": 4,
+            "y": 48
+          },
+          "id": 180,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "/^schema$/",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "omnistat_info * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"}",
+              "format": "table",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Schema",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 4,
+            "x": 8,
+            "y": 48
+          },
+          "id": 179,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "/^mode$/",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "omnistat_info * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"}",
+              "format": "table",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Mode",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "s"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 4,
+            "x": 12,
+            "y": 48
+          },
+          "id": 181,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "interval_secs",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "omnistat_info * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"}",
+              "format": "table",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Sample Interval",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "s"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 4,
+            "x": 16,
+            "y": 48
+          },
+          "id": 182,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "push_interval_secs",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "omnistat_info * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"}",
+              "format": "table",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Push Interval",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 4,
+            "x": 20,
+            "y": 48
+          },
+          "id": 185,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "/.*/",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "max(omnistat_vendor_samples_skipped_total * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"}) / min(omnistat_vendor_samples_total * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
+              "format": "table",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Vendor Skip Frequency",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "s"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "total [average]"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "All collectors [average]"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "total [max]"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "All collectors [max]"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 50
+          },
+          "id": 183,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "avg by (collector) (omnistat_perf_runtime_seconds * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
+              "hide": false,
+              "instant": false,
+              "legendFormat": "{{collector}} [average]",
+              "range": true,
+              "refId": "Average"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "max by (collector) (omnistat_perf_runtime_seconds * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
+              "hide": false,
+              "instant": false,
+              "legendFormat": "{{collector}} [max]",
+              "range": true,
+              "refId": "Max"
+            }
+          ],
+          "title": "Sample Durations",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "s"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 50
+          },
+          "id": 184,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "avg(omnistat_perf_push_seconds * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
+              "hide": false,
+              "instant": false,
+              "legendFormat": "Push [average]",
+              "range": true,
+              "refId": "Push Avg"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "avg(omnistat_perf_push_seconds * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "Push [max]",
+              "range": true,
+              "refId": "Push Max"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "avg(omnistat_perf_push_background_seconds * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
+              "legendFormat": "Background Push [average]",
+              "range": true,
+              "refId": "Background Avg"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "max(omnistat_perf_push_background_seconds * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
+              "hide": false,
+              "legendFormat": "Background Push [max]",
+              "range": true,
+              "refId": "Background Max"
+            }
+          ],
+          "title": "Push Durations (User-mode)",
+          "type": "timeseries"
+        }
+      ],
+      "title": "Omnistat Internals",
       "type": "row"
     }
   ],
