@@ -1766,7 +1766,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 806
+            "y": 836
           },
           "id": 88,
           "interval": "$interval",
@@ -1876,7 +1876,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 806
+            "y": 836
           },
           "id": 89,
           "interval": "$interval",
@@ -2026,7 +2026,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 853
+            "y": 883
           },
           "id": 91,
           "interval": "$interval",
@@ -2177,7 +2177,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 861
+            "y": 891
           },
           "id": 99,
           "interval": "$interval",
@@ -2341,7 +2341,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 861
+            "y": 891
           },
           "id": 100,
           "interval": "$interval",
@@ -2490,7 +2490,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 3752
+            "y": 3782
           },
           "id": 28,
           "interval": "$interval",
@@ -2552,7 +2552,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 3752
+            "y": 3782
           },
           "id": 86,
           "interval": "$interval",
@@ -2665,7 +2665,7 @@
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 4138
+            "y": 4168
           },
           "id": 29,
           "interval": "$interval",
@@ -2727,7 +2727,7 @@
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 4138
+            "y": 4168
           },
           "id": 31,
           "interval": "$interval",
@@ -2868,7 +2868,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4146
+            "y": 4176
           },
           "id": 24,
           "interval": "$interval",
@@ -2942,7 +2942,7 @@
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 3753
+            "y": 3783
           },
           "id": 27,
           "interval": "$interval",
@@ -3052,7 +3052,7 @@
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 3753
+            "y": 3783
           },
           "id": 87,
           "interval": "$interval",
@@ -3202,7 +3202,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3764
+            "y": 3794
           },
           "id": 90,
           "interval": "$interval",
@@ -3369,7 +3369,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 3772
+            "y": 3802
           },
           "id": 98,
           "interval": "$interval",
@@ -3549,7 +3549,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 3772
+            "y": 3802
           },
           "id": 95,
           "interval": "$interval",
@@ -3820,7 +3820,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 3781
+            "y": 3811
           },
           "id": 52,
           "interval": "$interval",
@@ -3973,7 +3973,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2647
+            "y": 2677
           },
           "id": 142,
           "interval": "$interval",
@@ -4082,7 +4082,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3287
+            "y": 3317
           },
           "id": 33,
           "interval": "$interval",
@@ -4191,7 +4191,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3295
+            "y": 3325
           },
           "id": 128,
           "interval": "$interval",
@@ -4300,7 +4300,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3303
+            "y": 3333
           },
           "id": 129,
           "interval": "$interval",
@@ -4409,7 +4409,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3311
+            "y": 3341
           },
           "id": 130,
           "interval": "$interval",
@@ -4518,7 +4518,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3311
+            "y": 3341
           },
           "id": 131,
           "interval": "$interval",
@@ -4641,7 +4641,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4157
+            "y": 4187
           },
           "id": 143,
           "interval": "$interval",
@@ -4741,7 +4741,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4165
+            "y": 4195
           },
           "id": 127,
           "interval": "$interval",
@@ -4841,7 +4841,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4173
+            "y": 4203
           },
           "id": 104,
           "interval": "$interval",
@@ -4941,7 +4941,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4181
+            "y": 4211
           },
           "id": 22,
           "interval": "$interval",
@@ -5041,7 +5041,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 4189
+            "y": 4219
           },
           "id": 25,
           "interval": "$interval",
@@ -5141,7 +5141,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 4189
+            "y": 4219
           },
           "id": 23,
           "interval": "$interval",
@@ -5255,7 +5255,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3577
+            "y": 3607
           },
           "id": 144,
           "interval": "$interval",
@@ -5364,7 +5364,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3657
+            "y": 3687
           },
           "id": 137,
           "interval": "$interval",
@@ -5473,7 +5473,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3665
+            "y": 3695
           },
           "id": 138,
           "interval": "$interval",
@@ -5582,7 +5582,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3673
+            "y": 3703
           },
           "id": 139,
           "interval": "$interval",
@@ -5691,7 +5691,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3681
+            "y": 3711
           },
           "id": 140,
           "interval": "$interval",
@@ -5800,7 +5800,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3681
+            "y": 3711
           },
           "id": 141,
           "interval": "$interval",
@@ -5925,7 +5925,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2156
+            "y": 2186
           },
           "id": 134,
           "interval": "$interval",
@@ -6050,7 +6050,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2336
+            "y": 2366
           },
           "id": 156,
           "interval": "$interval",
@@ -6162,7 +6162,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2336
+            "y": 2366
           },
           "id": 158,
           "interval": "$interval",
@@ -6287,7 +6287,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2683
+            "y": 2713
           },
           "id": 151,
           "interval": "$interval",
@@ -6417,7 +6417,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1423
+            "y": 1453
           },
           "id": 125,
           "interval": "$interval",
@@ -6547,7 +6547,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1424
+            "y": 1454
           },
           "id": 153,
           "interval": "$interval",
@@ -6661,7 +6661,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1424
+            "y": 1454
           },
           "id": 154,
           "interval": "$interval",
@@ -6775,7 +6775,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1712
+            "y": 1742
           },
           "id": 155,
           "interval": "$interval",
@@ -6889,7 +6889,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1720
+            "y": 1750
           },
           "id": 165,
           "interval": "$interval",
@@ -6973,7 +6973,7 @@
             "h": 2,
             "w": 8,
             "x": 0,
-            "y": 817
+            "y": 847
           },
           "id": 174,
           "interval": "$interval",
@@ -7046,7 +7046,7 @@
             "h": 2,
             "w": 8,
             "x": 8,
-            "y": 817
+            "y": 847
           },
           "id": 175,
           "interval": "$interval",
@@ -7119,7 +7119,7 @@
             "h": 2,
             "w": 8,
             "x": 16,
-            "y": 817
+            "y": 847
           },
           "id": 176,
           "interval": "$interval",
@@ -7215,7 +7215,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 819
+            "y": 849
           },
           "id": 169,
           "interval": "$interval",
@@ -7449,7 +7449,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 827
+            "y": 857
           },
           "id": 170,
           "interval": "$interval",
@@ -7563,7 +7563,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1426
+            "y": 1456
           },
           "id": 172,
           "interval": "$interval",
@@ -7666,7 +7666,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1426
+            "y": 1456
           },
           "id": 173,
           "interval": "$interval",
@@ -7881,7 +7881,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2158
+            "y": 2188
           },
           "id": 43,
           "interval": "$interval",
@@ -7991,7 +7991,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2158
+            "y": 2188
           },
           "id": 48,
           "interval": "$interval",
@@ -8117,7 +8117,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1917
+            "y": 1947
           },
           "id": 120,
           "options": {
@@ -8315,7 +8315,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1917
+            "y": 1947
           },
           "id": 121,
           "options": {
@@ -8525,7 +8525,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2230
+            "y": 2260
           },
           "id": 105,
           "interval": "$interval",
@@ -8636,7 +8636,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2230
+            "y": 2260
           },
           "id": 106,
           "interval": "$interval",
@@ -8761,7 +8761,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2231
+            "y": 2261
           },
           "id": 116,
           "interval": "$interval",
@@ -8872,7 +8872,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2231
+            "y": 2261
           },
           "id": 117,
           "interval": "$interval",
@@ -8998,7 +8998,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2002
+            "y": 2032
           },
           "id": 46,
           "interval": "$interval",
@@ -9110,7 +9110,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2002
+            "y": 2032
           },
           "id": 45,
           "interval": "$interval",
@@ -9223,7 +9223,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2010
+            "y": 2040
           },
           "id": 159,
           "interval": "$interval",
@@ -9336,7 +9336,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2010
+            "y": 2040
           },
           "id": 160,
           "interval": "$interval",
@@ -9411,7 +9411,7 @@
             "h": 3,
             "w": 12,
             "x": 0,
-            "y": 2018
+            "y": 2048
           },
           "id": 161,
           "interval": "$interval",
@@ -9488,7 +9488,7 @@
             "h": 3,
             "w": 12,
             "x": 12,
-            "y": 2018
+            "y": 2048
           },
           "id": 162,
           "interval": "$interval",
@@ -9616,7 +9616,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2241
+            "y": 2271
           },
           "id": 146,
           "interval": "$interval",
@@ -9727,7 +9727,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2249
+            "y": 2279
           },
           "id": 149,
           "interval": "$interval",
@@ -9836,7 +9836,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2257
+            "y": 2287
           },
           "id": 147,
           "interval": "$interval",
@@ -9945,7 +9945,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2265
+            "y": 2295
           },
           "id": 148,
           "interval": "$interval",
@@ -10069,7 +10069,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 6394
+            "y": 6424
           },
           "id": 135,
           "interval": "$interval",
@@ -10233,7 +10233,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 6443
+            "y": 6473
           },
           "id": 56,
           "interval": "$interval",
@@ -10812,7 +10812,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 155
+            "y": 185
           },
           "id": 108,
           "interval": "$interval",
@@ -11033,7 +11033,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 155
+            "y": 185
           },
           "id": 113,
           "interval": "$interval",
@@ -11192,7 +11192,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 163
+            "y": 193
           },
           "id": 109,
           "interval": "$interval",
@@ -11413,7 +11413,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 163
+            "y": 193
           },
           "id": 115,
           "interval": "$interval",
@@ -11569,7 +11569,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 171
+            "y": 201
           },
           "id": 110,
           "interval": "$interval",
@@ -11793,7 +11793,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 171
+            "y": 201
           },
           "id": 114,
           "interval": "$interval",
@@ -12245,7 +12245,7 @@
               "calcs": [
                 "lastNotNull"
               ],
-              "fields": "/.*/",
+              "fields": "Value",
               "values": false
             },
             "showPercentChange": false,
@@ -12333,32 +12333,7 @@
               },
               "unit": "s"
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "total [average]"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "All collectors [average]"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "total [max]"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "All collectors [max]"
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
           "gridPos": {
             "h": 8,
@@ -12389,12 +12364,12 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (collector) (omnistat_perf_runtime_seconds * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
+              "expr": "avg by (collector) (omnistat_perf_runtime_seconds{collector=\"total\"} * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
               "hide": false,
               "instant": false,
-              "legendFormat": "{{collector}} [average]",
+              "legendFormat": "Total [average]",
               "range": true,
-              "refId": "Average"
+              "refId": "Total Average"
             },
             {
               "datasource": {
@@ -12402,12 +12377,38 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "max by (collector) (omnistat_perf_runtime_seconds * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
+              "expr": "max by (collector) (omnistat_perf_runtime_seconds{collector=\"total\"} * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
               "hide": false,
               "instant": false,
-              "legendFormat": "{{collector}} [max]",
+              "legendFormat": "Total [max]",
               "range": true,
-              "refId": "Max"
+              "refId": "Total Max"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "avg by (collector) (omnistat_perf_runtime_seconds{collector!=\"total\"} * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
+              "hide": false,
+              "instant": false,
+              "legendFormat": "Collector: {{collector}} [average]",
+              "range": true,
+              "refId": "Collector Average"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "max by (collector) (omnistat_perf_runtime_seconds{collector!=\"total\"} * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
+              "hide": false,
+              "instant": false,
+              "legendFormat": "Collector: {{collector}} [max]",
+              "range": true,
+              "refId": "Collector Max"
             }
           ],
           "title": "Sample Durations",
