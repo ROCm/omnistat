@@ -409,7 +409,6 @@ class Standalone:
         logging.debug("setting shutdown delivery event")
         dataDeliveredEvent.set()
         logging.debug("shutdown delivery event is set")
-        time.sleep(2.0)
 
         logging.info("Terminating execution...")
         logging.shutdown()
@@ -455,6 +454,9 @@ def terminate():
             logging.error("Timed out waiting %.2f seconds - proceeding with shutdown." % elapsed)
             break
 
+    # Schedule process exit after Flask has had time to flush this response to the client.
+    threading.Timer(0.5, lambda: os._exit(0)).start()
+    
     return jsonify({"message": "Shutting down..."}), 200
 
 
