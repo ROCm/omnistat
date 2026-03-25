@@ -534,7 +534,7 @@ def format_bytes_rate(rate_bytes_sec):
 def format_bytes(data_bytes):
     """Convert bytes/sec to appropriate unit (B/s, MB/s, GB/s)"""
     if data_bytes >= 1e15:
-        return f"{data_bytes / 1e15:6.1} PB"
+        return f"{data_bytes / 1e15:6.1f} PB"
     elif data_bytes >= 1e12:
         return f"{data_bytes / 1e12:6.1f} TB"
     elif data_bytes >= 1e9:
