@@ -61,24 +61,12 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
     auto* tracer = static_cast<KernelTracer*>(tool_data);
 
     if (record.kind == ROCPROFILER_CALLBACK_TRACING_CODE_OBJECT &&
-        record.operation == ROCPROFILER_CODE_OBJECT_LOAD) {
-        if (record.phase == ROCPROFILER_CALLBACK_PHASE_UNLOAD) {
-            // Never reached when using the tool with the ROCP_TOOL_LIBRARIES
-            // environment variable, hence the need to flush on kernel unload.
-            auto flush_status = rocprofiler_flush_buffer(tracer->buffer);
-            if (flush_status != ROCPROFILER_STATUS_ERROR_BUFFER_BUSY)
-                ROCPROFILER_CALL(flush_status, "flush buffer");
-        }
-    } else if (record.kind == ROCPROFILER_CALLBACK_TRACING_CODE_OBJECT &&
                record.operation == ROCPROFILER_CODE_OBJECT_DEVICE_KERNEL_SYMBOL_REGISTER) {
         auto* data =
             static_cast<rocprofiler_callback_tracing_code_object_kernel_symbol_register_data_t*>(
                 record.payload);
         if (record.phase == ROCPROFILER_CALLBACK_PHASE_LOAD) {
             tracer->kernels.emplace(data->kernel_id, demangle(data->kernel_name));
-        } else if (record.phase == ROCPROFILER_CALLBACK_PHASE_UNLOAD) {
-            ROCPROFILER_CALL(rocprofiler_flush_buffer(tracer->buffer), "flush buffer");
-            tracer->kernels.erase(data->kernel_id);
         }
     }
 }
@@ -89,12 +77,8 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
                           void* tool_data, uint64_t drop_count [[maybe_unused]]) {
     auto* tracer = static_cast<KernelTracer*>(tool_data);
 
-    if (num_headers == 0) {
-        throw std::runtime_error{
-            "rocprofiler invoked a buffer callback with no headers. this should never happen"};
-    } else if (headers == nullptr) {
-        throw std::runtime_error{"rocprofiler invoked a buffer callback with a null pointer to the "
-                                 "array of headers. this should never happen"};
+    if (num_headers == 0 || headers == nullptr) {
+        return;
     }
 
     // Estimate bytes per record to reserve memory upfront. Likely
@@ -107,9 +91,9 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
     // Start JSON array
     data.push_back('[');
 
+    size_t num_records = 0;
     for (size_t i = 0; i < num_headers; ++i) {
         auto* header = headers[i];
-
         if (header->category == ROCPROFILER_BUFFER_CATEGORY_TRACING &&
             header->kind == ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH) {
             auto* record =
@@ -120,17 +104,18 @@ void full_buffer_callback(rocprofiler_context_id_t context [[maybe_unused]],
                            tracer->agents.at(record->dispatch_info.agent_id.handle),
                            tracer->kernels.at(record->dispatch_info.kernel_id),
                            record->start_timestamp, record->end_timestamp);
-        } else {
-            throw std::runtime_error{
-                fmt::format("unexpected rocprofiler_record_header_t category + kind: ({} + {})",
-                            header->category, header->kind)};
+            ++num_records;
         }
+    }
+
+    if (num_records == 0) {
+        return;
     }
 
     // Replace trailing comma with closing bracket
     data.back() = ']';
 
-    if (!tracer->flush(data, num_headers)) {
+    if (!tracer->flush(data, num_records)) {
         std::cerr << "Omnistat: failed to post kernel trace data" << std::endl;
     }
 }
@@ -203,6 +188,13 @@ int KernelTracer::initialize() {
 }
 
 KernelTracer::~KernelTracer() {
+    // Flush -> stop -> flush, mirroring rocprofv3's finalization sequence.
+    // Stopping the context prevents new records from being emplaced into the
+    // buffer; the second flush drains anything that arrived before the stop.
+    rocprofiler_flush_buffer(buffer);
+    rocprofiler_stop_context(context_);
+    rocprofiler_flush_buffer(buffer);
+
     {
         std::lock_guard<std::mutex> lock(periodic_mutex_);
         stop_requested_.store(true);
