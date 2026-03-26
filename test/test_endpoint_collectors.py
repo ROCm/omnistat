@@ -59,14 +59,14 @@ class StandaloneTestServer:
         self.label_defaults = 'instance="test"'
 
         self._address = "127.0.0.1"
-        self._port = test.config.port
         self._timeout = 5
 
         self._stop_event = threading.Event()
         self._thread = threading.Thread(target=self._update_loop, daemon=True)
         self._thread.start()
 
-        self._http_server = make_server(self._address, self._port, self.app)
+        self._http_server = make_server(self._address, 0, self.app)
+        self._port = self._http_server.socket.getsockname()[1]
         self._http_thread = threading.Thread(target=self._http_server.serve_forever, daemon=True)
         self._http_thread.start()
         self._wait_for_server()
@@ -126,7 +126,7 @@ class TestKernelTraceCollector:
         result = workloads.run(
             "launch_kernels",
             [num_kernels],
-            env={"OMNISTAT_TRACE_ENDPOINT_PORT": test.config.port},
+            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
         )
         metrics = server.get_metrics(flush=True)
         server.stop()
