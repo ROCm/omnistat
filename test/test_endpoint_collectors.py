@@ -38,8 +38,6 @@ import test.config
 import test.workloads as workloads
 from omnistat.collector_kernel_trace import KernelTrace
 
-TRACE_LIB = os.path.join(os.path.dirname(__file__), "..", "..", "build", "libomnistat_trace.so")
-
 METRIC_KERNEL_DROPPED = "omnistat_kernel_dropped_dispatches"
 METRIC_KERNEL_DISPATCH_COUNT = "omnistat_kernel_dispatch_count"
 METRIC_KERNEL_TOTAL_DURATION = "omnistat_kernel_total_duration_ns"
@@ -121,6 +119,7 @@ class TestKernelTraceCollector:
             assert all(v == 0 for v in values)
 
     @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif("ROCP_TOOL_LIBRARIES" not in os.environ, reason="ROCP_TOOL_LIBRARIES not set")
     @pytest.mark.parametrize("num_kernels", [1, 100, 1000, 10000])
     def test_kernel_trace_with_application(self, num_kernels):
         server = StandaloneTestServer(KernelTrace)
@@ -128,7 +127,6 @@ class TestKernelTraceCollector:
             "launch_kernels",
             [num_kernels],
             env={
-                "ROCP_TOOL_LIBRARIES": os.path.abspath(TRACE_LIB),
                 "OMNISTAT_TRACE_ENDPOINT_PORT": test.config.port,
             },
         )
