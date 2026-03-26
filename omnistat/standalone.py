@@ -456,7 +456,7 @@ def terminate():
 
     # Schedule process exit after Flask has had time to flush this response to the client.
     threading.Timer(0.5, lambda: os._exit(0)).start()
-    
+
     return jsonify({"message": "Shutting down..."}), 200
 
 
