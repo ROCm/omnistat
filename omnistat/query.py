@@ -566,18 +566,16 @@ class QueryMetrics:
 
         hbm_counters = {"Read": "FETCH_SIZE", "Write": "WRITE_SIZE"}
         for op, counter_name in hbm_counters.items():
-            # Total bytes: sum (last - first) across all GPU time series (KB -> bytes)
+            # Total bytes: aggregate all GPUs with sum(), then take delta (KB -> bytes)
             total_query = (
-                f'omnistat_hardware_counter{{name="{counter_name}"}}'
-                f" * on (instance) group_left() (max by (instance) (rmsjob_info{{$job,$step}}))"
+                f"sum(omnistat_hardware_counter{{name=\"{counter_name}\"}}"
+                f" * on (instance) group_left() (rmsjob_info{{$job,$step}}))"
             )
             try:
                 results = self.query_job_range(total_query)
-                if results:
-                    total_kb = 0
-                    for series in results:
-                        values = np.asarray(series["values"])[:, 1].astype(float)
-                        total_kb += values[-1] - values[0]
+                if results and len(results) > 0:
+                    values = np.asarray(results[0]["values"])[:, 1].astype(float)
+                    total_kb = values[-1] - values[0]
                     self.hbm_total_bytes[op] = total_kb * 1024
                     self.hbmData = True
             except Exception:
