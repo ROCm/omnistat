@@ -568,7 +568,7 @@ class QueryMetrics:
         for op, counter_name in hbm_counters.items():
             # Total bytes: aggregate all GPUs with sum(), then take delta (KB -> bytes)
             total_query = (
-                f"sum(omnistat_hardware_counter{{name=\"{counter_name}\"}}"
+                f'sum(omnistat_hardware_counter{{name="{counter_name}"}}'
                 f" * on (instance) group_left() (rmsjob_info{{$job,$step}}))"
             )
             try:
