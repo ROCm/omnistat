@@ -126,9 +126,7 @@ class TestKernelTraceCollector:
         result = workloads.run(
             "launch_kernels",
             [num_kernels],
-            env={
-                "OMNISTAT_TRACE_ENDPOINT_PORT": test.config.port,
-            },
+            env={"OMNISTAT_TRACE_ENDPOINT_PORT": test.config.port},
         )
         metrics = server.get_metrics(flush=True)
         server.stop()
