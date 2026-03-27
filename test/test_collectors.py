@@ -267,7 +267,7 @@ class OmnistatTestServer:
 
 
 # Fixture to manage server lifecycle
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="class")
 def server(request):
     server = OmnistatTestServer(request.param)
     yield server
@@ -311,7 +311,7 @@ def pytest_generate_tests(metafunc):
                         collector_config[1] = collector_config[1].split("::", 1)[1]
                 ids.append(f"{'+'.join(collector_config)}::{metric['name']}")
         # Parametrize server (indirect via fixture) and metric together without cross-product
-        metafunc.parametrize(("server", "desired_metric"), argvalues, ids=ids, scope="session", indirect=["server"])
+        metafunc.parametrize(("server", "desired_metric"), argvalues, ids=ids, scope="class", indirect=["server"])
 
 
 class TestCollectors:

@@ -72,8 +72,8 @@ class StandaloneTestServer:
         self._thread = threading.Thread(target=self._update_loop, daemon=True)
         self._thread.start()
 
-        self._http_server = make_server(self._address, 0, self.app)
-        self._port = self._http_server.socket.getsockname()[1]
+        self._port = int(test.config.port)
+        self._http_server = make_server(self._address, self._port, self.app)
         self._http_thread = threading.Thread(target=self._http_server.serve_forever, daemon=True)
         self._http_thread.start()
         self._wait_for_server()
