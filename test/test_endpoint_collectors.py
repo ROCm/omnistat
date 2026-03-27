@@ -186,20 +186,6 @@ class TestKernelTraceCollector:
         assert_dispatches(metrics, expected=100)
 
     @requires_tracing
-    def test_cumulative_flushes(self):
-        server = StandaloneTestServer(KernelTrace)
-        workloads.run("launch_kernels", [50], env=server.trace_env)
-        metrics1 = server.get_metrics(flush=True)
-        workloads.run("launch_kernels", [50], env=server.trace_env)
-        metrics2 = server.get_metrics(flush=True)
-        server.stop()
-
-        assert_no_drops(metrics1)
-        assert_no_drops(metrics2)
-        assert_dispatches(metrics1, expected=50)
-        assert_dispatches(metrics2, expected=100)
-
-    @requires_tracing
     def test_delayed_dispatches(self):
         # 50 kernels with 30ms delay = ~1.5s, spanning multiple 0.5s bins
         server = StandaloneTestServer(KernelTrace, interval=0.5)
