@@ -3,8 +3,12 @@ TARGETS := $(SOURCES:.cpp=)
 
 all: $(TARGETS)
 
+OFFLOAD_ARCH ?=
+
+HIPCC_FLAGS := $(foreach arch,$(OFFLOAD_ARCH),--offload-arch=$(arch))
+
 %: %.cpp
-	hipcc $< -o $@
+	hipcc $(HIPCC_FLAGS) $< -o $@
 
 clean:
 	rm -f $(TARGETS)
