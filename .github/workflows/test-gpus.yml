@@ -37,20 +37,20 @@ jobs:
           pip install -r requirements.txt
           pip install -r test/requirements.txt
 
-      - name: Build kernel trace library
+      - name: Build kernel trace library and test workloads
         run: |
+          module load rocm/7.2.0
           cmake -B build -S rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON
           cmake --build build
-
-      - name: Build test workloads
-        run: make -C test/workloads
+          make -C test/workloads OFFLOAD_ARCH="gfx90a gfx942"
 
       - name: Collector tests
         run: |
           source omnistat_venv/bin/activate
           srun -N 1 -J omnistat -p $CI_QUEUE -t 00:10:00 \
-            env ROCP_TOOL_LIBRARIES=$PWD/build/libomnistat_trace.so \
-            pytest -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py
+            bash -lc "module load rocm/7.2.0 && \
+            ROCP_TOOL_LIBRARIES=$PWD/build/libomnistat_trace.so \
+            pytest -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py"
 
 ##       - name: Test Report
 ##         uses: dorny/test-reporter@v2
