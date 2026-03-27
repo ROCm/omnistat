@@ -105,6 +105,10 @@ class StandaloneTestServer:
                 results.setdefault(sample.name, {}).setdefault(key, []).append(sample.value)
         return results
 
+    @property
+    def trace_env(self):
+        return {"OMNISTAT_TRACE_ENDPOINT_PORT": str(self._port)}
+
     def stop(self):
         if self._http_server is not None:
             self._http_server.shutdown()
@@ -154,11 +158,7 @@ class TestKernelTraceCollector:
     @pytest.mark.parametrize("num_kernels", [1, 100, 1000, 10000])
     def test_application(self, num_kernels):
         server = StandaloneTestServer(KernelTrace)
-        result = workloads.run(
-            "launch_kernels",
-            [num_kernels],
-            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
-        )
+        result = workloads.run("launch_kernels", [num_kernels], env=server.trace_env)
         metrics = server.get_metrics(flush=True)
         server.stop()
 
@@ -177,16 +177,8 @@ class TestKernelTraceCollector:
     @requires_tracing
     def test_sequential_workloads(self):
         server = StandaloneTestServer(KernelTrace)
-        workloads.run(
-            "launch_kernels",
-            [30],
-            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
-        )
-        workloads.run(
-            "launch_kernels",
-            [70],
-            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
-        )
+        workloads.run("launch_kernels", [30], env=server.trace_env)
+        workloads.run("launch_kernels", [70], env=server.trace_env)
         metrics = server.get_metrics(flush=True)
         server.stop()
 
@@ -196,17 +188,9 @@ class TestKernelTraceCollector:
     @requires_tracing
     def test_cumulative_flushes(self):
         server = StandaloneTestServer(KernelTrace)
-        workloads.run(
-            "launch_kernels",
-            [50],
-            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
-        )
+        workloads.run("launch_kernels", [50], env=server.trace_env)
         metrics1 = server.get_metrics(flush=True)
-        workloads.run(
-            "launch_kernels",
-            [50],
-            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
-        )
+        workloads.run("launch_kernels", [50], env=server.trace_env)
         metrics2 = server.get_metrics(flush=True)
         server.stop()
 
@@ -219,11 +203,7 @@ class TestKernelTraceCollector:
     def test_delayed_dispatches(self):
         # 50 kernels with 30ms delay = ~1.5s, spanning multiple 0.5s bins
         server = StandaloneTestServer(KernelTrace, interval=0.5)
-        result = workloads.run(
-            "launch_kernels",
-            [50, 30000],
-            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
-        )
+        result = workloads.run("launch_kernels", [50, 30000], env=server.trace_env)
         metrics = server.get_metrics(flush=True)
         server.stop()
 
@@ -245,11 +225,7 @@ class TestKernelTraceCollector:
         def run_workload():
             nonlocal result
             # 100 kernels with 40ms delay = ~4 seconds
-            result = workloads.run(
-                "launch_kernels",
-                [100, 40000],
-                env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
-            )
+            result = workloads.run("launch_kernels", [100, 40000], env=server.trace_env)
 
         t = threading.Thread(target=run_workload)
         t.start()
@@ -274,11 +250,7 @@ class TestKernelTraceCollector:
 
     @requires_tracing
     def test_collector_unreachable(self):
-        result = workloads.run(
-            "launch_kernels",
-            [10],
-            env={"OMNISTAT_TRACE_ENDPOINT_PORT": "19998"},
-        )
+        result = workloads.run("launch_kernels", [10], env={"OMNISTAT_TRACE_ENDPOINT_PORT": "19998"})
         assert result.returncode == 0, (
             f"launch_kernels should exit 0 even when collector is unreachable; " f"stderr: {result.stderr}"
         )
