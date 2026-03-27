@@ -38,6 +38,13 @@ import test.config
 import test.workloads as workloads
 from omnistat.collector_kernel_trace import KernelTrace
 
+requires_rocm = pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+
+requires_tracing = pytest.mark.skipif(
+    not test.config.rocm_host or "ROCP_TOOL_LIBRARIES" not in os.environ,
+    reason="requires ROCm and ROCP_TOOL_LIBRARIES",
+)
+
 METRIC_KERNEL_DROPPED = "omnistat_kernel_dropped_dispatches"
 METRIC_KERNEL_DISPATCH_COUNT = "omnistat_kernel_dispatch_count"
 METRIC_KERNEL_TOTAL_DURATION = "omnistat_kernel_total_duration_ns"
@@ -105,23 +112,47 @@ class StandaloneTestServer:
         self._thread.join(timeout=3)
 
 
+def assert_no_drops(metrics):
+    assert METRIC_KERNEL_DROPPED in metrics
+    for label_set, values in metrics[METRIC_KERNEL_DROPPED].items():
+        assert set(dict(label_set).keys()) == {"instance"}
+        assert all(v == 0 for v in values)
+
+
+def assert_dispatches(metrics, expected):
+    assert METRIC_KERNEL_DISPATCH_COUNT in metrics
+    assert METRIC_KERNEL_TOTAL_DURATION in metrics
+
+    assert len(metrics[METRIC_KERNEL_TOTAL_DURATION]) == len(
+        metrics[METRIC_KERNEL_DISPATCH_COUNT]
+    ), "Mismatch between duration and dispatch count label sets"
+
+    for label_set, values in metrics[METRIC_KERNEL_DISPATCH_COUNT].items():
+        assert set(dict(label_set).keys()) == {"instance", "card", "kernel"}
+        assert all(v > 0 for v in values)
+        assert all(a <= b for a, b in zip(values, values[1:]))
+
+    for label_set, values in metrics[METRIC_KERNEL_TOTAL_DURATION].items():
+        assert set(dict(label_set).keys()) == {"instance", "card", "kernel"}
+        assert all(v > 0 for v in values)
+
+    total = sum(v[-1] for v in metrics[METRIC_KERNEL_DISPATCH_COUNT].values())
+    assert total == expected
+
+
 class TestKernelTraceCollector:
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
-    def test_kernel_trace_no_application(self):
+    @requires_rocm
+    def test_no_application(self):
         server = StandaloneTestServer(KernelTrace)
         time.sleep(2)
         metrics = server.get_metrics(flush=True)
         server.stop()
 
-        assert METRIC_KERNEL_DROPPED in metrics
-        for label_set, values in metrics[METRIC_KERNEL_DROPPED].items():
-            assert set(dict(label_set).keys()) == {"instance"}
-            assert all(v == 0 for v in values)
+        assert_no_drops(metrics)
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
-    @pytest.mark.skipif("ROCP_TOOL_LIBRARIES" not in os.environ, reason="ROCP_TOOL_LIBRARIES not set")
+    @requires_tracing
     @pytest.mark.parametrize("num_kernels", [1, 100, 1000, 10000])
-    def test_kernel_trace_with_application(self, num_kernels):
+    def test_application(self, num_kernels):
         server = StandaloneTestServer(KernelTrace)
         result = workloads.run(
             "launch_kernels",
@@ -133,40 +164,121 @@ class TestKernelTraceCollector:
 
         assert result.returncode == 0, f"launch_kernels failed: {result.stderr}"
 
-        assert METRIC_KERNEL_DROPPED in metrics
-        assert METRIC_KERNEL_TOTAL_DURATION in metrics
-        assert METRIC_KERNEL_DISPATCH_COUNT in metrics
+        assert_no_drops(metrics)
+        assert_dispatches(metrics, expected=num_kernels)
 
-        assert len(metrics[METRIC_KERNEL_DROPPED]) > 0
-        assert len(metrics[METRIC_KERNEL_TOTAL_DURATION]) > 0
-        assert len(metrics[METRIC_KERNEL_DISPATCH_COUNT]) > 0
-
-        assert len(metrics[METRIC_KERNEL_TOTAL_DURATION]) == len(
-            metrics[METRIC_KERNEL_DISPATCH_COUNT]
-        ), "Mismatch between number of dispatch metrics"
-
-        # Check dropped dispatches
-        for label_set, values in metrics[METRIC_KERNEL_DROPPED].items():
-            labels = dict(label_set)
-            assert set(labels.keys()) == {"instance"}
-            assert all(v == 0 for v in values)
-
-        # Check durations
-        for label_set, values in metrics[METRIC_KERNEL_TOTAL_DURATION].items():
-            labels = dict(label_set)
-            assert set(labels.keys()) == {"instance", "card", "kernel"}
-            assert all(v > 0 for v in values)
-
-        # Check dispatch counts
-        for label_set, values in metrics[METRIC_KERNEL_DISPATCH_COUNT].items():
-            labels = dict(label_set)
-            assert set(labels.keys()) == {"instance", "card", "kernel"}
+        # Check kernel name
+        for label_set in metrics[METRIC_KERNEL_DISPATCH_COUNT]:
             assert re.fullmatch(
                 r"(void )?empty_kernel\(\) \[clone \.kd\]",
-                labels["kernel"],
+                dict(label_set)["kernel"],
             )
-            assert all(v > 0 for v in values)
-            assert all(a <= b for a, b in zip(values, values[1:]))
 
-        total_dispatches = sum(values[-1] for values in metrics[METRIC_KERNEL_DISPATCH_COUNT].values())
-        assert total_dispatches == num_kernels
+    @requires_tracing
+    def test_sequential_workloads(self):
+        server = StandaloneTestServer(KernelTrace)
+        workloads.run(
+            "launch_kernels",
+            [30],
+            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
+        )
+        workloads.run(
+            "launch_kernels",
+            [70],
+            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
+        )
+        metrics = server.get_metrics(flush=True)
+        server.stop()
+
+        assert_no_drops(metrics)
+        assert_dispatches(metrics, expected=100)
+
+    @requires_tracing
+    def test_cumulative_flushes(self):
+        server = StandaloneTestServer(KernelTrace)
+        workloads.run(
+            "launch_kernels",
+            [50],
+            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
+        )
+        metrics1 = server.get_metrics(flush=True)
+        workloads.run(
+            "launch_kernels",
+            [50],
+            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
+        )
+        metrics2 = server.get_metrics(flush=True)
+        server.stop()
+
+        assert_no_drops(metrics1)
+        assert_no_drops(metrics2)
+        assert_dispatches(metrics1, expected=50)
+        assert_dispatches(metrics2, expected=100)
+
+    @requires_tracing
+    def test_delayed_dispatches(self):
+        # 50 kernels with 30ms delay = ~1.5s, spanning multiple 0.5s bins
+        server = StandaloneTestServer(KernelTrace, interval=0.5)
+        result = workloads.run(
+            "launch_kernels",
+            [50, 30000],
+            env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
+        )
+        metrics = server.get_metrics(flush=True)
+        server.stop()
+
+        assert result.returncode == 0, f"launch_kernels failed: {result.stderr}"
+
+        assert_no_drops(metrics)
+        assert_dispatches(metrics, expected=50)
+
+        # ~1.5s across 0.5s bins should produce approximately 3 bins. Allowing
+        # some extra bins related to server startup.
+        num_bins = len(next(iter(metrics[METRIC_KERNEL_DROPPED].values())))
+        assert 3 <= num_bins <= 5
+
+    @requires_tracing
+    def test_scrape_during_workload(self):
+        server = StandaloneTestServer(KernelTrace, interval=0.5)
+        result = None
+
+        def run_workload():
+            nonlocal result
+            # 100 kernels with 40ms delay = ~4 seconds
+            result = workloads.run(
+                "launch_kernels",
+                [100, 40000],
+                env={"OMNISTAT_TRACE_ENDPOINT_PORT": str(server._port)},
+            )
+
+        t = threading.Thread(target=run_workload)
+        t.start()
+
+        # Scrape mid-run with flush=False (mirrors real Omnistat scrape)
+        time.sleep(2)
+        metrics1 = server.get_metrics(flush=False)
+
+        t.join(timeout=30)
+        metrics2 = server.get_metrics(flush=True)
+        server.stop()
+
+        assert result is not None
+        assert result.returncode == 0
+
+        # Mid-run scrape with flush=False: all bins are within the 15s hold
+        # window, so nothing should be released yet
+        assert metrics1 == {}
+
+        assert_no_drops(metrics2)
+        assert_dispatches(metrics2, expected=100)
+
+    @requires_tracing
+    def test_collector_unreachable(self):
+        result = workloads.run(
+            "launch_kernels",
+            [10],
+            env={"OMNISTAT_TRACE_ENDPOINT_PORT": "19998"},
+        )
+        assert result.returncode == 0, (
+            f"launch_kernels should exit 0 even when collector is unreachable; " f"stderr: {result.stderr}"
+        )
