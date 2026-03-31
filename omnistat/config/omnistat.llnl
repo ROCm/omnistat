@@ -1,5 +1,5 @@
 #--
-# Configuration for ORNL Crusher/Frontier/Borg
+# Configuration for LLNL El Cap systems
 #--
 
 [omnistat.collectors]
@@ -104,7 +104,7 @@ counters = [
 [omnistat.query]
 
 prometheus_url = http://localhost:9090
-system_name = LLNL Tuolumne
+system_name = LLNL ElCap Systems
 
 
 #--
