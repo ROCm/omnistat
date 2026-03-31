@@ -5,18 +5,18 @@
 [omnistat.collectors]
 
 port = 8002
-enable_rocm_smi = True
-enable_amd_smi = False
+enable_rocm_smi = False
+enable_amd_smi = True
 enable_ras_ecc = False
 enable_rms = True
-enable_rocprofiler = False
+enable_rocprofiler = True
 enable_network = True
 enable_vendor_counters = False
 enable_host_metrics = True
 enable_kernel_trace = False
 
 ## Path to local ROCM install to access SMI library
-rocm_path = /opt/rocm-6.4.2
+rocm_path = /opt/rocm-7.2.0
 
 ## List of IPs allowed to query the collector (comma separated). By
 ## default, access will be restricted to the localhost (127.0.0.1).
@@ -33,7 +33,7 @@ enable_proc_io_stats = True
 cpu_load_sampling_interval = 0.05
 
 [omnistat.collectors.rocprofiler]
-profile = default
+profile = flops_gpuid
 
 ## Collect the number of free-running GPU cycles and the number of GPU active
 ## cycles.
@@ -65,13 +65,15 @@ counters = [
             "SQ_INSTS_VALU_ADD_F64", "SQ_INSTS_VALU_MUL_F64",
             "SQ_INSTS_VALU_TRANS_F64", "SQ_INSTS_VALU_FMA_F64",
             "SQ_INSTS_VALU_ADD_F32", "SQ_INSTS_VALU_MUL_F32",
-            "SQ_INSTS_VALU_TRANS_F32", "SQ_INSTS_VALU_FMA_F32"
+            "SQ_INSTS_VALU_TRANS_F32", "SQ_INSTS_VALU_FMA_F32",
+            "FETCH_SIZE"
         ],
         [
             "SQ_INSTS_VALU_ADD_F16", "SQ_INSTS_VALU_MUL_F16",
             "SQ_INSTS_VALU_TRANS_F16", "SQ_INSTS_VALU_FMA_F16",
             "SQ_INSTS_VALU_MFMA_MOPS_F64", "SQ_INSTS_VALU_MFMA_MOPS_F32",
-            "SQ_INSTS_VALU_MFMA_MOPS_F16", "SQ_INSTS_VALU_MFMA_MOPS_BF16"
+            "SQ_INSTS_VALU_MFMA_MOPS_F16", "SQ_INSTS_VALU_MFMA_MOPS_BF16",
+            "WRITE_SIZE"
         ]
     ]
 
@@ -113,8 +115,11 @@ system_name = LLNL ElCap Systems
 
 [omnistat.usermode]
 
-victoria_binary = /usr/workspace/omnistat-dev/omnistat/victoria-metrics-linux-amd64-v1.129.1/victoria-metrics-prod
-victoria_datadir = /p/lustre5/%(USER)s/omnistat/%(FLUX_ENCLOSING_ID)s
+#victoria_binary = /usr/workspace/omnistat-dev/omnistat/victoria-metrics-linux-amd64-v1.129.1/victoria-metrics-prod
+#victoria_datadir = /p/lustre5/%(USER)s/omnistat/%(FLUX_ENCLOSING_ID)s
+
+victoria_binary = /usr/workspace/elcapnda/omnistat/victoria-metrics-linux-amd64-v1.129.1/victoria-metrics-prod
+victoria_datadir = /usr/workspace/elcapnda/omnistat/data/%(USER)s/%(FLUX_ENCLOSING_ID)s
 victoria_logfile = vic_server.log
 
 #victoria_datadir = /tmp/omnistat/%(SLURM_JOB_ID)s
