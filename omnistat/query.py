@@ -995,15 +995,16 @@ class QueryMetrics:
 
             if self.peak_flops is not None:
                 print("")
-                print("    Peak = %s" % utils.format_flops(self.peak_flops))
-                print("    Mean = %s" % utils.format_flops(self.mean_flops))
+                marker = " [*]" if is_multiplexed else ""
+                print("    Peak = %s%s" % (utils.format_flops(self.peak_flops), marker))
+                print("    Mean = %s%s" % (utils.format_flops(self.mean_flops), marker))
 
             if marker_footnotes:
                 print("")
                 for fn in marker_footnotes:
                     print(fn)
                 if self.peak_flops is not None:
-                    print("    * FLOPS rates include all multiplexing groups")
+                    print("    [*] FLOPS rates include all multiplexing groups")
 
         if self.hbmData:
             # Detect HBM multiplexing
