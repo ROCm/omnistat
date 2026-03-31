@@ -489,6 +489,44 @@ class QueryMetrics:
                     total_bytes += max_value
                 self.total_io[metric] = total_bytes
 
+    def _detect_multiplexing(self, cards_dict):
+        """Detect hardware counter multiplexing from a counter_name -> card_set mapping.
+
+        Returns:
+            (is_multiplexed, marker_map, footnotes)
+            - is_multiplexed: bool indicating whether counters are split across different GPU subsets
+            - marker_map: dict of counter_name -> "[N]" string
+            - footnotes: list of footnote strings for display
+        """
+        if not cards_dict:
+            return False, {}, []
+
+        unique_card_sets = sorted(
+            set(frozenset(c) for c in cards_dict.values()),
+            key=lambda s: sorted(s),
+        )
+
+        if len(unique_card_sets) <= 1:
+            return False, {}, []
+
+        total_gpus = self.num_gpus * len(self.hosts)
+        card_set_to_marker = {}
+        footnotes = []
+        for idx, card_set in enumerate(unique_card_sets, 1):
+            card_set_to_marker[card_set] = "[%d]" % idx
+            sorted_cards = sorted(card_set)
+            num_sampled = len(sorted_cards) * len(self.hosts)
+            card_str = ", ".join(str(c) for c in sorted_cards)
+            footnotes.append(
+                "    [%d] Sampled on GPU IDs: %s (%d of %d GPUs)" % (idx, card_str, num_sampled, total_gpus)
+            )
+
+        marker_map = {}
+        for name, cards in cards_dict.items():
+            marker_map[name] = card_set_to_marker[frozenset(cards)]
+
+        return True, marker_map, footnotes
+
     def gather_counter_data(self):
         self.gather_counter_flops()
         self.gather_counter_hbm()
@@ -496,6 +534,7 @@ class QueryMetrics:
     def gather_counter_flops(self):
         """Query FP hardware counters and compute FLOPS rates."""
         self.fp_counter_ops = {}
+        self.fp_counter_cards = {}
         self.peak_flops = None
         self.mean_flops = None
 
@@ -514,10 +553,16 @@ class QueryMetrics:
                 results = self.query_job_range(query)
                 if results:
                     total = 0
+                    cards = set()
                     for series in results:
                         values = np.asarray(series["values"])[:, 1].astype(float)
                         total += values[-1] - values[0]
+                        card = series["metric"].get("card")
+                        if card is not None:
+                            cards.add(int(card))
                     self.fp_counter_ops[counter_name] = int(total)
+                    if cards:
+                        self.fp_counter_cards[counter_name] = cards
             except Exception:
                 pass
 
@@ -563,16 +608,18 @@ class QueryMetrics:
         self.hbm_total_bytes = {}
         self.hbm_peak = {}
         self.hbm_mean = {}
+        self.hbm_counter_cards = {}
 
         hbm_counters = {"Read": "FETCH_SIZE", "Write": "WRITE_SIZE"}
         for op, counter_name in hbm_counters.items():
-            # Total bytes: aggregate all GPUs with sum(), then take delta (KB -> bytes)
-            total_query = (
-                f'sum(omnistat_hardware_counter{{name="{counter_name}"}}'
-                f" * on (instance) group_left() (rmsjob_info{{$job,$step}}))"
+            base = (
+                f'omnistat_hardware_counter{{name="{counter_name}"}}'
+                f" * on (instance) group_left() (max by (instance) (rmsjob_info{{$job,$step}}))"
             )
+
+            # Total bytes: aggregate all GPUs with sum(), then take delta (KB -> bytes)
             try:
-                results = self.query_job_range(total_query)
+                results = self.query_job_range(f"sum({base})")
                 if results and len(results) > 0:
                     values = np.asarray(results[0]["values"])[:, 1].astype(float)
                     total_kb = values[-1] - values[0]
@@ -582,20 +629,29 @@ class QueryMetrics:
                 pass
 
             # Per-GPU average rate: avg(rate(...)) gives mean rate per GPU in KB/s
-            rate_query = (
-                f"avg(rate("
-                f'omnistat_hardware_counter{{name="{counter_name}"}} '
-                f"* on (instance) group_left() (rmsjob_info{{$job,$step}})"
-                f"))"
-            )
             try:
-                results = self.query_job_range(rate_query)
+                results = self.query_job_range(f"avg(rate({base}))")
                 if results and len(results) > 0:
                     values = np.asarray(results[0]["values"])[:, 1].astype(float)
                     # rate() gives KB/s; convert to bytes/s for format_bytes_rate()
                     self.hbm_peak[op] = np.max(values) * 1024
                     self.hbm_mean[op] = np.mean(values) * 1024
                     self.hbmData = True
+            except Exception:
+                pass
+
+            # Collect card IDs for multiplexing detection (coarse step for efficiency)
+            try:
+                duration = (self.end_time - self.start_time).total_seconds()
+                results = self.query_range(base, self.start_time, self.end_time, f"{duration}s")
+                if results:
+                    cards = set()
+                    for series in results:
+                        card = series["metric"].get("card")
+                        if card is not None:
+                            cards.add(int(card))
+                    if cards:
+                        self.hbm_counter_cards[op] = cards
             except Exception:
                 pass
 
@@ -895,11 +951,14 @@ class QueryMetrics:
             cols = self.VALU_OPS + ["MFMA"]
             mfma_only = set(self.ALL_PRECISIONS) - set(self.VALU_PRECISIONS)
 
+            # Detect multiplexing: assign [N] markers to each unique card set
+            is_multiplexed, marker_map, marker_footnotes = self._detect_multiplexing(self.fp_counter_cards)
+
             print("")
             print("Hardware Counters: FP Instruction Mix and Rate")
             print("")
 
-            col_w = 8
+            col_w = 12 if is_multiplexed else 8
             header = "    %5s |" % "" + "".join(" %-*s |" % (col_w, c) for c in cols)
             sep = "    " + "-" * (len(header) - 4)
             print(header)
@@ -925,7 +984,10 @@ class QueryMetrics:
                         name = f"SQ_INSTS_VALU_{op}_{prec}"
 
                     if name in self.fp_counter_ops:
-                        row_str += " %*s |" % (col_w, utils.format_ops(self.fp_counter_ops[name]))
+                        val_str = utils.format_ops(self.fp_counter_ops[name])
+                        if name in marker_map:
+                            val_str += " " + marker_map[name]
+                        row_str += " %*s |" % (col_w, val_str)
                     else:
                         row_str += " %*s |" % (col_w, "-")
 
@@ -936,13 +998,24 @@ class QueryMetrics:
                 print("    Peak = %s" % utils.format_flops(self.peak_flops))
                 print("    Mean = %s" % utils.format_flops(self.mean_flops))
 
+            if marker_footnotes:
+                print("")
+                for fn in marker_footnotes:
+                    print(fn)
+                if self.peak_flops is not None:
+                    print("    * FLOPS rates include all multiplexing groups")
+
         if self.hbmData:
+            # Detect HBM multiplexing
+            is_multiplexed, marker_map, marker_footnotes = self._detect_multiplexing(self.hbm_counter_cards)
+
             print("")
             print("Hardware Counters: HBM Bandwidth and Transfer")
             print("")
-            sub_w = 13
+            marker_extra = 4 if is_multiplexed else 0
+            sub_w = 13 + marker_extra
             bw_w = sub_w * 2 + 2
-            tot_w = 19
+            tot_w = 19 + marker_extra
             header1 = "    %7s | %s | %s |" % (
                 "",
                 "Bandwidth (per GPU)".center(bw_w),
@@ -962,7 +1035,17 @@ class QueryMetrics:
                 peak_str = utils.format_bytes_rate(self.hbm_peak[op]) if op in self.hbm_peak else ""
                 mean_str = utils.format_bytes_rate(self.hbm_mean[op]) if op in self.hbm_mean else ""
                 total_str = utils.format_bytes(self.hbm_total_bytes[op]) if op in self.hbm_total_bytes else ""
+                if op in marker_map:
+                    marker = " " + marker_map[op]
+                    peak_str += marker
+                    mean_str += marker
+                    total_str += marker
                 print("    %7s | %*s  %*s | %*s |" % (op, sub_w, peak_str, sub_w, mean_str, tot_w, total_str))
+
+            if marker_footnotes:
+                print("")
+                for fn in marker_footnotes:
+                    print(fn)
 
         print("")
         print("--")
