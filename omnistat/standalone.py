@@ -48,6 +48,7 @@ from prometheus_client import REGISTRY, Gauge
 
 from omnistat import utils
 from omnistat.monitor import Monitor
+from omnistat import omni_util
 
 app = Flask(__name__)
 
@@ -465,6 +466,44 @@ def forbidden(e):
     return jsonify(error="Access denied"), 403
 
 
+@app.route("/command", methods=["POST"])
+def clockCommand():
+    """Endpoint to receive GPU clock frequency commands from the energy optimizer"""
+    controller = app.config.get("COMMAND_CONTROLLER")
+    if controller is None:
+        return jsonify({"error": "Energy optimization is not enabled on this node."}), 503
+    try:
+        data = request.get_json()
+        if data is None:
+            return jsonify({"error": "Request body must be JSON."}), 400
+        result = controller.apply_command(data)
+        return jsonify(result), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logging.error("[/command] Unexpected error: %s" % e)
+        return jsonify({"error": "Internal error processing command."}), 500
+
+
+@app.route("/optimize/reset", methods=["POST"])
+def optimizeReset():
+    """Reset the energy optimizer to IDLE and restore max clock frequency on all nodes"""
+    analyzer = app.config.get("ENERGY_ANALYZER")
+    if analyzer is None:
+        return jsonify({"error": "Energy optimization is not enabled on this node."}), 503
+    analyzer.reset()
+    return jsonify({"status": "ok", "message": "Optimizer reset to IDLE, max clock frequency restored."}), 200
+
+
+@app.route("/optimize/status", methods=["GET"])
+def optimizeStatus():
+    """Return the current state of the energy optimizer"""
+    analyzer = app.config.get("ENERGY_ANALYZER")
+    if analyzer is None:
+        return jsonify({"error": "Energy optimization is not enabled on this node."}), 503
+    return jsonify(analyzer.get_status()), 200
+
+
 @app.route("/fom", methods=["POST"])
 def figureOfMerit():
     """Endpoint that can be used by user to provide application figure of merit"""
@@ -475,6 +514,9 @@ def figureOfMerit():
         value = data.get("value")
         with fomLock:
             fomData.append({"name": name, "value": value, "timestamp_msecs": timestamp_msecs})
+        analyzer = app.config.get("ENERGY_ANALYZER")
+        if analyzer is not None:
+            analyzer.ingest_fom(name, value, timestamp_msecs)
         return jsonify({"status": "ok"}), 200
 
     except Exception as e:
@@ -504,6 +546,27 @@ def main():
     monitor.initMetrics()
 
     app.config["SAMPLING_INTERVAL"] = args.interval
+
+    # Initialize energy optimization if enabled
+    optimize_mode = None
+    if config.has_section("omnistat.optimize"):
+        optimize_mode = config["omnistat.optimize"].get("mode", "").strip().lower()
+    if optimize_mode == "energy":
+        from omnistat.command import CommandController
+        from omnistat.energy_analysis import EnergyAnalyzer
+        try:
+            controller = CommandController(config)
+            app.config["COMMAND_CONTROLLER"] = controller
+            job_hosts = omni_util.get_job_hosts()
+            collector_port = config["omnistat.collectors"].getint("port", 8001)
+            analyzer = EnergyAnalyzer(config, job_hosts, collector_port)
+            app.config["ENERGY_ANALYZER"] = analyzer
+            logging.info("[optimize] Energy optimization enabled. Job hosts: %s" % job_hosts)
+        except Exception as e:
+            logging.error("[optimize] Failed to initialize energy optimization: %s" % e)
+            logging.error("[optimize] Energy optimization will be disabled for this run.")
+    else:
+        logging.info("[optimize] Energy optimization disabled (mode=%s)." % optimize_mode)
 
     caching = Standalone(args, config)
 
