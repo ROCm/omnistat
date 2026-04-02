@@ -42,6 +42,42 @@ import yaml
 from omnistat import utils
 
 
+def get_job_hosts():
+    """Return the list of hostnames assigned to the current RMS job.
+
+    Inspects environment variables to detect the active resource manager
+    (SLURM, Flux, or PBS) and resolves the associated host list.
+
+    Returns:
+        list[str]: hostnames for all nodes in the job, or None if no
+        supported RMS environment is detected.
+    """
+    if "SLURM_JOB_NODELIST" in os.environ:
+        hostlist = os.getenv("SLURM_JOB_NODELIST")
+        results = utils.runShellCommand(["scontrol", "show", "hostname", hostlist], timeout=10)
+        if results.stdout.strip():
+            return results.stdout.splitlines()
+        logging.warning("[get_job_hosts] Unable to resolve SLURM host list from: %s" % hostlist)
+        return None
+    elif "FLUX_URI" in os.environ:
+        results = utils.runShellCommand(["flux", "hostlist", "local", "-e", "-d", ","])
+        if results.stdout.strip():
+            return results.stdout.strip().split(",")
+        logging.warning("[get_job_hosts] Unable to resolve Flux host list.")
+        return None
+    elif "PBS_JOBID" in os.environ:
+        nodefile = os.environ.get("PBS_NODEFILE")
+        if nodefile and os.path.exists(nodefile):
+            with open(nodefile) as f:
+                nodes_uniq = {line.strip() for line in f if line.strip()}
+            return [name.split(".")[0] for name in nodes_uniq]
+        logging.warning("[get_job_hosts] PBS_NODEFILE not found or unreadable.")
+        return None
+    else:
+        logging.debug("[get_job_hosts] No supported RMS environment variables detected.")
+        return None
+
+
 class UserBasedMonitoring:
     def __init__(self):
         logging.basicConfig(format="%(message)s", level=logging.INFO, stream=sys.stdout)
