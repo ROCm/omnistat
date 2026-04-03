@@ -385,6 +385,34 @@ def readConfig(configFile):
     return config
 
 
+def getRMSHosts():
+    """Return the list of hostnames assigned to the current RMS job."""
+    if "SLURM_JOB_NODELIST" in os.environ:
+        hostlist = os.getenv("SLURM_JOB_NODELIST")
+        results = runShellCommand(["scontrol", "show", "hostname", hostlist], timeout=10)
+        if results and results.stdout.strip():
+            return results.stdout.splitlines()
+        logging.warning("[getRMSHosts] Unable to resolve SLURM host list from: %s" % hostlist)
+        return None
+    elif "FLUX_URI" in os.environ:
+        results = runShellCommand(["flux", "hostlist", "local", "-e", "-d", ","], timeout=10)
+        if results and results.stdout.strip():
+            return results.stdout.strip().split(",")
+        logging.warning("[getRMSHosts] Unable to resolve Flux host list.")
+        return None
+    elif "PBS_JOBID" in os.environ:
+        nodefile = os.environ.get("PBS_NODEFILE")
+        if nodefile and os.path.exists(nodefile):
+            with open(nodefile) as f:
+                nodes_uniq = {line.strip() for line in f if line.strip()}
+            return [name.split(".")[0] for name in nodes_uniq]
+        logging.warning("[getRMSHosts] PBS_NODEFILE not found or unreadable.")
+        return None
+    else:
+        logging.warning("[getRMSHosts] No supported RMS environment variables detected.")
+        return None
+
+
 def runShellCommand(command, capture_output=True, text=True, exit_on_error=False, timeout=1.0):
     """Runs a provided shell command
 
