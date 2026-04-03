@@ -429,6 +429,7 @@ def parse_args():
     parser.add_argument("--logfile", type=str, help="redirect stdout to logfile", default=None)
     parser.add_argument("--endpoint", type=str, help="hostname of VictoriaMetrics server", default="localhost")
     parser.add_argument("--port", type=int, help="port to access VictoriaMetrics server", default=9090)
+    parser.add_argument("--optimizer-endpoint", type=str, help="host:port of the optimizer process for FOM forwarding", default=None)
 
     return parser.parse_args()
 
@@ -514,9 +515,18 @@ def figureOfMerit():
         value = data.get("value")
         with fomLock:
             fomData.append({"name": name, "value": value, "timestamp_msecs": timestamp_msecs})
-        analyzer = app.config.get("ENERGY_ANALYZER")
-        if analyzer is not None:
-            analyzer.ingest_fom(name, value, timestamp_msecs)
+        optimizer_endpoint = app.config.get("OPTIMIZER_ENDPOINT")
+        if optimizer_endpoint:
+            def _forward():
+                try:
+                    requests.post(
+                        "http://%s/fom" % optimizer_endpoint,
+                        json={"name": name, "value": value},
+                        timeout=5,
+                    )
+                except Exception as e:
+                    logging.warning("[fom] Failed to forward to optimizer: %s" % e)
+            threading.Thread(target=_forward, daemon=True).start()
         return jsonify({"status": "ok"}), 200
 
     except Exception as e:
@@ -547,26 +557,22 @@ def main():
 
     app.config["SAMPLING_INTERVAL"] = args.interval
 
-    # Initialize energy optimization if enabled
+    # Initialize command controller for /command endpoint (clock frequency changes)
     optimize_mode = None
     if config.has_section("omnistat.optimize"):
         optimize_mode = config["omnistat.optimize"].get("mode", "").strip().lower()
     if optimize_mode == "energy":
         from omnistat.command import CommandController
-        from omnistat.energy_analysis import EnergyAnalyzer
         try:
             controller = CommandController(config)
             app.config["COMMAND_CONTROLLER"] = controller
-            job_hosts = utils.getRMSHosts()
-            collector_port = config["omnistat.collectors"].getint("port", 8001)
-            analyzer = EnergyAnalyzer(config, job_hosts, collector_port)
-            app.config["ENERGY_ANALYZER"] = analyzer
-            logging.info("[optimize] Energy optimization enabled. Job hosts: %s" % job_hosts)
         except Exception as e:
-            logging.error("[optimize] Failed to initialize energy optimization: %s" % e)
-            logging.error("[optimize] Energy optimization will be disabled for this run.")
-    else:
-        logging.info("[optimize] Energy optimization disabled (mode=%s)." % optimize_mode)
+            logging.error("[optimize] Failed to initialize CommandController: %s" % e)
+
+    # Store optimizer endpoint for FOM forwarding (set when optimizer process is running)
+    if args.optimizer_endpoint:
+        app.config["OPTIMIZER_ENDPOINT"] = args.optimizer_endpoint
+        logging.info("[optimize] FOM will be forwarded to optimizer at %s" % args.optimizer_endpoint)
 
     caching = Standalone(args, config)
 
