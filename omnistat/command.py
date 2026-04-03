@@ -159,7 +159,7 @@ class CommandController:
         if gpu_index is not None:
             cmd += ["-gpu", str(gpu_index)]
 
-        logging.info("[CommandController] Running: %s" % cmd)
+        logging.info("[CommandController] Running: %s" % " ".join(cmd))
         try:
             result = subprocess.run(
                 cmd,
@@ -167,12 +167,14 @@ class CommandController:
                 text=True,
                 timeout=30,
             )
+            if result.stdout.strip():
+                logging.info("[CommandController] stdout: %s" % result.stdout.strip())
+            if result.stderr.strip():
+                logging.info("[CommandController] stderr: %s" % result.stderr.strip())
             if result.returncode != 0:
                 logging.error(
-                    "[CommandController] Command failed (rc=%d): %s" % (result.returncode, result.stderr.strip())
+                    "[CommandController] Command failed (rc=%d)" % result.returncode
                 )
-            else:
-                logging.debug("[CommandController] Command stdout: %s" % result.stdout.strip())
         except subprocess.TimeoutExpired:
             logging.error("[CommandController] Command timed out: %s" % cmd)
         except FileNotFoundError:
