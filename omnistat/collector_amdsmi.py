@@ -202,6 +202,11 @@ class AMDSMI(Collector):
             self.__prefix + "vram_used_percentage", "VRAM Memory in Use (%)", labelnames=["card"]
         )
 
+        # Max clock setting
+        self.__GPUMetrics["sclk_clock_max_mhz"] = Gauge(
+            self.__prefix + "sclk_clock_max_mhz", "Maximum graphics clock frequency (MHz)", labelnames=["card"]
+        )
+
         # Register RAS ECC related metrics
         if self.__ecc_ras_monitoring:
             for block in smi.AmdSmiGpuBlock:
@@ -439,6 +444,9 @@ class AMDSMI(Collector):
                 values = [value[x] for x in value_indices]
                 average = sum(values) / len(values)
                 metric.labels(card=cardId).set(average)
+
+            clock_info = smi.amdsmi_get_clock_info(device, smi.AmdSmiClkType.GFX)
+            self.__GPUMetrics["sclk_clock_max_mhz"].labels(card=cardId).set(clock_info["max_clk"])
 
             # additional gpu memory-related stats
             device_total_vram = smi.amdsmi_get_gpu_memory_total(device, smi.AmdSmiMemoryType.VRAM)
