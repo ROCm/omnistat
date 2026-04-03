@@ -66,6 +66,13 @@ class EnergyAnalyzer:
         self._max_performance_drop = config[section].getfloat("max_performance_drop", 5.0)
         fom_history_cache_mb = config[section].getfloat("fom_history_cache_mb", 10)
 
+        fom_direction_raw = config[section].get("fom_direction", "higher").strip().lower()
+        if fom_direction_raw not in ("higher", "lower"):
+            raise ValueError(
+                "[omnistat.optimize] fom_direction must be 'higher' or 'lower', got: '%s'" % fom_direction_raw
+            )
+        self._fom_higher_is_better = fom_direction_raw == "higher"
+
         raw_freqs = config[section].get("sclk_frequencies", "").strip()
         self._sclk_frequencies = sorted(int(f.strip()) for f in raw_freqs.split(","))
 
@@ -93,8 +100,9 @@ class EnergyAnalyzer:
         self._baseline_fom_mean = None
 
         logging.info(
-            "[EnergyAnalyzer] Initialized. freqs=%s  min_observe=%d  max_drop=%.1f%%  hosts=%d"
-            % (self._sclk_frequencies, self._min_observe_samples, self._max_performance_drop, len(self._hosts))
+            "[EnergyAnalyzer] Initialized. freqs=%s  min_observe=%d  max_drop=%.1f%%  fom_direction=%s  hosts=%d"
+            % (self._sclk_frequencies, self._min_observe_samples, self._max_performance_drop,
+               fom_direction_raw, len(self._hosts))
         )
 
     def ingest_fom(self, name, value, timestamp_msecs):
@@ -153,7 +161,10 @@ class EnergyAnalyzer:
                 return  # Still collecting samples at this frequency
 
             current_mean = self._mean(self._samples_at_current_freq)
-            drop_pct = (self._baseline_fom_mean - current_mean) / self._baseline_fom_mean * 100.0
+            if self._fom_higher_is_better:
+                drop_pct = (self._baseline_fom_mean - current_mean) / self._baseline_fom_mean * 100.0
+            else:
+                drop_pct = (current_mean - self._baseline_fom_mean) / self._baseline_fom_mean * 100.0
 
             logging.info(
                 "[EnergyAnalyzer] At %d MHz: mean FOM = %.4f  drop = %.2f%%  (threshold %.1f%%)"
@@ -173,8 +184,7 @@ class EnergyAnalyzer:
                     "[EnergyAnalyzer] CONVERGED at %d MHz." % self._current_frequency()
                 )
             else:
-                # Performance is acceptable — update baseline and try stepping down further
-                self._baseline_fom_mean = current_mean
+                # Performance is acceptable — keep the original baseline and try stepping down further
                 self._previous_freq_index = self._current_freq_index
 
                 if self._current_freq_index == 0:
