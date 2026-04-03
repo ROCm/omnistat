@@ -100,7 +100,7 @@ class EnergyAnalyzer:
         self._baseline_fom_mean = None
 
         logging.info(
-            "[EnergyAnalyzer] Initialized. freqs=%s  min_observe=%d  max_drop=%.1f%%  fom_direction=%s  hosts=%d"
+            "[energy] Initialized. freqs=%s  min_observe=%d  max_drop=%.1f%%  fom_direction=%s  hosts=%d"
             % (self._sclk_frequencies, self._min_observe_samples, self._max_performance_drop,
                fom_direction_raw, len(self._hosts))
         )
@@ -116,14 +116,14 @@ class EnergyAnalyzer:
         try:
             fom_value = float(value)
         except (TypeError, ValueError):
-            logging.warning("[EnergyAnalyzer] Ignoring non-numeric FOM value: %s" % value)
+            logging.warning("[energy] Ignoring non-numeric FOM value: %s" % value)
             return
 
         with self._lock:
             self._fom_history.append(fom_value)
             self._samples_at_current_freq.append(fom_value)
             logging.debug(
-                "[EnergyAnalyzer] FOM ingested: name=%s value=%.4f  state=%s  samples_at_freq=%d"
+                "[energy] FOM ingested: name=%s value=%.4f  state=%s  samples_at_freq=%d"
                 % (name, fom_value, self._state, len(self._samples_at_current_freq))
             )
             self._evaluate()
@@ -133,7 +133,7 @@ class EnergyAnalyzer:
 
         if self._state == _STATE_IDLE:
             # First FOM sample — start collecting baseline at max frequency
-            logging.info("[EnergyAnalyzer] First FOM sample received — entering OBSERVING_BASELINE state.")
+            logging.info("[energy] First FOM sample received — entering OBSERVING_BASELINE state.")
             self._state = _STATE_OBSERVING_BASELINE
             return
 
@@ -143,13 +143,13 @@ class EnergyAnalyzer:
 
             self._baseline_fom_mean = self._mean(self._samples_at_current_freq)
             logging.info(
-                "[EnergyAnalyzer] Baseline established: mean FOM = %.4f over %d samples at %d MHz"
+                "[energy] Baseline established: mean FOM = %.4f over %d samples at %d MHz"
                 % (self._baseline_fom_mean, len(self._samples_at_current_freq), self._current_frequency())
             )
 
             if self._current_freq_index == 0:
                 # Already at lowest frequency — nothing to step down to
-                logging.info("[EnergyAnalyzer] Already at lowest frequency; converging immediately.")
+                logging.info("[energy] Already at lowest frequency; converging immediately.")
                 self._state = _STATE_CONVERGED
                 return
 
@@ -167,21 +167,21 @@ class EnergyAnalyzer:
                 drop_pct = (current_mean - self._baseline_fom_mean) / self._baseline_fom_mean * 100.0
 
             logging.info(
-                "[EnergyAnalyzer] At %d MHz: mean FOM = %.4f  drop = %.2f%%  (threshold %.1f%%)"
+                "[energy] At %d MHz: mean FOM = %.4f  drop = %.2f%%  (threshold %.1f%%)"
                 % (self._current_frequency(), current_mean, drop_pct, self._max_performance_drop)
             )
 
             if drop_pct >= self._max_performance_drop:
                 # Performance degraded beyond threshold — revert to previous frequency
                 logging.info(
-                    "[EnergyAnalyzer] Performance drop %.2f%% exceeds threshold %.1f%% — reverting to %d MHz and converging."
+                    "[energy] Performance drop %.2f%% exceeds threshold %.1f%% — reverting to %d MHz and converging."
                     % (drop_pct, self._max_performance_drop, self._sclk_frequencies[self._previous_freq_index])
                 )
                 self._send_clock_command(self._sclk_frequencies[self._previous_freq_index])
                 self._current_freq_index = self._previous_freq_index
                 self._state = _STATE_CONVERGED
                 logging.info(
-                    "[EnergyAnalyzer] CONVERGED at %d MHz." % self._current_frequency()
+                    "[energy] CONVERGED at %d MHz." % self._current_frequency()
                 )
             else:
                 # Performance is acceptable — keep the original baseline and try stepping down further
@@ -189,7 +189,7 @@ class EnergyAnalyzer:
 
                 if self._current_freq_index == 0:
                     logging.info(
-                        "[EnergyAnalyzer] Reached lowest frequency %d MHz with acceptable performance — CONVERGED."
+                        "[energy] Reached lowest frequency %d MHz with acceptable performance — CONVERGED."
                         % self._current_frequency()
                     )
                     self._state = _STATE_CONVERGED
@@ -205,7 +205,7 @@ class EnergyAnalyzer:
         self._previous_freq_index = self._current_freq_index
         self._current_freq_index -= 1
         new_freq = self._current_frequency()
-        logging.info("[EnergyAnalyzer] Stepping down to %d MHz." % new_freq)
+        logging.info("[energy] Stepping down to %d MHz." % new_freq)
         self._samples_at_current_freq = []
         self._state = _STATE_STEPPING_DOWN
         self._send_clock_command(new_freq)
@@ -223,19 +223,28 @@ class EnergyAnalyzer:
         port = self._port
         payload = {"clock": "sclk", "type": "max", "value": int(freq_mhz)}
 
+        if not hosts:
+            logging.warning("[energy] _send_clock_command: no job hosts available — clock command NOT sent (freq=%d MHz)" % freq_mhz)
+            return
+
+        logging.info(
+            "[energy] Dispatching clock command to %d host(s): %s — payload=%s"
+            % (len(hosts), hosts, payload)
+        )
+
         def _dispatch():
             for host in hosts:
                 url = "http://%s:%d/command" % (host, port)
                 try:
                     response = requests.post(url, json=payload, timeout=10)
                     if response.status_code == 200:
-                        logging.debug("[EnergyAnalyzer] Clock command accepted by %s" % host)
+                        logging.info("[energy] Clock command accepted by %s" % host)
                     else:
                         logging.warning(
-                            "[EnergyAnalyzer] Clock command to %s returned HTTP %d" % (host, response.status_code)
+                            "[energy] Clock command to %s returned HTTP %d" % (host, response.status_code)
                         )
                 except requests.exceptions.RequestException as e:
-                    logging.error("[EnergyAnalyzer] Failed to send clock command to %s: %s" % (host, e))
+                    logging.error("[energy] Failed to send clock command to %s: %s" % (host, e))
 
         t = threading.Thread(target=_dispatch, daemon=True)
         t.start()
@@ -257,7 +266,7 @@ class EnergyAnalyzer:
             self._previous_freq_index = self._current_freq_index
             self._baseline_fom_mean = None
             logging.info(
-                "[EnergyAnalyzer] Reset from state=%s — restoring max clock (%d MHz) and returning to IDLE."
+                "[energy] Reset from state=%s — restoring max clock (%d MHz) and returning to IDLE."
                 % (prev_state, max_freq)
             )
         self._send_clock_command(max_freq)
