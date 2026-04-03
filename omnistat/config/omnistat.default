@@ -104,3 +104,61 @@ victoria_logfile = vic_server.log
 ## SSH key to launch user-mode Omnistat. For backward compatibility with
 ## older versions of Omnistat; no longer needed with v1.5 or later.
 ssh_key = ~/.ssh/id_rsa
+
+#--
+# Optimizer Settings
+#--
+
+[omnistat.optimize]
+
+## Set mode = energy to enable automated GPU clock frequency optimization.
+## Omnistat will monitor application FOM data and step clock frequencies
+## down from max, converging on the lowest frequency where performance
+## remains within max_performance_drop of the baseline.
+##
+## Leave this section commented out or set mode to any other value to disable.
+
+mode = energy
+
+## Port on which the optimizer process listens for FOM data forwarded
+## from standalone.py instances on each job node.
+
+optimizer_port = 8002
+
+## Full path to the system command used to adjust GPU clock frequencies.
+## The command must accept the interface:
+##   <clock_cmd> -clock [sclk|mclk] -limit [min|max] -value <MHz> [-gpu <index>]
+
+clock_cmd = sudo /usr/local/bin/set_gpu_clockfreq.sh
+
+## Comma-separated list of available SCLK frequencies in MHz, ascending.
+## The last (highest) value is treated as the default/max frequency.
+
+sclk_frequencies = auto
+
+## Minimum number of FOM samples to collect at each frequency before
+## evaluating performance and deciding whether to step down further.
+
+min_observe_samples = 20
+
+## Whether a higher or lower FOM value indicates better performance.
+## Use "higher" for throughput/FLOPS-style metrics (default).
+## Use "lower" for time/latency-style metrics.
+
+fom_direction = higher
+
+## Maximum allowed performance degradation (as a percentage of the baseline
+## FOM mean) before reverting to the previous frequency and converging.
+
+max_performance_drop = 5.0
+
+## Memory (in MB) allocated for the in-process FOM history cache used
+## by the feedback control system.
+
+fom_history_cache_mb = 10
+
+[omnistat.optimize.frequencies.gfx950]
+sclk_min = 501
+sclk_max = 2200
+
+
