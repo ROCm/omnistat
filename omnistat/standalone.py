@@ -557,7 +557,7 @@ def main():
         try:
             controller = CommandController(config)
             app.config["COMMAND_CONTROLLER"] = controller
-            job_hosts = omni_util.get_job_hosts()
+            job_hosts = utils.getRMSHosts()
             collector_port = config["omnistat.collectors"].getint("port", 8001)
             analyzer = EnergyAnalyzer(config, job_hosts, collector_port)
             app.config["ENERGY_ANALYZER"] = analyzer
