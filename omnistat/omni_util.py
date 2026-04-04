@@ -323,6 +323,12 @@ class UserBasedMonitoring:
                     "--port", str(optimizer_port),
                     "--log", optimizer_log,
                 ]
+                if self.__external_victoria:
+                    optimizer_cmd += ["--vm-endpoint", self.__external_victoria_endpoint,
+                                      "--vm-port", str(self.__external_victoria_port)]
+                else:
+                    optimizer_cmd += ["--vm-endpoint", hostname]
+                optimizer_cmd += ["--pushinterval", str(self.push_frequency)]
                 logging.info("[optimizer]: Starting optimizer process on port %d" % optimizer_port)
                 utils.runBGProcess(optimizer_cmd, outputFile=optimizer_log, envAdds={"PYTHONPATH": ":".join(sys.path)})
                 cmd += f" --optimizer-endpoint {hostname}:{optimizer_port}"
