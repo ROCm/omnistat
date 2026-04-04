@@ -40,19 +40,63 @@
 
 import logging
 import threading
+import time
 from collections import deque
 from datetime import datetime, timezone
 
 import requests
 
+from omnistat import utils
+
+
+def _resolve_sclk_range(config):
+    """Resolve sclk min/max and arch from [omnistat.optimize] config.
+
+    Returns (arch_name, sclk_min, sclk_max).
+    """
+    section = "omnistat.optimize"
+    arch_setting = config[section].get("sclk_frequencies", "auto").strip().lower()
+
+    if arch_setting == "auto":
+        arch = utils.detect_gpu_arch()
+        if arch is None:
+            raise ValueError(
+                "[omnistat.optimize] sclk_frequencies=auto but could not detect GPU arch via rocminfo"
+            )
+        logging.info("[optimize] Auto-detected GPU architecture: %s" % arch)
+    else:
+        arch = arch_setting
+
+    freq_section = "omnistat.optimize.frequencies.%s" % arch
+    if not config.has_section(freq_section):
+        raise ValueError(
+            "[omnistat.optimize] No frequency table for arch '%s' — add a [%s] section with sclk_min/sclk_max"
+            % (arch, freq_section)
+        )
+
+    sclk_min = config[freq_section].getint("sclk_min")
+    sclk_max = config[freq_section].getint("sclk_max")
+    return arch, sclk_min, sclk_max
+
+
 _STATE_IDLE = "IDLE"
+_STATE_WARMING_UP = "WARMING_UP"
 _STATE_OBSERVING_BASELINE = "OBSERVING_BASELINE"
 _STATE_STEPPING_DOWN = "STEPPING_DOWN"
 _STATE_CONVERGED = "CONVERGED"
 
+# Integer values published to VictoriaMetrics for the omnistat_optimize metric
+_STATE_INT = {
+    _STATE_IDLE: 0,
+    _STATE_CONVERGED: 1,
+    _STATE_WARMING_UP: 2,
+    _STATE_OBSERVING_BASELINE: 3,
+    _STATE_STEPPING_DOWN: 4,
+}
+
 
 class EnergyAnalyzer:
-    def __init__(self, config, host_endpoints, collector_port):
+    def __init__(self, config, host_endpoints, collector_port, on_state_change=None):
         """Initialize from an already-parsed ConfigParser object.
 
         Args:
@@ -62,6 +106,7 @@ class EnergyAnalyzer:
         """
         section = "omnistat.optimize"
 
+        self._min_warmup_time_sec = config[section].getfloat("min_warmup_time_sec", 0)
         self._min_observe_samples = config[section].getint("min_observe_samples", 10)
         self._max_performance_drop = config[section].getfloat("max_performance_drop", 5.0)
         fom_history_cache_mb = config[section].getfloat("fom_history_cache_mb", 10)
@@ -73,8 +118,13 @@ class EnergyAnalyzer:
             )
         self._fom_higher_is_better = fom_direction_raw == "higher"
 
-        raw_freqs = config[section].get("sclk_frequencies", "").strip()
-        self._sclk_frequencies = sorted(int(f.strip()) for f in raw_freqs.split(","))
+        self._clock_step_major = config[section].getint("clock_step_major", 50)
+        self._clock_step_minor = config[section].getint("clock_step_minor", 5)
+
+        self._arch, sclk_min, sclk_max = _resolve_sclk_range(config)
+        self._sclk_min = sclk_min
+        self._sclk_max = sclk_max
+        self._in_fine_tuning = False
 
         # host endpoints for clock commands
         self._hosts = host_endpoints or []
@@ -82,6 +132,7 @@ class EnergyAnalyzer:
 
         # State machine
         self._state = _STATE_IDLE
+        self._on_state_change = on_state_change  # optional callback(state_str, state_int, freq_mhz)
         self._lock = threading.Lock()
 
         # FOM history: each entry is a float value.  Bounded by approximate byte budget.
@@ -92,18 +143,33 @@ class EnergyAnalyzer:
         # Samples collected at the *current* frequency (reset on each freq change)
         self._samples_at_current_freq = []
 
-        # Frequency tracking: index into self._sclk_frequencies (ascending); start at max
-        self._current_freq_index = len(self._sclk_frequencies) - 1
-        self._previous_freq_index = self._current_freq_index
+        # Frequency tracking: current and previous freq in MHz; start at max
+        self._current_freq = sclk_max
+        self._previous_freq = sclk_max
+
+        # Warmup tracking
+        self._warmup_start_time = None
 
         # Baseline FOM mean established during OBSERVING_BASELINE
         self._baseline_fom_mean = None
 
+        # Whether the startup max-clock reset has completed successfully
+        self._startup_reset_done = False
+
         logging.info(
-            "[energy] Initialized. freqs=%s  min_observe=%d  max_drop=%.1f%%  fom_direction=%s  hosts=%d"
-            % (self._sclk_frequencies, self._min_observe_samples, self._max_performance_drop,
+            "[energy] Initialized. arch=%s  sclk=[%d..%d]  step_major=%d  step_minor=%d  warmup=%.0fs  min_observe=%d  max_drop=%.1f%%  fom_direction=%s  hosts=%d"
+            % (self._arch, self._sclk_min, self._sclk_max, self._clock_step_major, self._clock_step_minor,
+               self._min_warmup_time_sec, self._min_observe_samples, self._max_performance_drop,
                fom_direction_raw, len(self._hosts))
         )
+        logging.info("[energy] Resetting GPUs to max clock (%d MHz) at startup (will retry until all nodes respond)." % self._sclk_max)
+        self._startup_reset_with_retry()
+        # Push initial IDLE state
+        if self._on_state_change is not None:
+            try:
+                self._on_state_change(_STATE_IDLE, _STATE_INT[_STATE_IDLE], self._current_freq)
+            except Exception as e:
+                logging.warning("[energy] Initial state push failed: %s" % e)
 
     def ingest_fom(self, name, value, timestamp_msecs):
         """Receive a new FOM sample from the /fom endpoint (thread-safe).
@@ -128,13 +194,44 @@ class EnergyAnalyzer:
             )
             self._evaluate()
 
+    def _set_state(self, new_state):
+        """Set state and notify the on_state_change callback synchronously.  Lock must be held."""
+        self._state = new_state
+        if self._on_state_change is not None:
+            try:
+                self._on_state_change(new_state, _STATE_INT[new_state], self._current_freq)
+            except Exception as e:
+                logging.warning("[energy] on_state_change callback failed: %s" % e)
+
     def _evaluate(self):
         """Run the Phase I state machine.  Must be called with self._lock held."""
 
         if self._state == _STATE_IDLE:
-            # First FOM sample — start collecting baseline at max frequency
-            logging.info("[energy] First FOM sample received — entering OBSERVING_BASELINE state.")
-            self._state = _STATE_OBSERVING_BASELINE
+            if not self._startup_reset_done:
+                # Still waiting for startup reset to complete; discard sample
+                return
+            if self._min_warmup_time_sec > 0:
+                self._warmup_start_time = time.monotonic()
+                logging.info(
+                    "[energy] First FOM sample — warming up for %.0f sec before collecting baseline."
+                    % self._min_warmup_time_sec
+                )
+                self._set_state(_STATE_WARMING_UP)
+            else:
+                logging.info("[energy] Startup reset complete — entering OBSERVING_BASELINE.")
+                self._set_state(_STATE_OBSERVING_BASELINE)
+            return
+
+        if self._state == _STATE_WARMING_UP:
+            elapsed = time.monotonic() - self._warmup_start_time
+            if elapsed < self._min_warmup_time_sec:
+                return  # still warming up; discard this sample
+            logging.info(
+                "[energy] Warmup complete (%.1f sec) — entering OBSERVING_BASELINE."
+                % elapsed
+            )
+            self._samples_at_current_freq = []
+            self._set_state(_STATE_OBSERVING_BASELINE)
             return
 
         if self._state == _STATE_OBSERVING_BASELINE:
@@ -144,13 +241,12 @@ class EnergyAnalyzer:
             self._baseline_fom_mean = self._mean(self._samples_at_current_freq)
             logging.info(
                 "[energy] Baseline established: mean FOM = %.4f over %d samples at %d MHz"
-                % (self._baseline_fom_mean, len(self._samples_at_current_freq), self._current_frequency())
+                % (self._baseline_fom_mean, len(self._samples_at_current_freq), self._current_freq)
             )
 
-            if self._current_freq_index == 0:
-                # Already at lowest frequency — nothing to step down to
-                logging.info("[energy] Already at lowest frequency; converging immediately.")
-                self._state = _STATE_CONVERGED
+            if self._current_freq - self._clock_step_major < self._sclk_min:
+                logging.info("[energy] Already at or near minimum frequency; converging immediately.")
+                self._set_state(_STATE_CONVERGED)
                 return
 
             self._step_down()
@@ -168,31 +264,53 @@ class EnergyAnalyzer:
 
             logging.info(
                 "[energy] At %d MHz: mean FOM = %.4f  drop = %.2f%%  (threshold %.1f%%)"
-                % (self._current_frequency(), current_mean, drop_pct, self._max_performance_drop)
+                % (self._current_freq, current_mean, drop_pct, self._max_performance_drop)
             )
 
             if drop_pct >= self._max_performance_drop:
-                # Performance degraded beyond threshold — revert to previous frequency
-                logging.info(
-                    "[energy] Performance drop %.2f%% exceeds threshold %.1f%% — reverting to %d MHz and converging."
-                    % (drop_pct, self._max_performance_drop, self._sclk_frequencies[self._previous_freq_index])
-                )
-                self._send_clock_command(self._sclk_frequencies[self._previous_freq_index])
-                self._current_freq_index = self._previous_freq_index
-                self._state = _STATE_CONVERGED
-                logging.info(
-                    "[energy] CONVERGED at %d MHz." % self._current_frequency()
-                )
-            else:
-                # Performance is acceptable — keep the original baseline and try stepping down further
-                self._previous_freq_index = self._current_freq_index
-
-                if self._current_freq_index == 0:
+                if not self._in_fine_tuning:
+                    # Major-step boundary found — enter fine-tuning from last acceptable freq
+                    revert_freq = self._previous_freq
+                    first_minor = revert_freq - self._clock_step_minor
+                    if first_minor >= self._sclk_min:
+                        logging.info(
+                            "[energy] Major-step boundary — entering fine-tuning from %d MHz (step=%d MHz)"
+                            % (revert_freq, self._clock_step_minor)
+                        )
+                        self._in_fine_tuning = True
+                        self._previous_freq = revert_freq
+                        self._current_freq = first_minor
+                        self._samples_at_current_freq = []
+                        self._set_state(_STATE_STEPPING_DOWN)
+                        self._send_clock_command(first_minor)
+                    else:
+                        # No room for fine-tuning; converge at last acceptable freq
+                        logging.info(
+                            "[energy] No fine-tuning range below %d MHz — CONVERGED."
+                            % revert_freq
+                        )
+                        self._current_freq = revert_freq
+                        self._send_clock_command(revert_freq)
+                        self._set_state(_STATE_CONVERGED)
+                else:
+                    # Fine-tuning boundary found — revert to previous minor freq and converge
+                    revert_freq = self._previous_freq
                     logging.info(
-                        "[energy] Reached lowest frequency %d MHz with acceptable performance — CONVERGED."
-                        % self._current_frequency()
+                        "[energy] Fine-tuning drop %.2f%% exceeds threshold — reverting to %d MHz — CONVERGED."
+                        % (drop_pct, revert_freq)
                     )
-                    self._state = _STATE_CONVERGED
+                    self._current_freq = revert_freq
+                    self._send_clock_command(revert_freq)
+                    self._set_state(_STATE_CONVERGED)
+            else:
+                # Performance is acceptable — try stepping down further
+                step = self._clock_step_minor if self._in_fine_tuning else self._clock_step_major
+                if self._current_freq - step < self._sclk_min:
+                    logging.info(
+                        "[energy] At floor %d MHz with acceptable performance — CONVERGED."
+                        % self._current_freq
+                    )
+                    self._set_state(_STATE_CONVERGED)
                 else:
                     self._step_down()
             return
@@ -201,21 +319,63 @@ class EnergyAnalyzer:
         return
 
     def _step_down(self):
-        """Decrement frequency index by one and dispatch clock command.  Lock must be held."""
-        self._previous_freq_index = self._current_freq_index
-        self._current_freq_index -= 1
-        new_freq = self._current_frequency()
-        logging.info("[energy] Stepping down to %d MHz." % new_freq)
+        """Step down by major or minor increment and dispatch clock command.  Lock must be held."""
+        step = self._clock_step_minor if self._in_fine_tuning else self._clock_step_major
+        self._previous_freq = self._current_freq
+        self._current_freq -= step
+        logging.info("[energy] Stepping down to %d MHz." % self._current_freq)
         self._samples_at_current_freq = []
-        self._state = _STATE_STEPPING_DOWN
-        self._send_clock_command(new_freq)
-
-    def _current_frequency(self):
-        return self._sclk_frequencies[self._current_freq_index]
+        self._set_state(_STATE_STEPPING_DOWN)
+        self._send_clock_command(self._current_freq)
 
     @staticmethod
     def _mean(samples):
         return sum(samples) / len(samples)
+
+    def _startup_reset_with_retry(self, retry_interval=1, max_attempts=300):
+        """Spawn a background thread that retries sending max-clock to all hosts until success.
+
+        Retries up to max_attempts times with retry_interval seconds between attempts.
+        Sets _startup_reset_done = True once all hosts acknowledge, unblocking ingest_fom.
+        """
+        freq = self._sclk_max
+        hosts = list(self._hosts)
+        port = self._port
+        payload = {"clock": "sclk", "type": "max", "value": freq}
+
+        if not hosts:
+            logging.warning("[energy] No job hosts — skipping startup reset.")
+            self._startup_reset_done = True
+            return
+
+        def _retry_loop():
+            pending = list(hosts)
+            for attempt in range(1, max_attempts + 1):
+                still_pending = []
+                for host in pending:
+                    url = "http://%s:%d/command" % (host, port)
+                    try:
+                        response = requests.post(url, json=payload, timeout=5)
+                        if response.status_code == 200:
+                            logging.info("[energy] Startup reset accepted by %s (attempt %d)" % (host, attempt))
+                        else:
+                            logging.warning("[energy] Startup reset: %s returned HTTP %d" % (host, response.status_code))
+                            still_pending.append(host)
+                    except requests.exceptions.RequestException:
+                        still_pending.append(host)
+                pending = still_pending
+                if not pending:
+                    logging.info("[energy] Startup reset complete — all hosts at max clock (%d MHz)." % freq)
+                    self._startup_reset_done = True
+                    return
+                logging.info("[energy] Startup reset: waiting for %d host(s), retrying in %ds..." % (len(pending), retry_interval))
+                time.sleep(retry_interval)
+            logging.error("[energy] Startup reset failed after %d attempts for hosts: %s" % (max_attempts, pending))
+            # Unblock anyway so the optimizer can proceed
+            self._startup_reset_done = True
+
+        t = threading.Thread(target=_retry_loop, daemon=True)
+        t.start()
 
     def _send_clock_command(self, freq_mhz):
         """Dispatch a clock command to all job hosts in a background daemon thread."""
@@ -256,28 +416,39 @@ class EnergyAnalyzer:
         on all job hosts are restored to the configured maximum.  Useful during
         interactive testing when the application or its inputs change.
         """
-        max_freq = self._sclk_frequencies[-1]
         with self._lock:
             prev_state = self._state
-            self._state = _STATE_IDLE
             self._fom_history.clear()
             self._samples_at_current_freq = []
-            self._current_freq_index = len(self._sclk_frequencies) - 1
-            self._previous_freq_index = self._current_freq_index
+            self._current_freq = self._sclk_max
+            self._previous_freq = self._sclk_max
             self._baseline_fom_mean = None
+            self._warmup_start_time = None
+            self._startup_reset_done = False
+            self._in_fine_tuning = False
             logging.info(
                 "[energy] Reset from state=%s — restoring max clock (%d MHz) and returning to IDLE."
-                % (prev_state, max_freq)
+                % (prev_state, self._sclk_max)
             )
-        self._send_clock_command(max_freq)
+            self._set_state(_STATE_IDLE)
+        self._send_clock_command(self._sclk_max)
 
     def get_status(self):
         """Return a dict describing the current optimizer state (thread-safe)."""
         with self._lock:
             return {
                 "state": self._state,
-                "current_freq_mhz": self._current_frequency(),
+                "arch": self._arch,
+                "fine_tuning": self._in_fine_tuning,
+                "current_freq_mhz": self._current_freq,
+                "sclk_min": self._sclk_min,
+                "sclk_max": self._sclk_max,
+                "clock_step_major": self._clock_step_major,
+                "clock_step_minor": self._clock_step_minor,
                 "baseline_fom_mean": self._baseline_fom_mean,
                 "samples_at_current_freq": len(self._samples_at_current_freq),
-                "sclk_frequencies": self._sclk_frequencies,
+                "warmup_elapsed_sec": (
+                    round(time.monotonic() - self._warmup_start_time, 1)
+                    if self._state == _STATE_WARMING_UP else None
+                ),
             }
