@@ -385,6 +385,22 @@ def readConfig(configFile):
     return config
 
 
+def detect_gpu_arch():
+    """Detect GPU architecture via rocminfo. Returns a gfx arch string (e.g. 'gfx950') or None."""
+    try:
+        result = subprocess.run(["rocminfo"], capture_output=True, text=True, timeout=15)
+        for line in result.stdout.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("Name:") and "gfx" in stripped:
+                return stripped.split()[-1]
+    except Exception:
+        pass
+    return None
+
+
+
+
+
 def getRMSHosts():
     """Return the list of hostnames assigned to the current RMS job."""
     if "SLURM_JOB_NODELIST" in os.environ:
