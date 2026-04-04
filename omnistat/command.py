@@ -40,7 +40,7 @@ from datetime import datetime, timezone
 
 from prometheus_client import Gauge
 
-from omnistat.annotate import omnistat_annotate
+# from omnistat.annotate import omnistat_annotate
 
 # Prometheus gauge tracking the most recently applied clock frequency per
 # (clock, limit, gpu) combination.
@@ -67,24 +67,10 @@ class CommandController:
         if not self._clock_cmd:
             raise ValueError("[omnistat.optimize] clock_cmd is required but not set.")
 
-        raw_freqs = config[section].get("sclk_frequencies", "").strip()
-        if not raw_freqs:
-            raise ValueError("[omnistat.optimize] sclk_frequencies is required but not set.")
-
-        try:
-            self._sclk_frequencies = sorted(int(f.strip()) for f in raw_freqs.split(","))
-        except ValueError:
-            raise ValueError(
-                "[omnistat.optimize] sclk_frequencies must be a comma-separated list of integers in MHz."
-            )
-
-        if len(self._sclk_frequencies) < 2:
-            raise ValueError("[omnistat.optimize] sclk_frequencies must contain at least two frequency values.")
-
-        self._annotate = omnistat_annotate()
+        # self._annotate = omnistat_annotate()
         logging.info(
-            "[CommandController] Initialized. clock_cmd=%s  sclk_frequencies=%s"
-            % (self._clock_cmd, self._sclk_frequencies)
+            "[CommandController] Initialized. clock_cmd=%s"
+            % self._clock_cmd
         )
 
     def apply_command(self, cmd_dict):
@@ -115,11 +101,6 @@ class CommandController:
             raise ValueError("Invalid 'type': must be one of %s" % sorted(_VALID_LIMITS))
         if not isinstance(value, int):
             raise ValueError("'value' must be an integer (MHz).")
-        if clock == "sclk" and value not in self._sclk_frequencies:
-            raise ValueError(
-                "Frequency %d MHz is not in the configured sclk_frequencies list: %s"
-                % (value, self._sclk_frequencies)
-            )
         if gpu_index is not None and (not isinstance(gpu_index, int) or gpu_index < 0):
             raise ValueError("'gpu_index' must be a non-negative integer.")
 
@@ -145,7 +126,7 @@ class CommandController:
             value,
             ", ".join(results),
         )
-        self._annotate.start(annotation_text)
+        # self._annotate.start(annotation_text)
         logging.info("[CommandController] Applied: %s" % annotation_text)
 
         return {"status": "ok", "clock": clock, "type": limit, "value": value, "gpus": results}
