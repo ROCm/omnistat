@@ -96,7 +96,7 @@ _STATE_INT = {
 
 
 class EnergyAnalyzer:
-    def __init__(self, config, host_endpoints, collector_port, on_state_change=None):
+    def __init__(self, config, host_endpoints, collector_port, on_state_change=None, on_perf_drop=None):
         """Initialize from an already-parsed ConfigParser object.
 
         Args:
@@ -133,6 +133,7 @@ class EnergyAnalyzer:
         # State machine
         self._state = _STATE_IDLE
         self._on_state_change = on_state_change  # optional callback(state_str, state_int, freq_mhz)
+        self._on_perf_drop = on_perf_drop          # optional callback(drop_pct, freq_mhz)
         self._lock = threading.Lock()
 
         # FOM history: each entry is a float value.  Bounded by approximate byte budget.
@@ -253,14 +254,20 @@ class EnergyAnalyzer:
             return
 
         if self._state == _STATE_STEPPING_DOWN:
-            if len(self._samples_at_current_freq) < self._min_observe_samples:
-                return  # Still collecting samples at this frequency
-
+            # Emit running delta on every sample — no minimum wait
             current_mean = self._mean(self._samples_at_current_freq)
             if self._fom_higher_is_better:
                 drop_pct = (self._baseline_fom_mean - current_mean) / self._baseline_fom_mean * 100.0
             else:
                 drop_pct = (current_mean - self._baseline_fom_mean) / self._baseline_fom_mean * 100.0
+            if self._on_perf_drop is not None:
+                try:
+                    self._on_perf_drop(drop_pct, self._current_freq)
+                except Exception as e:
+                    logging.warning("[energy] on_perf_drop callback failed: %s" % e)
+
+            if len(self._samples_at_current_freq) < self._min_observe_samples:
+                return  # Still collecting samples; wait before making step decision
 
             logging.info(
                 "[energy] At %d MHz: mean FOM = %.4f  drop = %.2f%%  (threshold %.1f%%)"
@@ -315,8 +322,18 @@ class EnergyAnalyzer:
                     self._step_down()
             return
 
-        # _STATE_CONVERGED — no further action
-        return
+        if self._state == _STATE_CONVERGED:
+            if self._baseline_fom_mean is not None and self._on_perf_drop is not None:
+                current_mean = self._mean(self._samples_at_current_freq)
+                if self._fom_higher_is_better:
+                    drop_pct = (self._baseline_fom_mean - current_mean) / self._baseline_fom_mean * 100.0
+                else:
+                    drop_pct = (current_mean - self._baseline_fom_mean) / self._baseline_fom_mean * 100.0
+                try:
+                    self._on_perf_drop(drop_pct, self._current_freq)
+                except Exception as e:
+                    logging.warning("[energy] on_perf_drop callback failed: %s" % e)
+            return
 
     def _step_down(self):
         """Step down by major or minor increment and dispatch clock command.  Lock must be held."""
