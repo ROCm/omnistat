@@ -119,12 +119,13 @@ class EnergyAnalyzer:
         self._fom_higher_is_better = fom_direction_raw == "higher"
 
         self._clock_step_major = config[section].getint("clock_step_major", 50)
-        self._clock_step_minor = config[section].getint("clock_step_minor", 5)
+        self._num_levels = config[section].getint("num_levels", 3)
 
         self._arch, sclk_min, sclk_max = _resolve_sclk_range(config)
         self._sclk_min = sclk_min
         self._sclk_max = sclk_max
-        self._in_fine_tuning = False
+        self._current_level = 1
+        self._current_step = self._clock_step_major
 
         # host endpoints for clock commands
         self._hosts = host_endpoints or []
@@ -158,8 +159,8 @@ class EnergyAnalyzer:
         self._startup_reset_done = False
 
         logging.info(
-            "[energy] Initialized. arch=%s  sclk=[%d..%d]  step_major=%d  step_minor=%d  warmup=%.0fs  min_observe=%d  max_drop=%.1f%%  fom_direction=%s  hosts=%d"
-            % (self._arch, self._sclk_min, self._sclk_max, self._clock_step_major, self._clock_step_minor,
+            "[energy] Initialized. arch=%s  sclk=[%d..%d]  step_major=%d  num_levels=%d  warmup=%.0fs  min_observe=%d  max_drop=%.1f%%  fom_direction=%s  hosts=%d"
+            % (self._arch, self._sclk_min, self._sclk_max, self._clock_step_major, self._num_levels,
                self._min_warmup_time_sec, self._min_observe_samples, self._max_performance_drop,
                fom_direction_raw, len(self._hosts))
         )
@@ -245,7 +246,7 @@ class EnergyAnalyzer:
                 % (self._baseline_fom_mean, len(self._samples_at_current_freq), self._current_freq)
             )
 
-            if self._current_freq - self._clock_step_major < self._sclk_min:
+            if self._current_freq - self._current_step < self._sclk_min:
                 logging.info("[energy] Already at or near minimum frequency; converging immediately.")
                 self._set_state(_STATE_CONVERGED)
                 return
@@ -275,47 +276,48 @@ class EnergyAnalyzer:
             )
 
             if drop_pct >= self._max_performance_drop:
-                if not self._in_fine_tuning:
-                    # Major-step boundary found — enter fine-tuning from last acceptable freq
-                    revert_freq = self._previous_freq
-                    first_minor = revert_freq - self._clock_step_minor
-                    if first_minor >= self._sclk_min:
+                revert_freq = self._previous_freq
+                if self._current_level < self._num_levels:
+                    # Boundary found — refine with half the step size on the next level
+                    next_level = self._current_level + 1
+                    next_step = self._clock_step_major >> (next_level - 1)  # major / 2^(level-1)
+                    next_freq = revert_freq - next_step
+                    if next_step < 1 or next_freq < self._sclk_min:
                         logging.info(
-                            "[energy] Major-step boundary — entering fine-tuning from %d MHz (step=%d MHz)"
-                            % (revert_freq, self._clock_step_minor)
-                        )
-                        self._in_fine_tuning = True
-                        self._previous_freq = revert_freq
-                        self._current_freq = first_minor
-                        self._samples_at_current_freq = []
-                        self._set_state(_STATE_STEPPING_DOWN)
-                        self._send_clock_command(first_minor)
-                    else:
-                        # No room for fine-tuning; converge at last acceptable freq
-                        logging.info(
-                            "[energy] No fine-tuning range below %d MHz — CONVERGED."
-                            % revert_freq
+                            "[energy] Level %d/%d: no room to refine below %d MHz — CONVERGED."
+                            % (self._current_level, self._num_levels, revert_freq)
                         )
                         self._current_freq = revert_freq
                         self._send_clock_command(revert_freq)
                         self._set_state(_STATE_CONVERGED)
+                    else:
+                        logging.info(
+                            "[energy] Level %d/%d boundary at %d MHz — starting level %d with step=%d MHz from %d MHz"
+                            % (self._current_level, self._num_levels, self._current_freq,
+                               next_level, next_step, revert_freq)
+                        )
+                        self._current_level = next_level
+                        self._current_step = next_step
+                        self._current_freq = next_freq
+                        self._previous_freq = revert_freq
+                        self._samples_at_current_freq = []
+                        self._set_state(_STATE_STEPPING_DOWN)
+                        self._send_clock_command(next_freq)
                 else:
-                    # Fine-tuning boundary found — revert to previous minor freq and converge
-                    revert_freq = self._previous_freq
+                    # Last level boundary — converge at last acceptable freq
                     logging.info(
-                        "[energy] Fine-tuning drop %.2f%% exceeds threshold — reverting to %d MHz — CONVERGED."
-                        % (drop_pct, revert_freq)
+                        "[energy] Level %d/%d: drop %.2f%% exceeds threshold — CONVERGED at %d MHz."
+                        % (self._current_level, self._num_levels, drop_pct, revert_freq)
                     )
                     self._current_freq = revert_freq
                     self._send_clock_command(revert_freq)
                     self._set_state(_STATE_CONVERGED)
             else:
-                # Performance is acceptable — try stepping down further
-                step = self._clock_step_minor if self._in_fine_tuning else self._clock_step_major
-                if self._current_freq - step < self._sclk_min:
+                # Performance acceptable — step down further
+                if self._current_freq - self._current_step < self._sclk_min:
                     logging.info(
-                        "[energy] At floor %d MHz with acceptable performance — CONVERGED."
-                        % self._current_freq
+                        "[energy] Level %d/%d: at floor %d MHz with acceptable performance — CONVERGED."
+                        % (self._current_level, self._num_levels, self._current_freq)
                     )
                     self._set_state(_STATE_CONVERGED)
                 else:
@@ -336,11 +338,11 @@ class EnergyAnalyzer:
             return
 
     def _step_down(self):
-        """Step down by major or minor increment and dispatch clock command.  Lock must be held."""
-        step = self._clock_step_minor if self._in_fine_tuning else self._clock_step_major
+        """Step down by current_step and dispatch clock command.  Lock must be held."""
         self._previous_freq = self._current_freq
-        self._current_freq -= step
-        logging.info("[energy] Stepping down to %d MHz." % self._current_freq)
+        self._current_freq -= self._current_step
+        logging.info("[energy] Stepping down to %d MHz (level %d/%d, step=%d MHz)."
+                     % (self._current_freq, self._current_level, self._num_levels, self._current_step))
         self._samples_at_current_freq = []
         self._set_state(_STATE_STEPPING_DOWN)
         self._send_clock_command(self._current_freq)
@@ -442,7 +444,8 @@ class EnergyAnalyzer:
             self._baseline_fom_mean = None
             self._warmup_start_time = None
             self._startup_reset_done = False
-            self._in_fine_tuning = False
+            self._current_level = 1
+            self._current_step = self._clock_step_major
             logging.info(
                 "[energy] Reset from state=%s — restoring max clock (%d MHz) and returning to IDLE."
                 % (prev_state, self._sclk_max)
@@ -456,12 +459,13 @@ class EnergyAnalyzer:
             return {
                 "state": self._state,
                 "arch": self._arch,
-                "fine_tuning": self._in_fine_tuning,
+                "current_level": self._current_level,
+                "num_levels": self._num_levels,
+                "current_step_mhz": self._current_step,
                 "current_freq_mhz": self._current_freq,
                 "sclk_min": self._sclk_min,
                 "sclk_max": self._sclk_max,
                 "clock_step_major": self._clock_step_major,
-                "clock_step_minor": self._clock_step_minor,
                 "baseline_fom_mean": self._baseline_fom_mean,
                 "samples_at_current_freq": len(self._samples_at_current_freq),
                 "warmup_elapsed_sec": (
