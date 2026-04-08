@@ -30,6 +30,7 @@ import logging
 import os
 import re
 import resource
+import shlex
 import shutil
 import subprocess
 import sys
@@ -582,8 +583,8 @@ def execute_ssh_command_nohup(
     while attempt <= max_retries:
         try:
             outfile = outputDir + f"/omnistat_launch_{hostname}_try{attempt}.log"
-            nohup_command = f"nohup {command} > {outfile} 2>&1 &"
-            ssh_command = ["ssh", hostname, nohup_command]
+            nohup_command = f"nohup {command} > {shlex.quote(outfile)} 2>&1 &"
+            ssh_command = ["ssh", hostname, "bash", "-c", nohup_command]
 
             logging.debug(f"[pssh] {ssh_command}")
 
