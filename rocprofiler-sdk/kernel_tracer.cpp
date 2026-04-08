@@ -22,6 +22,7 @@
 // DEALINGS IN THE SOFTWARE.
 // ---------------------------------------------------------------------------
 
+#include "counter_enabler.hpp"
 #include "kernel_tracer.hpp"
 #include "common.hpp"
 
@@ -309,6 +310,13 @@ rocprofiler_configure(uint32_t version [[maybe_unused]],
                       const char* runtime_version [[maybe_unused]],
                       uint32_t priority [[maybe_unused]], rocprofiler_client_id_t* id) {
     id->name = "omnistat-kernel-trace";
+
+    rocprofiler_status_t status = rocprofiler_at_intercept_table_registration(
+        hsa_intercept_cb, ROCPROFILER_HSA_TABLE, nullptr);
+    if (status != ROCPROFILER_STATUS_SUCCESS) {
+        std::cerr << "[omnistat] ERROR: intercept registration failed (status="
+                  << static_cast<int>(status) << ")\n";
+    }
 
     auto* tracer = new omnistat::KernelTracer();
 

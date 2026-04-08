@@ -22,12 +22,16 @@
 // DEALINGS IN THE SOFTWARE.
 // ---------------------------------------------------------------------------
 
-// A minimal rocprofiler-sdk v2 tool loaded via ROCP_TOOL_LIBRARIES that
-// intercepts hsa_queue_create and submits a PM4 COMPUTE_PERFCOUNT_ENABLE
-// packet on every new HSA queue.
+// Shared header for the PM4 COMPUTE_PERFCOUNT_ENABLE intercept logic.
+//
+// All functions and variables are `static` so that each translation unit
+// (shared library) that includes this header gets its own independent copy of
+// the state.  This is intentional: omnistat_counter and omnistat_trace are
+// separate .so files that are never linked together.
+
+#pragma once
 
 #include <rocprofiler-sdk/intercept_table.h>
-#include <rocprofiler-sdk/registration.h>
 #include <rocprofiler-sdk/rocprofiler.h>
 #include <hsa/hsa_api_trace.h>
 #include <hsa/hsa_ven_amd_aqlprofile.h>
@@ -245,21 +249,4 @@ static void hsa_intercept_cb(rocprofiler_intercept_table_t type,
 
     hsa_table->core_->hsa_queue_create_fn = wrapped_hsa_queue_create;
     std::cerr << "[omnistat] hsa_queue_create intercept installed\n";
-}
-
-extern "C" rocprofiler_tool_configure_result_t*
-rocprofiler_configure([[maybe_unused]] uint32_t version,
-                      [[maybe_unused]] const char* runtime_version,
-                      [[maybe_unused]] uint32_t priority,
-                      rocprofiler_client_id_t* id) {
-
-    id->name = "omnistat-counter-enabler";
-
-    rocprofiler_status_t status = rocprofiler_at_intercept_table_registration(
-        hsa_intercept_cb, ROCPROFILER_HSA_TABLE, nullptr);
-    if (status != ROCPROFILER_STATUS_SUCCESS)
-        std::cerr << "[omnistat] ERROR: intercept registration failed (status="
-                  << static_cast<int>(status) << ")\n";
-
-    return nullptr;
 }

@@ -29,18 +29,8 @@ project(omnistat_rocprofiler_sdk_extension LANGUAGES CXX)
 # package and extensions. When it's enabled, compile only the library and
 # nothing else.
 option(BUILD_KERNEL_TRACE_LIB "Build the kernel tracing library" OFF)
-option(BUILD_COUNTER_ENABLER_LIB "Build the performance counter enabler tool library" OFF)
 
-if (BUILD_COUNTER_ENABLER_LIB)
-    find_package(rocprofiler-sdk REQUIRED)
-
-    add_library(omnistat_counter SHARED counter_enabler.cpp)
-    target_compile_features(omnistat_counter PRIVATE cxx_std_17)
-    target_link_libraries(omnistat_counter PRIVATE rocprofiler-sdk::rocprofiler-sdk)
-
-    install(TARGETS omnistat_counter LIBRARY DESTINATION lib)
-
-elseif (NOT BUILD_KERNEL_TRACE_LIB)
+if (NOT BUILD_KERNEL_TRACE_LIB)
     find_package(Python COMPONENTS Interpreter Development REQUIRED)
 
     set(CMAKE_EXECUTE_PROCESS_COMMAND_ECHO STDOUT)
