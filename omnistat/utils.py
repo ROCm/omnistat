@@ -584,7 +584,7 @@ def execute_ssh_command_nohup(
         try:
             outfile = outputDir + f"/omnistat_launch_{hostname}_try{attempt}.log"
             nohup_command = f"nohup {command} > {shlex.quote(outfile)} 2>&1 &"
-            ssh_command = ["ssh", hostname, "bash", "-c", nohup_command]
+            ssh_command = ["ssh", hostname, "bash -c " + shlex.quote(nohup_command)]
 
             logging.debug(f"[pssh] {ssh_command}")
 
