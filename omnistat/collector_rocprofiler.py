@@ -38,6 +38,7 @@ omnistat_rocprofiler{card="0",counter="SQ_INSTS_VALU"} 0.0
 omnistat_rocprofiler{card="0",counter="TA_BUSY_avr"} 0.0
 """
 
+import configparser
 import ctypes
 import logging
 import os
