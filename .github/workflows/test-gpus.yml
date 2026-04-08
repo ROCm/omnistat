@@ -6,10 +6,13 @@ on:
     - cron: "0 */6 * * *"    # every 6 hours
 
   pull_request:
-    branches: [ main, dev ]      
+    branches: [ main, dev ]
 
 jobs:
   gpu-collectors:
+    defaults:
+      run:
+        shell: bash --login {0}
     runs-on: [self-hosted, instinct]
     strategy:
       matrix:
@@ -37,32 +40,33 @@ jobs:
           pip install -r requirements.txt
           pip install -r test/requirements.txt
 
-      - name: Build kernel trace library and test workloads
+      - name: Build kernel trace library
         run: |
-          module load rocm/7.2.0
           cmake -B build -S rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON
           cmake --build build
-          make -C test/workloads OFFLOAD_ARCH="gfx90a gfx942"
+
+      - name: Build test workloads
+        run: make -C test/workloads OFFLOAD_ARCH="gfx90a gfx942"
 
       - name: Collector tests
+        env:
+          ROCP_TOOL_LIBRARIES: ${{ github.workspace }}/build/libomnistat_trace.so
         run: |
           source omnistat_venv/bin/activate
           srun -N 1 -J omnistat -p $CI_QUEUE -t 00:10:00 \
-            bash -lc "module load rocm/7.2.0 && \
-            ROCP_TOOL_LIBRARIES=$PWD/build/libomnistat_trace.so \
-            pytest -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py"
+            pytest -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py
 
 ##       - name: Test Report
 ##         uses: dorny/test-reporter@v2
 ##         if: ${{ !cancelled() }}
 ##         with:
 ##           name: GPU Collectors
-##           reporter: jest-junit 
+##           reporter: jest-junit
 ##           path: results.xml
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v5
-        if: ${{ !cancelled() }}	
+        if: ${{ !cancelled() }}
         with:
           include_passed: 'true'
           report_paths: 'results.xml'
