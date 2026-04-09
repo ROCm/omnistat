@@ -28,19 +28,7 @@
 //
 // Usage: vector_add <num_elements>
 
-#include <cstdio>
-#include <cstdlib>
-#include <hip/hip_runtime.h>
-
-#define HIP_CHECK(call)                                                        \
-  do {                                                                         \
-    hipError_t err = (call);                                                   \
-    if (err != hipSuccess) {                                                   \
-      fprintf(stderr, "HIP error %d: %s at %s:%d\n", err,                     \
-              hipGetErrorString(err), __FILE__, __LINE__);                     \
-      exit(1);                                                                 \
-    }                                                                          \
-  } while (0)
+#include "common.hpp"
 
 __global__ void vector_add_kernel(const float *A, const float *B, float *C,
                                   int N) {
