@@ -1,0 +1,43 @@
+name: Nightly Python Wheel Release
+
+on:
+  schedule:
+    - cron: '0 4 * * *' # Runs nightly at 4AM UTC / 12AM EST
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-wheel:
+    name: Build and upload Python wheel
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        run: |
+          pip install build
+          pip install -r requirements.txt
+
+      - name: Build wheel
+        run: python -m build --wheel --outdir dist/
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload wheel to S3
+        run: |
+          aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/omnistat/nightly/test/${{ }} \
+            --no-progress
