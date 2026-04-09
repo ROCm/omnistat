@@ -37,6 +37,7 @@ from flask import Flask
 from prometheus_client.parser import text_string_to_metric_families
 
 import test.config
+import test.workloads as workloads
 from omnistat.monitor import Monitor
 from omnistat.node_monitoring import OmnistatServer
 from omnistat.utils import runShellCommand
@@ -97,6 +98,10 @@ HOST_METRICS = [
     {"name": "omnistat_host_cpu_num_physical_cores",         "validate": ">=%i" % (cores/2),  "labels": None},
     {"name": "omnistat_host_cpu_num_logical_cores",          "validate": "==%i" % cores,      "labels": None},
     {"name": "omnistat_host_boot_time_seconds",              "validate": ">1000",             "labels": None},
+]
+
+ROCPROFILER_METRICS = [
+    {"name": "omnistat_hardware_counter",                    "validate": ">=0",               "labels": ["source", "card", "name"]},
 ]
 
 # fmt: on
@@ -167,6 +172,17 @@ COLLECTOR_CONFIGS = [
         "collectors": ["host_metrics", "omnistat.collectors.host::enable_proc_io_stats"],
         "metrics": HOST_METRICS,
     },
+    {
+        "collectors": ["rocprofiler"],
+        "metrics": ROCPROFILER_METRICS,
+        "config_sections": {
+            "omnistat.collectors.rocprofiler": {"profile": "default"},
+            "omnistat.collectors.rocprofiler.default": {
+                "sampling_mode": "constant",
+                "counters": '["GRBM_COUNT", "GRBM_GUI_ACTIVE"]',
+            },
+        },
+    },
     # general info metrics expected to be present regardless of collector config
     {
         "collectors": ["rocm_smi"],
@@ -194,13 +210,13 @@ ops = {
 
 
 class OmnistatTestServer:
-    def __init__(self, collectors):
+    def __init__(self, collectors, config_sections=None):
         self.address = f"localhost:{test.config.port}"
         self.url = f"http://{self.address}/metrics"
         self.timeout = 5.0
         self.collectors = collectors
 
-        config = self.generate_config(self.collectors)
+        config = self.generate_config(self.collectors, config_sections=config_sections)
         monitor = Monitor(config)
 
         def post_fork(server, worker):
@@ -228,7 +244,7 @@ class OmnistatTestServer:
                 self._process.join(timeout=1)
         time.sleep(1.0)
 
-    def generate_config(self, enabled_collectors):
+    def generate_config(self, enabled_collectors, config_sections=None):
         config = configparser.ConfigParser()
         collectors = {"rocm_path": test.config.rocm_path}
 
@@ -243,6 +259,11 @@ class OmnistatTestServer:
                 collectors[f"enable_{collector}"] = True
 
         config["omnistat.collectors"] = collectors
+
+        if config_sections:
+            for section, options in config_sections.items():
+                config[section] = options
+
         return config
 
     def wait_for_server(self):
@@ -269,7 +290,8 @@ class OmnistatTestServer:
 # Fixture to manage server lifecycle
 @pytest.fixture(scope="class")
 def server(request):
-    server = OmnistatTestServer(request.param)
+    collectors, config_sections = request.param
+    server = OmnistatTestServer(collectors, config_sections=config_sections)
     yield server
     server.stop()
 
@@ -303,8 +325,9 @@ def pytest_generate_tests(metafunc):
         argvalues = []
         ids = []
         for config in COLLECTOR_CONFIGS:
+            config_sections = config.get("config_sections")
             for metric in config["metrics"]:
-                argvalues.append((config["collectors"], metric))
+                argvalues.append(((config["collectors"], config_sections), metric))
                 collector_config = config["collectors"].copy()
                 if len(collector_config) > 1:
                     if "::" in collector_config[1]:
@@ -353,3 +376,39 @@ class TestCollectors:
         threshold = float(num_str)
 
         assert ops[op_str](value, threshold), f"Invalid value for {name} (expecting {validate_expr}, received {value})"
+
+
+class TestHardwareCounters:
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_counters_with_workload(self):
+        config_sections = {
+            "omnistat.collectors.rocprofiler": {"profile": "default"},
+            "omnistat.collectors.rocprofiler.default": {
+                "sampling_mode": "constant",
+                "counters": '["GRBM_COUNT", "GRBM_GUI_ACTIVE", "SQ_INSTS_VALU"]',
+            },
+        }
+        server = OmnistatTestServer(["rocprofiler"], config_sections=config_sections)
+
+        # Run GPU workload with HSA_TOOLS_LIB so the profiler can intercept
+        # application-level PMC counter activity.
+        hsa_tools_lib = os.path.join(test.config.rocm_path, "lib", "librocprofiler64.so")
+        result = workloads.run("vector_add", [1000000], env={"HSA_TOOLS_LIB": hsa_tools_lib})
+        assert result.returncode == 0, f"vector_add failed: {result.stderr}"
+
+        # Scrape metrics
+        metrics = {}
+        for metric in server.get():
+            for sample in metric.samples:
+                key = (metric.name, sample.labels.get("name", ""))
+                metrics[key] = sample.value
+
+        server.stop()
+
+        # Validate counters are non-zero
+        assert ("omnistat_hardware_counter", "GRBM_COUNT") in metrics
+        assert metrics[("omnistat_hardware_counter", "GRBM_COUNT")] > 0
+        assert ("omnistat_hardware_counter", "GRBM_GUI_ACTIVE") in metrics
+        assert metrics[("omnistat_hardware_counter", "GRBM_GUI_ACTIVE")] > 0
+        assert ("omnistat_hardware_counter", "SQ_INSTS_VALU") in metrics
+        assert metrics[("omnistat_hardware_counter", "SQ_INSTS_VALU")] > 0

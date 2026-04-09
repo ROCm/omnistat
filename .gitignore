@@ -14,3 +14,4 @@ omnistat/*.so
 test/slurm-job-user.sh
 grafana/json-models/user/
 test/workloads/launch_kernels
+test/workloads/vector_add
