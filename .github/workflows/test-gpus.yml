@@ -39,6 +39,10 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r test/requirements.txt
+          pip install nanobind
+          cmake -S rocprofiler-sdk/ -B build/
+          cmake --build build/
+          cmake --install build/ --prefix .
 
       - name: Build kernel trace library
         run: |
@@ -51,6 +55,8 @@ jobs:
       - name: Collector tests
         env:
           ROCP_TOOL_LIBRARIES: ${{ github.workspace }}/build/libomnistat_trace.so
+          # Workaround to make sure counters work when tracing is also enabled
+          HSA_TOOLS_ROCPROFILER_V1_TOOLS: 1
         run: |
           source omnistat_venv/bin/activate
           srun -N 1 -J omnistat -p $CI_QUEUE -t 00:10:00 \
