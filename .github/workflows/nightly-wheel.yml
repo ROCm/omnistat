@@ -5,10 +5,10 @@ on:
     - cron: '0 4 * * *' # Runs nightly at 4AM UTC / 12AM EST
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: 'Enable to skip deployment'
+      deploy:
+        description: 'Upload wheel to S3 bucket?'
         type: boolean
-        default: true
+        default: false
   pull_request:
     paths:
       - '.github/workflows/nightly-wheel.yml'
@@ -25,6 +25,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Setup
+        id: setup
+        run: |
+          if [ '${{ github.event_name }}' = 'schedule' ] || [ '${{ inputs.deploy }}' = 'true' ]; then
+            DEPLOY=true
+          else
+            DEPLOY=false
+          fi
+          echo "deploy=${DEPLOY}" >> $GITHUB_OUTPUT
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -47,7 +57,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Upload wheel to S3
-        if: ${{ inputs.dry_run == false || github.event_name == 'schedule' }}
+        if: ${{ steps.setup.outputs.deploy == 'true' }}
         run: |
           aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/nightly/test/ \
             --no-progress
