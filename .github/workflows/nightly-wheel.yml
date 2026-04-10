@@ -42,5 +42,5 @@ jobs:
 
       - name: Upload wheel to S3
         run: |
-          aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/omnistat/nightly/test/ \
+          aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/nightly/test/ \
             --no-progress
