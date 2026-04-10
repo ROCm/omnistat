@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 4 * * *' # Runs nightly at 4AM UTC / 12AM EST
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Enable to skip deployment'
+        type: boolean
+        default: true
   pull_request:
     paths:
       - '.github/workflows/nightly-wheel.yml'
@@ -13,12 +18,12 @@ permissions:
   contents: read
 
 jobs:
-  build-wheel:
+  nightly-wheel:
     name: Build and upload Python wheel
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Check out repository
+      - name: Checkout repository
         uses: actions/checkout@v6
 
       - name: Set up Python
@@ -32,7 +37,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build wheel
-        run: python -m build --wheel --outdir dist/
+        run: | 
+          python -m build --wheel --outdir dist/
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -41,6 +47,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Upload wheel to S3
+        if: ${{ inputs.dry_run == false }} || ${{ github.event_name == 'schedule' }}
         run: |
           aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/nightly/test/ \
             --no-progress
