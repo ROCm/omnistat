@@ -47,7 +47,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Upload wheel to S3
-        if: ${{ inputs.dry_run == false }} || ${{ github.event_name == 'schedule' }}
+        if: ${{ inputs.dry_run == false || github.event_name == 'schedule' }}
         run: |
           aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/nightly/test/ \
             --no-progress
