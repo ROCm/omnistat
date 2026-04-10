@@ -3,11 +3,11 @@ name: MI325
 on:
   workflow_dispatch:
 
-##   schedule:
-##     - cron: "0 */12 * * *"    
-## 
-##   pull_request:
-##     branches: [ main, dev ]
+  schedule:
+    - cron: "0 */12 * * *"
+
+  pull_request:
+    branches: [ main, dev ]
 
 jobs:
   gpu-collectors-325:
