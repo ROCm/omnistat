@@ -165,7 +165,7 @@ echo $! > victoria.pid
 - `-retentionPeriod=100y`: **CRITICAL** - Keeps data for 100 years to prevent automatic deletion of historical data (default is only 1 month)
 - `-search.disableCache`: Ensures fresh data reads (useful for exploring)
 - `-search.latencyOffset=0`: No artificial latency for queries
-- `-search.maxPointsPerTimeseries=90000`: Maximum data points per time series
+- `-search.maxPointsPerTimeseries=90000`: Maximum data points returned per time series in a single range query. This caps the query resolution: the finest possible step is `job_runtime / 90000`. For example, a 1-hour job can be queried at 0.04s resolution, while a 24-hour job is limited to ~1s. The `omnistat-inspect` tool auto-computes the finest safe step within this limit. Increase this value for finer resolution on very long jobs, but note that higher values increase memory usage per query
 
 ### Access the Database
 
