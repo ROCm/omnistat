@@ -7,6 +7,7 @@ import sys
 from omnistat.inspect._analyzer import AnalyzeJob
 from omnistat.inspect._commands import (
     cmd_counters,
+    cmd_data_check,
     cmd_db_info,
     cmd_health,
     cmd_iterations,
@@ -69,6 +70,16 @@ def build_parser():
         "--level",
         default=None,
         help="Filter to a specific aggregation level (valid levels depend on category)",
+    )
+
+    # data-check
+    p_data_check = subparsers.add_parser("data-check", help="Validate data collection completeness and timing")
+    p_data_check.add_argument("--job", required=True, help="Job ID")
+    p_data_check.add_argument(
+        "--interval",
+        type=float,
+        default=None,
+        help="Sampling interval (seconds) — used for time-range refinement and gap threshold",
     )
 
     # health
@@ -165,6 +176,7 @@ def main():
         "job-info": cmd_job_info,
         "metrics": cmd_metrics,
         "stats": cmd_stats,
+        "data-check": cmd_data_check,
         "health": cmd_health,
         "timeseries": cmd_timeseries,
         "query": cmd_query,
