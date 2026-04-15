@@ -119,20 +119,34 @@ For `timeseries` and `query` subcommands, you control the step explicitly via `-
 
 **Critical rule for peak metrics:** If peak FOM, peak utilization, or peak throughput appears degraded, **always re-verify at the finest feasible step** (using `query` with an explicit `--step`) before concluding there is a peak performance difference. Apparent peak degradation is frequently an artifact of temporal averaging — the true peaks may be identical across jobs. Do not claim peak performance differs without checking at fine resolution.
 
-### Phase 2: Data Collection Validation
+### Phase 2: Data Collection and Hardware Health Validation
 
-Before analyzing performance, verify that data collection was complete and reliable.
+Before analyzing performance, verify that data collection was complete and reliable, and check for hardware issues.
 
 ```bash
-# Run automated health checks
+# Validate data collection completeness, timing stagger, and gaps
+omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH data-check --job JOBID
+
+# Run hardware health checks (RAS errors, thermals, power)
 omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH health --job JOBID
 ```
 
+#### Data collection (`data-check`)
+
+Review the data-check report for:
+- **Missing nodes**: `expected_nodes` vs `reporting_nodes` — any gap means some nodes never reported
+- **Activation stagger**: `activation.spread_seconds` — how long it took for all nodes to start reporting. A spread >5% of total job duration is significant and means early-job statistics are skewed by partial participation
+- **Deactivation stagger**: `deactivation.spread_seconds` — same for shutdown. Large spread means late-job statistics are unreliable
+- **Sampling gaps**: `sampling_gaps.nodes_with_gaps` and `sampling_gaps.total_gaps` — check `gap_timing` to see if gaps are clustered (systemic event, e.g., network outage) or distributed (per-node issues). Clustered gaps at the same offset suggest a single event affecting all nodes simultaneously
+- **Reporting duration**: `reporting_duration.stats` — nodes with significantly shorter reporting durations may have crashed or been evicted mid-job
+
+#### Hardware health (`health`)
+
 Review the health report for:
-- **Data collection gaps**: Missing nodes, sampling interruptions
 - **RAS errors**: Any hardware errors during the job
 - **Thermal issues**: GPUs running hot
 - **Power anomalies**: Unexpected zero-power readings
+- **Push health**: Whether monitoring push duration exceeded the push interval (indicates monitoring overhead)
 
 If critical issues are found, note them -- they may explain performance anomalies found later.
 

@@ -145,6 +145,18 @@ def cmd_stats(analyzer, args):
     }
 
 
+def cmd_data_check(analyzer, args):
+    err = _ensure_job(analyzer, args)
+    if err:
+        return err
+
+    interval = args.interval if args.interval is not None else (analyzer.sampling_interval or 5.0)
+    result = analyzer.check_data_collection(interval)
+    result["jobid"] = args.job
+    result["query_stats"] = analyzer.get_query_stats()
+    return result
+
+
 def cmd_health(analyzer, args):
     err = _ensure_job(analyzer, args)
     if err:
