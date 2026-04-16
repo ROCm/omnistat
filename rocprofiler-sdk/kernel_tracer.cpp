@@ -25,10 +25,17 @@
 #include "kernel_tracer.hpp"
 #include "common.hpp"
 
+#include <rocprofiler-sdk/version.h>
+
+#ifndef ROCPROFILER_SDK_VERSION
+#define ROCPROFILER_SDK_VERSION ROCPROFILER_VERSION
+#endif
+
 #include <chrono>
 #include <cxxabi.h>
 #include <iterator>
 #include <memory>
+#include <stdexcept>
 #include <thread>
 #include <unistd.h>
 
@@ -61,7 +68,7 @@ void code_object_callback(rocprofiler_callback_tracing_record_t record,
     auto* tracer = static_cast<KernelTracer*>(tool_data);
 
     if (record.kind == ROCPROFILER_CALLBACK_TRACING_CODE_OBJECT &&
-               record.operation == ROCPROFILER_CODE_OBJECT_DEVICE_KERNEL_SYMBOL_REGISTER) {
+        record.operation == ROCPROFILER_CODE_OBJECT_DEVICE_KERNEL_SYMBOL_REGISTER) {
         auto* data =
             static_cast<rocprofiler_callback_tracing_code_object_kernel_symbol_register_data_t*>(
                 record.payload);
@@ -295,8 +302,13 @@ void KernelTracer::record_flush_stats(size_t num_headers, bool failed) {
 // ------------------------------------------------------------------------------------------------
 
 int tool_init(rocprofiler_client_finalize_t fini_func [[maybe_unused]], void* tool_data) {
-    auto* tracer = static_cast<omnistat::KernelTracer*>(tool_data);
-    return tracer->initialize();
+    try {
+        auto* tracer = static_cast<omnistat::KernelTracer*>(tool_data);
+        return tracer->initialize();
+    } catch (const std::exception& e) {
+        std::cerr << "Omnistat: tracing disabled (initialization failure)" << std::endl;
+        return -1;
+    }
 }
 
 void tool_fini(void* tool_data) {
@@ -305,9 +317,18 @@ void tool_fini(void* tool_data) {
 }
 
 extern "C" rocprofiler_tool_configure_result_t*
-rocprofiler_configure(uint32_t version [[maybe_unused]],
-                      const char* runtime_version [[maybe_unused]],
+rocprofiler_configure(uint32_t version, const char* runtime_version,
                       uint32_t priority [[maybe_unused]], rocprofiler_client_id_t* id) {
+    constexpr uint32_t compiled_version = ROCPROFILER_SDK_VERSION;
+
+    if (version / 10000 != compiled_version / 10000) {
+        std::cerr << "Omnistat: tracing disabled (version mismatch, compiled against "
+                  << compiled_version / 10000 << "." << (compiled_version % 10000) / 100 << "."
+                  << compiled_version % 100 << " but runtime is "
+                  << (runtime_version ? runtime_version : "unknown") << ")" << std::endl;
+        return nullptr;
+    }
+
     id->name = "omnistat-kernel-trace";
 
     auto* tracer = new omnistat::KernelTracer();
