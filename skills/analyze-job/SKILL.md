@@ -30,7 +30,7 @@ Analyze GPU telemetry data collected by Omnistat for HPC/AI workloads. This skil
 
 1. **VictoriaMetrics running** with the Omnistat database loaded (use the `load-database` skill if needed)
 2. **Python virtual environment activated** with omnistat installed (`pip install ".[query]"` from the omnistat repo root)
-3. **Job ID(s)** to analyze (discover available jobs with `omnistat-inspect --tsdb-url $TSDB_URL db-info`)
+3. **Job ID(s)** to analyze (discover available jobs with `omnistat-inspect --tsdb-url $TSDB_URL db info`)
 
 ## Setup
 
@@ -45,10 +45,10 @@ echo "Scratch directory: $SCRATCH"
 TSDB_URL="http://localhost:8428"
 
 # 3. Verify connectivity and discover available jobs
-omnistat-inspect --tsdb-url $TSDB_URL db-info
+omnistat-inspect --tsdb-url $TSDB_URL db info
 ```
 
-The `db-info` subcommand verifies database connectivity and reports all available jobs with their time ranges, node counts, users, and partitions, plus the full list of available metrics. Use this output to select a job ID and confirm you are looking at the right database.
+The `db info` subcommand verifies database connectivity and reports all available jobs with their time ranges, node counts, users, and partitions, plus the full list of available metrics. Use this output to select a job ID and confirm you are looking at the right database.
 
 ## Analysis Workflow
 
@@ -68,10 +68,10 @@ Start by understanding what the job is and what resources it used.
 
 ```bash
 # Discover job time range, topology, and metadata
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job-info --job JOBID
+omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID info
 
 # List all available metrics for this job, grouped by category
-omnistat-inspect --tsdb-url $TSDB_URL metrics --job JOBID --categorize
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID metrics --categorize
 ```
 
 Key information to extract:
@@ -82,9 +82,9 @@ Key information to extract:
 - **Annotations**: `rmsjob_annotations` markers (e.g., application phases, benchmark identifiers)
 - **Figure of Merit**: `omnistat_fom` values (e.g., GFLOPS achieved)
 
-The `job-info` subcommand automatically includes `annotations` and `figure_of_merit` when the corresponding metrics are present in the database.
+The `job info` subcommand automatically includes `annotations` and `figure_of_merit` when the corresponding metrics are present in the database.
 
-The `job-info` subcommand automatically discovers the sampling interval from the `omnistat_info` metric (via the `interval_secs` label) and reports it as `sampling_intervals`, `min_interval`, and `max_interval` in its output. The sampling interval is also auto-discovered during job discovery and used internally by `stats`, `health`, and `iterations` to auto-compute the finest safe query step — you do not need to pass `--interval` to these subcommands.
+The `job info` subcommand automatically discovers the sampling interval from the `omnistat_info` metric (via the `interval_secs` label) and reports it as `sampling_intervals`, `min_interval`, and `max_interval` in its output. The sampling interval is also auto-discovered during job discovery and used internally by `stats`, `health`, and `iterations` to auto-compute the finest safe query step — you do not need to pass `--interval` to these subcommands.
 
 ### GPU Architecture Detection
 
@@ -92,7 +92,7 @@ After discovering the job, identify the GPU architecture from the available metr
 
 Architecture profiles are located in `skills/analyze-job/gpus/`. Read the matching profile before proceeding to Phase 2.
 
-**Detection:** Query `rocm_version_info` for the job — the `type` label identifies the GPU architecture (e.g., `"Aldebaran/MI200 [Instinct MI250X]"` or `"AMD INSTINCT MI200 (MCM) OAM ..."`). Match on substring:
+**Detection:** The `job info` output includes `gpu_arch` when detected. You can also query `rocm_version_info` for the job — the `type` label identifies the GPU architecture (e.g., `"Aldebaran/MI200 [Instinct MI250X]"` or `"AMD INSTINCT MI200 (MCM) OAM ..."`). Match on substring:
 - `type` contains `MI250` or `MI200` → **MI250X** (`gpus/mi250x.md`)
 
 The architecture profile contains critical information for correct interpretation of the data (e.g., which GPU cards report power, thermal throttling thresholds, RAS error block meanings).
@@ -105,7 +105,7 @@ Step resolution significantly affects observed statistics. Coarse steps (e.g., 6
 - **Mean metrics are mostly unaffected** by resolution (averaging preserves the mean)
 - **Iteration boundaries blur** at coarse resolution, making it impossible to distinguish per-iteration behavior
 
-**Always verify critical findings at the finest feasible resolution.** The finest meaningful resolution is the sampling interval reported by `job-info` (from `omnistat_info`'s `interval_secs` label) — querying at a finer step than this adds no real data.
+**Always verify critical findings at the finest feasible resolution.** The finest meaningful resolution is the sampling interval reported by `job info` (from `omnistat_info`'s `interval_secs` label) — querying at a finer step than this adds no real data.
 
 #### Step Selection
 
@@ -113,7 +113,7 @@ The `stats`, `health`, and `iterations` subcommands **auto-compute the finest sa
 
 You do **not** need to pass `--interval` to these subcommands — the sampling interval is auto-discovered from `omnistat_info` during job discovery. If you do pass `--interval`, it is used only for time-range refinement, not for the query step.
 
-For `timeseries` and `query` subcommands, you control the step explicitly via `--interval` or `--step`. Use the sampling interval reported by `job-info` for full resolution, or a coarser value for overview queries on long jobs.
+For `timeseries` and `query` subcommands, you control the step explicitly via `--interval` or `--step`. Use the sampling interval reported by `job info` for full resolution, or a coarser value for overview queries on long jobs.
 
 **When the auto-computed step is much coarser than the sampling interval** (which happens on very long jobs), state the resolution gap explicitly in the report and note which findings may be affected (especially peaks and percentiles).
 
@@ -125,10 +125,10 @@ Before analyzing performance, verify that data collection was complete and relia
 
 ```bash
 # Validate data collection completeness, timing stagger, and gaps
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH data-check --job JOBID
+omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID data-check
 
 # Run hardware health checks (RAS errors, thermals, power)
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH health --job JOBID
+omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID health
 ```
 
 #### Data collection (`data-check`)
@@ -159,7 +159,7 @@ Follow these steps in order. **Do not skip steps or move to iteration analysis u
 Run global-level stats for each job.
 
 ```bash
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH stats --job JOBID --level global
+omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID stats --level global
 ```
 
 The output is nested as `results_by_category → {category} → {level} → [metric stats]`. Counter metrics (cumulative values like bytes transferred, energy consumed) are automatically detected and produce delta-based stats (total_delta, rate_per_second, per-series mean/min/max/stddev). Gauge metrics produce the standard count/min/max/mean/stddev/percentiles distribution.
@@ -179,12 +179,12 @@ For every category identified in Step 2 as anomalous or significantly different 
 
 ```bash
 # Network drill-down: run for BOTH jobs
-omnistat-inspect --tsdb-url $TSDB_URL stats --job JOBID --category network --level interface-id
-omnistat-inspect --tsdb-url $TSDB_URL stats --job JOBID --category network --level node
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID stats --category network --level interface-id
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID stats --category network --level node
 
 # GPU drill-down: run for BOTH jobs
-omnistat-inspect --tsdb-url $TSDB_URL stats --job JOBID --category gpu --level node
-omnistat-inspect --tsdb-url $TSDB_URL stats --job JOBID --category gpu --level gpu-id
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID stats --category gpu --level node
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID stats --category gpu --level gpu-id
 ```
 
 The step is auto-computed to stay within `maxPointsPerTimeseries` limits, so queries should not fail due to point limits. If a query does fail, the `--interval` flag can be used as an override to force a coarser step.
@@ -244,10 +244,10 @@ Some workloads have repetitive phases that produce visible idle gaps in the aver
 
 ```bash
 # Detect iterations and compute per-iteration stats
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH iterations --job JOBID
+omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID iterations
 
 # With custom thresholds
-omnistat-inspect --tsdb-url $TSDB_URL iterations --job JOBID \
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID iterations \
   --low-threshold 15 --high-threshold 75 --min-idle-seconds 20 --min-iteration-seconds 45
 ```
 
@@ -283,7 +283,7 @@ To validate, sample a few individual GPUs and compare their iteration structure 
 
 ```bash
 # Iteration detection on a single GPU (node + card)
-omnistat-inspect --tsdb-url $TSDB_URL query --job JOBID --interval INTERVAL \
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID query --interval INTERVAL \
   --promql 'rocm_utilization_percentage{instance="HOSTNAME",card="0"} * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$step}))' \
   --output $SCRATCH/single_gpu_util.json
 ```
@@ -294,7 +294,7 @@ If individual GPUs show a different iteration pattern than the global average, t
 
 ### Annotation-Based Analysis
 
-When `job-info` reports annotations (`rmsjob_annotations` markers), analyze each annotated region separately. Annotations mark application phases (e.g., "training", "validation", "checkpoint") or benchmark stages, and different regions often have very different GPU behavior — job-level statistics average over them and can be misleading.
+When `job info` reports annotations (`rmsjob_annotations` markers), analyze each annotated region separately. Annotations mark application phases (e.g., "training", "validation", "checkpoint") or benchmark stages, and different regions often have very different GPU behavior — job-level statistics average over them and can be misleading.
 
 **Discovering annotation time ranges:** Use `timestamp()` to find when each annotation marker was active:
 
@@ -305,7 +305,7 @@ timestamp(count by (marker) (rmsjob_annotations{$job} > 0))
 This returns a time series per marker. The first and last timestamps define the region where that annotation was active. Use the `query` subcommand:
 
 ```bash
-omnistat-inspect --tsdb-url $TSDB_URL query --job JOBID --interval INTERVAL \
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID query --interval INTERVAL \
   --promql 'timestamp(count by (marker) (rmsjob_annotations{$job} > 0))' \
   --output $SCRATCH/annotation_timestamps.json
 ```
@@ -335,22 +335,22 @@ For metrics or GPUs that show anomalies in Phase 3, fetch the raw time series.
 
 ```bash
 # Export time series to file (avoids flooding context with large data)
-omnistat-inspect --tsdb-url $TSDB_URL timeseries --job JOBID --interval INTERVAL --metric rocm_utilization_percentage --output $SCRATCH/util_timeseries.json
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID timeseries --interval INTERVAL --metric rocm_utilization_percentage --output $SCRATCH/util_timeseries.json
 
 # Filter to a specific node or GPU
-omnistat-inspect --tsdb-url $TSDB_URL timeseries --job JOBID --interval INTERVAL --metric rocm_utilization_percentage --node hostname1 --card 0 --output $SCRATCH/node1_card0.json
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID timeseries --interval INTERVAL --metric rocm_utilization_percentage --node hostname1 --card 0 --output $SCRATCH/node1_card0.json
 ```
 
 For ad-hoc investigation, use the `query` subcommand with raw PromQL:
 
 ```bash
 # Custom aggregation -- average utilization across all GPUs over time
-omnistat-inspect --tsdb-url $TSDB_URL query --job JOBID --interval INTERVAL \
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID query --interval INTERVAL \
   --promql 'avg(rocm_utilization_percentage * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$step})))' \
   --output $SCRATCH/avg_util.json
 
 # Max temperature per node over time
-omnistat-inspect --tsdb-url $TSDB_URL query --job JOBID --interval INTERVAL \
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID query --interval INTERVAL \
   --promql 'max by (instance) (rocm_temperature_celsius * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$step})))' \
   --output $SCRATCH/max_temp_per_node.json
 ```
@@ -485,7 +485,7 @@ If `omnistat_hardware_counter` metrics are present, use the `counters` subcomman
 
 ```bash
 # Discover which counters are present and compute per-counter statistics
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH counters --job JOBID
+omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID counters
 ```
 
 Hardware counters are **cumulative** — values grow monotonically within a session. The delta (last - first) represents total work done during the job. The `counters` subcommand automatically computes these deltas, rates, and per-series statistics for every counter present.
@@ -567,7 +567,7 @@ The `omnistat-inspect` tool applies this join automatically in all subcommands.
 For `stats`, `health`, and `iterations`, the query step is **auto-computed** as `max(sampling_interval, runtime / 90000)` — no `--interval` required. This ensures the finest resolution that is both meaningful (not finer than the data) and within VictoriaMetrics' `search.maxPointsPerTimeseries` limit.
 
 For `timeseries` and `query`, the `--interval` parameter determines the query step:
-- Use the sampling interval (from `job-info`) for full-resolution data
+- Use the sampling interval (from `job info`) for full-resolution data
 - Use a coarser step (e.g., `--step 60`) for overview queries on long jobs
 
 ### Instant vs Range Queries
