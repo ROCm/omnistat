@@ -3,7 +3,7 @@
 import json
 import os
 
-from omnistat.inspect._analyzer import AnalyzeJob
+from omnistat.inspect.inspector import JobInspector
 
 
 def cmd_db_info(analyzer, args):
@@ -20,7 +20,7 @@ def _ensure_job(analyzer, args):
     interval = getattr(args, "interval", None)
     if interval is None:
         interval = analyzer.sampling_interval
-    if interval and interval < AnalyzeJob.SCAN_STEP:
+    if interval and interval < JobInspector.SCAN_STEP:
         analyzer._refine_range(interval)
     return None
 
@@ -82,8 +82,8 @@ def cmd_stats(analyzer, args):
             level = "global"
 
         # Validate level
-        if category and category in AnalyzeJob.CATEGORY_CONFIG:
-            valid_levels = AnalyzeJob.CATEGORY_CONFIG[category]["levels"]
+        if category and category in JobInspector.CATEGORY_CONFIG:
+            valid_levels = JobInspector.CATEGORY_CONFIG[category]["levels"]
             if level not in valid_levels:
                 valid = ", ".join(sorted(valid_levels.keys()))
                 return {
@@ -103,12 +103,12 @@ def cmd_stats(analyzer, args):
 
     # Determine which categories to iterate
     if category:
-        config = AnalyzeJob.CATEGORY_CONFIG.get(category)
+        config = JobInspector.CATEGORY_CONFIG.get(category)
         if config is None:
             return {"error": f"Unknown category: {category}"}
         categories = {category: config}
     else:
-        categories = AnalyzeJob.CATEGORY_CONFIG
+        categories = JobInspector.CATEGORY_CONFIG
 
     # Build results: each category × its levels (filtered by --level if given)
     results_by_category = {}
