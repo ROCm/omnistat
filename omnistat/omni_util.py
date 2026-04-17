@@ -403,7 +403,7 @@ class UserBasedMonitoring:
                 results = utils.execute_ssh_parallel(
                     command=f"sh -c 'cd {os.getcwd()} && PYTHONPATH={':'.join(sys.path)} {pbs_vars} {sys.executable} {self.binDir}/omnistat-rms-env --nostep {detection_file}'",
                     hostnames=self.__hosts,
-                    max_concurrent=128,
+                    max_concurrent=768,
                     ssh_timeout=15,
                     max_retries=2,
                     retry_delay=5,
@@ -423,7 +423,7 @@ class UserBasedMonitoring:
             launch_results = utils.execute_ssh_parallel(
                 command=f"sh -c 'cd {os.getcwd()} && LD_LIBRARY_PATH={os.getenv('LD_LIBRARY_PATH')} PYTHONPATH={':'.join(sys.path)} {additional_env} {cmd}'",
                 hostnames=self.__hosts,
-                max_concurrent=128,
+                max_concurrent=768,
                 ssh_timeout=100,
                 max_retries=3,
                 retry_delay=5,
