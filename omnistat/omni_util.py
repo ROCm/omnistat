@@ -29,6 +29,7 @@ import importlib.resources
 import logging
 import os
 import platform
+import shlex
 import shutil
 import socket
 import subprocess
@@ -320,11 +321,16 @@ class UserBasedMonitoring:
             time.sleep(1)
             return
 
-    def startExporters(self, victoriaMode=False):
+    def startExporters(self, victoriaMode=False, localjob=None):
         port = self.runtimeConfig["omnistat.collectors"].get("port", "8001")
         corebinding = self.runtimeConfig["omnistat.usermode"].getint("exporter_corebinding", None)
 
-        self.rmsDetection()
+        if localjob is not None:
+            rms_mode = False
+            self.__hosts = ["localhost"]
+        else:
+            rms_mode = True
+            self.rmsDetection()
         self.disableProxies()
         self.victoriaModeSetup()
 
@@ -358,11 +364,10 @@ class UserBasedMonitoring:
         else:
             logging.info("[exporter]: Skipping exporter corebinding")
 
-        if self.__hosts:
+        logging.info("[exporter]: Saving RMS job state locally to compute hosts...")
+        detection_file = self.runtimeConfig["omnistat.collectors.rms"].get("job_detection_file", "/tmp/omni_rmsjobinfo")
+        if rms_mode:
             logging.info("[exporter]: Saving RMS job state locally to compute hosts...")
-            detection_file = self.runtimeConfig["omnistat.collectors.rms"].get(
-                "job_detection_file", "/tmp/omni_rmsjobinfo"
-            )
             if self.__rms == "slurm":
                 numNodes = os.getenv("SLURM_JOB_NUM_NODES")
                 srun_cmd = [
@@ -404,14 +409,17 @@ class UserBasedMonitoring:
                     retry_delay=5,
                 )
                 time.sleep(1)
+        else:
+            command = ["%s/omnistat-rms-env" % self.binDir, "--localjob=%s" % localjob, "%s" % detection_file]
+            utils.runShellCommand(command, timeout=10, exit_on_error=True)
 
+        additional_env = ""
+        if self.__external_proxy:
+            additional_env = f"http_proxy={self.__external_proxy}"
+
+        # exporter launch
+        if rms_mode:
             logging.info("Launching exporters in parallel via ssh")
-
-            additional_env = ""
-            if self.__external_proxy:
-                additional_env = f"http_proxy={self.__external_proxy}"
-
-            # trying local ssh client implementation
             launch_results = utils.execute_ssh_parallel(
                 command=f"sh -c 'cd {os.getcwd()} && LD_LIBRARY_PATH={os.getenv('LD_LIBRARY_PATH')} PYTHONPATH={':'.join(sys.path)} {additional_env} {cmd}'",
                 hostnames=self.__hosts,
@@ -420,64 +428,68 @@ class UserBasedMonitoring:
                 max_retries=3,
                 retry_delay=5,
             )
+        else:
+            logging.info("Starting exporter on localhost for job =  %s" % localjob)
+            env_adds = {"http_proxy": self.__external_proxy} if self.__external_proxy else None
+            utils.runBGProcess(shlex.split(cmd), outputFile="exporter.log", envAdds=env_adds)
 
-            # verify exporter available on all nodes...
-            if len(self.__hosts) <= 8:
-                psecs = 5
-            elif len(self.__hosts) <= 128:
-                psecs = 30
-            else:
-                psecs = 90
+        # verify exporter available on all nodes...
+        if len(self.__hosts) <= 8:
+            psecs = 5
+        elif len(self.__hosts) <= 128:
+            psecs = 30
+        else:
+            psecs = 90
 
-            logging.info("Exporters launched, pausing for %i secs" % psecs)
-            time.sleep(psecs)  # <-- needed for slow SLURM query times on ORNL
-            numHosts = len(self.__hosts)
-            numAvail = 0
+        logging.info("Exporters launched, pausing for %i secs" % psecs)
+        time.sleep(psecs)
+        numHosts = len(self.__hosts)
+        numAvail = 0
 
-            if True:
-                logging.info("Testing exporter availability")
-                delay_start = 0.05
-                hosts_ok = []
-                hosts_bad = []
-                for host in self.__hosts:
-                    host_ok = False
-                    for iter in range(1, 25):
-                        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                            try:
-                                result = s.connect_ex((host, int(port)))
+        if True:
+            logging.info("Testing exporter availability")
+            delay_start = 0.05
+            hosts_ok = []
+            hosts_bad = []
+            for host in self.__hosts:
+                host_ok = False
+                for iter in range(1, 25):
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                        try:
+                            result = s.connect_ex((host, int(port)))
 
-                                if result == 0:
-                                    numAvail = numAvail + 1
-                                    hosts_ok.append(host)
-                                    logging.debug("Exporter on %s ok" % host)
-                                    host_ok = True
-                                    break
-                                else:
-                                    delay = delay_start * iter
-                                    logging.debug("Retrying %s (sleeping for %.2f sec)" % (host, delay))
-                                    time.sleep(delay)
-                                s.close()
-                            except Exception as e:
+                            if result == 0:
+                                numAvail = numAvail + 1
+                                hosts_ok.append(host)
+                                logging.debug("Exporter on %s ok" % host)
+                                host_ok = True
                                 break
+                            else:
+                                delay = delay_start * iter
+                                logging.debug("Retrying %s (sleeping for %.2f sec)" % (host, delay))
+                                time.sleep(delay)
+                            s.close()
+                        except Exception as e:
+                            break
 
-                    if not host_ok:
-                        logging.error("Missing exporter on %s (%s)" % (host, result))
-                        hosts_bad.append(host)
+                if not host_ok:
+                    logging.error("Missing exporter on %s (%s)" % (host, result))
+                    hosts_bad.append(host)
 
-                logging.info("%i of %i exporters available" % (numAvail, numHosts))
-                if numAvail == numHosts:
-                    logging.info("User mode data collectors: SUCCESS")
+            logging.info("%i of %i exporters available" % (numAvail, numHosts))
+            if numAvail == numHosts:
+                logging.info("User mode data collectors: SUCCESS")
 
-                # cache any failed hosts to file
-                jobid = os.getenv("SLURM_JOB_ID", None)
-                if jobid:
-                    fileout = "omnistat_failed_hosts.%s.out" % jobid
-                    if hosts_bad:
-                        with open(fileout, "w") as f:
-                            for host in hosts_bad:
-                                f.write(host + "\n")
-                        f.close()
-                        logging.info("Cached failed startup hosts in %s" % fileout)
+            # cache any failed hosts to file
+            jobid = os.getenv("SLURM_JOB_ID", None)
+            if jobid:
+                fileout = "omnistat_failed_hosts.%s.out" % jobid
+                if hosts_bad:
+                    with open(fileout, "w") as f:
+                        for host in hosts_bad:
+                            f.write(host + "\n")
+                    f.close()
+                    logging.info("Cached failed startup hosts in %s" % fileout)
 
         return
 
@@ -491,8 +503,14 @@ class UserBasedMonitoring:
 
         return t2 - t1
 
-    def stopExporters(self, victoriaMode=False):
-        self.rmsDetection()
+    def stopExporters(self, victoriaMode=False, localjob=None):
+
+        if localjob is not None:
+            rms_mode = False
+            self.__hosts = ["localhost"]
+        else:
+            rms_mode = True
+            self.rmsDetection()
         self.disableProxies()
 
         logging.info("Stopping %i exporters" % len(self.__hosts))
@@ -576,6 +594,9 @@ def main():
     parser.add_argument("--stop", help="stop all user-based monitoring services", action="store_true")
     parser.add_argument("--interval", type=float, help="data sampling frequency in secs (default=10)")
     parser.add_argument("--pushinterval", type=float, help="data push frequency in minutes (default=5)", default=5.0)
+    parser.add_argument(
+        "--localjob", type=str, help="run omnistat on local host only with specified job name", default=None
+    )
 
     args = parser.parse_args()
 
@@ -600,18 +621,18 @@ def main():
     elif args.stopserver:
         userUtils.stopPromServer(victoriaMode=victoriaMode)
     elif args.startexporters:
-        userUtils.startExporters(victoriaMode=victoriaMode)
+        userUtils.startExporters(victoriaMode=victoriaMode, localjob=args.localjob)
     elif args.stopexporters:
-        userUtils.stopExporters(victoriaMode=victoriaMode)
+        userUtils.stopExporters(victoriaMode=victoriaMode, localjob=args.localjob)
     elif args.start:
         if victoriaMode:
             logging.info("Initiating data collection in [push] mode -> VictoriaMetrics")
         else:
             logging.info("Initiating data collection in [pull] mode -> Prometheus")
         userUtils.startPromServer(victoriaMode=victoriaMode)
-        userUtils.startExporters(victoriaMode=victoriaMode)
+        userUtils.startExporters(victoriaMode=victoriaMode, localjob=args.localjob)
     elif args.stop:
-        userUtils.stopExporters(victoriaMode=victoriaMode)
+        userUtils.stopExporters(victoriaMode=victoriaMode, localjob=args.localjob)
         userUtils.stopPromServer(victoriaMode=victoriaMode)
     else:
         parser.print_help()
