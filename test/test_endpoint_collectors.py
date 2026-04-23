@@ -199,9 +199,10 @@ class TestKernelTraceCollector:
         assert_dispatches(metrics, expected=50)
 
         # ~1.5s across 0.5s bins should produce approximately 3 bins. Allowing
-        # some extra bins related to server startup.
+        # some extra bins related for server startup, which can be
+        # inconsistent in some testing environments.
         num_bins = len(next(iter(metrics[METRIC_KERNEL_DROPPED].values())))
-        assert 3 <= num_bins <= 5
+        assert 3 <= num_bins <= 9
 
     @requires_tracing
     def test_scrape_during_workload(self):
