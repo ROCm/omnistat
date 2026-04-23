@@ -65,13 +65,13 @@ jobs:
           pip install -r requirements.txt
           pip install -r test/requirements.txt
           pip install nanobind
-          cmake -S rocprofiler-sdk/ -B build/
+          cmake -S rocprofiler-sdk/ -B build/ -DCMAKE_PREFIX_PATH=/opt/rocm
           cmake --build build/
           cmake --install build/ --prefix .
           
       - name: Build kernel trace library
         run: |
-          cmake -B build -S rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON
+          cmake -B build -S rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON -DCMAKE_PREFIX_PATH=/opt/rocm
           cmake --build build
 
       - name: Build test workloads
