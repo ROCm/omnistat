@@ -396,19 +396,20 @@ class TestHardwareCounters:
         result = workloads.run("vector_add", [1000000], env={"HSA_TOOLS_LIB": hsa_tools_lib})
         assert result.returncode == 0, f"vector_add failed: {result.stderr}"
 
-        # Scrape metrics
+        # Scrape metrics, keyed by (card, counter_name)
         metrics = {}
         for metric in server.get():
             for sample in metric.samples:
-                key = (metric.name, sample.labels.get("name", ""))
-                metrics[key] = sample.value
+                card = sample.labels.get("card", "")
+                name = sample.labels.get("name", "")
+                if metric.name == "omnistat_hardware_counter":
+                    metrics.setdefault(card, {})[name] = sample.value
 
         server.stop()
 
-        # Validate counters are non-zero
-        assert ("omnistat_hardware_counter", "GRBM_COUNT") in metrics
-        assert metrics[("omnistat_hardware_counter", "GRBM_COUNT")] > 0
-        assert ("omnistat_hardware_counter", "GRBM_GUI_ACTIVE") in metrics
-        assert metrics[("omnistat_hardware_counter", "GRBM_GUI_ACTIVE")] > 0
-        assert ("omnistat_hardware_counter", "SQ_INSTS_VALU") in metrics
-        assert metrics[("omnistat_hardware_counter", "SQ_INSTS_VALU")] > 0
+        # At least one GPU should have non-zero counters from the workload
+        assert len(metrics) > 0, "No hardware counter metrics found"
+        counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE", "SQ_INSTS_VALU"]
+        assert any(
+            all(metrics[card].get(c, 0) > 0 for c in counters) for card in metrics
+        ), f"No GPU had all counters > 0: {metrics}"
