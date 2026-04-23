@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
     container:
       image: rocm/dev-ubuntu-24.04:${{ matrix.rocm }}
-      options: 
+      options:
         --ipc host
         --cap-add SYS_PTRACE
         --group-add video
@@ -35,7 +35,7 @@ jobs:
           sudo apt-get update -y
           sudo apt install git cmake -y
           sudo apt install python3-venv -y
-          sudo apt install python3-yaml libcurl4-openssl-dev -y
+          sudo apt install python3-yaml libcurl4-openssl-dev libdw-dev -y
 
       # - name: Fix dodgy container environment for 6.3.4
       #   if: matrix.rocm == '6.3.4'
