@@ -70,31 +70,40 @@ counters = [
         ]
     ]
 
-## Collect instruction counters to calculate FLOPS on MI250 GPUs.
+## Collect L1 and L2 cache hit rate counters. The 5 TCP counters needed for
+## L1 hit rate exceed the 4 counter registers per TCP block, so they are
+## split into two groups and cyclically assigned to different GPU IDs. TCC
+## counters (L2) use a separate hardware block and can be collected alongside
+## TCP counters without conflict.
 ##
-## Same as "flops_gpuid", but instead of assigning the two counter sets to
-## different GPU IDs, alternates counter sets on every sample:
-##  - Sample 0: Set 1
-##  - Sample 1: Set 2
-##  - Sample 2: Set 1
-##  - Sample 3: Set 2
-##  - ...
-[omnistat.collectors.rocprofiler.flops_periodic]
-sampling_mode = periodic
+## Counter sets are cyclically assigned to GPU IDs:
+##  - GPU IDs 0, 2... sample L1 read/write misses + L2 counters
+##  - GPU IDs 1, 3... sample L1 atomic misses + L2 counters
+## Requires at least 2 GPUs per node.
+[omnistat.collectors.rocprofiler.cache_l1l2_hitrate_gpuid]
+sampling_mode = gpu-id
 counters = [
         [
-            "SQ_INSTS_VALU_ADD_F64", "SQ_INSTS_VALU_MUL_F64",
-            "SQ_INSTS_VALU_TRANS_F64", "SQ_INSTS_VALU_FMA_F64",
-            "SQ_INSTS_VALU_ADD_F32", "SQ_INSTS_VALU_MUL_F32",
-            "SQ_INSTS_VALU_TRANS_F32", "SQ_INSTS_VALU_FMA_F32"
+            "TCP_TOTAL_CACHE_ACCESSES_sum",
+            "TCP_TCC_READ_REQ_sum",
+            "TCP_TCC_WRITE_REQ_sum",
+            "TCC_HIT_sum",
+            "TCC_MISS_sum"
         ],
         [
-            "SQ_INSTS_VALU_ADD_F16", "SQ_INSTS_VALU_MUL_F16",
-            "SQ_INSTS_VALU_TRANS_F16", "SQ_INSTS_VALU_FMA_F16",
-            "SQ_INSTS_VALU_MFMA_MOPS_F64", "SQ_INSTS_VALU_MFMA_MOPS_F32",
-            "SQ_INSTS_VALU_MFMA_MOPS_F16", "SQ_INSTS_VALU_MFMA_MOPS_BF16"
+            "TCP_TOTAL_CACHE_ACCESSES_sum",
+            "TCP_TCC_ATOMIC_WITH_RET_REQ_sum",
+            "TCP_TCC_ATOMIC_WITHOUT_RET_REQ_sum",
+            "TCC_HIT_sum",
+            "TCC_MISS_sum"
         ]
     ]
+
+## Collect L2 cache hit rate counters only. Both counters are collected from
+## all GPUs on every sample.
+[omnistat.collectors.rocprofiler.cache_l2_hitrate]
+sampling_mode = constant
+counters = ["TCC_HIT_sum", "TCC_MISS_sum"]
 
 [omnistat.query]
 
