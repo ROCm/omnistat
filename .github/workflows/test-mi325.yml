@@ -33,7 +33,7 @@ jobs:
       - name: Host software
         run: |
           sudo apt-get update -y
-          sudo apt install git -y
+          sudo apt install git cmake -y
           sudo apt install python3-venv -y
           sudo apt install python3-yaml -y
 
