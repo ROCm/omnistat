@@ -35,6 +35,7 @@ import logging
 import os
 import platform
 import pwd
+import random
 import signal
 import sys
 import threading
@@ -256,7 +257,6 @@ class Standalone:
         num_fom_samples = 0
         sample_duration = 0
         num_pushes = 0
-        push_check_duration = 0.0
         push_frequency_secs = self.__pushFrequencyMins * 60
         push_time_accumulation = 0.0
         interval_microsecs = int(interval_secs * 1000000)
@@ -265,6 +265,8 @@ class Standalone:
         push_thread = None
         bg_thread_timer = {}
         fom_check_duration = 0.0
+        # Randomize initial push offset to de-sychronize data pushes
+        push_check_duration = random.uniform(0, push_frequency_secs)
 
         # ---
         # main sampling loop
@@ -436,6 +438,11 @@ def parse_args():
 def terminate():
     """Endpoint that can be used to terminate execution"""
     logging.info("Received shutdown request")
+    max_offset = request.args.get("max_offset", 0, type=float)
+    if max_offset > 0:
+        delay = random.uniform(0, max_offset)
+        logging.info("Shutdown delay: %.2f secs (max_offset=%.2f)" % (delay, max_offset))
+        time.sleep(delay)
     terminateFlagEvent.set()
 
     # spin loop till notice recieved that last data was pushed
