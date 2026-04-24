@@ -664,8 +664,10 @@ def execute_ssh_parallel(
                 results[host] = {"status": success, "output_filename": outFile, "elapsed": elapsed}
                 completed += 1
                 if completed % max_concurrent == 0 or completed == total:
-                    logging.info("--> progress: %d/%d hosts launched (%.2fs elapsed)"
-                                 % (completed, total, time.perf_counter() - t_start))
+                    logging.info(
+                        "--> progress: %d/%d hosts launched (%.2fs elapsed)"
+                        % (completed, total, time.perf_counter() - t_start)
+                    )
 
                 # file_path = Path(outFile)
                 # if file_path.is_file():
