@@ -1,3 +1,13 @@
+Version 1.12 (24 April 2026)
+
+  * simplify kernel trace library finalization/flushing to avoid race condition (#276)
+  * fix missing import in hardware counter collector (#277)
+  * CI additions for hardware counter collection (#278)
+  * update user-mode ssh startup to use specified shell (#281)
+  * addition of ROCm runtime versioning checks for kernel tracing compatibility (#282)
+  * added new `--localjob name` option to omnistat-usermode utility for single node execution without
+    resource manager (#285)
+
 Version 1.11 (26 March 2026)
 
   * introduction of new optional data collector to support application-level kernel traces (#241)
