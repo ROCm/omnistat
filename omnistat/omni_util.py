@@ -595,7 +595,11 @@ def main():
     parser.add_argument("--interval", type=float, help="data sampling frequency in secs (default=10)")
     parser.add_argument("--pushinterval", type=float, help="data push frequency in minutes (default=5)", default=5.0)
     parser.add_argument(
-        "--localjob",  metavar="name", type=str, help="run omnistat on local host only with specified job name", default=None
+        "--localjob",
+        metavar="name",
+        type=str,
+        help="run omnistat on local host only with specified job name",
+        default=None,
     )
 
     args = parser.parse_args()
