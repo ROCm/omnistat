@@ -578,6 +578,11 @@ class UserBasedMonitoring:
 
         port = self.runtimeConfig["omnistat.collectors"].get("port", "8001")
 
+        min_time = float("inf")
+        max_time = float("-inf")
+        avg_time = 0.0
+        count = 0
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=min(self.max_concurrent, numHosts)) as executor:
             future_to_host = {
                 executor.submit(
@@ -590,22 +595,16 @@ class UserBasedMonitoring:
                 for host in self.__hosts
             }
 
-        # Collect results as they complete
-        min_time = float("inf")
-        max_time = float("-inf")
-        avg_time = 0.0
-        count = 0
-
-        for future in concurrent.futures.as_completed(future_to_host):
-            host = future_to_host[future]
-            timing = future.result()
-            avg_time += timing
-            count += 1
-            logging.debug("--> %s required %.2f secs to shutdown" % (host, timing))
-            if timing < min_time:
-                min_time = timing
-            if timing > max_time:
-                max_time = timing
+            for future in concurrent.futures.as_completed(future_to_host):
+                host = future_to_host[future]
+                timing = future.result()
+                avg_time += timing
+                count += 1
+                logging.debug("--> %s required %.2f secs to shutdown" % (host, timing))
+                if timing < min_time:
+                    min_time = timing
+                if timing > max_time:
+                    max_time = timing
 
         logging.info(
             "--> average time to shutdown = %.2f secs (min=%.2f, max=%.2f)" % (avg_time / count, min_time, max_time)
