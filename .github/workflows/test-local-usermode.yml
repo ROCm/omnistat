@@ -49,6 +49,9 @@ jobs:
           source omnistat_venv/bin/activate
           ./omnistat-usermode --start --interval 0.5 --localjob 1234
 
+      - name: Verify exporter is listening
+        run: curl -sf localhost:8001/metrics | grep -q "status.*ok"
+
       - name: Wait for samples to be collected
         run: sleep 10
 
@@ -73,6 +76,8 @@ jobs:
           echo "---"
           echo "-- VictoriaMetrics server log --"
           cat vic_server.log
+          echo "-- Exporter log --"
+          cat exporter.log
 
       - name: Stop server
         if: always()
