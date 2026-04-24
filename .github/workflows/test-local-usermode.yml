@@ -34,6 +34,7 @@ jobs:
           source omnistat_venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -r requirements-query.txt
 
       - name: Disable SMI collectors (no GPU hardware available)
         run: |
@@ -46,7 +47,7 @@ jobs:
       - name: Start usermode Omnistat
         run: |
           source omnistat_venv/bin/activate
-          ./omnistat-usermode --start --interval 1 --localjob 1234
+          ./omnistat-usermode --start --interval 0.5 --localjob 1234
 
       - name: Wait for samples to be collected
         run: sleep 10
@@ -60,7 +61,7 @@ jobs:
       - name: Query job metrics
         run: |
           source omnistat_venv/bin/activate
-          ./omnistat-query --interval 1.0 --job 1234 | tee query_output.txt
+          ./omnistat-query --interval 0.5 --job 1234 | tee query_output.txt
           grep -q "Omnistat Report Card" query_output.txt
           grep -q "GPU Statistics" query_output.txt
 
