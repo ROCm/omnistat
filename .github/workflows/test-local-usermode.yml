@@ -9,16 +9,11 @@ on:
 jobs:
   test:
     name: Usermode (localjob, no RMS)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, instinct]
     steps:
 
       - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y python3-venv
+        uses: actions/checkout@v6
 
       - name: Download VictoriaMetrics (latest)
         run: |
@@ -35,10 +30,6 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-query.txt
-
-      - name: Disable SMI collectors (no GPU hardware available)
-        run: |
-          sed -i "s/enable_rocm_smi = True/enable_rocm_smi = False/" omnistat/config/omnistat.default
 
       - name: Set VictoriaMetrics binary path
         run: |
