@@ -15,9 +15,9 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v6
 
-      - name: Download VictoriaMetrics (latest)
+      - name: Download VictoriaMetrics (v1.140.0)
         run: |
-          VERSION=$(curl -s https://api.github.com/repos/VictoriaMetrics/VictoriaMetrics/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+          VERSION=v1.140.0
           echo "Installing VictoriaMetrics $VERSION"
           wget -q https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/${VERSION}/victoria-metrics-linux-amd64-${VERSION}.tar.gz
           tar xzf victoria-metrics-linux-amd64-${VERSION}.tar.gz
