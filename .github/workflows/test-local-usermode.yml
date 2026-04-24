@@ -67,7 +67,12 @@ jobs:
 
       - name: Display query output on failure
         if: failure()
-        run: cat query_output.txt
+        run: |
+          echo "-- Query output --"
+          cat query_output.txt
+          echo "---"
+          echo "-- VictoriaMetrics server log --"
+          cat vic_server.log
 
       - name: Stop server
         if: always()
