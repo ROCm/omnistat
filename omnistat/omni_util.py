@@ -366,9 +366,7 @@ class UserBasedMonitoring:
         else:
             logging.info("[usermode]: Skipping exporter corebinding")
 
-        detection_file = self.runtimeConfig["omnistat.collectors.rms"].get(
-            "job_detection_file", "/tmp/omni_rmsjobinfo"
-        )
+        detection_file = self.runtimeConfig["omnistat.collectors.rms"].get("job_detection_file", "/tmp/omni_rmsjobinfo")
         if rms_mode:
             logging.info("[usermode]: Saving RMS job state locally to compute hosts...")
             if self.__rms == "slurm":
@@ -499,9 +497,7 @@ class UserBasedMonitoring:
                     hosts_bad.append(host)
 
         t_verify_elapsed = time.perf_counter() - t_verify_start
-        logging.info(
-            "%i of %i exporters available (verification took %.2fs)" % (numAvail, numHosts, t_verify_elapsed)
-        )
+        logging.info("%i of %i exporters available (verification took %.2fs)" % (numAvail, numHosts, t_verify_elapsed))
         if numAvail == numHosts:
             logging.info("User mode data collectors: SUCCESS")
 
