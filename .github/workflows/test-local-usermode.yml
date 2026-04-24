@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     name: Usermode (localjob, no RMS)
-    runs-on: [self-hosted, instinct]
+    runs-on: [linux-gfx942-1gpu-ossci-rocm]
     steps:
 
       - name: Check out repository code
