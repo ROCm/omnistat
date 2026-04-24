@@ -31,9 +31,10 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-query.txt
 
-      - name: Set VictoriaMetrics binary path
+      - name: Update runtime config
         run: |
           sed -i "s|victoria_binary = .*|victoria_binary = ${{ github.workspace }}/victoria-metrics-prod|" omnistat/config/omnistat.default
+          sed -i "s|job_detection_file = .*|job_detection_file = /tmp/omni_rmsjobinfo_ciuser|" omnistat/config/omnistat.default
 
       - name: Start usermode Omnistat
         run: |
