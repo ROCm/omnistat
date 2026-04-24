@@ -48,6 +48,7 @@ class UserBasedMonitoring:
         logging.basicConfig(format="%(message)s", level=logging.INFO, stream=sys.stdout)
         self.scrape_interval = 10  # default scrape interval in seconds
         self.timeout = 5  # default scrape timeout in seconds
+        self.max_concurrent = 256  # max concurrent SSH connections / thread pool workers
         self.__hosts = None
         self.__RMS_Detected = False
         self.__external_proxy = None
@@ -107,7 +108,7 @@ class UserBasedMonitoring:
 
         self.__external_victoria = self.runtimeConfig[section].getboolean("external_victoria", False)
         if self.__external_victoria:
-            logging.info("External VictoriaMetrics server requested")
+            logging.info("[usermode] External VictoriaMetrics server requested")
             self.__external_victoria_endpoint = self.runtimeConfig[section].get("external_victoria_endpoint")
             self.__external_victoria_port = self.runtimeConfig[section].get("external_victoria_port")
             logging.info("--> external host = %s" % self.__external_victoria_endpoint)
@@ -117,7 +118,7 @@ class UserBasedMonitoring:
                 self.__external_proxy = self.runtimeConfig[section].get("external_proxy")
                 logging.info("--> external proxy = %s" % self.__external_proxy)
         else:
-            logging.info("Local VictoriaMetrics server requested")
+            logging.info("[usermode] Local VictoriaMetrics server requested")
 
         self.__victoriaModeSetup_initialized = True
 
@@ -322,6 +323,7 @@ class UserBasedMonitoring:
             return
 
     def startExporters(self, victoriaMode=False, localjob=None):
+        t_start_exporters = time.perf_counter()
         port = self.runtimeConfig["omnistat.collectors"].get("port", "8001")
         corebinding = self.runtimeConfig["omnistat.usermode"].getint("exporter_corebinding", None)
 
@@ -337,7 +339,7 @@ class UserBasedMonitoring:
         if victoriaMode:
             if os.path.exists("./exporter.log"):
                 os.remove("./exporter.log")
-            logging.info("[exporter]: Standalone sampling interval = %s" % self.scrape_interval)
+            logging.info("[usermode]: Standalone sampling interval = %s" % self.scrape_interval)
             hostname = platform.node().split(".", 1)[0]
 
             if self.__external_victoria:
@@ -347,12 +349,12 @@ class UserBasedMonitoring:
         else:
             cmd = f"nice -n 20 {sys.executable} -m omnistat.node_monitoring --configfile={self.configFile}"
 
-        logging.debug("[exporter]: %s" % cmd)
+        logging.debug("[usermode]: %s" % cmd)
 
         if "OMNISTAT_EXPORTER_COREBINDING" in os.environ:
             corebinding = int(os.getenv("OMNISTAT_EXPORTER_COREBINDING"))
             logging.info(
-                "[exporter]: Overriding corebinding setting using OMNISTAT_EXPORTER_COREBINDING=%i" % corebinding
+                "[usermode]: Overriding corebinding setting using OMNISTAT_EXPORTER_COREBINDING=%i" % corebinding
             )
 
         # Assume environment is the same across nodes; if numactl is present
@@ -362,12 +364,13 @@ class UserBasedMonitoring:
             numa_command_string = " ".join(numa_command)
             cmd = f"{numa_command_string} {cmd}"
         else:
-            logging.info("[exporter]: Skipping exporter corebinding")
+            logging.info("[usermode]: Skipping exporter corebinding")
 
-        logging.info("[exporter]: Saving RMS job state locally to compute hosts...")
-        detection_file = self.runtimeConfig["omnistat.collectors.rms"].get("job_detection_file", "/tmp/omni_rmsjobinfo")
+        detection_file = self.runtimeConfig["omnistat.collectors.rms"].get(
+            "job_detection_file", "/tmp/omni_rmsjobinfo"
+        )
         if rms_mode:
-            logging.info("[exporter]: Saving RMS job state locally to compute hosts...")
+            logging.info("[usermode]: Saving RMS job state locally to compute hosts...")
             if self.__rms == "slurm":
                 numNodes = os.getenv("SLURM_JOB_NUM_NODES")
                 srun_cmd = [
@@ -379,7 +382,12 @@ class UserBasedMonitoring:
                     "--nostep",
                     "%s" % detection_file,
                 ]
+                t_srun_start = time.perf_counter()
                 utils.runShellCommand(srun_cmd, timeout=35, exit_on_error=True)
+                logging.info(
+                    "[usermode]: rms-env timing (%s hosts): %.2fs (srun, all hosts)"
+                    % (numNodes, time.perf_counter() - t_srun_start)
+                )
             elif self.__rms == "flux":
                 flux_cmd = [
                     "flux",
@@ -389,7 +397,12 @@ class UserBasedMonitoring:
                     "--nostep",
                     "%s" % detection_file,
                 ]
+                t_flux_start = time.perf_counter()
                 utils.runShellCommand(flux_cmd, timeout=35, exit_on_error=True)
+                logging.info(
+                    "[usermode]: rms-env timing (%i hosts): %.2fs (flux exec, all hosts)"
+                    % (len(self.__hosts), time.perf_counter() - t_flux_start)
+                )
             elif self.__rms == "pbs":
                 # cache pbs vars needed for rms-env query
                 pbs_vars = (
@@ -400,14 +413,16 @@ class UserBasedMonitoring:
                     f"PBS_ENVIRONMENT={os.getenv('PBS_ENVIRONMENT')}"
                 )
 
+                t_pbs_start = time.perf_counter()
                 results = utils.execute_ssh_parallel(
                     command=f"sh -c 'cd {os.getcwd()} && PYTHONPATH={':'.join(sys.path)} {pbs_vars} {sys.executable} {self.binDir}/omnistat-rms-env --nostep {detection_file}'",
                     hostnames=self.__hosts,
-                    max_concurrent=768,
+                    max_concurrent=self.max_concurrent,
                     ssh_timeout=15,
                     max_retries=2,
                     retry_delay=5,
                 )
+                self._log_ssh_parallel_timing(results, label="rms-env", total_elapsed=time.perf_counter() - t_pbs_start)
                 time.sleep(1)
         else:
             command = ["%s/omnistat-rms-env" % self.binDir, "--localjob=%s" % localjob, "%s" % detection_file]
@@ -420,13 +435,17 @@ class UserBasedMonitoring:
         # exporter launch
         if rms_mode:
             logging.info("Launching exporters in parallel via ssh")
+            t_launch_start = time.perf_counter()
             launch_results = utils.execute_ssh_parallel(
                 command=f"sh -c 'cd {os.getcwd()} && LD_LIBRARY_PATH={os.getenv('LD_LIBRARY_PATH')} PYTHONPATH={':'.join(sys.path)} {additional_env} {cmd}'",
                 hostnames=self.__hosts,
-                max_concurrent=768,
+                max_concurrent=self.max_concurrent,
                 ssh_timeout=100,
                 max_retries=3,
                 retry_delay=5,
+            )
+            self._log_ssh_parallel_timing(
+                launch_results, label="exporter launch", total_elapsed=time.perf_counter() - t_launch_start
             )
         else:
             logging.info("Starting exporter on localhost for job =  %s" % localjob)
@@ -437,65 +456,94 @@ class UserBasedMonitoring:
         if len(self.__hosts) <= 8:
             psecs = 5
         elif len(self.__hosts) <= 128:
-            psecs = 30
+            psecs = 15
         else:
-            psecs = 90
+            psecs = 30
 
         logging.info("Exporters launched, pausing for %i secs" % psecs)
         time.sleep(psecs)
         numHosts = len(self.__hosts)
         numAvail = 0
 
-        if True:
-            logging.info("Testing exporter availability")
+        logging.info("Testing exporter availability")
+        t_verify_start = time.perf_counter()
+        hosts_ok = []
+        hosts_bad = []
+
+        def check_exporter(host):
             delay_start = 0.05
-            hosts_ok = []
-            hosts_bad = []
-            for host in self.__hosts:
-                host_ok = False
-                for iter in range(1, 25):
-                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                        try:
-                            result = s.connect_ex((host, int(port)))
+            for iter in range(1, 25):
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    try:
+                        result = s.connect_ex((host, int(port)))
+                        if result == 0:
+                            logging.debug("Exporter on %s ok" % host)
+                            return True
+                        else:
+                            delay = delay_start * iter
+                            logging.debug("Retrying %s (sleeping for %.2f sec)" % (host, delay))
+                            time.sleep(delay)
+                    except Exception:
+                        return False
+                return False
 
-                            if result == 0:
-                                numAvail = numAvail + 1
-                                hosts_ok.append(host)
-                                logging.debug("Exporter on %s ok" % host)
-                                host_ok = True
-                                break
-                            else:
-                                delay = delay_start * iter
-                                logging.debug("Retrying %s (sleeping for %.2f sec)" % (host, delay))
-                                time.sleep(delay)
-                            s.close()
-                        except Exception as e:
-                            break
-
-                if not host_ok:
-                    logging.error("Missing exporter on %s (%s)" % (host, result))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(self.max_concurrent, numHosts)) as executor:
+            future_to_host = {executor.submit(check_exporter, host): host for host in self.__hosts}
+            for future in concurrent.futures.as_completed(future_to_host):
+                host = future_to_host[future]
+                if future.result():
+                    numAvail += 1
+                    hosts_ok.append(host)
+                else:
+                    logging.error("Missing exporter on %s" % host)
                     hosts_bad.append(host)
 
-            logging.info("%i of %i exporters available" % (numAvail, numHosts))
-            if numAvail == numHosts:
-                logging.info("User mode data collectors: SUCCESS")
+        t_verify_elapsed = time.perf_counter() - t_verify_start
+        logging.info(
+            "%i of %i exporters available (verification took %.2fs)" % (numAvail, numHosts, t_verify_elapsed)
+        )
+        if numAvail == numHosts:
+            logging.info("User mode data collectors: SUCCESS")
 
-            # cache any failed hosts to file
-            jobid = os.getenv("SLURM_JOB_ID", None)
-            if jobid:
-                fileout = "omnistat_failed_hosts.%s.out" % jobid
-                if hosts_bad:
-                    with open(fileout, "w") as f:
-                        for host in hosts_bad:
-                            f.write(host + "\n")
-                    f.close()
-                    logging.info("Cached failed startup hosts in %s" % fileout)
+        # cache any failed hosts to file
+        jobid = os.getenv("SLURM_JOB_ID", None)
+        if jobid:
+            fileout = "omnistat_failed_hosts.%s.out" % jobid
+            if hosts_bad:
+                with open(fileout, "w") as f:
+                    for host in hosts_bad:
+                        f.write(host + "\n")
+                f.close()
+                logging.info("Cached failed startup hosts in %s" % fileout)
 
+        logging.info("[usermode]: startExporters total time: %.2fs" % (time.perf_counter() - t_start_exporters))
         return
 
-    def stopSingleExporters(self, host, port, timeout=120):
+    def _log_ssh_parallel_timing(self, results, label="ssh_parallel", total_elapsed=None):
+        """Log timing statistics for an execute_ssh_parallel invocation."""
+        timings = [v["elapsed"] for v in results.values() if v.get("elapsed") is not None]
+        n = len(results)
+        if timings:
+            avg = sum(timings) / len(timings)
+            if total_elapsed is not None:
+                logging.info(
+                    "[usermode]: %s timing (%i hosts): %.2fs (total), avg=%.2fs, min=%.2fs, max=%.2fs (per host)"
+                    % (label, n, total_elapsed, avg, min(timings), max(timings))
+                )
+            else:
+                logging.info(
+                    "[usermode]: %s timing (%i hosts): avg=%.2fs, min=%.2fs, max=%.2fs"
+                    % (label, n, avg, min(timings), max(timings))
+                )
+        else:
+            logging.info("[usermode]: %s timing: no data for %i hosts" % (label, n))
+
+    def stopSingleExporters(self, host, port, timeout=120, max_offset=0):
         logging.debug("Stopping exporter for host -> %s" % host)
-        cmd = ["curl", f"{host}:{port}/shutdown"]
+        url = f"{host}:{port}/shutdown"
+        if max_offset > 0:
+            url += f"?max_offset={max_offset}"
+        cmd = ["curl", url]
         logging.debug("-> running command: %s" % cmd)
         t1 = time.perf_counter()
         utils.runShellCommand(cmd, timeout=timeout)
@@ -513,16 +561,31 @@ class UserBasedMonitoring:
             self.rmsDetection()
         self.disableProxies()
 
-        logging.info("Stopping %i exporters" % len(self.__hosts))
+        numHosts = len(self.__hosts)
+        logging.info("Stopping %i exporters" % numHosts)
+
+        # Scale shutdown offset with node count to stagger final data pushes
+        if numHosts <= 128:
+            max_offset = 0
+        elif numHosts <= 512:
+            max_offset = 5
+        elif numHosts <= 1024:
+            max_offset = 10
+        else:
+            max_offset = 15
+        if max_offset > 0:
+            logging.info("[usermode]: shutdown max_offset = %i secs (%i hosts)" % (max_offset, numHosts))
 
         port = self.runtimeConfig["omnistat.collectors"].get("port", "8001")
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=256) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(self.max_concurrent, numHosts)) as executor:
             future_to_host = {
                 executor.submit(
                     self.stopSingleExporters,
                     host,
                     port,
+                    120,
+                    max_offset,
                 ): host
                 for host in self.__hosts
             }
@@ -630,9 +693,9 @@ def main():
         userUtils.stopExporters(victoriaMode=victoriaMode, localjob=args.localjob)
     elif args.start:
         if victoriaMode:
-            logging.info("Initiating data collection in [push] mode -> VictoriaMetrics")
+            logging.info("[usermode] Initiating data collection in [push] mode -> VictoriaMetrics")
         else:
-            logging.info("Initiating data collection in [pull] mode -> Prometheus")
+            logging.info("[usermode] Initiating data collection in [pull] mode -> Prometheus")
         userUtils.startPromServer(victoriaMode=victoriaMode)
         userUtils.startExporters(victoriaMode=victoriaMode, localjob=args.localjob)
     elif args.stop:
