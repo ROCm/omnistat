@@ -1,0 +1,75 @@
+name: User mode - Local
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  test:
+    name: Usermode (localjob, no RMS)
+    runs-on: ubuntu-24.04
+    steps:
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y python3-venv
+
+      - name: Download VictoriaMetrics (latest)
+        run: |
+          VERSION=$(curl -s https://api.github.com/repos/VictoriaMetrics/VictoriaMetrics/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+          echo "Installing VictoriaMetrics $VERSION"
+          wget -q https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/${VERSION}/victoria-metrics-linux-amd64-${VERSION}.tar.gz
+          tar xzf victoria-metrics-linux-amd64-${VERSION}.tar.gz
+          chmod +x victoria-metrics-prod
+
+      - name: Create virtual environment
+        run: |
+          python3 -m venv omnistat_venv
+          source omnistat_venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Disable SMI collectors (no GPU hardware available)
+        run: |
+          sed -i "s/enable_rocm_smi = True/enable_rocm_smi = False/" omnistat/config/omnistat.default
+
+      - name: Set VictoriaMetrics binary path
+        run: |
+          sed -i "s|victoria_binary = .*|victoria_binary = ${{ github.workspace }}/victoria-metrics-prod|" omnistat/config/omnistat.default
+
+      - name: Start usermode Omnistat
+        run: |
+          source omnistat_venv/bin/activate
+          ./omnistat-usermode --start --interval 1 --localjob 1234
+
+      - name: Wait for samples to be collected
+        run: sleep 10
+
+      - name: Stop exporters
+        if: always()
+        run: |
+          source omnistat_venv/bin/activate
+          ./omnistat-usermode --stopexporters --localjob 1234
+
+      - name: Query job metrics
+        run: |
+          source omnistat_venv/bin/activate
+          ./omnistat-query --interval 1.0 --job 1234 | tee query_output.txt
+          grep -q "Omnistat Report Card" query_output.txt
+          grep -q "GPU Statistics" query_output.txt
+
+      - name: Display query output on failure
+        if: failure()
+        run: cat query_output.txt
+
+      - name: Stop server
+        if: always()
+        run: |
+          source omnistat_venv/bin/activate
+          ./omnistat-usermode --stopserver
