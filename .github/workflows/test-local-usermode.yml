@@ -31,10 +31,23 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-query.txt
 
+      - name: Select available exporter port
+        run: |
+          for p in $(seq 8010 8059); do
+            if ! ss -tlnp | grep -q ":${p} "; then
+              echo "OMNISTAT_PORT=$p" >> $GITHUB_ENV
+              echo "Using exporter port $p"
+              exit 0
+            fi
+          done
+          echo "No free port found in range 8010-8059"
+          exit 1
+
       - name: Update runtime config
         run: |
           sed -i "s|victoria_binary = .*|victoria_binary = ${{ github.workspace }}/victoria-metrics-prod|" omnistat/config/omnistat.default
           sed -i "s|job_detection_file = .*|job_detection_file = /tmp/omni_rmsjobinfo_ciuser|" omnistat/config/omnistat.default
+          sed -i "s|port = .*|port = $OMNISTAT_PORT|" omnistat/config/omnistat.default
 
       - name: Start usermode Omnistat
         run: |
@@ -42,7 +55,7 @@ jobs:
           ./omnistat-usermode --start --interval 0.5 --localjob 1234
 
       - name: Verify exporter is listening
-        run: curl -sf localhost:8001/metrics | grep -q "status.*ok"
+        run: curl -sf localhost:$OMNISTAT_PORT/metrics | grep -q "status.*ok"
 
       - name: Wait for samples to be collected
         run: sleep 10
