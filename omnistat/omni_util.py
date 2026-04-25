@@ -560,15 +560,11 @@ class UserBasedMonitoring:
         numHosts = len(self.__hosts)
         logging.info("Stopping %i exporters" % numHosts)
 
-        # Scale shutdown offset with node count to stagger final data pushes
-        if numHosts <= 128:
+        # Stagger final data pushes for larger host batches
+        if numHosts <= 64:
             max_offset = 0
-        elif numHosts <= 512:
-            max_offset = 5
-        elif numHosts <= 1024:
-            max_offset = 10
         else:
-            max_offset = 15
+            max_offset = 5
         if max_offset > 0:
             logging.info("[usermode]: shutdown max_offset = %i secs (%i hosts)" % (max_offset, numHosts))
 
@@ -578,6 +574,7 @@ class UserBasedMonitoring:
         max_time = float("-inf")
         avg_time = 0.0
         count = 0
+        t_start = time.time()
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=min(self.max_concurrent, numHosts)) as executor:
             future_to_host = {
@@ -602,8 +599,10 @@ class UserBasedMonitoring:
                 if timing > max_time:
                     max_time = timing
 
+        elapsed = time.time() - t_start
         logging.info(
-            "--> average time to shutdown = %.2f secs (min=%.2f, max=%.2f)" % (avg_time / count, min_time, max_time)
+            "[usermode]: exporter shutdown timing (%i hosts): %.2fs (total), avg=%.2f, min=%.2f, max=%.2f (per host)"
+            % (numHosts, elapsed, avg_time / count, min_time, max_time)
         )
 
         return
