@@ -6925,6 +6925,238 @@
           ],
           "title": "Total FLOPS across sampled GPUs",
           "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "L1 cache hit rate per GPU, averaged by node. Uses rate() to compute instantaneous hit rates rather than cumulative ratios.\n\nL1 hit rate = 100 - 100 * rate(TCP_TCC_READ_REQ_sum + TCP_TCC_WRITE_REQ_sum + TCP_TCC_ATOMIC_WITH_RET_REQ_sum + TCP_TCC_ATOMIC_WITHOUT_RET_REQ_sum) / rate(TCP_TOTAL_CACHE_ACCESSES_sum)\n\nNote: displayed values are sensitive to the dashboard time resolution. Zooming in or adjusting the interval may produce different results as rate() operates over fewer data points.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `TCP_TOTAL_CACHE_ACCESSES_sum`, `TCP_TCC_READ_REQ_sum`, `TCP_TCC_WRITE_REQ_sum`, `TCP_TCC_ATOMIC_WITH_RET_REQ_sum`, and `TCP_TCC_ATOMIC_WITHOUT_RET_REQ_sum` counters.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "max": 100,
+              "min": 0,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 1842
+          },
+          "id": 186,
+          "interval": "$interval",
+          "maxPerRow": 2,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "100 - 100 *\r\n(\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCP_TCC_READ_REQ_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCP_TCC_WRITE_REQ_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCP_TCC_ATOMIC_WITH_RET_REQ_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCP_TCC_ATOMIC_WITHOUT_RET_REQ_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"}))\r\n)\r\n/\r\n(\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCP_TOTAL_CACHE_ACCESSES_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 1 * group by(instance) (rmsjob_info{jobid=\"$jobid\"}))\r\n)",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "L1 Hit Rate: {{instance}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "L1 Cache Hit Rate per GPU [aggregated by node]",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "(L1 Hit Rate): ([^,:]+)(?:[:].*)?, (.+)",
+                "renamePattern": "$1 GPU: $2/$3"
+              }
+            }
+          ],
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "L2 cache hit rate per GPU, averaged by node. Uses rate() to compute instantaneous hit rates rather than cumulative ratios.\n\nL2 hit rate = 100 * rate(TCC_HIT_sum) / (rate(TCC_HIT_sum) + rate(TCC_MISS_sum))\n\nNote: displayed values are sensitive to the dashboard time resolution. Zooming in or adjusting the interval may produce different results as rate() operates over fewer data points.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `TCC_HIT_sum` and `TCC_MISS_sum` counters.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "max": 100,
+              "min": 0,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 1842
+          },
+          "id": 187,
+          "interval": "$interval",
+          "maxPerRow": 2,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "100 *\r\n(avg by(instance) (rate(omnistat_hardware_counter{name=\"TCC_HIT_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"}))\r\n/\r\n(\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCC_HIT_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCC_MISS_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 1 * group by(instance) (rmsjob_info{jobid=\"$jobid\"}))\r\n)",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "L2 Hit Rate: {{instance}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "L2 Cache Hit Rate per GPU [aggregated by node]",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "(L2 Hit Rate): ([^,:]+)(?:[:].*)?, (.+)",
+                "renamePattern": "$1 GPU: $2/$3"
+              }
+            }
+          ],
+          "type": "timeseries"
         }
       ],
       "title": "GPU Counters - Metrics",
