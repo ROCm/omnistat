@@ -6918,7 +6918,7 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "L1 cache hit rate per GPU, averaged by node. Uses rate() to compute instantaneous hit rates rather than cumulative ratios.\n\nL1 hit rate = 100 - 100 * rate(TCP_TCC_READ_REQ_sum + TCP_TCC_WRITE_REQ_sum + TCP_TCC_ATOMIC_WITH_RET_REQ_sum + TCP_TCC_ATOMIC_WITHOUT_RET_REQ_sum) / rate(TCP_TOTAL_CACHE_ACCESSES_sum)\n\nNote: displayed values are sensitive to the dashboard time resolution. Zooming in or adjusting the interval may produce different results as rate() operates over fewer data points.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `TCP_TOTAL_CACHE_ACCESSES_sum`, `TCP_TCC_READ_REQ_sum`, `TCP_TCC_WRITE_REQ_sum`, `TCP_TCC_ATOMIC_WITH_RET_REQ_sum`, and `TCP_TCC_ATOMIC_WITHOUT_RET_REQ_sum` counters.",
+          "description": "L1 cache hit rate per GPU, averaged by node. Uses rate() to compute instantaneous hit rates rather than cumulative ratios.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `TCP_TOTAL_CACHE_ACCESSES_sum`, `TCP_TCC_READ_REQ_sum`, `TCP_TCC_WRITE_REQ_sum`, `TCP_TCC_ATOMIC_WITH_RET_REQ_sum`, and `TCP_TCC_ATOMIC_WITHOUT_RET_REQ_sum` counters.\n\nNote: displayed values are sensitive to the dashboard time resolution. Zooming in or adjusting the interval may produce different results as rate() operates over fewer data points.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -7034,7 +7034,7 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "L2 cache hit rate per GPU, averaged by node. Uses rate() to compute instantaneous hit rates rather than cumulative ratios.\n\nL2 hit rate = 100 * rate(TCC_HIT_sum) / (rate(TCC_HIT_sum) + rate(TCC_MISS_sum))\n\nNote: displayed values are sensitive to the dashboard time resolution. Zooming in or adjusting the interval may produce different results as rate() operates over fewer data points.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `TCC_HIT_sum` and `TCC_MISS_sum` counters.",
+          "description": "L2 cache hit rate per GPU, averaged by node. Uses rate() to compute instantaneous hit rates rather than cumulative ratios.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `TCC_HIT_sum` and `TCC_MISS_sum` counters.\n\nNote: displayed values are sensitive to the dashboard time resolution. Zooming in or adjusting the interval may produce different results as rate() operates over fewer data points.",
           "fieldConfig": {
             "defaults": {
               "color": {
