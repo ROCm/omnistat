@@ -1,5 +1,5 @@
-Version 1.12 (24 April 2026)
-11;rgb:1919/1a1a/1b1b
+Version 1.12 (26 April 2026)
+
   * simplify kernel trace library finalization/flushing to avoid race condition (#276)
   * fix missing import in hardware counter collector (#277)
   * add CI coverage for hardware counter collection (#278)
