@@ -69,6 +69,12 @@
             "class_name": "HOST"
         },
         {
+            "runtime_option": "enable_external",
+            "enabled_by_default": false,
+            "file": "omnistat.collector_external",
+            "class_name": "ExternalScript"
+        },
+        {
             "runtime_option": null,
             "enabled_by_default": true,
             "file": "omnistat.collector_info",
