@@ -182,9 +182,9 @@ class ExternalScript(Collector):
                 else:
                     self.__metrics[key] = Gauge(full_name, f"External metric: {name}")
                 if register:
-                    logging.info(f"--> [registered] {full_name} (gauge)")
+                    logging.info(f"--> [registered] {full_name} labels={label_names} (gauge)")
                 else:
-                    logging.debug(f"--> [registered late] {full_name} (gauge)")
+                    logging.debug(f"--> [registered late] {full_name} labels={label_names} (gauge)")
 
             gauge = self.__metrics[key]
             if label_names:
