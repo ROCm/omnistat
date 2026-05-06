@@ -136,24 +136,53 @@ may differ from the ordering used by ROCm.
 
 ### Kernel Tracing
 
-[Kernel tracing](metrics.md#kernel-tracing) is available on
-Frontier starting with Omnistat **1.12.0**. It requires setting the
-`ROCP_TOOL_LIBRARIES` environment variable to point to the pre-built tracing
-library that matches the ROCm version linked by the application. Pre-built
-libraries are currently provided for ROCm 6.4.0 through 7.2.0.
+[Kernel tracing](metrics.md#kernel-tracing) is available on Frontier starting
+with Omnistat **1.12.0**. It works by loading a tracing library
+(`libomnistat_trace.so`) into the application's runtime environment to
+intercept GPU kernel dispatches. Pre-built tracing libraries are currently
+provided for ROCm 6.4.0 through 7.2.0.
 
-To enable kernel tracing, load the ROCm version that matches your
-application's linkage and set the environment variable before launching your
-job:
+To enable kernel tracing:
+1. Create a custom configuration file with `enable_kernel_trace = True`, using
+   the default
+   [Frontier configuration file](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.ornl)
+   as a starting point.
+2. Set `OMNISTAT_CONFIG` to point to your custom file in the job script.
+3. Set `ROCP_TOOL_LIBRARIES` to the pre-built tracing library matching the
+   ROCm version used to build your application. Pre-built libraries are
+   available under
+   `${OMNISTAT_DIR}/build-trace-rocm-<version>/`.
+   This variable must be set before launching the application.
 
-```bash
-# Load ROCm
-ml rocm/7.2.0
+```eval_rst
+.. code-block:: bash
+   :caption: Example Frontier SLURM job with kernel tracing enabled
+   :emphasize-lines: 14,18
 
-# Load Omnistat (wrapper version)
-ml use /sw/frontier/amdsw/modulefiles
-ml omnistat-wrapper
+   #!/bin/bash
+   #SBATCH -A <project_id>
+   #SBATCH -J omnistat
+   #SBATCH -N 2
+   #SBATCH -t 01:00:00
+   #SBATCH -S 0
 
-# Enable kernel tracing
-export ROCP_TOOL_LIBRARIES=${OMNISTAT_DIR}/build-trace-rocm-${CRAY_ROCM_VERSION}/libomnistat_trace.so
+   # Load ROCm (must match the version used to build your application)
+   ml rocm/7.2.0
+
+   # Setup and launch Omnistat (wrapper version)
+   ml use /sw/frontier/amdsw/modulefiles
+   ml omnistat-wrapper
+   export OMNISTAT_CONFIG=/path/to/omnistat.config
+   ${OMNISTAT_WRAPPER} usermode --start --interval 1.0
+
+   # Enable Omnistat kernel tracing
+   export ROCP_TOOL_LIBRARIES=${OMNISTAT_DIR}/build-trace-rocm-${CRAY_ROCM_VERSION}/libomnistat_trace.so
+
+   # Your GPU application here
+   srun ./your_application
+
+   # Tear down Omnistat
+   ${OMNISTAT_WRAPPER} usermode --stopexporters
+   ${OMNISTAT_WRAPPER} query --job ${SLURM_JOB_ID} --interval 1.0
+   ${OMNISTAT_WRAPPER} usermode --stopserver
 ```
