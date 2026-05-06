@@ -106,14 +106,12 @@ After job completion, transfer the archived Omnistat data to your local machine
 for analysis using the Docker environment described in the [user-mode
 guide](installation/user-mode.md#exploring-results-locally).
 
-## Additional Metrics
-
-Frontier exposes an additional site‑specific collector beyond the standard set
-documented in the main [metrics](metrics) overview.
+## Additional Features
 
 ### Vendor Counters
 
-The vendor collector ingests additional telemetry made
+Frontier exposes an additional site‑specific collector beyond the standard set
+documented in the main [metrics](metrics) overview. The vendor collector ingests additional telemetry made
 possible by site‑specific platform integrations. On Frontier, this collector leverages the HPE
 Cray `pm_counters` interface and translates raw counter files into metrics
 that distinguish cumulative energy and instantaneous power samples for
@@ -135,3 +133,27 @@ may differ from the ordering used by ROCm.
 | :------------------------------------- | :---------- |
 | `omnistat_vendor_accel_energy_joules`  | Cumulative accelerator (GPU) energy (J) for each device. Labels: `vendor`, `accel`. |
 | `omnistat_vendor_accel_power_watts`    | Instantaneous accelerator (GPU) power (W) for each device. Labels: `vendor`, `accel`. |
+
+### Kernel Tracing
+
+[Kernel tracing](metrics.md#kernel-tracing) is available on
+Frontier starting with Omnistat **1.12.0**. It requires setting the
+`ROCP_TOOL_LIBRARIES` environment variable to point to the pre-built tracing
+library that matches the ROCm version linked by the application. Pre-built
+libraries are currently provided for ROCm 6.4.0 through 7.2.0.
+
+To enable kernel tracing, load the ROCm version that matches your
+application's linkage and set the environment variable before launching your
+job:
+
+```bash
+# Load ROCm
+ml rocm/7.2.0
+
+# Load Omnistat (wrapper version)
+ml use /sw/frontier/amdsw/modulefiles
+ml omnistat-wrapper
+
+# Enable kernel tracing
+export ROCP_TOOL_LIBRARIES=${OMNISTAT_DIR}/build-trace-rocm-${CRAY_ROCM_VERSION}/libomnistat_trace.so
+```
