@@ -158,10 +158,10 @@ class ExternalScript(Collector):
         return name, labels, value
 
     def _update(self, register: bool):
-        """Run the script and either register or update metrics.
+        """Run the script and update metrics, registering any new ones on the fly.
 
         Args:
-            register (bool): True on first call to create Gauge objects; False to just set values.
+            register (bool): True on first call (logs at info level); False on subsequent calls (logs at debug level).
         """
         lines = self._run_script()
 
@@ -175,18 +175,16 @@ class ExternalScript(Collector):
             label_names = sorted(labels.keys())
             key = (name, tuple(label_names))
 
-            if register:
-                if key not in self.__metrics:
-                    full_name = self.__prefix + name
-                    if label_names:
-                        self.__metrics[key] = Gauge(full_name, f"External metric: {name}", labelnames=label_names)
-                    else:
-                        self.__metrics[key] = Gauge(full_name, f"External metric: {name}")
+            if key not in self.__metrics:
+                full_name = self.__prefix + name
+                if label_names:
+                    self.__metrics[key] = Gauge(full_name, f"External metric: {name}", labelnames=label_names)
+                else:
+                    self.__metrics[key] = Gauge(full_name, f"External metric: {name}")
+                if register:
                     logging.info(f"--> [registered] {full_name} (gauge)")
-            else:
-                if key not in self.__metrics:
-                    logging.warning(f"ExternalScript: metric '{name}' appeared after registration; skipping")
-                    continue
+                else:
+                    logging.debug(f"--> [registered late] {full_name} (gauge)")
 
             gauge = self.__metrics[key]
             if label_names:
