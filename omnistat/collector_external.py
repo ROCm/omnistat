@@ -74,7 +74,6 @@ class ExternalScript(Collector):
         logging.debug(f"Initializing {self.__class__.__name__} data collector")
 
         self.__prefix = ""
-        self.__collector_label = "omnistat_external"
         self.__metrics = {}
         self.__script = None
         self.__timeout = 10
@@ -171,7 +170,7 @@ class ExternalScript(Collector):
                 continue
 
             name, labels, value = parsed
-            labels["collector"] = self.__collector_label
+            labels["omnistat_external"] = "1"
             label_names = sorted(labels.keys())
             key = (name, tuple(label_names))
 
@@ -181,10 +180,11 @@ class ExternalScript(Collector):
                     self.__metrics[key] = Gauge(full_name, f"External metric: {name}", labelnames=label_names)
                 else:
                     self.__metrics[key] = Gauge(full_name, f"External metric: {name}")
+                label_str = "{" + ",".join(f'{k}="{labels[k]}"' for k in label_names) + "}"
                 if register:
-                    logging.info(f"--> [registered] {full_name} labels={label_names} (gauge)")
+                    logging.info(f"--> [registered] {full_name}{label_str} (gauge)")
                 else:
-                    logging.debug(f"--> [registered late] {full_name} labels={label_names} (gauge)")
+                    logging.debug(f"--> [registered late] {full_name}{label_str} (gauge)")
 
             gauge = self.__metrics[key]
             if label_names:
