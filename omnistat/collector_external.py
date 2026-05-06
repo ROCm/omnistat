@@ -73,7 +73,8 @@ class ExternalScript(Collector):
     def __init__(self, config: configparser.ConfigParser):
         logging.debug(f"Initializing {self.__class__.__name__} data collector")
 
-        self.__prefix = "omnistat_external_"
+        self.__prefix = ""
+        self.__collector_label = "omnistat_external"
         self.__metrics = {}
         self.__script = None
         self.__timeout = 10
@@ -170,6 +171,7 @@ class ExternalScript(Collector):
                 continue
 
             name, labels, value = parsed
+            labels["collector"] = self.__collector_label
             label_names = sorted(labels.keys())
             key = (name, tuple(label_names))
 
