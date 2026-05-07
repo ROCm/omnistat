@@ -312,9 +312,7 @@ class AMDSMI(Collector):
                     found = source_metric
                     break
             if not found:
-                logging.error("--> Unable to determine valid data for %s" % desired_metric)
-                logging.error("")
-                sys.exit(4)
+                logging.warn("--> Skipping %s metric - not available on this architecture" % desired_metric)
             else:
                 logging.info("--> Using mapping %s -> %s " % (desired_metric, found))
                 self.__GPUMetrics[self.__prefix + desired_metric] = Gauge(
