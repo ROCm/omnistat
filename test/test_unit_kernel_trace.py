@@ -128,10 +128,11 @@ class TestInit:
         assert kt._KernelTrace__offset_ns == s_to_ns(7)
 
     def test_initial_bin(self, mock_time):
-        """At t=1s with 1s interval, initial bin is FIRST_BIN_MS (2000 ms)."""
+        """At t=1s with 1s interval, initial bins are the pre-bin and FIRST_BIN_MS."""
         kt = KernelTrace(configparser.ConfigParser(), Mock(), interval=INTERVAL_S)
         ts = kt._KernelTrace__ts
-        assert len(ts) == 1
+        assert len(ts) == 2
+        assert FIRST_BIN_MS - INTERVAL_MS in ts
         assert FIRST_BIN_MS in ts
 
     def test_with_fractional_interval(self, mock_time):
@@ -163,7 +164,7 @@ class TestProcessDispatches:
             assert last_bin in bins
             assert len(bins[last_bin]) == 0
 
-        assert len(collector_instance._KernelTrace__ts) == duration_s + 1
+        assert len(collector_instance._KernelTrace__ts) == duration_s + 2
 
     def test_single_dispatch(self, collector_instance, mock_time):
         """A single dispatch is accumulated and snapshotted into the correct bin."""
@@ -278,10 +279,11 @@ class TestProcessDispatches:
         key = ("0", "kernel_a")
 
         assert key in ts[3000]
-        assert key not in ts.get(2000, {})
+        assert ts[2000][key] == [0, 0]
+        assert key not in ts.get(1000, {})
 
     def test_out_of_range_before_first_bin(self, collector_instance, mock_time):
-        """A dispatch whose end_bin < first_bin is silently dropped."""
+        """A dispatch whose end_bin < first accepted bin is silently dropped."""
         early = make_dispatch("0", "kernel_a", end_ns=s_to_ns(0.5), duration_ns=10)
         collector_instance._KernelTrace__dispatches.append(early)
 
@@ -301,6 +303,25 @@ class TestProcessDispatches:
 
         assert len(collector_instance._KernelTrace__values) == 0
         assert collector_instance._KernelTrace__dropped_dispatches == 1
+
+    def test_zero_seed(self, collector_instance, mock_time):
+        """A new kernel is zero-seeded in the pre-bin; a second dispatch does not reseed."""
+        d1 = make_dispatch("0", "kernel_a", end_ns=s_to_ns(1.5), duration_ns=25)
+        collector_instance._KernelTrace__dispatches.append(d1)
+        set_time(mock_time, 2)
+        collector_instance._KernelTrace__process_dispatches()
+
+        d2 = make_dispatch("0", "kernel_a", end_ns=s_to_ns(2.5), duration_ns=30)
+        collector_instance._KernelTrace__dispatches.append(d2)
+        set_time(mock_time, 3)
+        collector_instance._KernelTrace__process_dispatches()
+
+        ts = collector_instance._KernelTrace__ts
+        key = ("0", "kernel_a")
+
+        assert ts[1000][key] == [0, 0]
+        assert ts[2000][key] == [1, 25]
+        assert ts[3000][key] == [2, 55]
 
     def test_mixed_range(self, collector_instance, mock_time):
         """In-range dispatches are counted; out-of-range ones are dropped."""
@@ -340,7 +361,8 @@ class TestFormatMetrics:
         set_time(mock_time, 20)
         metrics = collect_metrics(collector_instance, flush=False)
 
-        assert len(metrics["kernel"]) == 2
+        # 2 zero-seeded at bin 2000 + 2 actual at bin 3000
+        assert len(metrics["kernel"]) == 4
         assert len(metrics["dropped"]) >= 1
 
     def test_flush_releases(self, collector_instance, mock_time):
@@ -351,7 +373,8 @@ class TestFormatMetrics:
         set_time(mock_time, 3)
         metrics = collect_metrics(collector_instance)
 
-        assert len(metrics["kernel"]) == 2
+        # 2 zero-seeded at bin 2000 + 2 actual at bin 3000
+        assert len(metrics["kernel"]) == 4
         assert len(collector_instance._KernelTrace__ts) == 0
 
     def test_exact_prometheus_line_format(self, collector_instance, mock_time):
@@ -395,7 +418,8 @@ class TestFormatMetrics:
         set_time(mock_time, 3)
         metrics = collect_metrics(collector_instance)
 
-        assert len(metrics["kernel"]) == 8
+        # 8 zero-seeded at bin 2000 + 8 actual at bin 3000
+        assert len(metrics["kernel"]) == 16
 
     def test_empty_bins_yield_dropped_count(self, collector_instance, mock_time):
         """No dispatches -> each bin still yields the dropped dispatch count line."""
@@ -412,7 +436,9 @@ class TestFormatMetrics:
 
         set_time(mock_time, 3)
         first = collect_metrics(collector_instance)
-        assert len(first["kernel"]) == 2
+
+        # 2 zero-seeded at bin 2000 + 2 actual at bin 3000
+        assert len(first["kernel"]) == 4
 
         set_time(mock_time, 4)
         second = collect_metrics(collector_instance)
