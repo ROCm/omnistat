@@ -75,6 +75,7 @@ class ExternalScript(Collector):
 
         self.__prefix = ""
         self.__metrics = {}
+        self.__metric_instances = {}  # key -> list of label-value tuples (in label_names order)
         self.__script = None
         self.__timeout = 10
 
@@ -159,10 +160,34 @@ class ExternalScript(Collector):
     def _update(self, register: bool):
         """Run the script and update metrics, registering any new ones on the fly.
 
+        At the start of each non-registration update, all previously set label
+        combinations are removed from their gauges before the script output is
+        applied.  If the script produces no output (e.g. the underlying command
+        segfaults or the device is unavailable), no values are re-added and the
+        metrics disappear from the /metrics endpoint.  VictoriaMetrics / Prometheus
+        then marks them stale rather than holding the last known value.
+
         Args:
             register (bool): True on first call (logs at info level); False on subsequent calls (logs at debug level).
         """
         lines = self._run_script()
+
+        # Clear all previously emitted label combinations so that metrics from a
+        # failed or empty script run don't linger as stale values.
+        if not register:
+            for key, instances in self.__metric_instances.items():
+                gauge = self.__metrics.get(key)
+                if gauge is None:
+                    continue
+                for label_values in instances:
+                    try:
+                        if label_values:
+                            gauge.remove(*label_values)
+                        else:
+                            gauge.set(float("nan"))
+                    except KeyError:
+                        pass
+            self.__metric_instances.clear()
 
         for line in lines:
             parsed = self._parse_line(line)
@@ -187,7 +212,10 @@ class ExternalScript(Collector):
                     logging.debug(f"--> [registered late] {full_name}{label_str} (gauge)")
 
             gauge = self.__metrics[key]
+            label_values = tuple(labels[k] for k in label_names)
             if label_names:
                 gauge.labels(**labels).set(value)
             else:
                 gauge.set(value)
+
+            self.__metric_instances.setdefault(key, []).append(label_values)
