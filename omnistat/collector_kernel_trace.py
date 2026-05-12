@@ -57,10 +57,16 @@ class KernelTrace(EndpointCollector):
         # sections with a low rate of kernel dispatches.
         self.__ts = OrderedDict()
 
-        # Initialize time series window buffer
+        # Initialize time series window buffer with a leading empty bin so
+        # that newly seen kernels in the first interval can be zero-seeded.
         time_ms = time.time_ns() // 1_000_000
-        current_bin = ((time_ms // self.__interval_ms) + 1) * self.__interval_ms
-        self.__ts[current_bin] = {}
+        init_bin = ((time_ms // self.__interval_ms) + 1) * self.__interval_ms
+        self.__ts[init_bin - self.__interval_ms] = {}
+        self.__ts[init_bin] = {}
+
+        # Earliest bin that accepts dispatches. The pre-bin before init_bin
+        # exists only for zero-seeding.
+        self.__min_bin = init_bin
 
         # Measure offset applied to GPU timestamps to convert them to unix
         # timestamps in the same format as the time series database
@@ -159,9 +165,11 @@ class KernelTrace(EndpointCollector):
 
         # Re-seed if __ts has been emptied (e.g. a flush=True formatMetrics call)
         if not self.__ts:
+            self.__ts[current_bin - self.__interval_ms] = {}
             self.__ts[current_bin] = {}
+            self.__min_bin = current_bin
 
-        first_bin = next(iter(self.__ts))
+        first_bin = max(self.__min_bin, next(iter(self.__ts)))
         last_bin = next(reversed(self.__ts))
 
         # Keep in-order dictionary of time series intervals
@@ -184,6 +192,14 @@ class KernelTrace(EndpointCollector):
                 continue
 
             key = (gpu_id, name)
+
+            # Seed a zero value in the previous bin for newly seen kernels so
+            # that increase() can detect the jump from 0 to the first value.
+            if key not in self.__values:
+                prev_bin = end_bin - self.__interval_ms
+                if prev_bin in self.__ts:
+                    self.__ts[prev_bin].setdefault(key, [0, 0])
+
             value = self.__values[key]
             value[0] += 1
             value[1] += duration_ns
