@@ -273,10 +273,18 @@ The export functionality will generate one or more CSV files, depending on
 which collectors are enabled in the Omnistat configuration, as outlined in the
 following table.
 
-| File                    | Collector               | Description                          |
-| :---------------------- | :---------------------: | :----------------------------------- |
-| `omnistat-rocm.gpu.csv` | `rocm_smi` or `amd_smi` | GPU-level utilization and telemetry. |
-| `omnistat-network.csv`  | `network`               | Network bandwidth.                   |
+| File                            | Collector                    | Description                                               |
+| :------------------------------ | :--------------------------: | :-------------------------------------------------------- |
+| `omnistat-rocm.gpu.csv`         | `rocm_smi` or `amd_smi`      | GPU-level utilization and telemetry.                      |
+| `omnistat-network.csv`          | `network`                    | Network interface rx/tx bytes.                            |
+| `omnistat-host.csv`             | `host_metrics`               | Host CPU, memory, and local I/O metrics.                  |
+| `omnistat-host-proc-io.csv`     | `host_metrics`               | Per-process I/O (includes network I/O).                   |
+| `omnistat-rocprofiler.gpu.csv`  | `rocprofiler`                | GPU hardware performance counters.                        |
+| `omnistat-fom.csv`              | `fom`                        | Figures of merit.                                         |
+| `omnistat-vendor.csv`           | `vendor_counters`            | Node-level vendor PM counters (energy, power).            |
+| `omnistat-vendor.gpu.csv`       | `vendor_counters`            | Per-GPU vendor PM counters (accelerator energy, power).   |
+| `omnistat-xgmi.gpu.csv`         | `xgmi`                       | GPU-to-GPU xGMI interconnect read/write data.             |
+| `omnistat-kernel-trace.gpu.csv` | `kernel_trace`               | Per-kernel dispatch counts and execution durations.       |
 
 Exported data can be easily loaded as a data frame using tools like Pandas for
 further processing.
