@@ -174,8 +174,6 @@ class HOST(Collector):
                     self.__metrics[metric] = Gauge(self.__prefix + metric, description)
                 logging.info("--> [registered] %s (gauge)" % (self.__prefix + metric))
 
-
-
         # --
         # CPU oriented metrics
         # --
@@ -287,8 +285,8 @@ class HOST(Collector):
         else:
             logging.warning("--> no local disk devices found to track")
 
-        # user-mode: cache existing list of user processes at init time to filter them out from further monitoring; we assume only new PIDs 
-        # that appear after the collector starts are relevant to monitor (and avoids parent resource manager processes which can 
+        # user-mode: cache existing list of user processes at init time to filter them out from further monitoring; we assume only new PIDs
+        # that appear after the collector starts are relevant to monitor (and avoids parent resource manager processes which can
         # lead to duplicate counting)
 
         if self.__enable_proc_io_stats:
