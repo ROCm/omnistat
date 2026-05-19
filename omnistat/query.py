@@ -1700,7 +1700,7 @@ class QueryMetrics:
             ),
             (
                 "host-proc-io",
-                ["omnistat_io_read_total_bytes", "omnistat_io_write_total_bytes"],
+                ["omnistat_host_io_read_total_bytes", "omnistat_host_io_write_total_bytes"],
                 ["instance", "pid"],
             ),
             (
