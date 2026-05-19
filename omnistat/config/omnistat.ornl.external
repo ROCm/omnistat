@@ -15,7 +15,7 @@ enable_vendor_counters = True
 enable_kernel_trace = False
 
 ## Path to local ROCM install to access SMI library
-rocm_path = /opt/rocm-6.4.1
+rocm_path = /opt/rocm-7.2.0
 
 ## List of IPs allowed to query the collector (comma separated). By
 ## default, access will be restricted to the localhost (127.0.0.1).
@@ -26,6 +26,10 @@ allowed_ips = 127.0.0.1, 0.0.0.0
 
 host_skip = "login.*"
 enable_annotations = True
+
+[omnistat.collectors.host]
+enable_proc_io_stats = True
+cpu_load_sampling_interval = 0.05
 
 [omnistat.collectors.rocprofiler]
 profile = default
