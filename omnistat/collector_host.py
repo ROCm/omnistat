@@ -92,11 +92,11 @@ class HOST(Collector):
                     self.__proc_io_cmds_exclude = config["omnistat.collectors.host"].get("proc_io_cmds_exclude")
                     self.__proc_io_cmds_exclude = re.split(r",\s*", self.__proc_io_cmds_exclude)
                     logging.debug("--> overriding default proc_io_cmd_exclude_list...")
+        self.__mode = config["omnistat.internal"]["mode"]
 
     def registerMetrics(self):
         """Register metrics of interest"""
 
-        # logging.info("Runtime options:")
         logging.info("cpu_load_sampling_interval: %.4f secs" % self.__cpu_load_sampling_interval)
         logging.info("enable_proc_io_stats: %s" % str(self.__enable_proc_io_stats))
         if self.__enable_proc_io_stats:
@@ -173,6 +173,8 @@ class HOST(Collector):
                 else:
                     self.__metrics[metric] = Gauge(self.__prefix + metric, description)
                 logging.info("--> [registered] %s (gauge)" % (self.__prefix + metric))
+
+
 
         # --
         # CPU oriented metrics
@@ -285,6 +287,22 @@ class HOST(Collector):
         else:
             logging.warning("--> no local disk devices found to track")
 
+        # user-mode: cache existing list of user processes at init time to filter them out from further monitoring; we assume only new PIDs 
+        # that appear after the collector starts are relevant to monitor (and avoids parent resource manager processes which can 
+        # lead to duplicate counting)
+
+        if self.__enable_proc_io_stats:
+            if self.__mode == "user":
+                self.__existing_pids = set()
+                for pid in os.listdir("/proc"):
+                    # restrict to running user
+                    proc_dir = os.path.join("/proc", pid)
+                    stat_info = os.stat(proc_dir)
+                    proc_uid = stat_info.st_uid
+                    if pid.isdigit() and proc_uid == os.getuid():
+                        self.__existing_pids.add(int(pid))
+                logging.info(f"--> cached {len(self.__existing_pids)} existing user PIDs to filter from I/O monitoring")
+
     def updateMetrics(self):
         """Update registered metrics of interest"""
 
@@ -379,6 +397,11 @@ class HOST(Collector):
             if not entry.isdigit():
                 continue
             pid = int(entry)
+
+            if self.__mode == "user":
+                # In user-mode, only monitor processes that started after the collector
+                if pid in self.__existing_pids:
+                    continue
 
             proc_dir = f"/proc/{pid}"
             try:
