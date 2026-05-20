@@ -21,6 +21,9 @@ jobs:
   nightly-wheel:
     name: Build and upload Python wheel
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout repository
@@ -59,5 +62,6 @@ jobs:
       - name: Upload wheel to S3
         if: ${{ steps.setup.outputs.deploy == 'true' }}
         run: |
-          aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/nightly/test/ \
+          S3_SECONDARY_DIRECTORY=$(date +%Y_%m_%d)
+          aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/nightly/$S3_SECONDARY_DIRECTORY/ \
             --no-progress
