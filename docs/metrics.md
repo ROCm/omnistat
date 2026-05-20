@@ -278,6 +278,7 @@ the following requirements depending on how Omnistat is executed:
 - *User mode*: Set the `HSA_TOOLS_LIB` environment variable in the application's runtime environment.
   ```shell
   export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
+  export HSA_TOOLS_ROCPROFILER_V1_TOOLS=1
   ```
 
 **Collector**: `enable_rocprofiler`

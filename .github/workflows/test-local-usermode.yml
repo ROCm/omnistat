@@ -1,0 +1,91 @@
+name: User mode - Local
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  test:
+    name: Usermode (localjob, no RMS)
+    runs-on: [linux-gfx942-1gpu-ossci-rocm]
+    steps:
+
+      - name: Check out repository code
+        uses: actions/checkout@v6
+
+      - name: Download VictoriaMetrics (v1.140.0)
+        run: |
+          VERSION=v1.140.0
+          echo "Installing VictoriaMetrics $VERSION"
+          wget -q https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/${VERSION}/victoria-metrics-linux-amd64-${VERSION}.tar.gz
+          tar xzf victoria-metrics-linux-amd64-${VERSION}.tar.gz
+          chmod +x victoria-metrics-prod
+
+      - name: Create virtual environment
+        run: |
+          python3 -m venv omnistat_venv
+          source omnistat_venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-query.txt
+
+      - name: Select available exporter port
+        run: |
+          for p in $(seq 8010 8059); do
+            if ! ss -tlnp | grep -q ":${p} "; then
+              echo "OMNISTAT_PORT=$p" >> $GITHUB_ENV
+              echo "Using exporter port $p"
+              exit 0
+            fi
+          done
+          echo "No free port found in range 8010-8059"
+          exit 1
+
+      - name: Update runtime config
+        run: |
+          sed -i "s|victoria_binary = .*|victoria_binary = ${{ github.workspace }}/victoria-metrics-prod|" omnistat/config/omnistat.default
+          sed -i "s|job_detection_file = .*|job_detection_file = /tmp/omni_rmsjobinfo_ciuser|" omnistat/config/omnistat.default
+          sed -i "s|port = .*|port = $OMNISTAT_PORT|" omnistat/config/omnistat.default
+
+      - name: Start usermode Omnistat
+        run: |
+          source omnistat_venv/bin/activate
+          ./omnistat-usermode --start --interval 0.5 --localjob 1234
+
+      - name: Verify exporter is listening
+        run: curl -sf localhost:$OMNISTAT_PORT/metrics | grep -q "status.*ok"
+
+      - name: Wait for samples to be collected
+        run: sleep 10
+
+      - name: Stop exporters
+        if: always()
+        run: |
+          source omnistat_venv/bin/activate
+          ./omnistat-usermode --stopexporters --localjob 1234
+
+      - name: Query job metrics
+        run: |
+          source omnistat_venv/bin/activate
+          ./omnistat-query --interval 0.5 --job 1234 | tee query_output.txt
+          grep -q "Omnistat Report Card" query_output.txt
+          grep -q "GPU Statistics" query_output.txt
+
+      - name: Display query output on failure
+        if: failure()
+        run: |
+          echo "-- Query output --"
+          cat query_output.txt
+          echo "---"
+          echo "-- VictoriaMetrics server log --"
+          cat vic_server.log
+          echo "-- Exporter log --"
+          cat exporter.log
+
+      - name: Stop server
+        if: always()
+        run: |
+          source omnistat_venv/bin/activate
+          ./omnistat-usermode --stopserver

@@ -1685,6 +1685,25 @@ class QueryMetrics:
                 ["instance", "device_class", "interface"],
             ),
             (
+                "host",
+                [
+                    "omnistat_host_cpu_aggregate_core_utilization",
+                    "omnistat_host_cpu_num_logical_cores",
+                    "omnistat_host_cpu_num_physical_cores",
+                    "omnistat_host_mem_available_bytes",
+                    "omnistat_host_mem_free_bytes",
+                    "omnistat_host_mem_total_bytes",
+                    "omnistat_host_io_read_local_total_bytes",
+                    "omnistat_host_io_write_local_total_bytes",
+                ],
+                ["instance"],
+            ),
+            (
+                "host-proc-io",
+                ["omnistat_host_io_read_total_bytes", "omnistat_host_io_write_total_bytes"],
+                ["instance", "pid", "cmd"],
+            ),
+            (
                 "cxi",
                 cxi_interface_metrics,
                 ["instance", "interface"],

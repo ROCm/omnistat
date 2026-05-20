@@ -30,6 +30,7 @@ import logging
 import os
 import re
 import resource
+import shlex
 import shutil
 import subprocess
 import sys
@@ -579,11 +580,12 @@ def execute_ssh_command_nohup(
     """
 
     attempt = 1
+    t_start = time.perf_counter()
     while attempt <= max_retries:
         try:
             outfile = outputDir + f"/omnistat_launch_{hostname}_try{attempt}.log"
-            nohup_command = f"nohup {command} > {outfile} 2>&1 &"
-            ssh_command = ["ssh", hostname, nohup_command]
+            nohup_command = f"nohup {command} > {shlex.quote(outfile)} 2>&1 &"
+            ssh_command = ["ssh", hostname, "env BASH_ENV= bash --noprofile --norc -c " + shlex.quote(nohup_command)]
 
             logging.debug(f"[pssh] {ssh_command}")
 
@@ -591,7 +593,7 @@ def execute_ssh_command_nohup(
             process = subprocess.run(ssh_command, capture_output=True, text=True, timeout=ssh_timeout)
 
             if process.returncode == 0:
-                return True, outfile
+                return True, outfile, time.perf_counter() - t_start
             else:
                 error = process.stderr or process.stdout
                 logging.warning(f"[pssh] try {attempt} of {max_retries} failed for {hostname}: {error.rstrip()}")
@@ -609,11 +611,11 @@ def execute_ssh_command_nohup(
 
         if attempt > max_retries:
             logging.warning(f"[pssh] Max retries reached for {hostname}")
-            return False, outfile
+            return False, outfile, time.perf_counter() - t_start
 
         time.sleep(retry_delay)
 
-    return False, None
+    return False, None, time.perf_counter() - t_start
 
 
 def execute_ssh_parallel(
@@ -652,11 +654,20 @@ def execute_ssh_parallel(
         }
 
         # Collect results as they complete
+        total = len(future_to_host)
+        completed = 0
+        t_start = time.perf_counter()
         for future in concurrent.futures.as_completed(future_to_host):
             host = future_to_host[future]
             try:
-                success, outFile = future.result()
-                results[host] = {"status": success, "output_filename": outFile}
+                success, outFile, elapsed = future.result()
+                results[host] = {"status": success, "output_filename": outFile, "elapsed": elapsed}
+                completed += 1
+                if completed % max_concurrent == 0 or completed == total:
+                    logging.info(
+                        "--> progress: %d/%d hosts launched (%.2fs elapsed)"
+                        % (completed, total, time.perf_counter() - t_start)
+                    )
 
                 # file_path = Path(outFile)
                 # if file_path.is_file():
@@ -676,7 +687,7 @@ def execute_ssh_parallel(
 
             except Exception as e:
                 logging.error("[pssh] Unknown error executing command on %s: %s", host, str(e))
-                results[host] = {"status": False, "output_filename": None}
+                results[host] = {"status": False, "output_filename": None, "elapsed": None}
 
         logging.info("[pssh] All launch commands executed")
 

@@ -55,8 +55,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 35,
-      "panels": [],
+      "id": 188,
       "title": "Job Info",
       "type": "row"
     },
@@ -70,7 +69,6 @@
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -80,8 +78,7 @@
               }
             ]
           }
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 3,
@@ -110,7 +107,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -140,7 +137,6 @@
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -150,8 +146,7 @@
               }
             ]
           }
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 3,
@@ -180,7 +175,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -214,7 +209,6 @@
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -224,8 +218,7 @@
               }
             ]
           }
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 3,
@@ -254,7 +247,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -312,8 +305,7 @@
               }
             ]
           }
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 3,
@@ -342,7 +334,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -386,7 +378,6 @@
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -396,8 +387,7 @@
               }
             ]
           }
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 3,
@@ -426,7 +416,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -455,7 +445,6 @@
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -465,8 +454,7 @@
               }
             ]
           }
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 3,
@@ -495,7 +483,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -523,7 +511,6 @@
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -534,8 +521,7 @@
             ]
           },
           "unit": "dthms"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 3,
@@ -564,7 +550,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -573,7 +559,6 @@
           },
           "editorMode": "code",
           "expr": "max(timestamp(rmsjob_info{jobid=\"$jobid\"}))",
-          "hide": false,
           "instant": false,
           "interval": "",
           "legendFormat": "__auto",
@@ -592,8 +577,7 @@
         "x": 0,
         "y": 4
       },
-      "id": 66,
-      "panels": [],
+      "id": 189,
       "title": "Performance Overview",
       "type": "row"
     },
@@ -609,7 +593,6 @@
             "mode": "thresholds"
           },
           "decimals": 0,
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -628,8 +611,7 @@
             ]
           },
           "unit": "percent"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -655,7 +637,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -721,7 +703,6 @@
               "mode": "off"
             }
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -788,6 +769,10 @@
       "id": 58,
       "interval": "$interval",
       "options": {
+        "annotations": {
+          "clustering": -1,
+          "multiLane": false
+        },
         "legend": {
           "calcs": [],
           "displayMode": "list",
@@ -801,7 +786,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -822,13 +807,13 @@
           },
           "editorMode": "code",
           "expr": "max(rocm_utilization_percentage * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-          "hide": false,
           "instant": false,
           "legendFormat": "Max",
           "range": true,
           "refId": "B"
         }
       ],
+      "title": "",
       "type": "timeseries"
     },
     {
@@ -843,7 +828,6 @@
             "mode": "thresholds"
           },
           "decimals": 0,
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -862,8 +846,7 @@
             ]
           },
           "unit": "percent"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -889,7 +872,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -955,7 +938,6 @@
               "mode": "off"
             }
           },
-          "mappings": [],
           "max": 100,
           "min": 0,
           "thresholds": {
@@ -1024,6 +1006,10 @@
       "id": 61,
       "interval": "$interval",
       "options": {
+        "annotations": {
+          "clustering": -1,
+          "multiLane": false
+        },
         "legend": {
           "calcs": [],
           "displayMode": "list",
@@ -1037,7 +1023,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -1058,13 +1044,13 @@
           },
           "editorMode": "code",
           "expr": "max(rocm_vram_used_percentage * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-          "hide": false,
           "instant": false,
           "legendFormat": "Max",
           "range": true,
           "refId": "B"
         }
       ],
+      "title": "",
       "type": "timeseries"
     },
     {
@@ -1079,7 +1065,6 @@
             "mode": "fixed"
           },
           "decimals": 0,
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1098,8 +1083,7 @@
             ]
           },
           "unit": "percent"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -1125,7 +1109,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -1189,7 +1173,6 @@
               "mode": "off"
             }
           },
-          "mappings": [],
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -1233,6 +1216,10 @@
       "id": 63,
       "interval": "$interval",
       "options": {
+        "annotations": {
+          "clustering": -1,
+          "multiLane": false
+        },
         "legend": {
           "calcs": [],
           "displayMode": "list",
@@ -1246,7 +1233,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -1261,6 +1248,7 @@
           "refId": "A"
         }
       ],
+      "title": "",
       "type": "timeseries"
     },
     {
@@ -1275,7 +1263,6 @@
             "mode": "thresholds"
           },
           "decimals": 0,
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1294,8 +1281,7 @@
             ]
           },
           "unit": "percent"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -1321,7 +1307,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -1387,7 +1373,6 @@
               "mode": "off"
             }
           },
-          "mappings": [],
           "max": 100,
           "min": 0,
           "thresholds": {
@@ -1432,6 +1417,10 @@
       "id": 65,
       "interval": "$interval",
       "options": {
+        "annotations": {
+          "clustering": -1,
+          "multiLane": false
+        },
         "legend": {
           "calcs": [],
           "displayMode": "list",
@@ -1445,7 +1434,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -1460,6 +1449,7 @@
           "refId": "A"
         }
       ],
+      "title": "",
       "type": "timeseries"
     },
     {
@@ -1474,7 +1464,6 @@
             "mode": "fixed"
           },
           "decimals": 0,
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1493,8 +1482,7 @@
             ]
           },
           "unit": "binBps"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -1521,7 +1509,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -1543,7 +1531,6 @@
           },
           "editorMode": "code",
           "expr": "sum(rate(omnistat_network_rx_bytes{device_class!=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"}) + sum(rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-          "hide": false,
           "instant": false,
           "interval": "$interval",
           "legendFormat": "High Performance Interconnect",
@@ -1600,7 +1587,6 @@
               "mode": "off"
             }
           },
-          "mappings": [],
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -1659,6 +1645,10 @@
       "id": 119,
       "interval": "$interval",
       "options": {
+        "annotations": {
+          "clustering": -1,
+          "multiLane": false
+        },
         "legend": {
           "calcs": [],
           "displayMode": "list",
@@ -1672,7 +1662,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "13.0.1",
       "targets": [
         {
           "datasource": {
@@ -1681,7 +1671,6 @@
           },
           "editorMode": "code",
           "expr": "sum(rate(omnistat_network_rx_bytes{device_class=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-          "hide": false,
           "instant": false,
           "interval": "$interval",
           "legendFormat": "Eth Rx",
@@ -1695,7 +1684,6 @@
           },
           "editorMode": "code",
           "expr": "sum(rate(omnistat_network_tx_bytes{device_class=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-          "hide": false,
           "instant": false,
           "interval": "$interval",
           "legendFormat": "Eth Tx",
@@ -1722,7 +1710,6 @@
           },
           "editorMode": "code",
           "expr": "sum(rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval]) * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-          "hide": false,
           "instant": false,
           "interval": "$interval",
           "legendFormat": "Other Tx",
@@ -1730,6 +1717,7 @@
           "refId": "B"
         }
       ],
+      "title": "",
       "type": "timeseries"
     },
     {
@@ -1740,7 +1728,7 @@
         "x": 0,
         "y": 25
       },
-      "id": 82,
+      "id": 190,
       "panels": [
         {
           "datasource": {
@@ -1759,14 +1747,13 @@
                   "type": "linear"
                 }
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 836
+            "y": 26
           },
           "id": 88,
           "interval": "$interval",
@@ -1869,14 +1856,13 @@
                   "type": "linear"
                 }
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 836
+            "y": 26
           },
           "id": 89,
           "interval": "$interval",
@@ -2005,12 +1991,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -2019,14 +2005,13 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 883
+            "y": 73
           },
           "id": 91,
           "interval": "$interval",
@@ -2102,15 +2087,14 @@
                   "mode": "off"
                 }
               },
-              "fieldMinMax": true,
-              "mappings": [],
               "max": 100,
               "min": 0,
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -2177,7 +2161,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 891
+            "y": 81
           },
           "id": 99,
           "interval": "$interval",
@@ -2283,13 +2267,12 @@
                 },
                 "inspect": false
               },
-              "fieldMinMax": false,
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -2341,7 +2324,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 891
+            "y": 81
           },
           "id": 100,
           "interval": "$interval",
@@ -2388,8 +2371,7 @@
                 "reducers": [
                   "mean"
                 ]
-              },
-              "topic": "series"
+              }
             },
             {
               "disabled": true,
@@ -2452,7 +2434,7 @@
         "x": 0,
         "y": 26
       },
-      "id": 15,
+      "id": 191,
       "panels": [
         {
           "datasource": {
@@ -2465,12 +2447,12 @@
                 "mode": "thresholds"
               },
               "decimals": 2,
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red"
+                    "color": "red",
+                    "value": null
                   },
                   {
                     "color": "#EAB839",
@@ -2483,14 +2465,13 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 3782
+            "y": 27
           },
           "id": 28,
           "interval": "$interval",
@@ -2545,14 +2526,13 @@
                   "type": "linear"
                 }
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 3782
+            "y": 27
           },
           "id": 86,
           "interval": "$interval",
@@ -2640,12 +2620,12 @@
                 "mode": "thresholds"
               },
               "decimals": 2,
-              "mappings": [],
               "thresholds": {
                 "mode": "percentage",
                 "steps": [
                   {
-                    "color": "red"
+                    "color": "red",
+                    "value": null
                   },
                   {
                     "color": "#EAB839",
@@ -2658,14 +2638,13 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 9,
             "x": 0,
-            "y": 4168
+            "y": 413
           },
           "id": 29,
           "interval": "$interval",
@@ -2720,14 +2699,13 @@
                   "type": "linear"
                 }
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 15,
             "x": 9,
-            "y": 4168
+            "y": 413
           },
           "id": 31,
           "interval": "$interval",
@@ -2847,12 +2825,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -2861,14 +2839,13 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4176
+            "y": 421
           },
           "id": 24,
           "interval": "$interval",
@@ -2916,7 +2893,7 @@
         "x": 0,
         "y": 27
       },
-      "id": 81,
+      "id": 192,
       "panels": [
         {
           "datasource": {
@@ -2935,14 +2912,13 @@
                   "type": "linear"
                 }
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 11,
             "w": 12,
             "x": 0,
-            "y": 3783
+            "y": 28
           },
           "id": 27,
           "interval": "$interval",
@@ -3045,14 +3021,13 @@
                   "type": "linear"
                 }
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 11,
             "w": 12,
             "x": 12,
-            "y": 3783
+            "y": 28
           },
           "id": 87,
           "interval": "$interval",
@@ -3181,12 +3156,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -3195,14 +3170,13 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3794
+            "y": 39
           },
           "id": 90,
           "interval": "$interval",
@@ -3278,15 +3252,14 @@
                   "mode": "off"
                 }
               },
-              "fieldMinMax": true,
-              "mappings": [],
               "max": 100,
               "min": 0,
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -3369,7 +3342,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 3802
+            "y": 47
           },
           "id": 98,
           "interval": "$interval",
@@ -3491,13 +3464,12 @@
                 },
                 "inspect": false
               },
-              "fieldMinMax": false,
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -3549,7 +3521,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 3802
+            "y": 47
           },
           "id": 95,
           "interval": "$interval",
@@ -3596,8 +3568,7 @@
                 "reducers": [
                   "mean"
                 ]
-              },
-              "topic": "series"
+              }
             },
             {
               "id": "extractFields",
@@ -3691,12 +3662,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   }
                 ]
               },
@@ -3780,7 +3751,8 @@
                     "value": 0
                   },
                   {
-                    "id": "displayName"
+                    "id": "displayName",
+                    "value": null
                   },
                   {
                     "id": "color",
@@ -3820,7 +3792,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 3811
+            "y": 56
           },
           "id": 52,
           "interval": "$interval",
@@ -3859,7 +3831,6 @@
               },
               "editorMode": "code",
               "expr": "quantile(0.5, (rocm_utilization_percentage * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) ",
-              "hide": false,
               "instant": false,
               "legendFormat": "Median",
               "range": true,
@@ -3872,7 +3843,6 @@
               },
               "editorMode": "code",
               "expr": "quantile(0.8, (rocm_utilization_percentage * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) ",
-              "hide": false,
               "instant": false,
               "legendFormat": "Quantile 0.8",
               "range": true,
@@ -3885,7 +3855,6 @@
               },
               "editorMode": "code",
               "expr": "avg(rocm_utilization_percentage * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-              "hide": false,
               "instant": false,
               "legendFormat": "Average",
               "range": true,
@@ -3907,7 +3876,7 @@
         "x": 0,
         "y": 28
       },
-      "id": 126,
+      "id": 193,
       "panels": [
         {
           "datasource": {
@@ -3952,12 +3921,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -3966,14 +3935,13 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2677
+            "y": 29
           },
           "id": 142,
           "interval": "$interval",
@@ -4061,12 +4029,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4075,14 +4043,13 @@
                 ]
               },
               "unit": "celsius"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3317
+            "y": 669
           },
           "id": 33,
           "interval": "$interval",
@@ -4170,12 +4137,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4184,14 +4151,13 @@
                 ]
               },
               "unit": "celsius"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3325
+            "y": 677
           },
           "id": 128,
           "interval": "$interval",
@@ -4279,12 +4245,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4293,14 +4259,13 @@
                 ]
               },
               "unit": "watt"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3333
+            "y": 685
           },
           "id": 129,
           "interval": "$interval",
@@ -4388,12 +4353,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4402,14 +4367,13 @@
                 ]
               },
               "unit": "rotmhz"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3341
+            "y": 693
           },
           "id": 130,
           "interval": "$interval",
@@ -4497,12 +4461,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4511,14 +4475,13 @@
                 ]
               },
               "unit": "rotmhz"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3341
+            "y": 693
           },
           "id": 131,
           "interval": "$interval",
@@ -4575,7 +4538,7 @@
         "x": 0,
         "y": 29
       },
-      "id": 21,
+      "id": 194,
       "panels": [
         {
           "datasource": {
@@ -4620,12 +4583,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4634,14 +4597,13 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4187
+            "y": 30
           },
           "id": 143,
           "interval": "$interval",
@@ -4720,12 +4682,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4734,14 +4696,13 @@
                 ]
               },
               "unit": "celsius"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4195
+            "y": 38
           },
           "id": 127,
           "interval": "$interval",
@@ -4820,12 +4781,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4834,14 +4795,13 @@
                 ]
               },
               "unit": "celsius"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4203
+            "y": 46
           },
           "id": 104,
           "interval": "$interval",
@@ -4920,12 +4880,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4934,14 +4894,13 @@
                 ]
               },
               "unit": "watt"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4211
+            "y": 54
           },
           "id": 22,
           "interval": "$interval",
@@ -5020,12 +4979,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5034,14 +4993,13 @@
                 ]
               },
               "unit": "rotmhz"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 4219
+            "y": 62
           },
           "id": 25,
           "interval": "$interval",
@@ -5120,12 +5078,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5134,14 +5092,13 @@
                 ]
               },
               "unit": "rotmhz"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 4219
+            "y": 62
           },
           "id": 23,
           "interval": "$interval",
@@ -5189,7 +5146,7 @@
         "x": 0,
         "y": 30
       },
-      "id": 136,
+      "id": 195,
       "panels": [
         {
           "datasource": {
@@ -5234,12 +5191,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5248,14 +5205,13 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3607
+            "y": 31
           },
           "id": 144,
           "interval": "$interval",
@@ -5343,12 +5299,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5357,14 +5313,13 @@
                 ]
               },
               "unit": "celsius"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3687
+            "y": 111
           },
           "id": 137,
           "interval": "$interval",
@@ -5452,12 +5407,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5466,14 +5421,13 @@
                 ]
               },
               "unit": "celsius"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3695
+            "y": 119
           },
           "id": 138,
           "interval": "$interval",
@@ -5561,12 +5515,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5575,14 +5529,13 @@
                 ]
               },
               "unit": "watt"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 3703
+            "y": 127
           },
           "id": 139,
           "interval": "$interval",
@@ -5670,12 +5623,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5684,14 +5637,13 @@
                 ]
               },
               "unit": "rotmhz"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3711
+            "y": 135
           },
           "id": 140,
           "interval": "$interval",
@@ -5779,12 +5731,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5793,14 +5745,13 @@
                 ]
               },
               "unit": "rotmhz"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3711
+            "y": 135
           },
           "id": 141,
           "interval": "$interval",
@@ -5857,7 +5808,7 @@
         "x": 0,
         "y": 31
       },
-      "id": 123,
+      "id": 196,
       "panels": [
         {
           "datasource": {
@@ -5903,7 +5854,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -5918,14 +5868,13 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2186
+            "y": 32
           },
           "id": 134,
           "interval": "$interval",
@@ -5982,14 +5931,13 @@
         "x": 0,
         "y": 32
       },
-      "id": 157,
+      "id": 197,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6028,7 +5976,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6043,14 +5990,13 @@
                 ]
               },
               "unit": "KBs"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2366
+            "y": 33
           },
           "id": 156,
           "interval": "$interval",
@@ -6101,7 +6047,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6140,7 +6085,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6155,14 +6099,13 @@
                 ]
               },
               "unit": "KBs"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2366
+            "y": 33
           },
           "id": 158,
           "interval": "$interval",
@@ -6220,7 +6163,7 @@
         "x": 0,
         "y": 33
       },
-      "id": 150,
+      "id": 198,
       "panels": [
         {
           "datasource": {
@@ -6266,12 +6209,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -6280,14 +6223,13 @@
                 ]
               },
               "unit": "sci"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2713
+            "y": 34
           },
           "id": 151,
           "interval": "$interval",
@@ -6348,7 +6290,7 @@
         "x": 0,
         "y": 34
       },
-      "id": 133,
+      "id": 199,
       "panels": [
         {
           "datasource": {
@@ -6395,7 +6337,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6410,14 +6351,13 @@
                 ]
               },
               "unit": "cps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1453
+            "y": 35
           },
           "id": 125,
           "interval": "$interval",
@@ -6478,7 +6418,7 @@
         "x": 0,
         "y": 35
       },
-      "id": 152,
+      "id": 200,
       "panels": [
         {
           "datasource": {
@@ -6525,7 +6465,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6540,18 +6479,16 @@
                 ]
               },
               "unit": "KBs"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1454
+            "y": 36
           },
           "id": 153,
           "interval": "$interval",
-          "maxPerRow": 2,
           "options": {
             "legend": {
               "calcs": [],
@@ -6639,7 +6576,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6654,18 +6590,16 @@
                 ]
               },
               "unit": "KBs"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1454
+            "y": 36
           },
           "id": 154,
           "interval": "$interval",
-          "maxPerRow": 2,
           "options": {
             "legend": {
               "calcs": [],
@@ -6753,7 +6687,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6768,18 +6701,16 @@
                 ]
               },
               "unit": "flops"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1742
+            "y": 324
           },
           "id": 155,
           "interval": "$interval",
-          "maxPerRow": 2,
           "options": {
             "legend": {
               "calcs": [],
@@ -6867,7 +6798,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6882,14 +6812,13 @@
                 ]
               },
               "unit": "flops"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 1750
+            "y": 332
           },
           "id": 165,
           "interval": "$interval",
@@ -6925,6 +6854,232 @@
           ],
           "title": "Total FLOPS across sampled GPUs",
           "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "L1 cache hit rate per GPU, averaged by node. Uses rate() to compute instantaneous hit rates rather than cumulative ratios.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `TCP_TOTAL_CACHE_ACCESSES_sum`, `TCP_TCC_READ_REQ_sum`, `TCP_TCC_WRITE_REQ_sum`, `TCP_TCC_ATOMIC_WITH_RET_REQ_sum`, and `TCP_TCC_ATOMIC_WITHOUT_RET_REQ_sum` counters.\n\nNote: displayed values are sensitive to the dashboard time resolution. Zooming in or adjusting the interval may produce different results as rate() operates over fewer data points.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "percent"
+            }
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 424
+          },
+          "id": 186,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "100 - 100 *\r\n(\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCP_TCC_READ_REQ_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCP_TCC_WRITE_REQ_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCP_TCC_ATOMIC_WITH_RET_REQ_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCP_TCC_ATOMIC_WITHOUT_RET_REQ_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"}))\r\n)\r\n/\r\n(\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCP_TOTAL_CACHE_ACCESSES_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 1 * group by(instance) (rmsjob_info{jobid=\"$jobid\"}))\r\n)",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "L1 Hit Rate: {{instance}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "L1 Cache Hit Rate per GPU [aggregated by node]",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "(L1 Hit Rate): ([^,:]+)(?:[:].*)?, (.+)",
+                "renamePattern": "$1 GPU: $2/$3"
+              }
+            }
+          ],
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "L2 cache hit rate per GPU, averaged by node. Uses rate() to compute instantaneous hit rates rather than cumulative ratios.\n\nRequires enabling the **rocprofiler** collector and configuring it to collect `TCC_HIT_sum` and `TCC_MISS_sum` counters.\n\nNote: displayed values are sensitive to the dashboard time resolution. Zooming in or adjusting the interval may produce different results as rate() operates over fewer data points.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "percent"
+            }
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 424
+          },
+          "id": 187,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "100 *\r\n(avg by(instance) (rate(omnistat_hardware_counter{name=\"TCC_HIT_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"}))\r\n/\r\n(\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCC_HIT_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 0 * group by(instance) (rmsjob_info{jobid=\"$jobid\"})) +\r\n  (avg by(instance) (rate(omnistat_hardware_counter{name=\"TCC_MISS_sum\"}[$__rate_interval]) * on(instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or 1 * group by(instance) (rmsjob_info{jobid=\"$jobid\"}))\r\n)",
+              "instant": false,
+              "interval": "$interval",
+              "legendFormat": "L2 Hit Rate: {{instance}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "L2 Cache Hit Rate per GPU [aggregated by node]",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "(L2 Hit Rate): ([^,:]+)(?:[:].*)?, (.+)",
+                "renamePattern": "$1 GPU: $2/$3"
+              }
+            }
+          ],
+          "type": "timeseries"
         }
       ],
       "title": "GPU Counters - Metrics",
@@ -6938,7 +7093,7 @@
         "x": 0,
         "y": 36
       },
-      "id": 168,
+      "id": 201,
       "panels": [
         {
           "datasource": {
@@ -6951,7 +7106,6 @@
               "color": {
                 "mode": "thresholds"
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6966,14 +7120,13 @@
                 ]
               },
               "unit": "none"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
-            "h": 2,
+            "h": 3,
             "w": 8,
             "x": 0,
-            "y": 847
+            "y": 37
           },
           "id": 174,
           "interval": "$interval",
@@ -6994,7 +7147,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "12.3.1",
+          "pluginVersion": "13.0.1",
           "targets": [
             {
               "datasource": {
@@ -7024,7 +7177,6 @@
               "color": {
                 "mode": "thresholds"
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7039,14 +7191,13 @@
                 ]
               },
               "unit": "none"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
-            "h": 2,
+            "h": 3,
             "w": 8,
             "x": 8,
-            "y": 847
+            "y": 37
           },
           "id": 175,
           "interval": "$interval",
@@ -7067,7 +7218,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "12.3.1",
+          "pluginVersion": "13.0.1",
           "targets": [
             {
               "datasource": {
@@ -7097,7 +7248,6 @@
               "color": {
                 "mode": "thresholds"
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7112,14 +7262,13 @@
                 ]
               },
               "unit": "none"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
-            "h": 2,
+            "h": 3,
             "w": 8,
             "x": 16,
-            "y": 847
+            "y": 37
           },
           "id": 176,
           "interval": "$interval",
@@ -7140,7 +7289,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "12.3.1",
+          "pluginVersion": "13.0.1",
           "targets": [
             {
               "datasource": {
@@ -7180,7 +7329,6 @@
                 },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7208,6 +7356,52 @@
                     "value": "none"
                   }
                 ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Min"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "from": 1000000000000000,
+                          "result": {
+                            "index": 0,
+                            "text": "-"
+                          }
+                        },
+                        "type": "range"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Max"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "from": 1000000000000000,
+                          "result": {
+                            "index": 0,
+                            "text": "-"
+                          }
+                        },
+                        "type": "range"
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
@@ -7215,7 +7409,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 849
+            "y": 40
           },
           "id": 169,
           "interval": "$interval",
@@ -7223,7 +7417,7 @@
             "cellHeight": "sm",
             "showHeader": true
           },
-          "pluginVersion": "12.3.1",
+          "pluginVersion": "13.0.1",
           "targets": [
             {
               "datasource": {
@@ -7248,7 +7442,6 @@
               "exemplar": false,
               "expr": "sum by (kernel) (increase(omnistat_kernel_total_duration_ns[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
-              "hide": false,
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -7263,7 +7456,6 @@
               "exemplar": false,
               "expr": "sum by (kernel) (increase(omnistat_kernel_dispatch_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
-              "hide": false,
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -7278,7 +7470,6 @@
               "exemplar": false,
               "expr": "sum by (kernel) (increase(omnistat_kernel_total_duration_ns[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / sum by (kernel) (increase(omnistat_kernel_dispatch_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
-              "hide": false,
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -7339,6 +7530,15 @@
                       }
                     },
                     "fieldName": "Value #B (sum)"
+                  },
+                  {
+                    "config": {
+                      "id": "greater",
+                      "options": {
+                        "value": 0
+                      }
+                    },
+                    "fieldName": "Value #C (sum)"
                   }
                 ],
                 "match": "all",
@@ -7427,7 +7627,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7442,18 +7641,21 @@
                 ]
               },
               "unit": "ns"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 857
+            "y": 48
           },
           "id": 170,
           "interval": "$interval",
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "list",
@@ -7466,7 +7668,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.3.1",
+          "pluginVersion": "13.0.1",
           "targets": [
             {
               "datasource": {
@@ -7474,7 +7676,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (kernel) ((increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+              "expr": "(avg by (kernel) ((increase(omnistat_kernel_total_duration_ns{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=~\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))) > 0",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -7495,7 +7697,7 @@
         "x": 0,
         "y": 37
       },
-      "id": 171,
+      "id": 202,
       "panels": [
         {
           "datasource": {
@@ -7541,7 +7743,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7556,18 +7757,21 @@
                 ]
               },
               "unit": "ns"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1456
+            "y": 38
           },
           "id": 172,
           "interval": "$interval",
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "list",
@@ -7580,7 +7784,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.3.1",
+          "pluginVersion": "13.0.1",
           "repeat": "top_kernels",
           "repeatDirection": "v",
           "targets": [
@@ -7590,7 +7794,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "avg by (instance,card) ((increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))",
+              "expr": "(avg by (instance,card) ((increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})))) > 0",
               "legendFormat": "GPU: {{instance}}/{{card}}",
               "range": true,
               "refId": "A"
@@ -7619,7 +7823,6 @@
                 },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7666,7 +7869,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1456
+            "y": 38
           },
           "id": 173,
           "interval": "$interval",
@@ -7674,7 +7877,7 @@
             "cellHeight": "sm",
             "showHeader": true
           },
-          "pluginVersion": "12.3.1",
+          "pluginVersion": "13.0.1",
           "repeat": "top_kernels",
           "repeatDirection": "v",
           "targets": [
@@ -7701,7 +7904,6 @@
               "exemplar": false,
               "expr": "sum by (instance,card) (increase(omnistat_kernel_total_duration_ns{kernel=\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
-              "hide": false,
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -7716,7 +7918,6 @@
               "exemplar": false,
               "expr": "sum by (instance,card) (increase(omnistat_kernel_dispatch_count{kernel=\"$top_kernels\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
               "format": "table",
-              "hide": false,
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -7814,7 +8015,7 @@
         "x": 0,
         "y": 38
       },
-      "id": 44,
+      "id": 203,
       "panels": [
         {
           "datasource": {
@@ -7859,7 +8060,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7874,14 +8074,13 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2188
+            "y": 39
           },
           "id": 43,
           "interval": "$interval",
@@ -7969,7 +8168,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7984,14 +8182,13 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2188
+            "y": 39
           },
           "id": 48,
           "interval": "$interval",
@@ -8048,7 +8245,7 @@
         "x": 0,
         "y": 39
       },
-      "id": 122,
+      "id": 204,
       "panels": [
         {
           "datasource": {
@@ -8096,7 +8293,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -8110,14 +8306,13 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 1947
+            "y": 40
           },
           "id": 120,
           "options": {
@@ -8159,7 +8354,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_sdma_correctable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "SDMA, {{instance}}, {{card}}",
               "range": true,
@@ -8173,7 +8367,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_gfx_correctable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "GFX, {{instance}}, {{card}}",
               "range": true,
@@ -8187,7 +8380,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_mmhub_correctable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "MMHUB, {{instance}}, {{card}}",
               "range": true,
@@ -8201,7 +8393,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_pcie_bif_correctable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "PCIE BIF, {{instance}}, {{card}}",
               "range": true,
@@ -8215,7 +8406,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_hdp_correctable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "HDP, {{instance}}, {{card}}",
               "range": true,
@@ -8229,7 +8419,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_xgmi_wafl_correctable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "XGMI WAFL, {{instance}}, {{card}}",
               "range": true,
@@ -8294,7 +8483,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -8308,14 +8496,13 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 1947
+            "y": 40
           },
           "id": 121,
           "options": {
@@ -8357,7 +8544,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_sdma_uncorrectable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "SDMA, {{instance}}, {{card}}",
               "range": true,
@@ -8371,7 +8557,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_gfx_uncorrectable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "GFX, {{instance}}, {{card}}",
               "range": true,
@@ -8385,7 +8570,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_mmhub_uncorrectable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "MMHUB, {{instance}}, {{card}}",
               "range": true,
@@ -8399,7 +8583,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_pcie_bif_uncorrectable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "PCIE BIF, {{instance}}, {{card}}",
               "range": true,
@@ -8413,7 +8596,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_hdp_uncorrectable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "HDP, {{instance}}, {{card}}",
               "range": true,
@@ -8427,7 +8609,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance,card) (delta(rocm_ras_xgmi_wafl_uncorrectable_count[1m] * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "XGMI WAFL, {{instance}}, {{card}}",
               "range": true,
@@ -8458,7 +8639,7 @@
         "x": 0,
         "y": 40
       },
-      "id": 101,
+      "id": 205,
       "panels": [
         {
           "datasource": {
@@ -8503,7 +8684,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -8518,14 +8698,13 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2260
+            "y": 41
           },
           "id": 105,
           "interval": "$interval",
@@ -8614,7 +8793,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -8629,14 +8807,13 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2260
+            "y": 41
           },
           "id": 106,
           "interval": "$interval",
@@ -8694,7 +8871,7 @@
         "x": 0,
         "y": 41
       },
-      "id": 41,
+      "id": 206,
       "panels": [
         {
           "datasource": {
@@ -8739,7 +8916,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -8754,14 +8930,13 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2261
+            "y": 42
           },
           "id": 116,
           "interval": "$interval",
@@ -8850,7 +9025,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -8865,14 +9039,13 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2261
+            "y": 42
           },
           "id": 117,
           "interval": "$interval",
@@ -8930,7 +9103,7 @@
         "x": 0,
         "y": 42
       },
-      "id": 83,
+      "id": 207,
       "panels": [
         {
           "datasource": {
@@ -8976,7 +9149,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -8991,14 +9163,13 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2032
+            "y": 43
           },
           "id": 46,
           "interval": "$interval",
@@ -9088,7 +9259,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -9103,14 +9273,13 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2032
+            "y": 43
           },
           "id": 45,
           "interval": "$interval",
@@ -9201,7 +9370,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -9216,14 +9384,13 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 2040
+            "y": 51
           },
           "id": 159,
           "interval": "$interval",
@@ -9314,7 +9481,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -9329,14 +9495,13 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 2040
+            "y": 51
           },
           "id": 160,
           "interval": "$interval",
@@ -9393,7 +9558,6 @@
               "color": {
                 "mode": "fixed"
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -9404,14 +9568,13 @@
                 ]
               },
               "unit": "bytes"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 3,
             "w": 12,
             "x": 0,
-            "y": 2048
+            "y": 59
           },
           "id": 161,
           "interval": "$interval",
@@ -9470,7 +9633,6 @@
               "color": {
                 "mode": "fixed"
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -9481,14 +9643,13 @@
                 ]
               },
               "unit": "bytes"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 3,
             "w": 12,
             "x": 12,
-            "y": 2048
+            "y": 59
           },
           "id": 162,
           "interval": "$interval",
@@ -9548,14 +9709,13 @@
         "x": 0,
         "y": 43
       },
-      "id": 145,
+      "id": 208,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -9594,7 +9754,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -9609,14 +9768,13 @@
                 ]
               },
               "unit": "watt"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2271
+            "y": 44
           },
           "id": 146,
           "interval": "$interval",
@@ -9666,7 +9824,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -9705,7 +9862,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -9720,14 +9876,13 @@
                 ]
               },
               "unit": "watt"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2279
+            "y": 52
           },
           "id": 149,
           "interval": "$interval",
@@ -9815,12 +9970,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -9829,14 +9984,13 @@
                 ]
               },
               "unit": "watt"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2287
+            "y": 60
           },
           "id": 147,
           "interval": "$interval",
@@ -9924,12 +10078,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -9938,14 +10092,13 @@
                 ]
               },
               "unit": "watt"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 2295
+            "y": 68
           },
           "id": 148,
           "interval": "$interval",
@@ -10002,7 +10155,7 @@
         "x": 0,
         "y": 44
       },
-      "id": 132,
+      "id": 209,
       "panels": [
         {
           "datasource": {
@@ -10048,12 +10201,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -10062,14 +10215,13 @@
                 ]
               },
               "unit": "none"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 6424
+            "y": 45
           },
           "id": 135,
           "interval": "$interval",
@@ -10128,7 +10280,7 @@
         "x": 0,
         "y": 45
       },
-      "id": 57,
+      "id": 210,
       "panels": [
         {
           "datasource": {
@@ -10147,12 +10299,12 @@
                 },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -10233,7 +10385,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 6473
+            "y": 46
           },
           "id": 56,
           "interval": "$interval",
@@ -10271,7 +10423,6 @@
               },
               "editorMode": "code",
               "expr": "avg by (marker) (avg by (instance) (rocm_utilization_percentage) * on (instance) group_left(jobid,marker) rmsjob_info{jobid=\"$jobid\"} * on (jobid) group_left(marker) count by (jobid,marker) (rmsjob_annotations{jobid=\"$jobid\"} > 0))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -10294,8 +10445,7 @@
                   "last",
                   "range"
                 ]
-              },
-              "topic": "series"
+              }
             },
             {
               "filter": {
@@ -10328,7 +10478,7 @@
         "x": 0,
         "y": 46
       },
-      "id": 111,
+      "id": 211,
       "panels": [
         {
           "datasource": {
@@ -10350,7 +10500,6 @@
                 },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -10479,7 +10628,6 @@
               },
               "editorMode": "code",
               "expr": "timestamp(count by (jobstep) (rmsjob_info{jobid=\"$jobid\",jobstep!=\"-1\"} > 0))*1000",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -10492,7 +10640,6 @@
               },
               "editorMode": "code",
               "expr": "count by (jobstep) (rmsjob_info{jobid=\"$jobid\",jobstep!=\"-1\"} > 0)",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -10516,8 +10663,7 @@
                   "last",
                   "range"
                 ]
-              },
-              "topic": "series"
+              }
             },
             {
               "filter": {
@@ -10594,7 +10740,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -10729,7 +10874,6 @@
                 },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -10830,7 +10974,6 @@
               },
               "editorMode": "code",
               "expr": "avg by (jobstep) ((rocm_utilization_percentage) * on (instance) group_left(jobid,jobstep) (rmsjob_info{jobid=\"$jobid\",jobstep!=\"-1\"} > 0))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -10843,7 +10986,6 @@
               },
               "editorMode": "code",
               "expr": "max by (jobstep) ((rocm_utilization_percentage) * on (instance) group_left(jobid,jobstep) (rmsjob_info{jobid=\"$jobid\",jobstep!=\"-1\"} > 0))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -10856,7 +10998,6 @@
               },
               "editorMode": "code",
               "expr": "timestamp(count by (jobstep) (rmsjob_info{jobid=\"$jobid\",jobstep!=\"-1\"} > 0))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -10876,8 +11017,7 @@
                 "reducers": [
                   "mean"
                 ]
-              },
-              "topic": "series"
+              }
             },
             {
               "filter": {
@@ -10962,7 +11102,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -11109,7 +11248,6 @@
                 },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -11210,7 +11348,6 @@
               },
               "editorMode": "code",
               "expr": "avg by (jobstep) ((rocm_vram_used_percentage) * on (instance) group_left(jobid,jobstep) (rmsjob_info{jobid=\"$jobid\",jobstep!=\"-1\"} > 0))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -11223,7 +11360,6 @@
               },
               "editorMode": "code",
               "expr": "max by (jobstep) ((rocm_vram_used_percentage) * on (instance) group_left(jobid,jobstep) (rmsjob_info{jobid=\"$jobid\",jobstep!=\"-1\"} > 0))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -11236,7 +11372,6 @@
               },
               "editorMode": "code",
               "expr": "timestamp(count by (jobstep) (rmsjob_info{jobid=\"$jobid\",jobstep!=\"-1\"} > 0))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -11256,8 +11391,7 @@
                 "reducers": [
                   "mean"
                 ]
-              },
-              "topic": "series"
+              }
             },
             {
               "filter": {
@@ -11342,7 +11476,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -11474,7 +11607,6 @@
             "type": "prometheus",
             "uid": "$source"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -11487,12 +11619,12 @@
                 },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -11595,7 +11727,6 @@
               },
               "editorMode": "code",
               "expr": "avg by (jobstep) ((rocm_average_socket_power_watts) * on (instance) group_left(jobid,jobstep) (rmsjob_info{jobid=\"$jobid\",jobstep!=\"-1\"} > 0))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -11608,7 +11739,6 @@
               },
               "editorMode": "code",
               "expr": "max by (jobstep) ((rocm_average_socket_power_watts) * on (instance) group_left(jobid,jobstep) (rmsjob_info{jobid=\"$jobid\",jobstep!=\"-1\"} > 0))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -11621,7 +11751,6 @@
               },
               "editorMode": "code",
               "expr": "timestamp(count by (jobstep) (rmsjob_info{jobid=\"$jobid\",jobstep!=\"-1\"} > 0))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -11641,8 +11770,7 @@
                 "reducers": [
                   "mean"
                 ]
-              },
-              "topic": "series"
+              }
             },
             {
               "filter": {
@@ -11727,12 +11855,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -11861,7 +11989,7 @@
         "x": 0,
         "y": 47
       },
-      "id": 177,
+      "id": 212,
       "panels": [
         {
           "datasource": {
@@ -11873,7 +12001,6 @@
               "color": {
                 "mode": "fixed"
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -11883,8 +12010,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 2,
@@ -11941,7 +12067,6 @@
               "color": {
                 "mode": "fixed"
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -11951,8 +12076,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 2,
@@ -12009,7 +12133,6 @@
               "color": {
                 "mode": "fixed"
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -12019,8 +12142,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 2,
@@ -12077,7 +12199,6 @@
               "color": {
                 "mode": "fixed"
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -12088,8 +12209,7 @@
                 ]
               },
               "unit": "s"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 2,
@@ -12146,7 +12266,6 @@
               "color": {
                 "mode": "fixed"
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -12157,8 +12276,7 @@
                 ]
               },
               "unit": "s"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 2,
@@ -12215,7 +12333,6 @@
               "color": {
                 "mode": "fixed"
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -12225,8 +12342,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 2,
@@ -12317,7 +12433,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -12332,8 +12447,7 @@
                 ]
               },
               "unit": "s"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -12365,7 +12479,6 @@
               },
               "editorMode": "code",
               "expr": "avg by (collector) (omnistat_perf_runtime_seconds{collector=\"total\"} * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-              "hide": false,
               "instant": false,
               "legendFormat": "Total [average]",
               "range": true,
@@ -12378,7 +12491,6 @@
               },
               "editorMode": "code",
               "expr": "max by (collector) (omnistat_perf_runtime_seconds{collector=\"total\"} * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-              "hide": false,
               "instant": false,
               "legendFormat": "Total [max]",
               "range": true,
@@ -12391,7 +12503,6 @@
               },
               "editorMode": "code",
               "expr": "avg by (collector) (omnistat_perf_runtime_seconds{collector!=\"total\"} * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-              "hide": false,
               "instant": false,
               "legendFormat": "Collector: {{collector}} [average]",
               "range": true,
@@ -12404,7 +12515,6 @@
               },
               "editorMode": "code",
               "expr": "max by (collector) (omnistat_perf_runtime_seconds{collector!=\"total\"} * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-              "hide": false,
               "instant": false,
               "legendFormat": "Collector: {{collector}} [max]",
               "range": true,
@@ -12458,7 +12568,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -12473,8 +12582,7 @@
                 ]
               },
               "unit": "s"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -12506,7 +12614,6 @@
               },
               "editorMode": "code",
               "expr": "avg(omnistat_perf_push_seconds * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-              "hide": false,
               "instant": false,
               "legendFormat": "Push [average]",
               "range": true,
@@ -12519,7 +12626,6 @@
               },
               "editorMode": "code",
               "expr": "avg(omnistat_perf_push_seconds * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-              "hide": false,
               "instant": false,
               "interval": "",
               "legendFormat": "Push [max]",
@@ -12544,7 +12650,6 @@
               },
               "editorMode": "code",
               "expr": "max(omnistat_perf_push_background_seconds * on (instance) group_left() rmsjob_info{jobid=\"$jobid\"})",
-              "hide": false,
               "legendFormat": "Background Push [max]",
               "range": true,
               "refId": "Background Max"
@@ -12561,28 +12666,32 @@
   "preload": false,
   "refresh": "",
   "schemaVersion": 42,
-  "tags": [],
   "templating": {
     "list": [
       {
         "allowCustomValue": false,
         "hide": 2,
         "includeAll": false,
+        "multi": false,
         "name": "source",
         "options": [],
         "query": "prometheus",
         "refresh": 1,
         "regex": "",
+        "skipUrlSync": false,
         "type": "datasource"
       },
       {
+        "allowCustomValue": true,
         "datasource": {
           "type": "prometheus",
           "uid": "${source}"
         },
         "definition": "label_values(rmsjob_info,jobid)",
+        "hide": 0,
         "includeAll": false,
         "label": "Job ID",
+        "multi": false,
         "name": "jobid",
         "options": [],
         "query": {
@@ -12592,16 +12701,21 @@
         },
         "refresh": 1,
         "regex": "",
-        "sort": 8,
+        "regexApplyTo": "value",
+        "skipUrlSync": false,
+        "sort": 0,
         "type": "query"
       },
       {
+        "allowCustomValue": true,
         "current": {
           "text": "5s",
           "value": "5s"
         },
+        "hide": 0,
         "includeAll": false,
         "label": "Resolution",
+        "multi": false,
         "name": "interval",
         "options": [
           {
@@ -12641,7 +12755,9 @@
           }
         ],
         "query": "0.1s,0.5s,1s,5s,15s,30s,60s",
-        "type": "custom"
+        "skipUrlSync": false,
+        "type": "custom",
+        "valuesFormat": "csv"
       },
       {
         "allowCustomValue": false,
@@ -12653,6 +12769,7 @@
         "hide": 2,
         "includeAll": false,
         "label": "Sampling interval",
+        "multi": false,
         "name": "sampling_interval",
         "options": [],
         "query": {
@@ -12662,6 +12779,9 @@
         },
         "refresh": 2,
         "regex": "/interval_secs=\"([^\"]*)\"/",
+        "regexApplyTo": "value",
+        "skipUrlSync": false,
+        "sort": 0,
         "type": "query"
       },
       {
@@ -12688,6 +12808,8 @@
         },
         "refresh": 2,
         "regex": "/.*name=\"([^\"]*).*/",
+        "regexApplyTo": "value",
+        "skipUrlSync": false,
         "sort": 1,
         "type": "query"
       },
@@ -12715,6 +12837,8 @@
         },
         "refresh": 2,
         "regex": "/.*name=\"([^\"]*).*/",
+        "regexApplyTo": "value",
+        "skipUrlSync": false,
         "sort": 1,
         "type": "query"
       },
@@ -12742,6 +12866,9 @@
         },
         "refresh": 2,
         "regex": "/.*kernel=\"([^\"]*).*/",
+        "regexApplyTo": "value",
+        "skipUrlSync": false,
+        "sort": 0,
         "type": "query"
       }
     ]
@@ -12751,9 +12878,8 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "browser",
   "title": "Job - Source",
   "uid": "fdqo0h2s2drswe-source",
-  "version": 1,
-  "weekStart": ""
+  "version": 1
 }
