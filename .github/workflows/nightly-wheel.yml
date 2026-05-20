@@ -60,7 +60,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Upload wheel to S3
-        if: ${{ steps.setup.outputs.deploy == 'true' }}
+        #if: ${{ steps.setup.outputs.deploy == 'true' }}
         run: |
           S3_SECONDARY_DIRECTORY=$(date +%Y_%m_%d)
           aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/nightly/$S3_SECONDARY_DIRECTORY/ \
