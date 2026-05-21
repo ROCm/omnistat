@@ -278,12 +278,22 @@ class JobInspector(StatsMixin, HealthMixin, IterationsMixin, ValidationMixin, No
 
     def _detect_gpu_arch(self):
         """Detect GPU architecture from rocm_version_info type label."""
+        self.gpu_type = None
+        self.driver_version = None
+        self.vbios_version = None
         job_filter = f'jobid="{self.jobid}", jobstep=~".*"'
         join = f"max by (instance) (rmsjob_info{{{job_filter}}})"
         promql = f"rocm_version_info * on (instance) group_left() ({join})"
         results = self.query_range(promql, self.start_time, self.end_time, self._coarse_step())
         for r in results:
-            gpu_type = r.get("metric", {}).get("type", "")
+            m = r.get("metric", {})
+            gpu_type = m.get("type", "")
+            if gpu_type and self.gpu_type is None:
+                self.gpu_type = gpu_type
+            if self.driver_version is None:
+                self.driver_version = m.get("driver_ver")
+            if self.vbios_version is None:
+                self.vbios_version = m.get("vbios")
             if "MI250" in gpu_type or "MI200" in gpu_type:
                 self.gpu_arch = "mi250x"
                 return
@@ -435,6 +445,10 @@ class JobInspector(StatsMixin, HealthMixin, IterationsMixin, ValidationMixin, No
             "user": first_host_meta.get("user", ""),
             "partition": first_host_meta.get("partition", ""),
             "db_type": db_type,
+            "gpu_type": self.gpu_type,
+            "gpu_arch": self.gpu_arch,
+            "driver_version": self.driver_version,
+            "vbios_version": self.vbios_version,
         }
 
     def _coarse_step(self):
