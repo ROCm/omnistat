@@ -1,0 +1,90 @@
+name: Release Python Wheel
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to build (e.g. v1.2.3)'
+        type: string
+        required: true
+      deploy:
+        description: 'Upload wheel to S3 bucket?'
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  release-wheel:
+    name: Build and upload release Python wheel
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Resolve release tag
+        id: tag
+        run: |
+          if [ '${{ github.event_name }}' = 'release' ]; then
+            TAG='${{ github.event.release.tag_name }}'
+          else
+            TAG='${{ inputs.tag }}'
+          fi
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository at tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Check if release artifact already exists in S3
+        id: check
+        run: |
+          TAG='${{ steps.tag.outputs.tag }}'
+          # Wheel filename embeds the version, e.g. omnistat-1.2.3-py3-none-any.whl
+          # Strip leading 'v' from tag to match the version in the wheel filename
+          VERSION="${TAG#v}"
+          COUNT=$(aws s3 ls s3://${{ secrets.AWS_S3_BUCKET }}/release/ --no-paginate 2>/dev/null | grep -c "omnistat-${VERSION}-.*\.whl$" || true)
+          if [ "${COUNT}" -gt 0 ]; then
+            echo "Wheel already exists for version ${VERSION} in s3://${{ secrets.AWS_S3_BUCKET }}/release/ — skipping build and upload."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "No existing wheel found for version ${VERSION}. Proceeding with build."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Python
+        if: ${{ steps.check.outputs.skip == 'false' }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        if: ${{ steps.check.outputs.skip == 'false' }}
+        run: |
+          pip install build
+          pip install -r requirements.txt
+
+      - name: Build wheel
+        if: ${{ steps.check.outputs.skip == 'false' }}
+        run: |
+          python -m build --wheel --outdir dist/
+
+      - name: Upload wheel to S3
+        if: >-
+          ${{ steps.check.outputs.skip == 'false' &&
+              (github.event_name == 'release' || inputs.deploy == true) }}
+        run: |
+          aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/release/ \
+            --no-progress
