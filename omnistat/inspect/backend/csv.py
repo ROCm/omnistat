@@ -292,14 +292,14 @@ class CsvDataSource(DataSource):
                         self.gpus_per_node = n
             elif name == "rocm_version_info":
                 gtype = m.get("type", "")
-                if gtype and not self.gpu_type:
-                    self.gpu_type = gtype
-                self.vbios_version = self.vbios_version or m.get("vbios")
-                self.driver_version = self.driver_version or m.get("driver_ver")
-                if ("MI250" in gtype) or ("MI200" in gtype):
-                    self.gpu_arch = "mi250x"
-                elif "MI300" in gtype:
-                    self.gpu_arch = "mi300x"
+                if gtype:
+                    self.gpu_types.add(gtype)
+                vbios = m.get("vbios")
+                if vbios:
+                    self.vbios_versions.add(vbios)
+                driver = m.get("driver_ver")
+                if driver:
+                    self.driver_versions.add(driver)
             elif name == "omnistat_info":
                 self.omnistat_version = self.omnistat_version or m.get("version")
                 try:

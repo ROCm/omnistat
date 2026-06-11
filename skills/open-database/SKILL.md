@@ -1,6 +1,6 @@
 ---
-name: load-database
-description: Load and explore an Omnistat database using VictoriaMetrics. Use this when the user wants to view, query, or visualize collected Omnistat telemetry data from a user-mode job.
+name: open-database
+description: Open and explore an Omnistat database using VictoriaMetrics. Use this when the user wants to view, query, or visualize collected Omnistat telemetry data from a user-mode job.
 allowedPrompts:
   - tool: Bash
     prompt: check for running victoriametrics
@@ -30,7 +30,7 @@ allowedPrompts:
     prompt: download files with curl or wget
 ---
 
-# Load Omnistat Database
+# Open Omnistat Database
 
 This skill provides instructions for loading an Omnistat database using VictoriaMetrics, which allows you to query and explore collected GPU telemetry data.
 

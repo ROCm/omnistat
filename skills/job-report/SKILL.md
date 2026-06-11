@@ -1,6 +1,6 @@
 ---
-name: report-job
-description: Generate a general-purpose summary report for an HPC job from an Omnistat database using the single-shot omnistat-inspect JSON command.
+name: job-report
+description: Generate a factual summary report card for an HPC job from an Omnistat database using the single-shot omnistat-inspect JSON command. Use this for a quick, comprehensive snapshot of what a job did (stats, energy, health, data quality) without diagnosing why. For root-cause investigation, performance debugging, or comparing jobs, use job-analysis instead.
 allowedPrompts:
   - tool: Bash
     prompt: run omnistat-inspect
@@ -12,13 +12,13 @@ allowedPrompts:
     prompt: write report to file
 ---
 
-# Report Job
+# Job Report
 
 Generate a factual summary **report card** for an HPC job using GPU telemetry collected by Omnistat. A **single invocation** of `omnistat-inspect ... job <ID> report` returns one JSON document containing every datum needed to render the report. It supports flexible job-context resolution (`--start`/`--end` to skip discovery, `--cache-dir` for cheap repeat calls) and a home for deeper analysis subcommands (e.g. `iterations`).
 
 **Target audience:** HPC engineers, AI/ML researchers, system administrators who need a quick, comprehensive snapshot of a job's behavior.
 
-**This is NOT an investigation tool.** Unlike `analyze-job`, this skill does not perform hypothesis-driven analysis. It presents the data as-is: global statistics, health findings, and data quality.
+**When to use this vs `job-analysis`.** Use **job-report** when you want a quick, factual snapshot of *what* a job did — global statistics, energy, health findings, and data quality, presented as-is. This is NOT an investigation tool: it does not form hypotheses, find root causes, or compare jobs. When you need to understand *why* a job behaved as it did (bottlenecks, throttling, stragglers, regressions, healthy-vs-degraded comparison), use **job-analysis** instead. A common pattern is to run job-report first for the snapshot, then job-analysis if something looks off.
 
 ## Bash Tool Description Convention
 
@@ -32,7 +32,7 @@ When calling the Bash tool, phrase the `description` field to match the `allowed
 ## Prerequisites
 
 1. **Data source** — one of:
-   - **VictoriaMetrics running** with the Omnistat database loaded (use the `load-database` skill if needed), OR
+   - **VictoriaMetrics running** with the Omnistat database loaded (use the `open-database` skill if needed), OR
    - **CSV exports** from `omnistat-query --export`
 2. **Python virtual environment activated** with omnistat installed (`pip install ".[query]"` from the omnistat repo root). Confirm `which omnistat-inspect` resolves inside the venv.
 3. **Job ID** to report on.
@@ -101,7 +101,7 @@ Note the nesting: `variance` lives under `stats`, and both the data-collection t
 - `start_time`, `end_time` (ISO 8601 UTC)
 - `duration_seconds`, `duration_human` (e.g. `"2h 34m 12s"`)
 - `num_nodes`, `num_gpus`, `hosts[]`
-- `gpu_arch` (e.g. `"mi250x"`), `gpu_type`, `vbios_version`
+- `gpu_type`, `driver_version`, `vbios_version` — each is always a sorted list of distinct strings (single-element in the common case), or `null` if the field was not present in the data.
 - `omnistat_version`, `sampling_interval` (seconds)
 - `annotations[]` — strings; empty list if none
 - `figure_of_merit` — list of `{name, instance, min, max, last, num_points}` or `null`
@@ -115,7 +115,7 @@ Rows in display order. Each entry: `{source, label, name, mean, min, max, unit, 
 Each entry: `{source, label, name, total, unit}`. Same base-unit convention as gauges. Same emit-only-if-present rule.
 
 ### `stats.hardware_counters`
-`null` or `{rows: [{counter, total, rate, num_series}, ...], flops: [{precision, kind, total_flops, rate_flops_per_s}, ...] | null, gpu_arch}`.
+`null` or `{rows: [{counter, total, rate, num_series}, ...], flops: [{precision, kind, total_flops, rate_flops_per_s}, ...] | null}`.
 
 ### `stats.variance`
 Nested under `stats` (not a top-level key).
@@ -181,17 +181,17 @@ Read `$SCRATCH/report.json` once and produce a single markdown report at `$SCRAT
 
 ### Sections (in order)
 
-1. **Job Overview** — from `overview`
-2. **Metrics** — combined gauge table → counter totals → hardware counters (from `stats`)
+1. **Info** — from `overview`
+2. **Metrics Stats** — combined gauge table → counter totals → hardware counters (from `stats`)
 3. **Variance** — node-level → GPU-ID-level → GPU-level subsections (from `stats.variance`)
 4. **Data Collection Quality and Hardware Health** — `health.data_collection` table + derived `health.health.indicators` findings (single combined section)
 5. **Report Metadata** — from the envelope `data_source` and `query_stats`
 
-### Job Overview
+### Info
 
-Render the overview table. Omit GPU driver version. If `annotations` is non-empty, summarise them. If `figure_of_merit` is non-null, render a small FOM table.
+Render the overview table. For the GPU architecture row, derive a display name from each element of `gpu_type` using the rules in "GPU Architecture Handling" below — show the deduplicated, sorted list of architecture names (e.g. `MI250X`), not the raw type strings. Include `driver_version`. Omit `vbios_version` when the list has exactly one element; include it only when multiple distinct versions are present. If `annotations` is non-empty, summarise them. If `figure_of_merit` is non-null, render a small FOM table.
 
-### Metrics
+### Metrics Stats
 
 **Combined gauge table** — one row per entry in `stats.gauges[]`, columns `Source | Metric | Mean | Max`. Use the `label` from each entry and pick a display unit per "Unit selection" below; append the unit to the metric name (e.g. `Memory available (GiB)`, `RX rate (GB/s)`). Do **not** add `Min`, `n`, or percentile columns to this default table — those fields are available in the JSON and feed the annotation rules below when they carry signal.
 
@@ -205,7 +205,7 @@ Each bullet is **one short sentence**, ideally under 15 words. Group related met
 
 The triggers are evaluated against the entry's `percentiles` and `mean / min / max`, with `range = max − min` (skip if 0). Use the trigger to decide whether to comment — **do not quote percentile values, the rule name, or symbols like p25 / p95 in the prose**. Describe the shape in plain language.
 
-- **Saturated / pinned** — `(p95 − p25) < 0.01 × range`. Phrasing: *"GPU Utilization is pinned at 100 % most of the time; mean is dragged down by startup/teardown."*
+- **Saturated / pinned** — `(p95 − p25) < 0.01 × range`. Phrasing: *"Frequency sits at the boost clock most of the time; mean is dragged down by idle stretches."* **Do not** write this bullet for GPU Utilization: near-0/near-100 utilization is the expected norm, so "utilization is bimodal/pinned" is not a useful observation on its own. Only comment on utilization shape if it is genuinely surprising for the job (e.g. a steady mid-range plateau, or far more idle time than the runtime suggests) — and then say *what* it implies, not that it is bimodal.
 - **Wide outer tail (upper or lower)** — `(max − p95) > (p95 − p5)` or `(p5 − min) > (p95 − p5)`. Phrasing: *"Memory power: most nodes draw 81–94 W, with a few spiking to 129 W."*
 - **Skewed** — `|mean − p50| > 0.1 × (p95 − p5)`. Phrasing: *"GPU Power, Total power, CPU power: long lower tails (startup/teardown samples) drag the mean below the typical reading."*
 
@@ -245,7 +245,7 @@ For the small-n case (`n ≤ 16`), keep the existing per-key table (one row per 
 If `stats.variance.by_gpu_id` is empty (`[]`), write: **"All card slots behaved uniformly."**
 Otherwise (always small-n on current hardware), render a single per-card table — one row per card present in any entry's `all`, one column per entry (column header = `entry.label`). Each cell shows the slot's mean (the value from `all[card]`). Slots absent from an entry's `all` (e.g. MI250X odd cards filtered out of Power) render as a dash. Pick display units per the Unit Selection rules.
 
-Do not write an intro paragraph above the table — the section header and table column carry the metric name, and the table itself shows the per-slot values. After the table, write at most one short line of context that adds something the table cannot show (e.g. a known architectural quirk like MI250X intra-package thermal asymmetry, or a note about filtered slots). Skip the line if there's nothing architecture-specific to say.
+Do not write an intro paragraph above the table — the section header and table column carry the metric name, and the table itself shows the per-slot values. After the table, write at most one short line of context that adds something the table cannot show, but only when it is backed by the loaded architecture profile (e.g. a note that MI250X odd cards are filtered out of Power per the profile's power-reporting quirk). Do not assert causal mechanisms that the profile does not document. Skip the line if there's nothing architecture-specific and documented to say.
 
 #### GPU variance
 If `stats.variance.by_gpu` is empty (`[]`), write: **"All GPUs behaved uniformly."**
@@ -279,6 +279,8 @@ Skew, kurtosis, the literal percentile vocabulary, Tukey/IQR rule names, and the
 Render `health.data_collection` as a single table (reporting/expected nodes, activation/deactivation stagger, reporting duration, nodes with gaps, total gaps). Immediately after (no section break), render `**Overall status: <derived status>**` followed by a findings table with columns `Check | Severity | Details`, one row per entry in `health.health.indicators[]`.
 
 #### Deriving health severity
+
+> **Keep in sync:** the RAS thresholds in the `ras` row below (uncorrectable Δ > 0 → critical; correctable Δ > 1000 → warning) are duplicated in the job-analysis skill's "RAS Error Interpretation" section. Update both together.
 
 The JSON carries **raw indicators with no severity or status** — you assign both at render time. For each indicator, map to a severity and write the `Details` prose from its numeric fields:
 
@@ -336,10 +338,19 @@ For variance tables, use the **same display unit** chosen for the corresponding 
 
 ## GPU Architecture Handling
 
-Check `overview.gpu_arch` and load the matching profile from `skills/analyze-job/gpus/` for FLOPS formula context:
+Map `overview.gpu_type` to a canonical architecture name using these substring rules (apply to each string when `gpu_type` is a list):
 
-- contains `mi250x` → `mi250x.md`. The MI250X power quirks (odd cards report 0W) are already filtered out by `omnistat-inspect` (the all-zero odd-card series are dropped — note `n=256` rather than `512` for Power in `by_gpu`), so render `GPU Power (W)` rows as-is without a "(even cards only)" qualifier note.
-- contains `mi300x` → `mi300x.md`. The MI300X has **no** power-reporting quirk — each OAM is a single card and reports its own power, so the Power `by_gpu` series count matches the full GPU count (e.g. `n=512`, not halved).
+| Match (substring) | Architecture name | Profile |
+|---|---|---|
+| `MI250` or `MI200 (MCM)` | `MI250X` | `mi250x.md` |
+| `MI300` | `MI300X` | `mi300x.md` |
+
+(`MI200 (MCM)` is used instead of bare `MI200` to avoid false-matching MI210 type strings, which also contain `MI200`.)
+
+Load the matching profile from `skills/job-analysis/gpus/` for FLOPS formula context and architecture-specific rendering notes:
+
+- **MI250X** — odd cards report 0 W; `omnistat-inspect` already filters all-zero odd-card series, so Power appears with `n=256` rather than `512` in `by_gpu`. Render `GPU Power (W)` rows as-is without a "(even cards only)" qualifier.
+- **MI300X** — no power-reporting quirk; each OAM is a single card, so Power `by_gpu` series count matches the full GPU count.
 
 ## Verbose-Mode Rendering Rule
 
@@ -356,7 +367,7 @@ In `--verbose` mode every entry carries `all` in addition to whatever it would c
 - **Human-readable units** — the JSON carries base units; the renderer converts (kWh, GiB/TiB, GB/s, etc.) per the Unit Selection rules above.
 - **Markdown tables** for multi-value statistics — keep them scannable.
 - **One combined gauge table** — all Mean/Max gauges in a single table with a Source column.
-- **Variance is its own section** — never embed variability tables in Metrics.
+- **Variance is its own section** — never embed variability tables in Metrics Stats.
 - **No recommendations, root cause analysis, or hypothesis testing.**
 
 ## Conciseness Rules
