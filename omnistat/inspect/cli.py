@@ -1,166 +1,252 @@
-"""CLI parser and entry point for omnistat-inspect."""
+"""Command-line entry point for ``omnistat-inspect``.
+
+A grouped, extensible CLI::
+
+    omnistat-inspect [--tsdb-url URL | --csv-dir DIR] [--cache-dir DIR]
+                   job <JOBID> [--start TS --end TS] [--interval N] [--refresh]
+                       {report, info, stats, health, iterations, query, timeseries} [opts]
+    omnistat-inspect [--tsdb-url URL | --csv-dir DIR] db info
+
+The ``job`` group resolves a :class:`~omnistat.inspect.job.core.Job` once (either by
+discovery, by cached snapshot, or directly from ``--start``/``--end``), then
+builds the :class:`~omnistat.inspect.job.core.Module` registered for the chosen
+subcommand and wraps its output in a standard envelope. The ``db`` group is a
+data-source-level sibling that needs no job context (``db info`` lists the jobs
+and metrics available in the backend).
+"""
+
+from __future__ import annotations
 
 import argparse
 import json
 import sys
+from datetime import datetime, timezone
+from typing import Any
 
-from omnistat.inspect.inspector import JobInspector
-from omnistat.inspect.commands import (
-    cmd_counters,
-    cmd_data_check,
-    cmd_db_info,
-    cmd_health,
-    cmd_iterations,
-    cmd_job_info,
-    cmd_metrics,
-    cmd_query,
-    cmd_stats,
-    cmd_timeseries,
-)
-from omnistat.inspect.output import _append_query_log, _output_json, _write_scratch
+from omnistat.inspect import constants
+from omnistat.inspect.backend.csv import CsvDataSource
+from omnistat.inspect.backend.tsdb import TsdbDataSource
+from omnistat.inspect.cache import JsonStore
+from omnistat.inspect.job.context import JobContext
+from omnistat.inspect.job.core import Job, Module
+from omnistat.inspect.job.health import Health
+from omnistat.inspect.job.info import Info
+from omnistat.inspect.job.iterations import Iterations
+from omnistat.inspect.job.query import Query
+from omnistat.inspect.job.report import Report
+from omnistat.inspect.job.stats import Stats
+from omnistat.inspect.job.timeseries import Timeseries
+
+# Subcommand registry: (group, command) -> Module class. The CLI builds the
+# selected module from ``ds``/``store``, extracting its knobs from the parsed
+# args via the module's ``param_defaults`` (argparse dests match the param names).
+MODULES: dict[tuple[str, str], type[Module]] = {
+    ("job", "report"): Report,
+    ("job", "info"): Info,
+    ("job", "stats"): Stats,
+    ("job", "health"): Health,
+    ("job", "iterations"): Iterations,
+    ("job", "query"): Query,
+    ("job", "timeseries"): Timeseries,
+}
+
+# ---------------------------------------------------------------------------
+# Output helpers
+# ---------------------------------------------------------------------------
 
 
-def build_parser():
-    parser = argparse.ArgumentParser(
+def _emit(obj: Any) -> None:
+    """Encode a builtin object to indented JSON on stdout."""
+    sys.stdout.buffer.write((json.dumps(obj, indent=2) + "\n").encode())
+
+
+def _fail(payload: dict, code: int = 2) -> None:
+    _emit(payload)
+    sys.exit(code)
+
+
+def _parse_ts(value: str) -> datetime:
+    """Parse an ISO-8601 timestamp; assume UTC when no tz is given."""
+    dt = datetime.fromisoformat(value)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
+# ---------------------------------------------------------------------------
+# Parser
+# ---------------------------------------------------------------------------
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
         prog="omnistat-inspect",
-        description="Agentic-first CLI tool for Omnistat HPC job analysis. " "Outputs structured JSON by default.",
+        description="Analyze Omnistat jobs: one-shot report card plus deep-dive analysis commands.",
     )
-    parser.add_argument(
-        "--tsdb-url",
-        required=True,
-        help="Time series database URL — VictoriaMetrics or Prometheus (e.g., http://localhost:8428)",
-    )
-    parser.add_argument(
-        "--scratch-dir",
+
+    src = p.add_mutually_exclusive_group(required=True)
+    src.add_argument("--tsdb-url", help="VictoriaMetrics URL (e.g. http://localhost:8428)")
+    src.add_argument("--csv-dir", help="Directory of CSV exports from omnistat-query --export")
+    p.add_argument(
+        "--cache-dir",
         default=None,
-        help="Directory for dumping results to files",
+        help="Directory for caches: discovery snapshots, module outputs, and the CSV parsed-series cache.",
     )
-    groups = parser.add_subparsers(dest="group", help="Command groups")
 
-    # ---- db group ----
-    db_parser = groups.add_parser("db", help="Database-level commands")
-    db_subs = db_parser.add_subparsers(dest="command", help="Database subcommands")
+    groups = p.add_subparsers(dest="group")
 
-    db_subs.add_parser("info", help="Show database contents: available jobs, time ranges, and metrics")
+    job = groups.add_parser("job", help="Analyze a single job")
+    job.add_argument("jobid", help="Job ID to analyze")
+    job.add_argument("--start", default=None, help="Job start (ISO-8601); with --end skips discovery")
+    job.add_argument("--end", default=None, help="Job end (ISO-8601); with --start skips discovery")
+    job.add_argument("--interval", type=float, default=None, help="Override discovered sampling interval (seconds)")
+    job.add_argument("--refresh", action="store_true", help="Force fresh job discovery, ignoring any cached snapshot.")
 
-    # ---- job group ----
-    job_parser = groups.add_parser("job", help="Job-level analysis commands")
-    job_parser.add_argument("job", metavar="JOBID", help="Job ID")
-    job_subs = job_parser.add_subparsers(dest="command", help="Job subcommands")
+    job_subs = job.add_subparsers(dest="command")
 
-    # info
-    p_info = job_subs.add_parser("info", help="Discover job time range and topology")
-    p_info.add_argument("--interval", type=float, default=None, help="Sampling interval (seconds) for time refinement")
-
-    # metrics
-    p_metrics = job_subs.add_parser("metrics", help="List available metrics for a job")
-    p_metrics.add_argument("--categorize", action="store_true", help="Group metrics by category")
-
-    # stats
-    p_stats = job_subs.add_parser("stats", help="Compute statistics for job metrics")
-    p_stats.add_argument(
-        "--interval",
+    p_report = job_subs.add_parser("report", help="Generate the one-shot JSON report card")
+    p_report.add_argument(
+        "--cv-threshold",
         type=float,
-        default=None,
-        help="Sampling interval (seconds) — used for time-range refinement; query step is auto-computed",
+        default=constants.DEFAULT_CV_THRESHOLD,
+        dest="cv_threshold",
+        help="Coefficient-of-variation threshold to trigger variance drill-down",
     )
-    p_stats.add_argument("--metric", default=None, help="Filter to a specific metric (category auto-detected)")
-    p_stats.add_argument(
-        "--category",
-        choices=["gpu", "host", "network", "vendor", "xgmi"],
-        default=None,
-        help="Filter to a specific category",
-    )
-    p_stats.add_argument(
-        "--level",
-        default=None,
-        help="Filter to a specific aggregation level (valid levels depend on category)",
-    )
+    p_report.add_argument("--verbose", action="store_true", help="Include full per-node / per-GPU arrays")
 
-    # health
-    p_health = job_subs.add_parser("health", help="Run health checks on a job")
-    p_health.add_argument(
-        "--interval",
-        type=float,
-        default=None,
-        help="Sampling interval (seconds) — used for time-range refinement and health step floor",
-    )
-
-    # data-check
-    p_data_check = job_subs.add_parser("data-check", help="Validate data collection completeness and timing")
-    p_data_check.add_argument(
-        "--interval",
-        type=float,
-        default=None,
-        help="Sampling interval (seconds) — used for time-range refinement and gap threshold",
-    )
-
-    # timeseries
-    p_ts = job_subs.add_parser("timeseries", help="Export raw time series data")
-    p_ts.add_argument("--interval", type=float, required=True, help="Sampling interval (seconds)")
-    p_ts.add_argument("--metric", required=True, help="Metric name")
-    p_ts.add_argument("--node", default=None, help="Filter by node (instance)")
-    p_ts.add_argument("--card", default=None, help="Filter by GPU card")
-    p_ts.add_argument("--output", default=None, help="Write output to file instead of stdout")
-
-    # query
-    p_query = job_subs.add_parser("query", help="Execute arbitrary PromQL with job context")
-    p_query.add_argument("--interval", type=float, required=True, help="Sampling interval (seconds)")
-    p_query.add_argument("--promql", required=True, help="PromQL query ($job and $step are substituted)")
-    p_query.add_argument("--step", default=None, help="Query step override (e.g., '5s', '1m')")
-    p_query.add_argument("--output", default=None, help="Write output to file instead of stdout")
-
-    # iterations
-    p_iter = job_subs.add_parser(
-        "iterations", help="Detect iteration boundaries and compute per-iteration statistics"
+    p_iter = job_subs.add_parser("iterations", help="Detect iteration boundaries and per-iteration statistics")
+    p_iter.add_argument("--metric", default=constants.DEFAULT_ITER_METRIC, help="Metric for iteration detection")
+    p_iter.add_argument(
+        "--low-threshold", type=float, default=constants.DEFAULT_ITER_LOW_THRESHOLD, dest="low_threshold"
     )
     p_iter.add_argument(
-        "--interval",
-        type=float,
-        default=None,
-        help="Sampling interval (seconds) — used for time-range refinement; query step is auto-computed",
+        "--high-threshold", type=float, default=constants.DEFAULT_ITER_HIGH_THRESHOLD, dest="high_threshold"
     )
     p_iter.add_argument(
-        "--metric",
-        default="rocm_utilization_percentage",
-        help="Metric for iteration detection (default: rocm_utilization_percentage)",
-    )
-    p_iter.add_argument(
-        "--low-threshold",
-        type=float,
-        default=20.0,
-        dest="low_threshold",
-        help="Low utilization threshold for idle detection (default: 20%%)",
-    )
-    p_iter.add_argument(
-        "--high-threshold",
-        type=float,
-        default=70.0,
-        dest="high_threshold",
-        help="High utilization threshold for dip counting (default: 70%%)",
-    )
-    p_iter.add_argument(
-        "--min-idle-seconds",
-        type=float,
-        default=30.0,
-        dest="min_idle_seconds",
-        help="Minimum idle duration to count as iteration boundary (default: 30s)",
+        "--min-idle-seconds", type=float, default=constants.DEFAULT_ITER_MIN_IDLE_SECONDS, dest="min_idle_seconds"
     )
     p_iter.add_argument(
         "--min-iteration-seconds",
         type=float,
-        default=60.0,
+        default=constants.DEFAULT_ITER_MIN_ITERATION_SECONDS,
         dest="min_iteration_seconds",
-        help="Minimum iteration duration to include (default: 60s)",
     )
 
-    # counters
-    job_subs.add_parser("counters", help="Discover and summarize hardware performance counters")
+    job_subs.add_parser("info", help="Job info: nodes, GPUs, duration, and run metadata")
 
-    return parser
+    p_stats = job_subs.add_parser("stats", help="Stats: gauges, counters, hardware counters, and variance")
+    p_stats.add_argument(
+        "--cv-threshold",
+        type=float,
+        default=constants.DEFAULT_CV_THRESHOLD,
+        dest="cv_threshold",
+        help="Coefficient-of-variation threshold to trigger variance drill-down",
+    )
+    p_stats.add_argument("--verbose", action="store_true", help="Include full per-node / per-GPU arrays")
+
+    job_subs.add_parser("health", help="Health: data-collection coverage and health checks")
+
+    p_query = job_subs.add_parser("query", help="Run arbitrary PromQL over the job window (TSDB only)")
+    p_query.add_argument(
+        "--promql",
+        required=True,
+        dest="promql",
+        help="PromQL expression; $job and $jobstep are substituted with the job selector",
+    )
+    p_query.add_argument("--step", default=None, dest="step", help="Query step (default: auto)")
+
+    p_ts = job_subs.add_parser("timeseries", help="Export raw time-series for a single metric")
+    p_ts.add_argument("--metric", required=True, dest="metric", help="Metric name to export")
+    p_ts.add_argument("--node", default=None, dest="node", help="Filter by node (instance)")
+    p_ts.add_argument("--card", default=None, dest="card", help="Filter by GPU card")
+
+    db = groups.add_parser("db", help="Inspect the data source (no job context)")
+    db_subs = db.add_subparsers(dest="command")
+    db_subs.add_parser("info", help="List available jobs and Omnistat metrics in the data source")
+
+    return p
 
 
-def main():
+# ---------------------------------------------------------------------------
+# Job resolution
+# ---------------------------------------------------------------------------
+
+
+def _resolve_job(args, ds, store) -> Job | None:
+    """Build a Job via direct --start/--end args, or cache-aware discovery."""
+    if args.start and args.end:
+        ctx = JobContext(
+            jobid=args.jobid,
+            start_time=_parse_ts(args.start),
+            end_time=_parse_ts(args.end),
+            sampling_interval=args.interval,
+        )
+        return Job.from_context(ds, ctx, store=store)
+
+    return Job.open(ds, args.jobid, store=store, refresh=args.refresh)
+
+
+# ---------------------------------------------------------------------------
+# Output envelope
+# ---------------------------------------------------------------------------
+
+
+def _data_source(ds) -> dict:
+    """Describe the backing data source (type plus url/dir if present)."""
+    db_info = ds.get_db_info()
+    out = {"type": db_info.get("type", "unknown")}
+    if db_info.get("url") is not None:
+        out["url"] = db_info["url"]
+    if db_info.get("dir") is not None:
+        out["dir"] = db_info["dir"]
+    return out
+
+
+def _emit_result(ds, payload: dict) -> None:
+    """Wrap a module's payload in the standard envelope and emit it."""
+    _emit(
+        {
+            "jobid": ds.jobid,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "data_source": _data_source(ds),
+            **payload,
+            "query_stats": ds.get_query_stats(),
+        }
+    )
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+
+def _build_data_source(args):
+    """Construct the data source for the chosen backend (interval is job-only)."""
+    interval = getattr(args, "interval", None)
+    if args.csv_dir:
+        return CsvDataSource(args.csv_dir, cache_dir=args.cache_dir, sampling_interval=interval)
+    return TsdbDataSource(args.tsdb_url, sampling_interval=interval)
+
+
+def _run_db(args, ds) -> None:
+    """Handle the ``db`` group: data-source-level queries with no job context."""
+    if args.command != "info":
+        _fail({"error": f"Unknown command: db {args.command}"}, code=1)
+    try:
+        summary = ds.db_summary()
+    except Exception as e:  # noqa: BLE001 - surface as structured error
+        _fail({"error": str(e), "error_type": type(e).__name__, "query_stats": ds.get_query_stats()})
+    _emit(
+        {
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "data_source": _data_source(ds),
+            **summary,
+            "query_stats": ds.get_query_stats(),
+        }
+    )
+
+
+def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
@@ -168,65 +254,43 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    if not args.command:
-        print(json.dumps({"error": f"No subcommand specified for '{args.group}'. Use --help for available subcommands."}))
-        sys.exit(1)
+    if not getattr(args, "command", None):
+        _fail({"error": f"No subcommand specified for '{args.group}'. Use --help for available subcommands."}, code=1)
 
-    analyzer = JobInspector(args.tsdb_url)
+    ds = _build_data_source(args)
 
-    handlers = {
-        ("db", "info"): cmd_db_info,
-        ("job", "info"): cmd_job_info,
-        ("job", "metrics"): cmd_metrics,
-        ("job", "stats"): cmd_stats,
-        ("job", "data-check"): cmd_data_check,
-        ("job", "health"): cmd_health,
-        ("job", "timeseries"): cmd_timeseries,
-        ("job", "query"): cmd_query,
-        ("job", "iterations"): cmd_iterations,
-        ("job", "counters"): cmd_counters,
-    }
+    if args.group == "db":
+        _run_db(args, ds)
+        return
 
-    key = (args.group, args.command)
-    handler = handlers.get(key)
-    if not handler:
-        print(json.dumps({"error": f"Unknown command: {args.group} {args.command}"}))
-        sys.exit(1)
+    module_cls = MODULES.get((args.group, args.command))
+    if module_cls is None:
+        _fail({"error": f"Unknown command: {args.group} {args.command}"}, code=1)
+
+    store = JsonStore(args.cache_dir) if args.cache_dir else None
+
+    job = _resolve_job(args, ds, store)
+    if job is None:
+        _fail(
+            {
+                "error": f"Job {args.jobid} not found in the data source",
+                "jobid": args.jobid,
+                "query_stats": ds.get_query_stats(),
+            }
+        )
 
     try:
-        result = handler(analyzer, args)
-    except Exception as e:
-        result = {
-            "error": str(e),
-            "error_type": type(e).__name__,
-            "query_stats": analyzer.get_query_stats(),
-        }
-        _output_json(result)
-        _append_query_log(args.scratch_dir, analyzer.get_query_stats())
-        sys.exit(2)
-
-    # Write to scratch dir if specified
-    if args.scratch_dir:
-        job = getattr(args, "job", None)
-        filename = f"{args.group}_{args.command}_{job}.json" if job else f"{args.group}_{args.command}.json"
-        filepath = _write_scratch(args.scratch_dir, filename, result)
-        _append_query_log(args.scratch_dir, analyzer.get_query_stats())
-        print(
-            json.dumps(
-                {
-                    "status": "ok",
-                    "output_file": filepath,
-                    "query_stats": result.get("query_stats", {}),
-                },
-                indent=2,
-                default=str,
-            )
+        knobs = {name: getattr(args, name) for name in module_cls.param_defaults}
+        _emit_result(ds, module_cls(ds, store, **knobs).get())
+    except Exception as e:  # noqa: BLE001 - surface as structured error
+        _fail(
+            {
+                "error": str(e),
+                "error_type": type(e).__name__,
+                "jobid": args.jobid,
+                "query_stats": ds.get_query_stats(),
+            }
         )
-    else:
-        is_error = "error" in result
-        _output_json(result)
-        if is_error:
-            sys.exit(2)
 
 
 if __name__ == "__main__":
