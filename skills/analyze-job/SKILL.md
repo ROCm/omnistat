@@ -1,6 +1,6 @@
 ---
 name: analyze-job
-description: Analyze an HPC job from an Omnistat database using hypothesis-driven exploration.
+description: Analyze an HPC job from an Omnistat database using hypothesis-driven exploration, driven by the omnistat-inspect tool.
 allowedPrompts:
   - tool: Bash
     prompt: run omnistat-inspect commands
@@ -18,28 +18,88 @@ allowedPrompts:
     prompt: run curl commands
 ---
 
-# Analyze HPC Job
+# Analyze Job
 
-Analyze GPU telemetry data collected by Omnistat for HPC/AI workloads. This skill guides you through a top-down, hypothesis-driven analysis of job performance using the `omnistat-inspect` CLI tool.
+Analyze GPU telemetry data collected by Omnistat for HPC/AI workloads. This skill guides you through a top-down, hypothesis-driven analysis of job performance, driven primarily by the `omnistat-inspect` CLI tool.
 
 **Target audience:** HPC engineers, AI/ML researchers, system administrators investigating job performance, GPU health, and resource utilization.
 
 **What the analysis produces:** A structured report identifying performance bottlenecks, hardware issues, resource utilization patterns, and anomalies -- with all findings backed by data.
 
+## Tooling: omnistat-inspect
+
+This skill is built entirely around `omnistat-inspect`, the consolidated analysis CLI. It is your single entry point for every phase:
+
+- **Baseline characterization** — `omnistat-inspect --tsdb-url $TSDB_URL job JOBID report` produces the structured report card (overview, stats, variance, data-collection, health). Start every analysis here: it is the fastest way to understand scale, runtime, utilization, variance, and health in a single call.
+- **Deep-dive subcommands** — `job JOBID info` (metadata/topology), `stats` (gauges, counters, hardware counters, and per-node/per-GPU variance), `health` (data-collection coverage and health checks), `iterations` (iteration boundaries and per-iteration stats), `query` (arbitrary PromQL), and `timeseries` (raw series export).
+- **Data-source inspection** — `omnistat-inspect --tsdb-url $TSDB_URL db info` lists the jobs and metrics available in the backend (no job context required).
+
+For anything not covered by a subcommand, drop to raw PromQL via `query` (TSDB) or `curl` against the TSDB HTTP API.
+
+### Job-context flexibility
+
+Every `omnistat-inspect job JOBID` invocation resolves the job's time window in one of two ways:
+
+- **Discovery (default):** omits `--start`/`--end`; the tool scans the database to discover the job's time range and topology. Add `--cache-dir DIR` to persist the discovery snapshot and per-section results so repeat calls are cheap (no re-scan, no re-query).
+- **Direct window:** pass both `--start ISO8601` and `--end ISO8601` (optionally `--interval SECONDS`) to skip discovery entirely and analyze an exact window — useful for zooming into a single phase or iteration you found earlier.
+
+```bash
+# Discovery + cache (cheap repeat calls)
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID report
+
+# Direct window (no discovery scan)
+omnistat-inspect --tsdb-url $TSDB_URL job JOBID \
+  --start 2026-01-01T12:00:00Z --end 2026-01-01T12:10:00Z report
+```
+
+#### Cache-dir reuse for late-pipeline `query` / `timeseries`
+
+The `query` and `timeseries` subcommands are typically run late in the analysis,
+well after discovery. **Always pass the same `--cache-dir` you used for the
+initial `report`/`overview` call** so they rehydrate the cached discovery
+snapshot instead of re-scanning:
+
+```bash
+# Early: discovery runs once and is cached (time range + sampling interval)
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID overview
+
+# Later: query/timeseries reuse the snapshot — no re-scan, correct default step
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID \
+  query --promql 'avg(rocm_utilization_percentage{$job, $jobstep})'
+```
+
+Because the rehydrated snapshot restores the discovered **sampling interval**,
+the default query step is the sampling interval (`max(sampling_interval, 1s)`) —
+exactly what you want for full-resolution queries. Notes:
+
+- **Do not** reach for `--start`/`--end` just to "scope to the discovered
+  window" — passing them *skips* discovery and drops the sampling interval, so
+  the default step silently degrades to **1s** unless you also add `--interval`.
+  Use `--start`/`--end` only when you genuinely want a narrower sub-window, and
+  pair them with `--interval` to keep the step correct.
+- For a deliberately coarser step on a single `query` (e.g. an overview of a
+  long job), pass `--step SECONDS` directly; it overrides the default for that
+  call only. (`timeseries` has no `--step`; control its resolution via the
+  cached interval or the global `--interval`.)
+
 ## Prerequisites
 
-1. **VictoriaMetrics running** with the Omnistat database loaded (use the `load-database` skill if needed)
-2. **Python virtual environment activated** with omnistat installed (`pip install ".[query]"` from the omnistat repo root)
-3. **Job ID(s)** to analyze (discover available jobs with `omnistat-inspect --tsdb-url $TSDB_URL db info`)
+1. **Data source** — one of:
+   - **VictoriaMetrics running** with the Omnistat database loaded (use the `load-database` skill if needed), OR
+   - **CSV exports** from `omnistat-query --export` (no TSDB required)
+2. **Python virtual environment activated** with omnistat installed (`pip install ".[query]"` from the omnistat repo root) — this provides `omnistat-inspect`. Confirm with `which omnistat-inspect`.
+3. **Job ID(s)** to analyze (discover available jobs with `omnistat-inspect --tsdb-url $TSDB_URL db info` or `omnistat-inspect --csv-dir /path/to/exports db info`)
 
 ## Setup
 
 Before starting analysis, set up the working environment:
 
+### TSDB Mode (default)
+
 ```bash
-# 1. Create a scratch directory for this analysis session
+# 1. Create a cache directory for this analysis session (cheap repeat calls)
 SCRATCH=$(mktemp -d /tmp/omnistat-inspect-XXXXXX)
-echo "Scratch directory: $SCRATCH"
+echo "Cache directory: $SCRATCH/cache"
 
 # 2. Set the TSDB URL (VictoriaMetrics or Prometheus)
 TSDB_URL="http://localhost:8428"
@@ -47,6 +107,29 @@ TSDB_URL="http://localhost:8428"
 # 3. Verify connectivity and discover available jobs
 omnistat-inspect --tsdb-url $TSDB_URL db info
 ```
+
+### CSV Mode
+
+Use CSV mode when you have CSV exports from `omnistat-query --export` and no running TSDB. All subcommands except `job query` work in CSV mode — CSV mode uses whatever metrics were exported, so if a metric wasn't included in the export, it won't be available for analysis.
+
+```bash
+# 1. Create a cache directory for this analysis session
+SCRATCH=$(mktemp -d /tmp/omnistat-inspect-XXXXXX)
+echo "Cache directory: $SCRATCH/cache"
+
+# 2. Set the CSV directory path
+CSV_DIR="/path/to/csv/exports"
+
+# 3. Discover available data
+omnistat-inspect --csv-dir $CSV_DIR db info
+
+# 4. Run analysis (same subcommands as TSDB mode)
+omnistat-inspect --csv-dir $CSV_DIR --cache-dir $SCRATCH/cache job JOBID info
+omnistat-inspect --csv-dir $CSV_DIR --cache-dir $SCRATCH/cache job JOBID stats
+omnistat-inspect --csv-dir $CSV_DIR --cache-dir $SCRATCH/cache job JOBID health
+```
+
+**Note:** The `job query` subcommand (arbitrary PromQL) is not available in CSV mode — it requires a TSDB backend.
 
 The `db info` subcommand verifies database connectivity and reports all available jobs with their time ranges, node counts, users, and partitions, plus the full list of available metrics. Use this output to select a job ID and confirm you are looking at the right database.
 
@@ -64,27 +147,30 @@ Follow this top-down, hypothesis-driven workflow. Each phase builds on the previ
 
 ### Phase 1: Job Discovery and Characterization
 
-Start by understanding what the job is and what resources it used.
+Start by understanding what the job is and what resources it used. The fastest baseline is the one-shot report — it characterizes scale, runtime, utilization, variance, and health in a single call.
 
 ```bash
-# Discover job time range, topology, and metadata
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID info
+# Baseline: one-shot report card (overview, stats, variance, data-collection, health)
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID report
 
-# List all available metrics for this job, grouped by category
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID metrics --categorize
+# Job metadata/topology on its own (subset of the report card)
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID info
+
+# List all metrics available in the data source, plus all jobs and time ranges
+omnistat-inspect --tsdb-url $TSDB_URL db info
 ```
 
 Key information to extract:
 - **Runtime**: How long did the job run?
 - **Scale**: How many nodes and GPUs?
 - **Sampling interval**: What time resolution is available?
-- **Available metrics**: Which collectors were active? (GPU, host, network, RAS, xGMI, rocprofiler)
+- **Available metrics**: Which collectors were active? (GPU, host, network, RAS, xGMI, rocprofiler) — `db info` lists every metric present in the backend.
 - **Annotations**: `rmsjob_annotations` markers (e.g., application phases, benchmark identifiers)
 - **Figure of Merit**: `omnistat_fom` values (e.g., GFLOPS achieved)
 
 The `job info` subcommand automatically includes `annotations` and `figure_of_merit` when the corresponding metrics are present in the database.
 
-The `job info` subcommand automatically discovers the sampling interval from the `omnistat_info` metric (via the `interval_secs` label) and reports it as `sampling_intervals`, `min_interval`, and `max_interval` in its output. The sampling interval is also auto-discovered during job discovery and used internally by `stats`, `health`, and `iterations` to auto-compute the finest safe query step — you do not need to pass `--interval` to these subcommands.
+The `job info` subcommand reports the discovered sampling interval (auto-detected from the `omnistat_info` metric's `interval_secs` label). The sampling interval is also used internally by `stats`, `health`, and `iterations` to auto-compute the finest safe query step — you do not need to pass `--interval` to these subcommands.
 
 ### GPU Architecture Detection
 
@@ -94,6 +180,7 @@ Architecture profiles are located in `skills/analyze-job/gpus/`. Read the matchi
 
 **Detection:** The `job info` output includes `gpu_arch` when detected. You can also query `rocm_version_info` for the job — the `type` label identifies the GPU architecture (e.g., `"Aldebaran/MI200 [Instinct MI250X]"` or `"AMD INSTINCT MI200 (MCM) OAM ..."`). Match on substring:
 - `type` contains `MI250` or `MI200` → **MI250X** (`gpus/mi250x.md`)
+- `type` contains `MI300` → **MI300X** (`gpus/mi300x.md`)
 
 The architecture profile contains critical information for correct interpretation of the data (e.g., which GPU cards report power, thermal throttling thresholds, RAS error block meanings).
 
@@ -111,9 +198,9 @@ Step resolution significantly affects observed statistics. Coarse steps (e.g., 6
 
 The `stats`, `health`, and `iterations` subcommands **auto-compute the finest safe query step**. The step is `max(sampling_interval, runtime / 90000)` — never finer than the actual data, never exceeding VictoriaMetrics' `search.maxPointsPerTimeseries` limit (90,000). There is no arbitrary floor: sub-second sampling intervals are preserved for short jobs where VM limits allow it.
 
-You do **not** need to pass `--interval` to these subcommands — the sampling interval is auto-discovered from `omnistat_info` during job discovery. If you do pass `--interval`, it is used only for time-range refinement, not for the query step.
+The `iterations` subcommand does **not** accept `--interval` — it always uses auto-computed steps. The `stats` and `health` subcommands accept an optional `--interval` for time-range refinement only (the query step is still auto-computed).
 
-For `timeseries` and `query` subcommands, you control the step explicitly via `--interval` or `--step`. Use the sampling interval reported by `job info` for full resolution, or a coarser value for overview queries on long jobs.
+For `timeseries` and `query`, the default step is the discovered sampling interval (`max(sampling_interval, 1s)`) when you reuse the cached discovery snapshot via `--cache-dir` — full resolution with no extra flags. For a coarser overview on a long job, `query` accepts an explicit `--step SECONDS`; `timeseries` has no `--step`, so adjust its resolution via the cached interval or the global `--interval`.
 
 **When the auto-computed step is much coarser than the sampling interval** (which happens on very long jobs), state the resolution gap explicitly in the report and note which findings may be affected (especially peaks and percentiles).
 
@@ -124,21 +211,21 @@ For `timeseries` and `query` subcommands, you control the step explicitly via `-
 Before analyzing performance, verify that data collection was complete and reliable, and check for hardware issues.
 
 ```bash
-# Validate data collection completeness, timing stagger, and gaps
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID data-check
-
-# Run hardware health checks (RAS errors, thermals, power)
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID health
+# Run health checks: data-collection coverage AND hardware health in one call
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID health
 ```
 
-#### Data collection (`data-check`)
+The `health` subcommand covers both data-collection coverage (completeness, timing stagger, gaps) and hardware health (RAS errors, thermals, power).
 
-Review the data-check report for:
+#### Data-collection coverage (part of `health`)
+
+Review the coverage portion of the health report for:
 - **Missing nodes**: `expected_nodes` vs `reporting_nodes` — any gap means some nodes never reported
 - **Activation stagger**: `activation.spread_seconds` — how long it took for all nodes to start reporting. A spread >5% of total job duration is significant and means early-job statistics are skewed by partial participation
 - **Deactivation stagger**: `deactivation.spread_seconds` — same for shutdown. Large spread means late-job statistics are unreliable
 - **Sampling gaps**: `sampling_gaps.nodes_with_gaps` and `sampling_gaps.total_gaps` — check `gap_timing` to see if gaps are clustered (systemic event, e.g., network outage) or distributed (per-node issues). Clustered gaps at the same offset suggest a single event affecting all nodes simultaneously
 - **Reporting duration**: `reporting_duration.stats` — nodes with significantly shorter reporting durations may have crashed or been evicted mid-job
+- **Timing source**: `timing_source` — indicates which metric was used to derive per-node timing (`rmsjob_info` in TSDB mode; in CSV mode, falls back to GPU/host metrics like `rocm_utilization_percentage` when `rmsjob_info` is absent)
 
 #### Hardware health (`health`)
 
@@ -154,89 +241,74 @@ If critical issues are found, note them -- they may explain performance anomalie
 
 Follow these steps in order. **Do not skip steps or move to iteration analysis until all steps are complete.**
 
-#### Step 1: Collect global-level stats
+#### Step 1: Collect stats
 
-Run global-level stats for each job.
+Run `stats` for each job. A single call returns global gauge/counter summaries, hardware counters, and per-node / per-GPU variance — no `--category` or `--level` flags are needed.
 
 ```bash
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID stats --level global
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID stats > $SCRATCH/stats_JOBID.json
 ```
 
-The output is nested as `results_by_category → {category} → {level} → [metric stats]`. Counter metrics (cumulative values like bytes transferred, energy consumed) are automatically detected and produce delta-based stats (total_delta, rate_per_second, per-series mean/min/max/stddev). Gauge metrics produce the standard count/min/max/mean/stddev/percentiles distribution.
+The output has top-level keys `gauges`, `counters`, `hardware_counters`, and `variance`. Counter metrics (cumulative values like bytes transferred, energy consumed) are automatically detected and produce delta-based totals. Gauge metrics produce mean/min/max/cv/percentiles. The `cv` (coefficient of variation) field measures relative dispersion — high CV indicates non-uniform distribution across GPUs or nodes.
 
-#### Step 2: Identify anomalous categories
+#### Step 2: Identify anomalous metrics
 
-Review the global stats. For each category, check for:
-- High stddev relative to mean (uneven distribution)
+Review the gauge and counter stats. For each metric, check for:
+- High `cv` (uneven distribution across nodes/GPUs)
 - Unexpected values (rates, totals, or distributions that differ from expectation)
 - Bimodal distributions or large gaps between percentiles
 
-**In comparative analysis:** compare each category's global stats between the healthy and degraded jobs. Identify which categories show significant differences (>10% in rates or totals, >5 percentage points in gauge means).
+**In comparative analysis:** compare each metric between the healthy and degraded jobs. Identify which show significant differences (>10% in rates or totals, >5 percentage points in gauge means).
 
-#### Step 3: Drill down (required)
+#### Step 3: Inspect the variance breakdown
 
-For every category identified in Step 2 as anomalous or significantly different between jobs, **run stats at finer levels now.** Do not defer this to recommendations — do it before writing the report.
+The `variance` block in the same `stats` output already drills into any metric whose between-node or between-GPU CV exceeds the threshold (default `cv_threshold=0.05`; override with `--cv-threshold`). It contains:
+- `by_node` — per-node means with min/max/percentiles per metric
+- `by_gpu_id` — per-card-slot means (card position effects)
+- `by_gpu` — per-(node, card) means (individual GPU stragglers)
+
+Use `--verbose` to force full per-entity arrays even for large jobs. To raise sensitivity, lower `--cv-threshold`:
 
 ```bash
-# Network drill-down: run for BOTH jobs
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID stats --category network --level interface-id
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID stats --category network --level node
-
-# GPU drill-down: run for BOTH jobs
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID stats --category gpu --level node
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID stats --category gpu --level gpu-id
+# More sensitive variance drill-down: run for BOTH jobs
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID stats --cv-threshold 0.02 --verbose > $SCRATCH/stats_verbose_JOBID.json
 ```
 
 The step is auto-computed to stay within `maxPointsPerTimeseries` limits, so queries should not fail due to point limits. If a query does fail, the `--interval` flag can be used as an override to force a coarser step.
 
-The drill-down answers critical questions that global stats cannot:
-- Is the anomaly systemic (all nodes/interfaces equally affected) or localized?
-- For network: are all interface types proportionally affected, or is a specific NIC position degraded?
-- For GPU: is there a straggler node or a systematic card-position effect?
+The variance breakdown answers critical questions that the global summary cannot:
+- Is the anomaly systemic (all nodes/GPUs equally affected) or localized?
+- Is there a straggler node or a systematic card-position effect?
 
-**In comparative analysis:** run the drill-down for **both** the healthy and degraded jobs so you can compare at each level.
+**In comparative analysis:** examine the `variance` block for **both** the healthy and degraded jobs so you can compare at each grouping.
 
-The available levels per category:
+The `variance` block exposes three groupings, from coarse to fine:
 
-| Category | Levels (coarse → fine) |
-|----------|----------------|
-| `gpu` | global → node → gpu-id → gpu |
-| `network` | global → node → interface-id → interface |
-| `xgmi` | global → node → gpu-id → gpu |
-| `host` | global → node |
-| `vendor` | global → node |
+| Grouping | Key | What it reveals |
+|----------|-----|-----------------|
+| Per-node | `by_node` | Straggler nodes; systemic vs. node-local effects |
+| Per-card-slot | `by_gpu_id` | Systematic card-position effects (e.g., all card-0s behaving differently) |
+| Per-GPU | `by_gpu` | Individual GPU outliers masked by node/slot averages |
 
 **GPU-specific guidance:**
-- Use **gpu-id** level to check for systematic card-position effects (e.g., all card-0s behaving differently)
-- Always run **gpu** level to catch individual GPU outliers — a single underperforming GPU is masked by node-level averages and invisible at gpu-id level
-- High stddev in utilization may indicate load imbalance, but may also reflect intentionally heterogeneous workloads (e.g., data-parallel workers with unequal partition sizes). Do not assume imbalance is a problem without further evidence
+- Use **`by_gpu_id`** to check for systematic card-position effects (e.g., all card-0s behaving differently)
+- Use **`by_gpu`** to catch individual GPU outliers — a single underperforming GPU is masked by node-level averages and invisible at the card-slot grouping
+- High CV in utilization may indicate load imbalance, but may also reflect intentionally heterogeneous workloads (e.g., data-parallel workers with unequal partition sizes). Do not assume imbalance is a problem without further evidence
 - VRAM near 100% = high memory usage (may or may not indicate pressure — some workloads intentionally fill VRAM)
-- Non-uniform VRAM across gpu-id = different GPUs may be doing different work; investigate before labeling as imbalance
+- Non-uniform VRAM across `by_gpu_id` = different GPUs may be doing different work; investigate before labeling as imbalance
 
-**Network-specific guidance:**
-- Use **interface-id** level to check whether all interfaces of the same type behave similarly, or if specific interface positions are degraded
-- Use **interface** level to identify specific NICs with anomalous throughput
-- If all interfaces show proportionally lower throughput, the issue is systemic (topology, congestion); if only some are degraded, it's interface-specific
-- Compare per-node network uniformity (CV) — low CV with all nodes equally affected points to systemic causes; high CV points to node-specific issues
+**Network/host guidance:**
+- Network and host gauges appear in `by_node`; compare per-node uniformity (CV) — low CV with all nodes equally affected points to systemic causes (topology, congestion); high CV points to node-specific issues
+- If a counter total (e.g., network bytes) differs between jobs but `by_node` CV is low, the difference is systemic rather than localized to a few nodes
 
 #### Gate check before proceeding
 
 Before moving to iteration analysis or Phase 4, verify:
-- [ ] For every category that shows a significant anomaly or cross-job difference at the global level, have you examined the finer-level data (node, interface-id, gpu-id) to determine whether the issue is systemic or localized?
-- [ ] If network throughput differs between jobs, have you checked the interface-id level data to see whether all interfaces are proportionally affected?
-- [ ] If GPU utilization differs, have you checked the node level to see whether all nodes are equally affected or if there are outliers?
+- [ ] For every metric that shows a significant anomaly or cross-job difference in the global summary, have you examined the `variance` groupings (`by_node`, `by_gpu_id`, `by_gpu`) to determine whether the issue is systemic or localized?
+- [ ] If a metric is uniform in the global summary but you expect variance, have you lowered `--cv-threshold` to confirm it is genuinely uniform rather than below the default gate?
+- [ ] If GPU utilization differs, have you checked `by_node` to see whether all nodes are equally affected or if there are outliers?
 
-If the answer to any of these is no, go back and analyze the relevant finer-level data before proceeding.
-
-#### Category and Level Reference
-
-| Category | Valid Levels | Description |
-|----------|-------------|-------------|
-| `gpu` | global, node, gpu-id, gpu | GPU metrics grouped by instance/card |
-| `host` | global, node | Host CPU/memory/IO grouped by instance |
-| `network` | global, node, interface-id, interface | Network TX/RX grouped by instance/interface |
-| `vendor` | global, node | Vendor power/energy grouped by instance |
-| `xgmi` | global, node, gpu-id, gpu | xGMI data transfer grouped by instance/card |
+If the answer to any of these is no, go back and analyze the relevant variance data before proceeding.
 
 ### Iteration-Level Analysis
 
@@ -244,10 +316,10 @@ Some workloads have repetitive phases that produce visible idle gaps in the aver
 
 ```bash
 # Detect iterations and compute per-iteration stats
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID iterations
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID iterations
 
 # With custom thresholds
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID iterations \
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID iterations \
   --low-threshold 15 --high-threshold 75 --min-idle-seconds 20 --min-iteration-seconds 45
 ```
 
@@ -283,9 +355,9 @@ To validate, sample a few individual GPUs and compare their iteration structure 
 
 ```bash
 # Iteration detection on a single GPU (node + card)
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID query --interval INTERVAL \
-  --promql 'rocm_utilization_percentage{instance="HOSTNAME",card="0"} * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$step}))' \
-  --output $SCRATCH/single_gpu_util.json
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID query \
+  --promql 'rocm_utilization_percentage{instance="HOSTNAME",card="0"} * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$jobstep}))' \
+  > $SCRATCH/single_gpu_util.json
 ```
 
 If individual GPUs show a different iteration pattern than the global average, the workload is likely heterogeneous and the global iteration analysis should not be reported as definitive. Instead, note the heterogeneity as an observation.
@@ -305,9 +377,9 @@ timestamp(count by (marker) (rmsjob_annotations{$job} > 0))
 This returns a time series per marker. The first and last timestamps define the region where that annotation was active. Use the `query` subcommand:
 
 ```bash
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID query --interval INTERVAL \
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID query \
   --promql 'timestamp(count by (marker) (rmsjob_annotations{$job} > 0))' \
-  --output $SCRATCH/annotation_timestamps.json
+  > $SCRATCH/annotation_timestamps.json
 ```
 
 **Per-annotation metrics:** To compute a metric scoped to a specific annotation, join through `rmsjob_info` and `rmsjob_annotations` to propagate the `marker` label. For example, average GPU utilization per annotation region:
@@ -335,24 +407,24 @@ For metrics or GPUs that show anomalies in Phase 3, fetch the raw time series.
 
 ```bash
 # Export time series to file (avoids flooding context with large data)
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID timeseries --interval INTERVAL --metric rocm_utilization_percentage --output $SCRATCH/util_timeseries.json
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID timeseries --metric rocm_utilization_percentage > $SCRATCH/util_timeseries.json
 
 # Filter to a specific node or GPU
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID timeseries --interval INTERVAL --metric rocm_utilization_percentage --node hostname1 --card 0 --output $SCRATCH/node1_card0.json
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID timeseries --metric rocm_utilization_percentage --node hostname1 --card 0 > $SCRATCH/node1_card0.json
 ```
 
 For ad-hoc investigation, use the `query` subcommand with raw PromQL:
 
 ```bash
 # Custom aggregation -- average utilization across all GPUs over time
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID query --interval INTERVAL \
-  --promql 'avg(rocm_utilization_percentage * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$step})))' \
-  --output $SCRATCH/avg_util.json
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID query \
+  --promql 'avg(rocm_utilization_percentage * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$jobstep})))' \
+  > $SCRATCH/avg_util.json
 
 # Max temperature per node over time
-omnistat-inspect --tsdb-url $TSDB_URL job JOBID query --interval INTERVAL \
-  --promql 'max by (instance) (rocm_temperature_celsius * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$step})))' \
-  --output $SCRATCH/max_temp_per_node.json
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID query \
+  --promql 'max by (instance) (rocm_temperature_celsius * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$jobstep})))' \
+  > $SCRATCH/max_temp_per_node.json
 ```
 
 ### Phase 5: Cross-Metric Reasoning
@@ -446,9 +518,9 @@ For each check, document whether the factor is **the same** (ruled out) or **dif
 
 ### Cross-Job Comparison Techniques
 
-When comparing healthy and degraded jobs, apply the drill-down approach (Phase 3) to both jobs and compare at each level. Key techniques for network and other categories:
+When comparing healthy and degraded jobs, apply the variance approach (Phase 3) to both jobs and compare at each grouping. Key techniques for network and other metrics:
 
-**Per-interface comparison:** Run `stats --category network --level interface-id` for both jobs. If all interfaces show proportionally lower throughput in the degraded job, the issue is systemic (topology, congestion). If only specific interfaces are degraded, it's interface-specific. Use the `metrics` subcommand to discover available interfaces and determine which carry application traffic vs management traffic.
+**Per-node comparison:** Compare the `by_node` variance for network metrics across both jobs. If all nodes show proportionally lower throughput in the degraded job, the issue is systemic (topology, congestion). If only specific nodes are degraded, it's localized. Use `timeseries --metric <name> --node <host>` to pull the raw series for any node that stands out, and `db info` to discover available metrics.
 
 **Total data transferred:** Compare cumulative counter deltas (total TX bytes per iteration) rather than just rates. If the same workload transfers the same total data but at lower throughput, the network is delivering the same work more slowly.
 
@@ -481,16 +553,16 @@ Mean power, clock speed, and temperature are all **consequences** of utilization
 
 ### Hardware Counters
 
-If `omnistat_hardware_counter` metrics are present, use the `counters` subcommand to discover and summarize them:
+If `omnistat_hardware_counter` metrics are present, the `stats` subcommand discovers and summarizes them automatically under the `hardware_counters` key:
 
 ```bash
-# Discover which counters are present and compute per-counter statistics
-omnistat-inspect --tsdb-url $TSDB_URL --scratch-dir $SCRATCH job JOBID counters
+# hardware_counters (and derived FLOPS) are part of the stats output
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID stats > $SCRATCH/stats_JOBID.json
 ```
 
-Hardware counters are **cumulative** — values grow monotonically within a session. The delta (last - first) represents total work done during the job. The `counters` subcommand automatically computes these deltas, rates, and per-series statistics for every counter present.
+Hardware counters are **cumulative** — values grow monotonically within a session. The delta (last - first) represents total work done during the job. `stats` automatically computes these deltas, rates, per-series counts, and architecture-specific FLOPS for every counter present.
 
-The set of counters varies by job configuration (e.g., one job may have F32 VALU counters while another has F64). The subcommand discovers which counters are actually present.
+The set of counters varies by job configuration (e.g., one job may have F32 VALU counters while another has F64). The `hardware_counters` block reflects whichever counters are actually present.
 
 Consult the GPU architecture profile (`gpus/`) for platform-specific counter names, FLOPS formulas, and bandwidth interpretation.
 
@@ -566,9 +638,9 @@ The `omnistat-inspect` tool applies this join automatically in all subcommands.
 
 For `stats`, `health`, and `iterations`, the query step is **auto-computed** as `max(sampling_interval, runtime / 90000)` — no `--interval` required. This ensures the finest resolution that is both meaningful (not finer than the data) and within VictoriaMetrics' `search.maxPointsPerTimeseries` limit.
 
-For `timeseries` and `query`, the `--interval` parameter determines the query step:
-- Use the sampling interval (from `job info`) for full-resolution data
-- Use a coarser step (e.g., `--step 60`) for overview queries on long jobs
+For `timeseries` and `query`, reuse the cached discovery snapshot via `--cache-dir` so the step defaults to the discovered sampling interval (full resolution):
+- `query`: pass `--step 60` for a coarser overview on long jobs; omit it for full resolution
+- `timeseries`: no `--step` flag — control resolution via the cached interval or the global `--interval`
 
 ### Instant vs Range Queries
 
@@ -598,7 +670,7 @@ Every `omnistat-inspect` subcommand includes a `query_stats` block in its output
    - Total analysis elapsed time
    - Step resolutions used
 
-When using `--scratch-dir`, a cumulative `query_log.json` is automatically maintained across all invocations. Review it at the end of the analysis session.
+Each invocation emits its own `query_stats` block; sum the `num_queries` and `total_query_time_seconds` across the JSON outputs you saved to `$SCRATCH` to get session totals. Using `--cache-dir` avoids re-running discovery and cached module queries across invocations, so repeated runs add few or no new queries.
 
 ## Reporting Guidelines
 
