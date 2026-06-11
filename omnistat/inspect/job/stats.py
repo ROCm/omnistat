@@ -1,205 +1,245 @@
-"""StatsMixin — compute_stats and supporting gauge/counter computation."""
+"""Stats module: gauges, counters, hardware counters, and variance."""
+
+from __future__ import annotations
+
+from typing import Any
 
 import numpy as np
 
-from .stats_utils import make_group_key, stats_block, summarize_counter_groups, summarize_groups
+from omnistat.inspect import compute, constants
+from omnistat.inspect.job.core import Module
 
 
-class StatsMixin:
-    """Mixin providing compute_stats, _compute_gauge_stats, _compute_counter_stats."""
+class Stats(Module):
+    name = "stats"
+    param_defaults = {"cv_threshold": constants.DEFAULT_CV_THRESHOLD, "verbose": False}
 
-    def compute_stats(self, metric, interval, level="global", category=None, percentiles=None):
-        """Compute statistics at different aggregation levels.
-
-        Uses CATEGORY_CONFIG for data-driven grouping. Automatically detects
-        whether a metric is a counter (delta computation) or gauge (raw value
-        aggregation).
-
-        Args:
-            metric: Metric name to compute stats for.
-            interval: Query step interval in seconds.
-            level: Aggregation level (valid levels depend on category).
-            category: Metric category (auto-detected from metric if None).
-            percentiles: List of percentile values to compute.
-        """
-        if percentiles is None:
-            percentiles = [25, 50, 75, 95, 99]
-
-        # Auto-detect category if not provided
-        if category is None:
-            category = self._detect_category(metric)
-        if category is None or category not in self.CATEGORY_CONFIG:
-            # Fallback to gpu category for unknown metrics
-            category = "gpu"
-
-        config = self.CATEGORY_CONFIG[category]
-        valid_levels = config["levels"]
-
-        if level not in valid_levels:
-            valid = ", ".join(sorted(valid_levels.keys()))
-            return {
-                "error": f"Invalid level '{level}' for category '{category}'. Valid levels: {valid}",
-                "metric": metric,
-                "category": category,
-            }
-
-        group_by = valid_levels[level]
-        is_counter = metric in self.COUNTER_METRICS
-
-        job_filter = f'jobid="{self.jobid}", jobstep=~".*"'
-        join = f"max by (instance) (rmsjob_info{{{job_filter}}})"
-        promql = f"{self._metric_selector(metric)} * on (instance) group_left() ({join})"
-        step = self._auto_step()
-        results = self.query_range(promql, self.start_time, self.end_time, step)
-
-        if not results:
-            return {
-                "metric": metric,
-                "level": level,
-                "category": category,
-                "type": "counter" if is_counter else "gauge",
-                "stats": [] if group_by else None,
-                "step": str(step),
-            }
-
-        if is_counter:
-            return self._compute_counter_stats(
-                metric,
-                results,
-                level,
-                category,
-                group_by,
-                step,
-            )
-        else:
-            return self._compute_gauge_stats(
-                metric,
-                results,
-                level,
-                category,
-                group_by,
-                step,
-                percentiles,
-            )
-
-    def _compute_gauge_stats(self, metric, results, level, category, group_by, interval, percentiles):
-        """Compute gauge-style statistics (pool values, compute distribution)."""
-        if not group_by:
-            # Global aggregation
-            all_vals = []
-            for r in results:
-                vals = [float(v[1]) for v in r.get("values", []) if v[1] != "NaN"]
-                all_vals.extend(vals)
-            stats = stats_block(np.array(all_vals), percentiles) if all_vals else None
-            return {
-                "metric": metric,
-                "level": level,
-                "category": category,
-                "type": "gauge",
-                "step": str(interval),
-                "stats": stats,
-            }
-
-        # Grouped aggregation
-        grouped = {}
-        for r in results:
-            m = r.get("metric", {})
-            key = make_group_key(m, group_by)
-            vals = [float(v[1]) for v in r.get("values", []) if v[1] != "NaN"]
-            grouped.setdefault(key, []).extend(vals)
-
-        stats = []
-        for key in sorted(grouped):
-            s = stats_block(np.array(grouped[key]), percentiles)
-            if s:
-                for label, value in zip(group_by, key):
-                    s[label] = value
-                stats.append(s)
-
-        stats_output = summarize_groups(stats, group_by)
-
+    def build(self) -> dict:
+        gauges, gauge_cvs = self._collect_gauges()
+        counters = self._collect_counters()
+        hw_counters = self._hardware_counters()
+        variance = self._variance(gauge_cvs)
         return {
-            "metric": metric,
-            "level": level,
-            "category": category,
-            "type": "gauge",
-            "step": str(interval),
-            "stats": stats_output,
+            "gauges": gauges,
+            "counters": counters,
+            "hardware_counters": hw_counters,
+            "variance": variance,
         }
 
-    def _compute_counter_stats(self, metric, results, level, category, group_by, interval):
-        """Compute counter-style statistics (per-series delta, then aggregate)."""
-        duration = (self.end_time - self.start_time).total_seconds()
+    # ------------------------------------------------------------------
+    # Gauges + counters
+    # ------------------------------------------------------------------
 
-        if not group_by:
-            # Global aggregation — compute per-series deltas, then aggregate
-            deltas = []
-            for r in results:
-                vals = [float(v[1]) for v in r.get("values", []) if v[1] != "NaN"]
-                if len(vals) >= 2:
-                    deltas.append(vals[-1] - vals[0])
-            if not deltas:
-                return {
-                    "metric": metric,
-                    "level": level,
-                    "category": category,
-                    "type": "counter",
-                    "step": str(interval),
-                    "stats": None,
+    def _collect_gauges(self) -> tuple[list[dict], dict[str, float]]:
+        step = self.ds.auto_step()
+        out: list[dict] = []
+        gauge_cvs: dict[str, float] = {}
+        for row in constants.GAUGE_LIST:
+            results = self._fetch_series(row.name, step)
+            if not results:
+                continue
+            if row.name in constants.COUNTER_METRICS:
+                per_node = compute.per_node_counter_deltas(results)
+                if not per_node:
+                    continue
+                _total, mean, min_value, max_value, cv, percentiles, n = compute.rate_summary(
+                    per_node, min_duration=self._counter_min_duration(), qs=constants.PERCENTILES
+                )
+            else:
+                arr = compute.pool_values(results)
+                mean, min_value, max_value, cv, percentiles, n = compute.gauge_stats(arr, qs=constants.PERCENTILES)
+                if mean is None:
+                    continue
+            gauge_cvs[row.name] = cv
+            out.append(
+                {
+                    "source": row.source,
+                    "label": row.label,
+                    "name": row.name,
+                    "mean": round(mean, 4),
+                    "min": round(min_value, 4),
+                    "max": round(max_value, 4),
+                    "unit": row.unit,
+                    "n": n,
+                    "cv": round(cv, 4),
+                    "percentiles": percentiles,
                 }
-            arr = np.array(deltas)
-            total = round(float(np.sum(arr)), 4)
-            stats = {
-                "total_delta": total,
-                "rate_per_second": round(total / duration, 4) if duration > 0 else 0,
-                "num_series": len(deltas),
-                "per_series_mean_delta": round(float(np.mean(arr)), 4),
-                "per_series_min_delta": round(float(np.min(arr)), 4),
-                "per_series_max_delta": round(float(np.max(arr)), 4),
-                "per_series_stddev_delta": round(float(np.std(arr)), 4),
-            }
-            return {
-                "metric": metric,
-                "level": level,
-                "category": category,
-                "type": "counter",
-                "step": str(interval),
-                "stats": stats,
-            }
+            )
+        return out, gauge_cvs
 
-        # Grouped aggregation — compute per-series deltas, group, then aggregate per group
-        grouped_deltas = {}
-        for r in results:
-            m = r.get("metric", {})
-            key = make_group_key(m, group_by)
-            vals = [float(v[1]) for v in r.get("values", []) if v[1] != "NaN"]
-            if len(vals) >= 2:
-                grouped_deltas.setdefault(key, []).append(vals[-1] - vals[0])
+    def _collect_counters(self) -> list[dict]:
+        step = self.ds.auto_step()
+        out: list[dict] = []
+        for row in constants.COUNTER_LIST:
+            results = self.ds.job_query(row.name, step)
+            deltas = compute.counter_deltas(results)
+            if not deltas:
+                continue
+            out.append(
+                {
+                    "source": row.source,
+                    "label": row.label,
+                    "name": row.name,
+                    "total": round(sum(deltas), 6),
+                    "unit": row.unit,
+                }
+            )
+        return out
 
-        stats = []
-        for key in sorted(grouped_deltas):
-            arr = np.array(grouped_deltas[key])
-            total = round(float(np.sum(arr)), 4)
-            s = {
-                "total_delta": total,
-                "rate_per_second": round(total / duration, 4) if duration > 0 else 0,
-                "num_series": len(arr),
-                "per_series_mean_delta": round(float(np.mean(arr)), 4),
-                "per_series_min_delta": round(float(np.min(arr)), 4),
-                "per_series_max_delta": round(float(np.max(arr)), 4),
-                "per_series_stddev_delta": round(float(np.std(arr)), 4),
-            }
-            for label, value in zip(group_by, key):
-                s[label] = value
-            stats.append(s)
+    # ------------------------------------------------------------------
+    # Hardware counters + FLOPS
+    # ------------------------------------------------------------------
 
-        stats_output = summarize_counter_groups(stats, group_by)
+    def _hardware_counters(self) -> dict | None:
+        ds = self.ds
+        step = ds.coarse_step()
+        duration = ds.job_duration
+        names = self._try_label_values("name", metric="omnistat_hardware_counter")
+        if not names:
+            return None
 
+        rows: list[dict] = []
+        totals: dict[str, float] = {}
+        for name in sorted(names):
+            results = ds.job_query("omnistat_hardware_counter", step, filters={"name": name})
+            if not results:
+                continue
+            deltas = compute.counter_deltas(results)
+            if not deltas:
+                continue
+            total = float(np.sum(deltas))
+            rate = total / duration if duration > 0 else 0.0
+            rows.append(
+                {
+                    "counter": name,
+                    "total": round(total, 6),
+                    "rate": round(rate, 6),
+                    "num_series": len(deltas),
+                }
+            )
+            totals[name] = total
+
+        flops_dicts = compute.flops(totals, duration)
+        flops = [dict(**f) for f in flops_dicts] if flops_dicts else None
+        return {"rows": rows, "flops": flops, "gpu_arch": ds.gpu_arch}
+
+    # ------------------------------------------------------------------
+    # Variance
+    # ------------------------------------------------------------------
+
+    def _variance(self, gauge_cvs: dict[str, float]) -> dict:
+        step = self.ds.auto_step()
+        gpu_raw: dict[str, list[dict]] = {}
+        for name in constants.GPU_VARIANCE_METRICS:
+            if gauge_cvs.get(name, 0.0) <= self.p.cv_threshold:
+                continue
+            gpu_raw[name] = self._fetch_series(name, step)
+        by_id, by_gpu = self._gpu_variance(gpu_raw)
         return {
-            "metric": metric,
-            "level": level,
-            "category": category,
-            "type": "counter",
-            "step": str(interval),
-            "stats": stats_output,
+            "cv_threshold": self.p.cv_threshold,
+            "verbose": self.p.verbose,
+            "by_node": self._per_node_variance(step, gauge_cvs),
+            "by_gpu_id": by_id,
+            "by_gpu": by_gpu,
         }
+
+    @staticmethod
+    def _extreme(key_fields: tuple, k: Any, v: float) -> dict:
+        """Build an extreme entry dict from the key fields, key, and value."""
+        kw: dict[str, Any] = {"value": round(float(v), 4)}
+        if len(key_fields) == 1:
+            kw[key_fields[0]] = str(k)
+        else:
+            for field, part in zip(key_fields, k):
+                kw[field] = str(part)
+        return kw
+
+    def _metric_entry_extremes_of_means(self, name: str, key_fields: tuple, key_to_value: dict[Any, float]) -> dict:
+        """Wrap a ``{key: value}`` dict in the unified variance-entry shape."""
+        items = list(key_to_value.items())
+        items.sort(key=lambda kv: kv[1])
+        min_k, min_v = items[0]
+        max_k, max_v = items[-1]
+        n = len(key_to_value)
+
+        metric = constants.GAUGE_BY_METRIC[name]
+        entry: dict[str, Any] = {
+            "source": metric.source,
+            "label": metric.label,
+            "name": name,
+            "unit": metric.unit,
+            "n": n,
+            "cv": round(compute.cv_of(key_to_value.values()), 4),
+            "min_mean": self._extreme(key_fields, min_k, min_v),
+            "max_mean": self._extreme(key_fields, max_k, max_v),
+        }
+
+        def all_block():
+            if len(key_fields) == 1:
+                return {str(k): round(float(v), 4) for k, v in key_to_value.items()}
+            return [self._extreme(key_fields, k, v) for k, v in key_to_value.items()]
+
+        if n <= constants.INLINE_ALL_THRESHOLD:
+            entry["all"] = all_block()
+        else:
+            entry["percentiles"] = compute.percentiles_of(key_to_value.values(), constants.PERCENTILES)
+            if self.p.verbose:
+                entry["all"] = all_block()
+        return entry
+
+    def _variance_entry(self, name, key_fields, means) -> dict | None:
+        """Gate a {key: mean} dict on between-key CV; wrap it, or None if absent/uniform."""
+        if not means or compute.cv_of(means.values()) <= self.p.cv_threshold:
+            return None
+        return self._metric_entry_extremes_of_means(name, key_fields, means)
+
+    def _counter_min_duration(self) -> float:
+        return float(self.ds.sampling_interval or 0.0)
+
+    def _per_node_variance(self, step: float, gauge_cvs: dict[str, float]) -> list[dict]:
+        out: list[dict] = []
+        for name, cv in gauge_cvs.items():
+            if cv <= self.p.cv_threshold:
+                continue
+            if name not in constants.GAUGE_BY_METRIC:
+                continue
+            if name in constants.COUNTER_METRICS:
+                results = self._fetch_series(name, step)
+                per_node_totals = compute.per_node_counter_deltas(results)
+                min_dur = self._counter_min_duration()
+                means = {n: d / dur for n, (d, dur) in per_node_totals.items() if d > 0 and dur >= min_dur and dur > 0}
+            elif name in constants.DROP_ZERO_SERIES_METRICS:
+                results = self._fetch_series(name, step)
+                means = compute.per_label_means(results, "instance")
+            else:
+                means = dict(self.ds.agg_by_label(name, "instance", step))
+            entry = self._variance_entry(name, ("instance",), means)
+            if entry:
+                out.append(entry)
+        return out
+
+    def _gpu_variance(self, gpu_raw):
+        """Per-(instance,card) temporal means → (by_gpu_id, by_gpu) in one pass."""
+        by_id, by_gpu = [], []
+        for name, results in gpu_raw.items():
+            assert name not in constants.COUNTER_METRICS, (
+                f"GPU_VARIANCE_METRICS contains counter {name!r}; per-card aggregation "
+                "of cumulative counters is meaningless."
+            )
+            means = {}
+            for m, values in self._iter_series(results):
+                means[(m.get("instance", "unknown"), m.get("card", "?"))] = float(np.mean(values))
+            if not means:
+                continue
+            by_card = {}
+            for (_inst, card), v in means.items():
+                by_card.setdefault(card, []).append(v)
+            slot = {card: float(np.mean(by_card[card])) for card in sorted(by_card)}
+
+            gpu_entry = self._variance_entry(name, ("instance", "card"), means)
+            if gpu_entry:
+                by_gpu.append(gpu_entry)
+            id_entry = self._variance_entry(name, ("card",), slot)
+            if id_entry:
+                by_id.append(id_entry)
+        return by_id, by_gpu
