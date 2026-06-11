@@ -1,6 +1,6 @@
 ---
-name: analyze-job
-description: Analyze an HPC job from an Omnistat database using hypothesis-driven exploration, driven by the omnistat-inspect tool.
+name: job-analysis
+description: Analyze an HPC job from an Omnistat database using hypothesis-driven exploration, driven by the omnistat-inspect tool. Use this to diagnose why a job behaved as it did — performance bottlenecks, hardware issues, anomalies, or comparing a degraded job against a healthy baseline. For a plain factual snapshot without investigation, use job-report instead.
 allowedPrompts:
   - tool: Bash
     prompt: run omnistat-inspect commands
@@ -18,13 +18,15 @@ allowedPrompts:
     prompt: run curl commands
 ---
 
-# Analyze Job
+# Job Analysis
 
 Analyze GPU telemetry data collected by Omnistat for HPC/AI workloads. This skill guides you through a top-down, hypothesis-driven analysis of job performance, driven primarily by the `omnistat-inspect` CLI tool.
 
 **Target audience:** HPC engineers, AI/ML researchers, system administrators investigating job performance, GPU health, and resource utilization.
 
 **What the analysis produces:** A structured report identifying performance bottlenecks, hardware issues, resource utilization patterns, and anomalies -- with all findings backed by data.
+
+**When to use this vs `job-report`.** Use **job-analysis** when you need to understand *why* a job behaved as it did — diagnosing bottlenecks, throttling, stragglers, or regressions, or comparing a degraded job against a healthy baseline. It is hypothesis-driven and iterative. If you only need a quick factual snapshot of *what* a job did (stats, energy, health, data quality) without investigation, use **job-report** instead. A common pattern is to run job-report first, then reach for job-analysis when something looks off.
 
 ## Tooling: omnistat-inspect
 
@@ -85,7 +87,7 @@ exactly what you want for full-resolution queries. Notes:
 ## Prerequisites
 
 1. **Data source** — one of:
-   - **VictoriaMetrics running** with the Omnistat database loaded (use the `load-database` skill if needed), OR
+   - **VictoriaMetrics running** with the Omnistat database loaded (use the `open-database` skill if needed), OR
    - **CSV exports** from `omnistat-query --export` (no TSDB required)
 2. **Python virtual environment activated** with omnistat installed (`pip install ".[query]"` from the omnistat repo root) — this provides `omnistat-inspect`. Confirm with `which omnistat-inspect`.
 3. **Job ID(s)** to analyze (discover available jobs with `omnistat-inspect --tsdb-url $TSDB_URL db info` or `omnistat-inspect --csv-dir /path/to/exports db info`)
@@ -139,26 +141,25 @@ Follow this top-down, hypothesis-driven workflow. Each phase builds on the previ
 
 ### Epistemic Discipline
 
-**Do not assume what the workload is.** Unless the user tells you the application name, or annotations/metadata explicitly identify it, treat the workload as unknown. Describe what the telemetry shows (e.g., "GPU utilization is bimodal with sustained 100% phases separated by idle dips") rather than what you think it means (e.g., "this is a training workload doing forward/backward passes"). If you need to speculate, label it clearly as a hypothesis.
+**Do not assume what the workload is.** Unless the user tells you the application name, or annotations/metadata explicitly identify it, treat the workload as unknown. Describe what the telemetry shows (e.g., "the GPUs spend ~40% of wall-clock idle between compute phases, each phase ~90s long") rather than what you think it means (e.g., "this is a training workload doing forward/backward passes"). Note: GPU utilization naturally sits near 0% or near 100%, so simply calling it "bimodal" is not an insight — quantify the idle fraction or phase structure instead. If you need to speculate, label it clearly as a hypothesis.
 
 **Do not assume the workload is homogeneous.** A single HPC job may run different tasks on different nodes or GPUs. Some nodes may run data loading, others may run compute, others may handle communication. VRAM differences across GPUs, utilization variance across nodes, or non-uniform network traffic are signals of heterogeneity, not necessarily problems. Before reporting "imbalance" as a finding, consider whether the workload is intentionally heterogeneous.
 
 **Report what you observe, not what you expect.** If a metric looks unusual, describe the observation and its magnitude. Do not assume it is a problem unless you have evidence of impact (e.g., on runtime, throughput, or health). An observation like "5% of GPUs use 10x more VRAM than the rest" is a fact; "there is a memory imbalance problem" is an interpretation that may be wrong.
 
-### Phase 1: Job Discovery and Characterization
+### Job Discovery and Characterization
 
-Start by understanding what the job is and what resources it used. The fastest baseline is the one-shot report — it characterizes scale, runtime, utilization, variance, and health in a single call.
+**The first step of every analysis is the one-shot report.** It is the factual baseline the rest of the workflow builds on — a single call that returns the job overview, the full `stats` block (gauges, counters, hardware counters, variance), and the `health` block (data-collection coverage + hardware health). Save it and reuse its embedded blocks; the downstream sections below consume this output rather than re-fetching the same data.
 
 ```bash
-# Baseline: one-shot report card (overview, stats, variance, data-collection, health)
-omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID report
-
-# Job metadata/topology on its own (subset of the report card)
-omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID info
+# First step — factual baseline. Embeds overview + stats + health in one JSON.
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID report > $SCRATCH/report_JOBID.json
 
 # List all metrics available in the data source, plus all jobs and time ranges
 omnistat-inspect --tsdb-url $TSDB_URL db info
 ```
+
+The `report` JSON has top-level keys `overview`, `stats`, and `health`. Everything the "Data Collection and Hardware Health Validation" and "Statistical Analysis" sections need is already in this one document — you only issue additional `stats` / `health` / `info` calls to **drill down** (finer grouping), **refresh** (after `--interval` changes), or when you deliberately **skipped** the baseline report. `job info` on its own returns just the overview subset if you ever need it in isolation.
 
 Key information to extract:
 - **Runtime**: How long did the job run?
@@ -176,11 +177,9 @@ The `job info` subcommand reports the discovered sampling interval (auto-detecte
 
 After discovering the job, identify the GPU architecture from the available metrics and load the corresponding architecture profile for GPU-specific domain knowledge (power reporting quirks, thermal limits, memory characteristics, RAS error blocks, hardware counter formulas).
 
-Architecture profiles are located in `skills/analyze-job/gpus/`. Read the matching profile before proceeding to Phase 2.
+Architecture profiles are located in `skills/job-analysis/gpus/`. Read the matching profile before proceeding to data-collection and health validation.
 
-**Detection:** The `job info` output includes `gpu_arch` when detected. You can also query `rocm_version_info` for the job — the `type` label identifies the GPU architecture (e.g., `"Aldebaran/MI200 [Instinct MI250X]"` or `"AMD INSTINCT MI200 (MCM) OAM ..."`). Match on substring:
-- `type` contains `MI250` or `MI200` → **MI250X** (`gpus/mi250x.md`)
-- `type` contains `MI300` → **MI300X** (`gpus/mi300x.md`)
+**Detection:** Use `overview.gpu_type` from the `job info` output and apply the same substring rules as the job-report skill's "GPU Architecture Handling" table (`MI250` or `MI200 (MCM)` → MI250X; `MI300` → MI300X). When `gpu_type` is a list, apply the rule to each element.
 
 The architecture profile contains critical information for correct interpretation of the data (e.g., which GPU cards report power, thermal throttling thresholds, RAS error block meanings).
 
@@ -206,16 +205,16 @@ For `timeseries` and `query`, the default step is the discovered sampling interv
 
 **Critical rule for peak metrics:** If peak FOM, peak utilization, or peak throughput appears degraded, **always re-verify at the finest feasible step** (using `query` with an explicit `--step`) before concluding there is a peak performance difference. Apparent peak degradation is frequently an artifact of temporal averaging — the true peaks may be identical across jobs. Do not claim peak performance differs without checking at fine resolution.
 
-### Phase 2: Data Collection and Hardware Health Validation
+### Data Collection and Hardware Health Validation
 
-Before analyzing performance, verify that data collection was complete and reliable, and check for hardware issues.
+Before analyzing performance, verify that data collection was complete and reliable, and check for hardware issues. **This data is already in the baseline report's `health` block — read it from there; do not re-fetch.** Only run `health` standalone if you skipped the baseline report or need to refresh after changing `--interval`:
 
 ```bash
-# Run health checks: data-collection coverage AND hardware health in one call
+# Standalone health (only if you skipped the baseline report or are refreshing)
 omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID health
 ```
 
-The `health` subcommand covers both data-collection coverage (completeness, timing stagger, gaps) and hardware health (RAS errors, thermals, power).
+The `health` block covers both data-collection coverage (completeness, timing stagger, gaps) and hardware health (RAS errors, thermals, power).
 
 #### Data-collection coverage (part of `health`)
 
@@ -237,26 +236,27 @@ Review the health report for:
 
 If critical issues are found, note them -- they may explain performance anomalies found later.
 
-### Phase 3: Statistical Analysis
+### Statistical Analysis
 
 Follow these steps in order. **Do not skip steps or move to iteration analysis until all steps are complete.**
 
-#### Step 1: Collect stats
+#### Step 1: Read the baseline stats
 
-Run `stats` for each job. A single call returns global gauge/counter summaries, hardware counters, and per-node / per-GPU variance — no `--category` or `--level` flags are needed.
+The job's `stats` are **already in the baseline report** (`report_JOBID.json` → `stats`): global gauge/counter summaries, hardware counters, and per-node / per-GPU variance, all in one block — no `--category` or `--level` flags exist or are needed. Read them from the baseline; only run `stats` standalone if you skipped the report or are refreshing after an `--interval` change:
 
 ```bash
+# Standalone stats (only if you skipped the baseline report or are refreshing)
 omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID stats > $SCRATCH/stats_JOBID.json
 ```
 
-The output has top-level keys `gauges`, `counters`, `hardware_counters`, and `variance`. Counter metrics (cumulative values like bytes transferred, energy consumed) are automatically detected and produce delta-based totals. Gauge metrics produce mean/min/max/cv/percentiles. The `cv` (coefficient of variation) field measures relative dispersion — high CV indicates non-uniform distribution across GPUs or nodes.
+The `stats` block has keys `gauges`, `counters`, `hardware_counters`, and `variance`. Counter metrics (cumulative values like bytes transferred, energy consumed) are automatically detected and produce delta-based totals. Gauge metrics produce mean/min/max/cv/percentiles. The `cv` (coefficient of variation) field measures relative dispersion — high CV indicates non-uniform distribution across GPUs or nodes.
 
 #### Step 2: Identify anomalous metrics
 
 Review the gauge and counter stats. For each metric, check for:
 - High `cv` (uneven distribution across nodes/GPUs)
 - Unexpected values (rates, totals, or distributions that differ from expectation)
-- Bimodal distributions or large gaps between percentiles
+- Large gaps between percentiles (for GPU utilization specifically, a near-0/near-100 split is the expected norm — not a finding; quantify idle time or phase structure rather than labeling it "bimodal")
 
 **In comparative analysis:** compare each metric between the healthy and degraded jobs. Identify which show significant differences (>10% in rates or totals, >5 percentage points in gauge means).
 
@@ -303,7 +303,7 @@ The `variance` block exposes three groupings, from coarse to fine:
 
 #### Gate check before proceeding
 
-Before moving to iteration analysis or Phase 4, verify:
+Before moving to iteration analysis or time-series analysis, verify:
 - [ ] For every metric that shows a significant anomaly or cross-job difference in the global summary, have you examined the `variance` groupings (`by_node`, `by_gpu_id`, `by_gpu`) to determine whether the issue is systemic or localized?
 - [ ] If a metric is uniform in the global summary but you expect variance, have you lowered `--cv-threshold` to confirm it is genuinely uniform rather than below the default gate?
 - [ ] If GPU utilization differs, have you checked `by_node` to see whether all nodes are equally affected or if there are outliers?
@@ -401,9 +401,9 @@ This pattern works with any per-node or per-GPU metric. Replace `avg by (instanc
 - Is FOM concentrated in specific regions?
 - Do idle periods between annotations explain overall low utilization?
 
-### Phase 4: Time Series Analysis
+### Time Series Analysis
 
-For metrics or GPUs that show anomalies in Phase 3, fetch the raw time series.
+For metrics or GPUs that show anomalies in the statistical analysis, fetch the raw time series.
 
 ```bash
 # Export time series to file (avoids flooding context with large data)
@@ -427,7 +427,7 @@ omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID query
   > $SCRATCH/max_temp_per_node.json
 ```
 
-### Phase 5: Cross-Metric Reasoning
+### Cross-Metric Reasoning
 
 Move beyond simple correlation to form and test hypotheses about job behavior.
 
@@ -464,6 +464,8 @@ Indicators of a consequence chain:
 - The magnitudes are proportional (e.g., 10% less utilization → ~10% less power)
 - One metric logically depends on another (GPUs clock down when idle → lower power is a physical consequence, not an independent problem)
 
+Many GPU metrics are physically linked this way: when GPUs idle (waiting for MPI, I/O, or data), utilization drops → GPU clocks reduce (DVFS) → power drops → temperature drops. Mean power, clock speed, and temperature are all **consequences** of utilization, not independent indicators. **When comparing jobs**, do not count lower mean power, lower mean clocks, and lower mean temperature as separate problems if utilization is also lower — they are all effects of the same cause (more idle time).
+
 #### Correlation Patterns
 
 Use these patterns as starting hypotheses, but always verify the causal direction:
@@ -492,7 +494,7 @@ When investigating performance differences between jobs (e.g., healthy vs degrad
 ### Establishing a Baseline
 
 1. Identify one or more **healthy reference jobs** running the same workload on the same system
-2. Analyze the reference job first (Phases 1-5) to understand normal behavior
+2. Analyze the reference job first (all steps above) to understand normal behavior
 3. Use the reference job's statistics as the baseline for comparison
 
 **Critical: Compare at the finest available resolution.** Coarse-step comparisons can be misleading — a job that appears 23% degraded at 60s resolution may have identical peak performance at 5s resolution, with the difference being entirely in iteration duration.
@@ -518,7 +520,7 @@ For each check, document whether the factor is **the same** (ruled out) or **dif
 
 ### Cross-Job Comparison Techniques
 
-When comparing healthy and degraded jobs, apply the variance approach (Phase 3) to both jobs and compare at each grouping. Key techniques for network and other metrics:
+When comparing healthy and degraded jobs, apply the variance approach (statistical analysis) to both jobs and compare at each grouping. Key techniques for network and other metrics:
 
 **Per-node comparison:** Compare the `by_node` variance for network metrics across both jobs. If all nodes show proportionally lower throughput in the degraded job, the issue is systemic (topology, congestion). If only specific nodes are degraded, it's localized. Use `timeseries --metric <name> --node <host>` to pull the raw series for any node that stands out, and `db info` to discover available metrics.
 
@@ -534,6 +536,8 @@ GPU-specific details (power reporting quirks, thermal limits, memory characteris
 
 ### RAS Error Interpretation
 
+> **Keep in sync:** the general thresholds below (uncorrectable > 0 → critical; correctable Δ > 1000 → warning) are duplicated in the job-report skill's "Deriving health severity" table. Update both together.
+
 RAS (Reliability, Availability, Serviceability) error counters are **cumulative** -- they increase monotonically during GPU operation. To determine errors during a job, compare the start and end values (delta).
 
 **General thresholds:**
@@ -542,14 +546,6 @@ RAS (Reliability, Availability, Serviceability) error counters are **cumulative*
 - **Correctable errors < 1000 (delta)**: Normal. Small numbers of correctable errors are routine.
 
 Consult the GPU architecture profile for platform-specific error block names and their meanings.
-
-### Consequence Chains in GPU Metrics
-
-Many GPU metrics are physically linked. When GPUs are idle (waiting for MPI, I/O, or data):
-
-- Utilization drops → GPU clocks reduce (DVFS) → power consumption drops → temperature drops
-
-Mean power, clock speed, and temperature are all **consequences** of utilization, not independent indicators. When comparing jobs, do not count lower mean power, lower mean clocks, and lower mean temperature as separate problems if utilization is also lower — they are all effects of the same cause (more idle time).
 
 ### Hardware Counters
 
@@ -664,11 +660,13 @@ Every `omnistat-inspect` subcommand includes a `query_stats` block in its output
 ### How to Use Tracking Data
 
 1. **Record** the `query_stats` from each subcommand invocation during the analysis
-2. **At the end of analysis**, summarize:
+2. **At the end of analysis**, summarize in the single consolidated Analysis Metadata table:
+   - Database and report-generated date (merged in from the former Report Metadata table)
+   - Number of turns (agentic tool-executing turns taken during the analysis)
    - Total number of queries across all subcommands
    - Total query time
    - Total analysis elapsed time
-   - Step resolutions used
+   - Step resolutions used and the sampling interval
 
 Each invocation emits its own `query_stats` block; sum the `num_queries` and `total_query_time_seconds` across the JSON outputs you saved to `$SCRATCH` to get session totals. Using `--cache-dir` avoids re-running discovery and cached module queries across invocations, so repeated runs add few or no new queries.
 
@@ -676,13 +674,24 @@ Each invocation emits its own `query_stats` block; sum the `num_queries` and `to
 
 When presenting analysis results:
 
-1. **Lead with findings** -- start with what's unusual or noteworthy, not with raw numbers
+1. **Lead with findings** -- start with what's unusual or noteworthy, not with raw numbers. This is satisfied by the short Findings Summary at the top of the document; the full factual report card follows it, then the detailed analysis
 2. **Be concise** -- summarize statistics, don't dump tables of numbers
 3. **Quantify claims** -- always cite the metric, value, and context (e.g., "GPU utilization averaged 23% across all 64 GPUs, with node abc123 at 8% mean (p5=2%, p95=15%)")
 4. **Flag severity** -- use the health check severity levels (critical/warning/info/ok)
 5. **Separate observations from interpretations** -- "VRAM usage varies from 5% to 95% across GPUs" is an observation; "there is a memory imbalance problem" is an interpretation. Present observations first; interpretations should be labeled as hypotheses unless confirmed by additional evidence
 6. **Do not name the workload unless you know it** -- if the user hasn't told you what application is running, do not guess. Describe the behavior patterns you observe without attributing them to a specific application or algorithm
 7. **Omit inconclusive analysis** -- if iteration detection produces confusing or inconsistent results, omit it from the report rather than presenting misleading data. Note that iteration analysis was attempted and was inconclusive, and explain why
-8. **Include query resolution and resolution gap** -- always state the step/resolution used for queries in the job summary (e.g., "Query step: 15s, Sampling interval: 0.01s"). When the query step is much coarser than the sampling interval, explicitly note the resolution gap and which findings may be affected (especially peaks and high-percentile values)
-9. **Include tracking summary** -- end the report with total queries executed, total query time, and total analysis time
+8. **Include query resolution and resolution gap** -- always state the step/resolution used for queries in the Detailed Findings and Analysis section (e.g., "Query step: 15s, Sampling interval: 0.01s"). When the query step is much coarser than the sampling interval, explicitly note the resolution gap and which findings may be affected (especially peaks and high-percentile values)
+9. **Include a consolidated Analysis Metadata table** -- end the report with a single `Field | Value` table (titled **Analysis Metadata**, paralleling job-report's **Report Metadata**) that merges the metadata fields (Database, Report generated) with the tracking stats (number of turns, total queries, total query time, subcommands used, query resolution, sampling interval). Do not also render a separate metadata table inside the card -- there should be exactly one such table in the document
 10. **Save to scratch dir** -- write the final report to the scratch directory for reference
+
+### Document Structure (self-contained)
+
+The analysis is a **single self-contained document** so a reader needs nothing else. Order the sections as follows:
+
+1. **Findings Summary.** A short executive summary at the very top — lead with what is unusual or noteworthy (guideline 1). Render it as a single uniform bullet list of **at most 5 items**, each a short, scannable sentence (one observation per bullet; avoid long multi-clause sentences). **Do not** add a separate "Health status: OK" lead line above the list; instead fold health in as the **first bullet** (e.g. "**Health is clean** — no RAS errors, no thermal throttling, complete data collection"). When the job has health issues, that first bullet states them and is usually the most important finding. Keep it brief — full detail lives in the Detailed Findings and Analysis section below. This is what preserves "lead with findings" now that the factual card sits above the deep analysis.
+2. **Report Card.** Render the full factual report card **exactly as the job-report skill would**, from the baseline `report_JOBID.json` you already collected (do **not** re-query). Use job-report's fixed sections verbatim: Info; Metrics Stats (the combined `Source | Metric | Mean | Max` gauge table, counter totals, hardware counters, plus job-report's optional plain-language *Distribution notes* bullets); Variance (its own section); Data Collection Quality and Hardware Health. **Do not render a separate "Report Metadata" table inside the card** — its fields (Database, Report generated) are merged into the single consolidated Analysis Metadata table at the very end (section 4) to avoid two near-duplicate metadata tables. **Keep this section strictly factual and self-contained — it must read like a stand-alone job-report report**, with **no interpretation, hypotheses, or cross-metric reasoning here** (all job-analysis interpretation belongs in Detailed Findings below, never folded into the card). For the rendering mechanics, follow the correspondingly-named sections of the **job-report** skill rather than reproducing them: **Unit Selection** (display-unit conversions), the gauge **Distribution notes** triggers, **Variance** table shapes (transposed `Min mean | Typical | Max mean`, small-n vs large-n, the Notable nodes/GPUs outlier rule), and **Deriving health severity**. If the job-report skill is not already loaded, read its `SKILL.md` for these rules before rendering. This is the factual reference, presented up front (not an appendix).
+3. **Detailed Findings and Analysis.** The heart of the job-analysis value-add — observations, hypotheses (clearly labeled), cross-metric reasoning, comparative analysis, and conclusions. This is where any interpretation that the report card deliberately omits belongs: dispersion (CV), distribution shape, per-node/per-GPU outliers, and what they imply. Include the query resolution / resolution-gap note here (guideline 8): state the step/resolution used and, when the query step is much coarser than the sampling interval, which findings may be affected.
+4. **Analysis Metadata** at the very end (guideline 9). This is the **single consolidated metadata + tracking table** for the whole document — it absorbs the report-card metadata fields (Database, Report generated) so there is exactly one such table, not two. (The name parallels job-report's **Report Metadata**: each skill titles the table after its output — *Report* Metadata for the factual card, *Analysis* Metadata for the analysis.) Render it as one `Field | Value` table containing: Database; Report generated; Number of turns; Total queries; Total query time; Subcommands used; Query resolution; Sampling interval.
+
+This is report-first: a brief Findings Summary on top for quick orientation, then the full factual report card, then the deep interpretive analysis below the card, with the consolidated Analysis Metadata table last. It preserves the factual-vs-interpretive separation — the report card is the as-is facts, the Detailed Findings and Analysis section is the analysis.

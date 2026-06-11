@@ -159,6 +159,11 @@ def rate_summary(
 # ---------------------------------------------------------------------------
 
 
+def collapse(values: set[str]) -> list[str] | None:
+    """None if empty, otherwise a sorted list (even for a single value)."""
+    return sorted(values) if values else None
+
+
 def human_duration(seconds: float) -> str:
     """Format seconds as ``"Xh Ym Zs"`` / ``"Ym Zs"`` / ``"Zs"``."""
     secs = int(round(seconds))

@@ -121,7 +121,7 @@ class Stats(Module):
 
         flops_dicts = compute.flops(totals, duration)
         flops = [dict(**f) for f in flops_dicts] if flops_dicts else None
-        return {"rows": rows, "flops": flops, "gpu_arch": ds.gpu_arch}
+        return {"rows": rows, "flops": flops}
 
     # ------------------------------------------------------------------
     # Variance

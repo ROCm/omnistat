@@ -78,10 +78,9 @@ class DataSource(ABC):
     end_time: datetime | None
     sampling_interval: float | None
     hosts: list[str]
-    gpu_arch: str | None
-    gpu_type: str | None
-    vbios_version: str | None
-    driver_version: str | None
+    gpu_types: set[str]
+    vbios_versions: set[str]
+    driver_versions: set[str]
     omnistat_version: str | None
     user: str | None
     partition: str | None
@@ -95,10 +94,9 @@ class DataSource(ABC):
         self.end_time = None
         self.sampling_interval = sampling_interval
         self.hosts = []
-        self.gpu_arch = None
-        self.gpu_type = None
-        self.vbios_version = None
-        self.driver_version = None
+        self.gpu_types: set[str] = set()
+        self.vbios_versions: set[str] = set()
+        self.driver_versions: set[str] = set()
         self.omnistat_version = None
         self.user = None
         self.partition = None
