@@ -129,6 +129,25 @@ def per_node_counter_deltas(results: list[dict], label: str = "instance") -> dic
     return {k: (deltas[k], max(0.0, last_ts[k] - first_ts[k])) for k in deltas}
 
 
+def per_key_counter_deltas(results: list[dict], labels: tuple[str, ...]) -> dict[tuple, float]:
+    """Per-key ``last - first`` delta from monotonic counters, summed per key.
+
+    ``labels`` names the metric labels that form each key tuple (e.g.
+    ``("instance", "card", "kernel")``). Series sharing the same key tuple have
+    their individual ``last - first`` deltas summed. Series with fewer than two
+    numeric samples are skipped. Generalizes :func:`per_node_counter_deltas` to
+    multi-label keys, returning deltas only (no observed-duration component).
+    """
+    deltas: dict[tuple, float] = {}
+    for r in results:
+        metric = r.get("metric", {})
+        key = tuple(str(metric.get(label, "unknown")) for label in labels)
+        values = extract_values(r)
+        if len(values) >= 2:
+            deltas[key] = deltas.get(key, 0.0) + (values[-1] - values[0])
+    return deltas
+
+
 def rate_summary(
     per_node_totals: dict[str, tuple[float, float]],
     min_duration: float = 0.0,

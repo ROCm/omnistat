@@ -63,7 +63,7 @@ Useful flags:
 | `--interval SECONDS` | `job` group | Override discovered sampling interval. |
 | `--refresh` | `job` group | Force fresh discovery, ignoring any cached snapshot. |
 | `--cv-threshold 0.05` | `report` subcommand | CV value above which a variance drill-down is reported (default 0.05). |
-| `--verbose` | `report` subcommand | Include full per-node / per-GPU arrays under `stats.variance.by_node[*].all` and `stats.variance.by_gpu[*].all`. |
+| `--verbose` | `report` subcommand | Include full per-node / per-GPU arrays under `stats.variance.by_node[*].all` and `stats.variance.by_gpu[*].all`, and expand `stats.kernels.top` from the top 10 to **all** `num_kernels` kernels. |
 
 That single invocation produces everything the report card needs.
 
@@ -116,6 +116,33 @@ Each entry: `{source, label, name, total, unit}`. Same base-unit convention as g
 
 ### `stats.hardware_counters`
 `null` or `{rows: [{counter, total, rate, num_series}, ...], flops: [{precision, kind, total_flops, rate_flops_per_s}, ...] | null}`.
+
+### `stats.kernels`
+`null` when kernel tracing was off / no kernel data exists (the report omits the Top kernels table and the folded kernel-dispatch-duration variance rows). Otherwise:
+
+```jsonc
+{
+  "num_kernels": <int>,            // distinct kernels seen across the job
+  "total_dispatches": <int>,       // summed over all kernels/GPUs
+  "total_duration_ns": <float>,    // summed GPU time over all kernels (ns)
+  "dropped_dispatches": <int>,     // node-level dropped count (0 if none)
+  "top": [                         // top TOP_KERNELS_LIMIT (10) by default, or all num_kernels kernels under --verbose; ranked by total_duration_ns desc
+    { "kernel": "<full mangled name>", "total_duration_ns": <float>,
+      "dispatches": <int>, "mean_duration_ns": <float> }
+  ],
+  "variance": {
+    "cv_threshold": <float>,
+    "metric": "mean_dispatch_duration_ns",   // the compared quantity = Δduration_ns / Δdispatch_count
+    "by_node":   [ ... ],   // key fields: {instance}
+    "by_gpu_id": [ ... ],   // key fields: {card}
+    "by_gpu":    [ ... ]    // key fields: {instance, card}
+  }
+}
+```
+
+`kernel` names are long mangled C++ symbols (600+ bytes) — keep full names in JSON, **truncate only at render time**. `total_duration_ns` and `mean_duration_ns` are native nanoseconds (the renderer converts). A kernel's share of total GPU time is `total_duration_ns / stats.kernels.total_duration_ns` (compute it at render time — there is no stored percentage field).
+
+The three **spatial** variance lists (`by_node`/`by_gpu_id`/`by_gpu`) carry exactly the same outer shape as `stats.variance.by_*` entries (`source`/`label`/`name`/`unit`/`n`/`cv`/`min_mean`/`max_mean`/`all`|`percentiles`) **plus a `kernel` field** holding the full kernel name; `source` is `"GPU"`, `label` is `"Mean dispatch duration"`, `unit` is `"ns"`. The compared quantity is each kernel's **mean dispatch duration** (ns/dispatch) — statistically the same kind of per-key temporal mean as a gauge entry, so these fold directly into the matching gauge variance subsection. All three variance lists are `[]` when nothing crossed `cv_threshold`. Only the **top kernels** participate in variance (under `--verbose`, "top kernels" is the full kernel set, so variance is computed for every kernel).
 
 ### `stats.variance`
 Nested under `stats` (not a top-level key).
@@ -182,8 +209,8 @@ Read `$SCRATCH/report.json` once and produce a single markdown report at `$SCRAT
 ### Sections (in order)
 
 1. **Info** — from `overview`
-2. **Metrics Stats** — combined gauge table → counter totals → hardware counters (from `stats`)
-3. **Variance** — node-level → GPU-ID-level → GPU-level subsections (from `stats.variance`)
+2. **Metrics Stats** — combined gauge table → counter totals → hardware counters → top kernels (from `stats`; top kernels only when `stats.kernels` is non-null). Hardware counters and top kernels are rendered as peer tables within this section (no `####` subsection headings).
+3. **Variance** — node-level → GPU-ID-level → GPU-level subsections, each combining gauge variance with the matching axis of kernel mean-dispatch-duration variance (from `stats.variance` and `stats.kernels.variance`)
 4. **Data Collection Quality and Hardware Health** — `health.data_collection` table + derived `health.health.indicators` findings (single combined section)
 5. **Report Metadata** — from the envelope `data_source` and `query_stats`
 
@@ -215,9 +242,26 @@ Numbers in bullets come from `mean`, `min`, `max`, or are described informally a
 
 xGMI read/write appears as additional rows in the combined gauge table (rates) and counter totals table (totals) when present — no separate section.
 
+**Top kernels** (if `stats.kernels` is non-null) — rendered as a peer table within Metrics Stats, at the **same level as the hardware counters table** (a bold lead-in, not a `####` subsection heading). Omit entirely when `stats.kernels` is null.
+
+Lead with one summary line from the top-level fields: distinct kernels (`num_kernels`), total dispatches (`total_dispatches`), and — **only when `dropped_dispatches > 0`** — call out the dropped count. Then a table, one row per entry in `stats.kernels.top`:
+
+| Kernel | Total time | Dispatches | Mean | % time |
+|--------|-----------:|-----------:|-----:|-------:|
+
+- **Kernel** — truncate the full `kernel` name to ~60 chars with a trailing ellipsis; keep it inline-code formatted.
+- **Total time** — convert `total_duration_ns` to s / ms (pick a readable unit per the Unit Selection philosophy: ns → µs ÷ 1e3 → ms ÷ 1e6 → s ÷ 1e9).
+- **Dispatches** — `dispatches`.
+- **Mean** — convert `mean_duration_ns` to µs / ms.
+- **% time** — `total_duration_ns / stats.kernels.total_duration_ns × 100`, one decimal.
+
+Render **one row per entry in `stats.kernels.top`**. By default that is the top 10 by total GPU time; under `--verbose` the array holds **all `num_kernels` kernels**, so the verbose report lists every kernel (still ranked by total time descending).
+
+Stay factual — do not label any kernel "slow", "hot", or a "straggler".
+
 ### Variance
 
-A dedicated top-level section. Three fixed subsections; rendering rules below apply uniformly per section, gated only by `n`:
+A dedicated top-level section with three fixed subsections — Node-level, GPU-ID, GPU-level. Each subsection **combines gauge variance** (`stats.variance.by_*`) **with the matching axis of kernel mean-dispatch-duration variance** (`stats.kernels.variance.by_*`); there is no standalone "Kernel variance" subsection. Rendering rules below apply uniformly per section, gated only by `n`:
 
 - **Small section (`n ≤ 16`, entry carries `all`)** — render every key in a table. Today's `by_gpu_id` pattern.
 - **Large section (`n > 16`, entry carries `percentiles`)** — render a table **transposed so each metric is a row**, with columns `Min mean | Typical | Max mean` (`min_mean.value`, the entry's `p50`, `max_mean.value`, with units, no other annotations). The outer percentiles (`p5`, `p25`, `p75`, `p95`), `cv`, and `n` are available in the JSON and feed the optional annotations below; they do not appear in the table.
@@ -226,9 +270,12 @@ A small section emerges naturally in `by_gpu_id` (n ≤ 8 on MI250X), and also i
 
 **Do not write an intro paragraph for the Variance section.** Go straight from the `## Variance` heading to the first subsection heading. The column names (`Min mean`, `Typical`, `Max mean`) and the subsection headers (`Node-level variance (3 of 14 gauges varied)`) carry the necessary context; an explanatory paragraph that defines them is redundant for the intended reader.
 
+**Folded kernel-variance table (shared rule for every subsection).** When the kernel-variance list for a subsection's axis is non-empty (`stats.kernels.variance.by_node` for Node-level, `by_gpu_id` for GPU-ID, `by_gpu` for GPU-level), append a kernel table **after** that subsection's gauge content, under a `**Kernel mean dispatch duration**` bold lead-in (no extra heading). The compared quantity is each kernel's mean dispatch duration (ns/dispatch). Render it **transposed** — one row per kernel, columns `Min mean | Typical | Max mean` (`min_mean.value`; `p50` for large-n or the median of `all` for small-n; `max_mean.value`). Convert ns → µs/ms per Unit Selection, truncate kernel names (~60 chars + ellipsis), and add no `cv`/`n`/spread columns. Factual tone only — never call a kernel slow or a straggler.
+
 #### Node-level variance
-If `stats.variance.by_node` is empty (`[]`), write: **"All nodes behaved uniformly."**
-Otherwise, group entries by their `source` field (e.g. `GPU`, `Vendor`, `Host`, `Network`).
+If `stats.variance.by_node` **and** `stats.kernels.variance.by_node` are both empty (`[]`), write: **"All nodes behaved uniformly."** Otherwise render whichever parts have signal: the gauge table(s) below when `stats.variance.by_node` is non-empty, then the folded `**Kernel mean dispatch duration**` table (shared rule above) when `stats.kernels.variance.by_node` is non-empty.
+
+For the gauge content, group entries by their `source` field (e.g. `GPU`, `Vendor`, `Host`, `Network`).
 
 For the large-n case (most jobs), render one table per source group, **transposed** so each metric is a row and the columns are pure numeric:
 
@@ -242,14 +289,16 @@ All three value columns are pure numbers in the row's display unit (no parenthet
 For the small-n case (`n ≤ 16`), keep the existing per-key table (one row per key, one column per entry) — that's the GPU-ID pattern below. No transposition needed because there's no key-vs-key cross-comparison to lose.
 
 #### GPU-ID variance
-If `stats.variance.by_gpu_id` is empty (`[]`), write: **"All card slots behaved uniformly."**
-Otherwise (always small-n on current hardware), render a single per-card table — one row per card present in any entry's `all`, one column per entry (column header = `entry.label`). Each cell shows the slot's mean (the value from `all[card]`). Slots absent from an entry's `all` (e.g. MI250X odd cards filtered out of Power) render as a dash. Pick display units per the Unit Selection rules.
+If `stats.variance.by_gpu_id` **and** `stats.kernels.variance.by_gpu_id` are both empty (`[]`), write: **"All card slots behaved uniformly."** Otherwise render the gauge per-card table below when `stats.variance.by_gpu_id` is non-empty, then the folded `**Kernel mean dispatch duration**` table when `stats.kernels.variance.by_gpu_id` is non-empty.
+
+For the gauge content (always small-n on current hardware), render a single per-card table — one row per card present in any entry's `all`, one column per entry (column header = `entry.label`). Each cell shows the slot's mean (the value from `all[card]`). Slots absent from an entry's `all` (e.g. MI250X odd cards filtered out of Power) render as a dash. Pick display units per the Unit Selection rules.
 
 Do not write an intro paragraph above the table — the section header and table column carry the metric name, and the table itself shows the per-slot values. After the table, write at most one short line of context that adds something the table cannot show, but only when it is backed by the loaded architecture profile (e.g. a note that MI250X odd cards are filtered out of Power per the profile's power-reporting quirk). Do not assert causal mechanisms that the profile does not document. Skip the line if there's nothing architecture-specific and documented to say.
 
 #### GPU variance
-If `stats.variance.by_gpu` is empty (`[]`), write: **"All GPUs behaved uniformly."**
-Otherwise, group entries by `source`. Large-n (typical): one table per source group, **transposed so each metric is a row**, with columns `Min mean | Typical | Max mean` (`min_mean.value`, `p50`, `max_mean.value`) — same shape as Node-level, no `cv`/`n`/spread row. Small-n (`n ≤ 16`, rare): full per-GPU table from `all`.
+If `stats.variance.by_gpu` **and** `stats.kernels.variance.by_gpu` are both empty (`[]`), write: **"All GPUs behaved uniformly."** Otherwise render the gauge table(s) below when `stats.variance.by_gpu` is non-empty, then the folded `**Kernel mean dispatch duration**` table when `stats.kernels.variance.by_gpu` is non-empty.
+
+For the gauge content, group entries by `source`. Large-n (typical): one table per source group, **transposed so each metric is a row**, with columns `Min mean | Typical | Max mean` (`min_mean.value`, `p50`, `max_mean.value`) — same shape as Node-level, no `cv`/`n`/spread row. Small-n (`n ≤ 16`, rare): full per-GPU table from `all`.
 
 #### Notable nodes / GPUs (consolidated outlier callout)
 
@@ -358,6 +407,8 @@ In `--verbose` mode every entry carries `all` in addition to whatever it would c
 - `by_node`: append a full per-node table per source group.
 - `by_gpu`: append a full per-GPU table per metric.
 - `by_gpu_id`: no change (already shows `all` in default mode).
+
+Verbose mode also expands `stats.kernels.top` from the top 10 to **all `num_kernels` kernels**. The Top kernels table therefore lists every kernel (still ranked by total GPU time) in a verbose report, instead of just the top 10.
 
 ## Tone and Style Rules
 
