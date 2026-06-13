@@ -148,6 +148,109 @@ def per_key_counter_deltas(results: list[dict], labels: tuple[str, ...]) -> dict
     return deltas
 
 
+def despike(samples: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    """Remove single-/double-sample downward spikes that recover to baseline.
+
+    ``samples`` is a list of ``(ts, value)`` pairs with NaN already dropped.
+    Targets the ROCm spurious-zero glitch where a counter momentarily drops and
+    then recovers to (at least) its prior value — e.g. ``100, 0, 100`` or the
+    double-zero ``100, 0, 0, 100``. Such dips are sensor artifacts, not genuine
+    counter resets, and must not be counted by :func:`reset_aware_delta`.
+
+    Rules, scanning left to right against the last *kept* value ``prev``:
+
+    - drop sample ``i`` when ``v[i] < prev`` and ``v[i+1] >= prev`` (the
+      ``100, 0, 100`` glitch);
+    - drop samples ``i`` and ``i+1`` when both are ``< prev`` and ``v[i+2] >=
+      prev`` (the ``100, 0, 0, 100`` double-zero glitch);
+    - drop a lone trailing ``0`` after a positive run (no recovery follows);
+    - leave leading zeros alone (legitimate pre-accumulation baseline).
+    """
+    n = len(samples)
+    if n < 2:
+        return list(samples)
+    out: list[tuple[float, float]] = []
+    i = 0
+    while i < n:
+        ts, v = samples[i]
+        if out:
+            prev = out[-1][1]
+            if v < prev:
+                # Single-sample glitch: dip recovers on the very next sample.
+                if i + 1 < n and samples[i + 1][1] >= prev:
+                    i += 1
+                    continue
+                # Double-sample glitch: two dips then recovery.
+                if i + 2 < n and samples[i + 1][1] < prev and samples[i + 2][1] >= prev:
+                    i += 2
+                    continue
+                # Lone trailing zero after a positive run.
+                if i == n - 1 and v == 0.0 and prev > 0.0:
+                    i += 1
+                    continue
+        out.append((ts, v))
+        i += 1
+    return out
+
+
+def reset_aware_delta(values: list[float]) -> tuple[float, bool]:
+    """``(delta, monotonic)`` over consecutive pairs with Prometheus reset semantics.
+
+    ``delta = Σ(b - a if b >= a else b)`` over consecutive ``(a, b)`` pairs —
+    the same accumulation VictoriaMetrics/Prometheus ``increase()`` uses to span
+    counter resets (a drop is read as "reset to 0, then climbed to ``b``").
+    ``monotonic`` is ``False`` when any ``b < a`` step survived (a sustained drop
+    = genuine restart / counter multiplexing), ``True`` otherwise. Despike the
+    series first so spurious recovering zeros do not flip the flag.
+    """
+    delta = 0.0
+    monotonic = True
+    for a, b in zip(values, values[1:]):
+        if b >= a:
+            delta += b - a
+        else:
+            delta += b
+            monotonic = False
+    return delta, monotonic
+
+
+def per_key_increase(
+    results: list[dict], labels: tuple[str, ...]
+) -> dict[tuple, tuple[float, float, bool]]:
+    """Per-key ``(delta, observed_span_seconds, monotonic)`` from counter series.
+
+    For each series: drop NaN, :func:`despike` the spurious-zero glitch, then sum
+    via :func:`reset_aware_delta` (so genuine restarts/multiplexing are summed
+    across the break). Series sharing the same key tuple (from ``labels``) have
+    their deltas summed. ``observed_span_seconds`` is ``max(last_ts) -
+    min(first_ts)`` across the key's series — the span actually covered by its
+    samples, the correct denominator for the per-key *active* rate (the full job
+    duration would under-rate keys whose reporting window was shorter than the
+    job). ``monotonic`` is the AND of the per-series flags for the key. Series
+    with fewer than two numeric samples are skipped.
+    """
+    deltas: dict[tuple, float] = {}
+    first_ts: dict[tuple, float] = {}
+    last_ts: dict[tuple, float] = {}
+    mono: dict[tuple, bool] = {}
+    for r in results:
+        metric = r.get("metric", {})
+        key = tuple(str(metric.get(label, "unknown")) for label in labels)
+        ts_vals = [(float(v[0]), float(v[1])) for v in r.get("values", []) if v[1] != "NaN"]
+        if len(ts_vals) < 2:
+            continue
+        clean = despike(ts_vals)
+        if len(clean) < 2:
+            continue
+        delta, monotonic = reset_aware_delta([v for _, v in clean])
+        deltas[key] = deltas.get(key, 0.0) + delta
+        t0, t1 = clean[0][0], clean[-1][0]
+        first_ts[key] = min(first_ts[key], t0) if key in first_ts else t0
+        last_ts[key] = max(last_ts[key], t1) if key in last_ts else t1
+        mono[key] = mono.get(key, True) and monotonic
+    return {k: (deltas[k], max(0.0, last_ts[k] - first_ts[k]), mono[k]) for k in deltas}
+
+
 def rate_summary(
     per_node_totals: dict[str, tuple[float, float]],
     min_duration: float = 0.0,
@@ -239,7 +342,8 @@ MATRIX_PRECISIONS: tuple[str, ...] = ("BF16", "F16", "F32", "F64")
 
 def flops(
     totals: dict[str, float],
-    duration: float,
+    active_duration: float,
+    effective_duration: float,
     vector_precisions: tuple[str, ...] = VECTOR_PRECISIONS,
     matrix_precisions: tuple[str, ...] = MATRIX_PRECISIONS,
     valu_wavefront: int = VALU_WAVEFRONT,
@@ -249,11 +353,25 @@ def flops(
 
     Vector FLOPS = ``valu_wavefront * (ADD + MUL + TRANS + 2*FMA)`` per precision.
     Matrix FLOPS = ``mfma_ops * MFMA_MOPS`` per precision.
-    Returns a list of ``{precision, kind, total_flops, rate_flops_per_s}`` or
-    ``None`` when no precision contributed any work.
+
+    Two rates are emitted per precision because they answer different questions:
+    ``active_rate_flops_per_s`` divides by ``active_duration`` (the span GCDs were
+    actually accumulating — compute speed while busy), while
+    ``effective_rate_flops_per_s`` divides by ``effective_duration`` (full wall
+    time, charging startup/activation idle). Returns a list of
+    ``{precision, kind, total_flops, active_rate_flops_per_s,
+    effective_rate_flops_per_s}`` or ``None`` when no precision contributed work.
     """
-    if duration <= 0:
+    if effective_duration <= 0:
         return None
+
+    def _rates(x: float) -> dict:
+        return {
+            "total_flops": round(x, 4),
+            "active_rate_flops_per_s": round(x / active_duration, 4) if active_duration > 0 else 0.0,
+            "effective_rate_flops_per_s": round(x / effective_duration, 4),
+        }
+
     out: list[dict] = []
     for p in vector_precisions:
         add = totals.get(f"SQ_INSTS_VALU_ADD_{p}", 0.0)
@@ -262,24 +380,10 @@ def flops(
         fma = totals.get(f"SQ_INSTS_VALU_FMA_{p}", 0.0)
         v = valu_wavefront * (add + mul + trans + fma * 2.0)
         if v > 0:
-            out.append(
-                {
-                    "precision": p.lower(),
-                    "kind": "vector",
-                    "total_flops": round(v, 4),
-                    "rate_flops_per_s": round(v / duration, 4),
-                }
-            )
+            out.append({"precision": p.lower(), "kind": "vector", **_rates(v)})
     for p in matrix_precisions:
         mfma = totals.get(f"SQ_INSTS_VALU_MFMA_MOPS_{p}", 0.0)
         m = mfma_ops * mfma
         if m > 0:
-            out.append(
-                {
-                    "precision": p.lower(),
-                    "kind": "matrix",
-                    "total_flops": round(m, 4),
-                    "rate_flops_per_s": round(m / duration, 4),
-                }
-            )
+            out.append({"precision": p.lower(), "kind": "matrix", **_rates(m)})
     return out or None

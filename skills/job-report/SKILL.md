@@ -115,7 +115,11 @@ Rows in display order. Each entry: `{source, label, name, mean, min, max, unit, 
 Each entry: `{source, label, name, total, unit}`. Same base-unit convention as gauges. Same emit-only-if-present rule.
 
 ### `stats.hardware_counters`
-`null` or `{rows: [{counter, total, rate, num_series}, ...], flops: [{precision, kind, total_flops, rate_flops_per_s}, ...] | null}`.
+`null` or `{rows: [...], flops: [...] | null}`.
+
+Each `rows[]` entry: `{counter, total, active_rate, effective_rate, observed_span_seconds, monotonic, num_series}`. Counters are summed per GCD (`(instance, card)`) at the fine step using despike + reset-aware (`increase()`) semantics, so `total` is robust to ROCm spurious-zero glitches and genuine counter resets. `active_rate` = `total ÷ observed_span_seconds` (mean per-GCD span actually accumulating); `effective_rate` = `total ÷ job duration` (charges startup/activation idle). `monotonic` is `false` when a sustained counter reset/multiplex was detected (figures are then increase-summed across the break — cross-check advisable).
+
+Each `flops[]` entry: `{precision, kind, total_flops, active_rate_flops_per_s, effective_rate_flops_per_s}` (or the whole `flops` is `null`). `active_rate_flops_per_s` divides by the mean per-GCD active span, `effective_rate_flops_per_s` by full wall time.
 
 ### `stats.kernels`
 `null` when kernel tracing was off / no kernel data exists (the report omits the Top kernels table and the folded kernel-dispatch-duration variance rows). Otherwise:
@@ -238,7 +242,7 @@ The triggers are evaluated against the entry's `percentiles` and `mean / min / m
 
 Numbers in bullets come from `mean`, `min`, `max`, or are described informally as "typical" / "most of the time" — the reader never sees percentile syntax. Aim for ≤4 bullets total; collapse same-shape metrics into one bullet rather than enumerating each.
 
-**Hardware counters table** (if `stats.hardware_counters` is non-null) — columns `Counter | Total` from `rows[]`. If `flops[]` is non-null, follow with a FLOPS line per precision (use `total_flops` and `rate_flops_per_s`).
+**Hardware counters table** (if `stats.hardware_counters` is non-null) — columns `Counter | Total` from `rows[]`. If `flops[]` is non-null, follow with a FLOPS line per precision showing **both** rates from each entry: `active_rate_flops_per_s` ("active", compute speed while accumulating) and `effective_rate_flops_per_s` ("effective", over full wall time including startup idle) alongside `total_flops`. When any contributing row has `monotonic == false`, append a note that a counter reset was detected and the figures are increase-summed across the break (so they may warrant a cross-check).
 
 xGMI read/write appears as additional rows in the combined gauge table (rates) and counter totals table (totals) when present — no separate section.
 
