@@ -18,11 +18,13 @@ class Stats(Module):
         gauges, gauge_cvs = self._collect_gauges()
         counters = self._collect_counters()
         hw_counters = self._hardware_counters()
+        kernels = self._kernels()
         variance = self._variance(gauge_cvs)
         return {
             "gauges": gauges,
             "counters": counters,
             "hardware_counters": hw_counters,
+            "kernels": kernels,
             "variance": variance,
         }
 
@@ -124,6 +126,120 @@ class Stats(Module):
         return {"rows": rows, "flops": flops}
 
     # ------------------------------------------------------------------
+    # Kernel tracing (optional collector)
+    # ------------------------------------------------------------------
+
+    # Meta block reused for every kernel variance entry — the comparison
+    # quantity is per-dispatch mean duration (Δduration_ns / Δdispatch_count).
+    _KERNEL_VAR_META = {
+        "source": "GPU",
+        "label": "Mean dispatch duration",
+        "name": "mean_dispatch_duration_ns",
+        "unit": "ns",
+    }
+    _KERNEL_KEY_LABELS = ("instance", "card", "kernel")
+
+    def _kernels(self) -> dict | None:
+        ds = self.ds
+        step = ds.coarse_step()
+        dur = ds.job_query(constants.KERNEL_DURATION_METRIC, step)
+        if not dur:
+            return None
+        cnt = ds.job_query(constants.KERNEL_COUNT_METRIC, step)
+
+        dur_deltas = compute.per_key_counter_deltas(dur, self._KERNEL_KEY_LABELS)
+        cnt_deltas = compute.per_key_counter_deltas(cnt, self._KERNEL_KEY_LABELS)
+
+        per_kernel_dur: dict[str, float] = {}
+        per_kernel_cnt: dict[str, float] = {}
+        for (_inst, _card, kernel), d in dur_deltas.items():
+            per_kernel_dur[kernel] = per_kernel_dur.get(kernel, 0.0) + d
+        for (_inst, _card, kernel), c in cnt_deltas.items():
+            per_kernel_cnt[kernel] = per_kernel_cnt.get(kernel, 0.0) + c
+
+        if not per_kernel_dur:
+            return None
+
+        total_duration_ns = float(sum(per_kernel_dur.values()))
+        total_dispatches = int(round(sum(per_kernel_cnt.values())))
+
+        dropped_results = ds.job_query(constants.KERNEL_DROPPED_METRIC, step)
+        dropped = int(round(sum(compute.counter_deltas(dropped_results))))
+
+        rows: list[dict] = []
+        for kernel, d in per_kernel_dur.items():
+            disp = per_kernel_cnt.get(kernel, 0.0)
+            mean = d / disp if disp > 0 else 0.0
+            rows.append(
+                {
+                    "kernel": kernel,
+                    "total_duration_ns": round(d, 4),
+                    "dispatches": int(round(disp)),
+                    "mean_duration_ns": round(mean, 4),
+                }
+            )
+        rows.sort(key=lambda r: r["total_duration_ns"], reverse=True)
+        top = rows if self.p.verbose else rows[: constants.TOP_KERNELS_LIMIT]
+
+        top_names = [r["kernel"] for r in top]
+        variance = self._kernel_variance(top_names, dur_deltas, cnt_deltas, step)
+
+        return {
+            "num_kernels": len(per_kernel_dur),
+            "total_dispatches": total_dispatches,
+            "total_duration_ns": round(total_duration_ns, 4),
+            "dropped_dispatches": dropped,
+            "top": top,
+            "variance": variance,
+        }
+
+    def _kernel_variance(self, top, dur_deltas, cnt_deltas, step) -> dict:
+        meta = self._KERNEL_VAR_META
+        name = meta["name"]
+        by_node, by_gpu_id, by_gpu = [], [], []
+        for kernel in top:
+            extra = {"kernel": kernel}
+            per_gpu: dict[tuple, float] = {}
+            node_dur: dict[str, float] = {}
+            node_cnt: dict[str, float] = {}
+            for (inst, card, k), d in dur_deltas.items():
+                if k != kernel:
+                    continue
+                c = cnt_deltas.get((inst, card, k), 0.0)
+                if c <= 0:
+                    continue
+                per_gpu[(inst, card)] = d / c
+                node_dur[inst] = node_dur.get(inst, 0.0) + d
+                node_cnt[inst] = node_cnt.get(inst, 0.0) + c
+            if not per_gpu:
+                continue
+
+            entry = self._variance_entry(name, ("instance", "card"), per_gpu, meta=meta, extra=extra)
+            if entry:
+                by_gpu.append(entry)
+
+            node_means = {inst: node_dur[inst] / node_cnt[inst] for inst in node_dur if node_cnt[inst] > 0}
+            entry = self._variance_entry(name, ("instance",), node_means, meta=meta, extra=extra)
+            if entry:
+                by_node.append(entry)
+
+            by_card: dict[str, list[float]] = {}
+            for (_inst, card), v in per_gpu.items():
+                by_card.setdefault(card, []).append(v)
+            slot = {card: float(np.mean(by_card[card])) for card in sorted(by_card)}
+            entry = self._variance_entry(name, ("card",), slot, meta=meta, extra=extra)
+            if entry:
+                by_gpu_id.append(entry)
+
+        return {
+            "cv_threshold": self.p.cv_threshold,
+            "metric": name,
+            "by_node": by_node,
+            "by_gpu_id": by_gpu_id,
+            "by_gpu": by_gpu,
+        }
+
+    # ------------------------------------------------------------------
     # Variance
     # ------------------------------------------------------------------
 
@@ -154,25 +270,44 @@ class Stats(Module):
                 kw[field] = str(part)
         return kw
 
-    def _metric_entry_extremes_of_means(self, name: str, key_fields: tuple, key_to_value: dict[Any, float]) -> dict:
-        """Wrap a ``{key: value}`` dict in the unified variance-entry shape."""
+    def _metric_entry_extremes_of_means(
+        self,
+        name: str,
+        key_fields: tuple,
+        key_to_value: dict[Any, float],
+        meta: dict[str, str] | None = None,
+        extra: dict[str, Any] | None = None,
+    ) -> dict:
+        """Wrap a ``{key: value}`` dict in the unified variance-entry shape.
+
+        ``meta`` (``{"source","label","name","unit"}``) overrides the default
+        ``constants.GAUGE_BY_METRIC[name]`` lookup so non-gauge entries (e.g.
+        kernels) can reuse this shape without a ``GAUGE_BY_METRIC`` row.
+        ``extra`` is merged into the entry (e.g. ``{"kernel": <full name>}``).
+        """
         items = list(key_to_value.items())
         items.sort(key=lambda kv: kv[1])
         min_k, min_v = items[0]
         max_k, max_v = items[-1]
         n = len(key_to_value)
 
-        metric = constants.GAUGE_BY_METRIC[name]
-        entry: dict[str, Any] = {
-            "source": metric.source,
-            "label": metric.label,
-            "name": name,
-            "unit": metric.unit,
-            "n": n,
-            "cv": round(compute.cv_of(key_to_value.values()), 4),
-            "min_mean": self._extreme(key_fields, min_k, min_v),
-            "max_mean": self._extreme(key_fields, max_k, max_v),
-        }
+        if meta is None:
+            metric = constants.GAUGE_BY_METRIC[name]
+            meta = {"source": metric.source, "label": metric.label, "name": name, "unit": metric.unit}
+
+        entry: dict[str, Any] = dict(extra or {})
+        entry.update(
+            {
+                "source": meta["source"],
+                "label": meta["label"],
+                "name": meta["name"],
+                "unit": meta["unit"],
+                "n": n,
+                "cv": round(compute.cv_of(key_to_value.values()), 4),
+                "min_mean": self._extreme(key_fields, min_k, min_v),
+                "max_mean": self._extreme(key_fields, max_k, max_v),
+            }
+        )
 
         def all_block():
             if len(key_fields) == 1:
@@ -187,11 +322,11 @@ class Stats(Module):
                 entry["all"] = all_block()
         return entry
 
-    def _variance_entry(self, name, key_fields, means) -> dict | None:
+    def _variance_entry(self, name, key_fields, means, meta=None, extra=None) -> dict | None:
         """Gate a {key: mean} dict on between-key CV; wrap it, or None if absent/uniform."""
         if not means or compute.cv_of(means.values()) <= self.p.cv_threshold:
             return None
-        return self._metric_entry_extremes_of_means(name, key_fields, means)
+        return self._metric_entry_extremes_of_means(name, key_fields, means, meta=meta, extra=extra)
 
     def _counter_min_duration(self) -> float:
         return float(self.ds.sampling_interval or 0.0)

@@ -31,6 +31,17 @@ PERCENTILES: tuple[float, ...] = (5, 25, 50, 75, 95)
 # essentially collapse to min/max and the reader can scan every key directly.
 INLINE_ALL_THRESHOLD = 16
 
+# Kernel-tracing report: number of top kernels (by total GPU time) carried into
+# ``stats.kernels.top`` and the variance/drift drill-downs.
+TOP_KERNELS_LIMIT = 10
+
+# Kernel-tracing metric names (cumulative counters emitted by the
+# ``enable_kernel_trace`` collector). These are not per-node gauges/counters, so
+# they have no ``Metric`` rows in GAUGE_LIST / COUNTER_LIST.
+KERNEL_DURATION_METRIC = "omnistat_kernel_total_duration_ns"
+KERNEL_COUNT_METRIC = "omnistat_kernel_dispatch_count"
+KERNEL_DROPPED_METRIC = "omnistat_kernel_dropped_dispatches"
+
 
 class Metric(NamedTuple):
     """One gauge or counter metric tracked by the report.
