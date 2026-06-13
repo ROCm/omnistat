@@ -11,7 +11,7 @@ from omnistat.inspect.job.core import Module
 
 
 class Stats(Module):
-    name = "stats"
+    name = "stats_v2"
     param_defaults = {"cv_threshold": constants.DEFAULT_CV_THRESHOLD, "verbose": False}
 
     def build(self) -> dict:
@@ -92,36 +92,54 @@ class Stats(Module):
     # Hardware counters + FLOPS
     # ------------------------------------------------------------------
 
+    # Hardware counters are keyed per GCD (one Omnistat "card" on one host).
+    _HW_KEY_LABELS = ("instance", "card")
+
     def _hardware_counters(self) -> dict | None:
         ds = self.ds
-        step = ds.coarse_step()
-        duration = ds.job_duration
+        # Fine step (not coarse_step): coarse truncation drops the first ~300 s
+        # plus a trailing partial window of accumulation — a job-dependent
+        # 30-100% undercount. The full in-window range query also returns every
+        # series despite activation stagger, where a boundary-window query would
+        # miss the GCDs that only report mid-job.
+        step = ds.auto_step()
+        effective_duration = ds.job_duration
         names = self._try_label_values("name", metric="omnistat_hardware_counter")
         if not names:
             return None
 
         rows: list[dict] = []
         totals: dict[str, float] = {}
+        all_spans: list[float] = []
         for name in sorted(names):
             results = ds.job_query("omnistat_hardware_counter", step, filters={"name": name})
             if not results:
                 continue
-            deltas = compute.counter_deltas(results)
-            if not deltas:
+            per_key = compute.per_key_increase(results, self._HW_KEY_LABELS)
+            if not per_key:
                 continue
-            total = float(np.sum(deltas))
-            rate = total / duration if duration > 0 else 0.0
+            total = float(sum(d for d, _, _ in per_key.values()))
+            spans = [s for _, s, _ in per_key.values()]
+            active_duration = float(np.mean(spans)) if spans else 0.0
+            monotonic = all(m for _, _, m in per_key.values())
+            active_rate = total / active_duration if active_duration > 0 else 0.0
+            effective_rate = total / effective_duration if effective_duration > 0 else 0.0
             rows.append(
                 {
                     "counter": name,
                     "total": round(total, 6),
-                    "rate": round(rate, 6),
-                    "num_series": len(deltas),
+                    "active_rate": round(active_rate, 6),
+                    "effective_rate": round(effective_rate, 6),
+                    "observed_span_seconds": round(active_duration, 4),
+                    "monotonic": monotonic,
+                    "num_series": len(per_key),
                 }
             )
             totals[name] = total
+            all_spans.extend(spans)
 
-        flops_dicts = compute.flops(totals, duration)
+        active_duration = float(np.mean(all_spans)) if all_spans else 0.0
+        flops_dicts = compute.flops(totals, active_duration, effective_duration)
         flops = [dict(**f) for f in flops_dicts] if flops_dicts else None
         return {"rows": rows, "flops": flops}
 

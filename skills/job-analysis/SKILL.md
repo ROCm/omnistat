@@ -556,11 +556,25 @@ If `omnistat_hardware_counter` metrics are present, the `stats` subcommand disco
 omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID stats > $SCRATCH/stats_JOBID.json
 ```
 
-Hardware counters are **cumulative** — values grow monotonically within a session. The delta (last - first) represents total work done during the job. `stats` automatically computes these deltas, rates, per-series counts, and architecture-specific FLOPS for every counter present.
+Hardware counters are **cumulative** — values grow monotonically within a session. The delta represents total work done during the job. `stats` computes this per GCD (`(instance, card)`) at the **fine step** (not a coarse step, which would truncate the first ~300 s plus a trailing partial window and undercount by 30-100 %), using **despike + reset-aware (`increase()`) summation** so the totals tolerate both the ROCm spurious-zero glitch (`100, 0, 100`) and genuine mid-job counter resets/multiplexing. It emits totals, two rates, observed spans, a `monotonic` flag, per-series counts, and architecture-specific FLOPS for every counter present.
+
+**Active vs effective.** Each `rows[]` entry (and each `flops[]` entry) carries two rates:
+- **active** (`active_rate` / `active_rate_flops_per_s`) = total ÷ each GCD's own observed span — *how fast it computed while accumulating*.
+- **effective** (`effective_rate` / `effective_rate_flops_per_s`) = total ÷ full job wall time — *includes startup/activation idle*.
+
+`active > effective` by roughly the startup-idle fraction; a low `effective` with a healthy `active` means the GCDs were idle for much of the wall clock. Use `observed_span_seconds` to see how short the accumulating window was. Note activation stagger: on large jobs only a fraction of GCDs report at the job's first/last instants, so check `num_series` reflects the full GCD count (the fine-step range query captures staggered series that a boundary query would miss).
+
+**Reevaluation procedure.** When a row's `monotonic` is `false`, or the numbers look inconsistent with the workload (e.g. FLOPS far above the architecture's per-GCD peak, or a scenario with heavy counter multiplexing), cross-check the default against a VictoriaMetrics `increase()` query over the job range:
+
+```promql
+sum(increase(omnistat_hardware_counter{name="SQ_INSTS_VALU_MFMA_MOPS_BF16"}[<job-range>]))
+```
+
+Apply the same FLOPS formula to the `increase()` result and compare to `total_flops`. Caveat: under heavy time-multiplexing a counter is sampled on only a subset of GCDs at a time, so neither the default nor a single `increase()` query sees a full continuous series — interpret multiplexed counters as lower bounds and corroborate with `num_series`.
 
 The set of counters varies by job configuration (e.g., one job may have F32 VALU counters while another has F64). The `hardware_counters` block reflects whichever counters are actually present.
 
-Consult the GPU architecture profile (`gpus/`) for platform-specific counter names, FLOPS formulas, and bandwidth interpretation.
+Consult the GPU architecture profile (`gpus/`) for platform-specific counter names, FLOPS formulas, per-GCD peaks, and bandwidth interpretation.
 
 ### Metric Reference
 
