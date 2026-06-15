@@ -17,6 +17,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
+from omnistat.inspect import compute
 from omnistat.inspect.helpers import auto_step as _auto_step_helper
 
 # ---------------------------------------------------------------------------
@@ -178,6 +179,23 @@ class DataSource(ABC):
         kind = info.get("type", "unknown")
         loc = info.get("url") or info.get("dir") or ""
         return f"{kind}:{loc}"
+
+    # -- Counter increase (reset-aware totals) ------------------------------
+
+    def counter_increase(
+        self, metric: str, key_labels: tuple[str, ...], filters: dict[str, str] | None = None
+    ) -> dict[tuple, tuple[float, float, bool]]:
+        """Per-key ``(delta, observed_span_seconds, monotonic)`` for a counter.
+
+        Default (client-side) implementation: fetch the full per-key series at
+        :meth:`auto_step` and run despike + reset-aware
+        :func:`compute.per_key_increase`. This is what CSV uses unchanged and is
+        also the TSDB per-key fallback. Backends with a server-side reset-aware
+        ``increase()`` (TSDB) override this with a cheaper fast path that is
+        bit-for-bit equivalent on monotonic series.
+        """
+        results = self.job_query(metric, self.auto_step(), filters=filters)
+        return compute.per_key_increase(results, key_labels)
 
     # -- Abstract API -------------------------------------------------------
 
