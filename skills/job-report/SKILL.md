@@ -107,7 +107,7 @@ Note the nesting: `variance` lives under `stats`, and both the data-collection t
 - `figure_of_merit` — list of `{name, instance, min, max, last, num_points}` or `null`
 
 ### `stats.gauges[]`
-Rows in display order. Each entry: `{source, label, name, mean, min, max, unit, n, cv, percentiles}`. `n` is the size of the population behind `cv` / `percentiles` — pooled sample count for plain gauges, per-node-rate count for counter-derived rate gauges (Network RX/TX rate). `min`/`max` are absolute sample extremes over that same population (compare with `stats.variance.by_*[].min_mean`/`max_mean`, which are extremes of *per-key temporal means*). `percentiles` is `{p5, p25, p50, p75, p95}` over the pooled population. Only metrics that were present in the data are emitted — absent metrics are simply omitted from the list.
+Rows in display order. Each entry: `{source, label, name, mean, min, max, unit, n, cv, percentiles}`. `n` is the size of the population behind `cv` / `percentiles` — pooled sample count for plain gauges, per-node-rate count for counter-derived rate gauges (Network RX/TX rate). `min`/`max` are absolute sample extremes over that same population (compare with `stats.variance.by_*[].min`/`max`, which are extremes of *per-key reduced values* — see the `reduction` field there). `percentiles` is `{p5, p25, p50, p75, p95}` over the pooled population. Only metrics that were present in the data are emitted — absent metrics are simply omitted from the list.
 
 **Units in the JSON are each metric's native unit** (`W`, `MHz`, `°C`, `%`, `bytes`, `KiB`, `B/s`, `KiB/s`, `J`); labels are unit-free. The renderer is responsible for picking a sensible display unit per row (see "Unit selection" below).
 
@@ -146,7 +146,7 @@ Each `flops[]` entry: `{precision, kind, total_flops, active_rate_flops_per_s, e
 
 `kernel` names are long mangled C++ symbols (600+ bytes) — keep full names in JSON, **truncate only at render time**. `total_duration_ns` and `mean_duration_ns` are native nanoseconds (the renderer converts). A kernel's share of total GPU time is `total_duration_ns / stats.kernels.total_duration_ns` (compute it at render time — there is no stored percentage field).
 
-The three **spatial** variance lists (`by_node`/`by_gpu_id`/`by_gpu`) carry exactly the same outer shape as `stats.variance.by_*` entries (`source`/`label`/`name`/`unit`/`n`/`cv`/`min_mean`/`max_mean`/`all`|`percentiles`) **plus a `kernel` field** holding the full kernel name; `source` is `"GPU"`, `label` is `"Mean dispatch duration"`, `unit` is `"ns"`. The compared quantity is each kernel's **mean dispatch duration** (ns/dispatch) — statistically the same kind of per-key temporal mean as a gauge entry, so these fold directly into the matching gauge variance subsection. All three variance lists are `[]` when nothing crossed `cv_threshold`. Only the **top kernels** participate in variance (under `--verbose`, "top kernels" is the full kernel set, so variance is computed for every kernel).
+The three **spatial** variance lists (`by_node`/`by_gpu_id`/`by_gpu`) carry exactly the same outer shape as `stats.variance.by_*` entries (`source`/`label`/`name`/`unit`/`reduction`/`n`/`cv`/`min`/`max`/`all`|`percentiles`) **plus a `kernel` field** holding the full kernel name; `source` is `"GPU"`, `label` is `"Mean dispatch duration"`, `unit` is `"ns"`, and `reduction` is `"ratio"` (Δduration ÷ Δdispatches). The compared quantity is each kernel's **mean dispatch duration** (ns/dispatch); it is a counter ratio rather than a temporal mean, but the outer entry shape matches a gauge entry, so these fold directly into the matching gauge variance subsection. All three variance lists are `[]` when nothing crossed `cv_threshold`. Only the **top kernels** participate in variance (under `--verbose`, "top kernels" is the full kernel set, so variance is computed for every kernel).
 
 ### `stats.variance`
 Nested under `stats` (not a top-level key).
@@ -158,21 +158,26 @@ Every entry, in every section, carries the same outer shape:
 ```jsonc
 {
   "source": "...", "label": "...", "name": "...", "unit": "...",
+  "reduction": "temporal_mean" | "rate" | "ratio",
   "n": <int>, "cv": <float>,
-  "min_mean": {<key_fields>, "value": <float>},
-  "max_mean": {<key_fields>, "value": <float>},
+  "min": {<key_fields>, "value": <float>},
+  "max": {<key_fields>, "value": <float>},
 
   // exactly one of the following, based on n (both in --verbose):
-  "all": {<key>: <mean>, ...}                 // when n <= 16
+  "all": {<key>: <value>, ...}                // when n <= 16
   "percentiles": {p5, p25, p50, p75, p95}     // when n > 16
 }
 ```
 
+- `reduction` names how each key's whole-job series was collapsed to the single scalar being compared (and thus what `min`/`max`/`all`/`percentiles` are extremes/values *of*):
+  - `temporal_mean` — the time-average of the metric's samples (plain gauges, GPU variance).
+  - `rate` — Δtotal ÷ active duration, an average rate (counter-derived gauges like network RX/TX).
+  - `ratio` — Δa ÷ Δb between two counters (kernel `mean_dispatch_duration_ns` = Δduration ÷ Δdispatches).
 - `n` is the per-key population size (number of nodes / card slots / GPUs that contributed). Same key name as `stats.gauges[].n`, but the underlying population differs (per-sample there, per-key here).
-- `cv` is the **between-key** CV across per-key temporal means (not the same as `stats.gauges[].cv`, which is the pooled per-sample CV).
+- `cv` is the **between-key** CV across the per-key reduced values (not the same as `stats.gauges[].cv`, which is the pooled per-sample CV).
 - `unit` is the metric's native base unit (same convention as `stats.gauges[].unit`); the renderer picks a display unit per entry without consulting the gauge row.
-- `min_mean`/`max_mean` are the extremes across **per-key temporal means** — not absolute sample extrema (those live in `stats.gauges[].min`/`max`).
-- `percentiles` is `{p5, p25, p50, p75, p95}` over the same per-key-means population that `cv` is computed from. Identical key shape to `stats.gauges[].percentiles`.
+- `min`/`max` are the extremes across **per-key reduced values** (the reduction named by `reduction`) — not absolute sample extrema (those live in `stats.gauges[].min`/`max`). Each carries the owning key fields plus `value`.
+- `percentiles` is `{p5, p25, p50, p75, p95}` over the same per-key-value population that `cv` is computed from. Identical key shape to `stats.gauges[].percentiles`.
 - `all` is emitted when `n <= 16` (every key explicitly — at this size percentiles essentially collapse to min/max and the reader can scan every key). Slots/instances whose series are exactly 0 throughout the job (e.g. MI250X odd-card power) are filtered out and simply do not appear.
 
 Key fields per section:
@@ -268,13 +273,15 @@ Stay factual — do not label any kernel "slow", "hot", or a "straggler".
 A dedicated top-level section with three fixed subsections — Node-level, GPU-ID, GPU-level. Each subsection **combines gauge variance** (`stats.variance.by_*`) **with the matching axis of kernel mean-dispatch-duration variance** (`stats.kernels.variance.by_*`); there is no standalone "Kernel variance" subsection. Rendering rules below apply uniformly per section, gated only by `n`:
 
 - **Small section (`n ≤ 16`, entry carries `all`)** — render every key in a table. Today's `by_gpu_id` pattern.
-- **Large section (`n > 16`, entry carries `percentiles`)** — render a table **transposed so each metric is a row**, with columns `Min mean | Typical | Max mean` (`min_mean.value`, the entry's `p50`, `max_mean.value`, with units, no other annotations). The outer percentiles (`p5`, `p25`, `p75`, `p95`), `cv`, and `n` are available in the JSON and feed the optional annotations below; they do not appear in the table.
+- **Large section (`n > 16`, entry carries `percentiles`)** — render a table **transposed so each metric is a row**, with columns `Min | Typical | Max` (`min.value`, the entry's `p50`, `max.value`, with units, no other annotations). The outer percentiles (`p5`, `p25`, `p75`, `p95`), `cv`, and `n` are available in the JSON and feed the optional annotations below; they do not appear in the table.
+
+The `Min`/`Typical`/`Max` columns are extremes/median of each metric's **per-key reduced value**, where the reduction is given by the entry's `reduction` field. Because a single table groups entries that share a `reduction`, no per-cell caption is needed; instead, when a subsection mixes reductions (e.g. gauge `temporal_mean`/`rate` rows alongside the folded kernel `ratio` table), the **reduction is implied by the table's lead-in** — the gauge tables are temporal-mean/rate values and the `**Kernel mean dispatch duration**` table is a counter ratio. Do not surface the literal `reduction` enum value in the rendered report.
 
 A small section emerges naturally in `by_gpu_id` (n ≤ 8 on MI250X), and also in `by_node`/`by_gpu` on small-cluster jobs (1–16 nodes).
 
-**Do not write an intro paragraph for the Variance section.** Go straight from the `## Variance` heading to the first subsection heading. The column names (`Min mean`, `Typical`, `Max mean`) and the subsection headers (`Node-level variance (3 of 14 gauges varied)`) carry the necessary context; an explanatory paragraph that defines them is redundant for the intended reader.
+**Do not write an intro paragraph for the Variance section.** Go straight from the `## Variance` heading to the first subsection heading. The column names (`Min`, `Typical`, `Max`) and the subsection headers (`Node-level variance (3 of 14 gauges varied)`) carry the necessary context; an explanatory paragraph that defines them is redundant for the intended reader.
 
-**Folded kernel-variance table (shared rule for every subsection).** When the kernel-variance list for a subsection's axis is non-empty (`stats.kernels.variance.by_node` for Node-level, `by_gpu_id` for GPU-ID, `by_gpu` for GPU-level), append a kernel table **after** that subsection's gauge content, under a `**Kernel mean dispatch duration**` bold lead-in (no extra heading). The compared quantity is each kernel's mean dispatch duration (ns/dispatch). Render it **transposed** — one row per kernel, columns `Min mean | Typical | Max mean` (`min_mean.value`; `p50` for large-n or the median of `all` for small-n; `max_mean.value`). Convert ns → µs/ms per Unit Selection, truncate kernel names (~60 chars + ellipsis), and add no `cv`/`n`/spread columns. Factual tone only — never call a kernel slow or a straggler.
+**Folded kernel-variance table (shared rule for every subsection).** When the kernel-variance list for a subsection's axis is non-empty (`stats.kernels.variance.by_node` for Node-level, `by_gpu_id` for GPU-ID, `by_gpu` for GPU-level), append a kernel table **after** that subsection's gauge content, under a `**Kernel mean dispatch duration**` bold lead-in (no extra heading). The compared quantity is each kernel's mean dispatch duration (ns/dispatch, `reduction: ratio`). Render it **transposed** — one row per kernel, columns `Min | Typical | Max` (`min.value`; `p50` for large-n or the median of `all` for small-n; `max.value`). Convert ns → µs/ms per Unit Selection, truncate kernel names (~60 chars + ellipsis), and add no `cv`/`n`/spread columns. Factual tone only — never call a kernel slow or a straggler.
 
 #### Node-level variance
 If `stats.variance.by_node` **and** `stats.kernels.variance.by_node` are both empty (`[]`), write: **"All nodes behaved uniformly."** Otherwise render whichever parts have signal: the gauge table(s) below when `stats.variance.by_node` is non-empty, then the folded `**Kernel mean dispatch duration**` table (shared rule above) when `stats.kernels.variance.by_node` is non-empty.
@@ -283,10 +290,10 @@ For the gauge content, group entries by their `source` field (e.g. `GPU`, `Vendo
 
 For the large-n case (most jobs), render one table per source group, **transposed** so each metric is a row and the columns are pure numeric:
 
-| Metric            | Min mean | Typical | Max mean |
-|-------------------|---------:|--------:|---------:|
-| `<entry.label>`   | `<min_mean.value>` | `<p50>` | `<max_mean.value>` |
-| ...               | ...      | ...     | ...      |
+| Metric            | Min | Typical | Max |
+|-------------------|----:|--------:|----:|
+| `<entry.label>`   | `<min.value>` | `<p50>` | `<max.value>` |
+| ...               | ... | ...     | ... |
 
 All three value columns are pure numbers in the row's display unit (no parentheticals, no node identifiers — those move to the consolidated "Notable nodes / GPUs" paragraph at the end of the Variance section). Do **not** add a `spread`, `cv`, `n`, or `p5 / p50 / p95` row, and do **not** name nodes in cells — the population, dispersion, and outlier identities live in the JSON and (for outliers) in the consolidated paragraph below.
 
@@ -302,7 +309,7 @@ Do not write an intro paragraph above the table — the section header and table
 #### GPU variance
 If `stats.variance.by_gpu` **and** `stats.kernels.variance.by_gpu` are both empty (`[]`), write: **"All GPUs behaved uniformly."** Otherwise render the gauge table(s) below when `stats.variance.by_gpu` is non-empty, then the folded `**Kernel mean dispatch duration**` table when `stats.kernels.variance.by_gpu` is non-empty.
 
-For the gauge content, group entries by `source`. Large-n (typical): one table per source group, **transposed so each metric is a row**, with columns `Min mean | Typical | Max mean` (`min_mean.value`, `p50`, `max_mean.value`) — same shape as Node-level, no `cv`/`n`/spread row. Small-n (`n ≤ 16`, rare): full per-GPU table from `all`.
+For the gauge content, group entries by `source`. Large-n (typical): one table per source group, **transposed so each metric is a row**, with columns `Min | Typical | Max` (`min.value`, `p50`, `max.value`) — same shape as Node-level, no `cv`/`n`/spread row. Small-n (`n ≤ 16`, rare): full per-GPU table from `all`.
 
 #### Notable nodes / GPUs (consolidated outlier callout)
 
@@ -310,10 +317,10 @@ After **all** the variance subsections (Node-level, GPU-ID, Per-GPU) have been r
 
 Outlier detection (same rule as before, applied per-entry per-axis):
 
-- **Upper outlier** — `max_mean.value > p75 + 1.5 × IQR` (with `IQR = p75 − p25`).
-- **Lower outlier** — `min_mean.value < p25 − 1.5 × IQR`.
+- **Upper outlier** — `max.value > p75 + 1.5 × IQR` (with `IQR = p75 − p25`).
+- **Lower outlier** — `min.value < p25 − 1.5 × IQR`.
 
-For each axis (`by_node`, `by_gpu`) iterate entries; for each entry that fires either trigger, attribute the outlier to the identified key (`min_mean.instance` or `max_mean.instance`, plus `card` for `by_gpu`). Aggregate across entries and axes by key, so a single node that's a lower outlier on four different metrics appears once with its four metrics enumerated.
+For each axis (`by_node`, `by_gpu`) iterate entries; for each entry that fires either trigger, attribute the outlier to the identified key (`min.instance` or `max.instance`, plus `card` for `by_gpu`). Aggregate across entries and axes by key, so a single node that's a lower outlier on four different metrics appears once with its four metrics enumerated.
 
 Rendering rules for the paragraph:
 
