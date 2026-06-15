@@ -262,10 +262,10 @@ Review the gauge and counter stats. For each metric, check for:
 
 #### Step 3: Inspect the variance breakdown
 
-The `variance` block in the same `stats` output already drills into any metric whose between-node or between-GPU CV exceeds the threshold (default `cv_threshold=0.05`; override with `--cv-threshold`). It contains:
-- `by_node` — per-node means with min/max/percentiles per metric
-- `by_gpu_id` — per-card-slot means (card position effects)
-- `by_gpu` — per-(node, card) means (individual GPU stragglers)
+The `variance` block in the same `stats` output already drills into any metric whose between-node or between-GPU CV exceeds the threshold (default `cv_threshold=0.05`; override with `--cv-threshold`). Each entry carries the **between-key `cv`** (dispersion across the grouping's per-key *temporal means*), `min_mean`/`max_mean` (the lowest/highest per-key temporal mean and the key that owns it — extremes of per-key means, **not** absolute sample minima/maxima, which live in `stats.gauges[].min`/`max`), and either an `all` map listing every key (when `n ≤ 16`) or `percentiles` over the per-key means (when `n > 16`; `--verbose` adds `all` too). The three groupings:
+- `by_node` — per-node temporal means (`{instance}`); straggler nodes, systemic vs. node-local effects
+- `by_gpu_id` — per-card-slot means (`{card}`); card-position effects
+- `by_gpu` — per-(node, card) means (`{instance, card}`); individual GPU stragglers
 
 Use `--verbose` to force full per-entity arrays even for large jobs. To raise sensitivity, lower `--cv-threshold`:
 
