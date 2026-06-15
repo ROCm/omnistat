@@ -234,12 +234,12 @@ class Stats(Module):
             if not per_gpu:
                 continue
 
-            entry = self._variance_entry(name, ("instance", "card"), per_gpu, meta=meta, extra=extra)
+            entry = self._variance_entry(name, ("instance", "card"), per_gpu, meta=meta, extra=extra, reduction="ratio")
             if entry:
                 by_gpu.append(entry)
 
             node_means = {inst: node_dur[inst] / node_cnt[inst] for inst in node_dur if node_cnt[inst] > 0}
-            entry = self._variance_entry(name, ("instance",), node_means, meta=meta, extra=extra)
+            entry = self._variance_entry(name, ("instance",), node_means, meta=meta, extra=extra, reduction="ratio")
             if entry:
                 by_node.append(entry)
 
@@ -247,7 +247,7 @@ class Stats(Module):
             for (_inst, card), v in per_gpu.items():
                 by_card.setdefault(card, []).append(v)
             slot = {card: float(np.mean(by_card[card])) for card in sorted(by_card)}
-            entry = self._variance_entry(name, ("card",), slot, meta=meta, extra=extra)
+            entry = self._variance_entry(name, ("card",), slot, meta=meta, extra=extra, reduction="ratio")
             if entry:
                 by_gpu_id.append(entry)
 
@@ -297,6 +297,7 @@ class Stats(Module):
         key_to_value: dict[Any, float],
         meta: dict[str, str] | None = None,
         extra: dict[str, Any] | None = None,
+        reduction: str = "temporal_mean",
     ) -> dict:
         """Wrap a ``{key: value}`` dict in the unified variance-entry shape.
 
@@ -304,6 +305,9 @@ class Stats(Module):
         ``constants.GAUGE_BY_METRIC[name]`` lookup so non-gauge entries (e.g.
         kernels) can reuse this shape without a ``GAUGE_BY_METRIC`` row.
         ``extra`` is merged into the entry (e.g. ``{"kernel": <full name>}``).
+        ``reduction`` names how each key's whole-job series was collapsed to the
+        scalar being compared (``temporal_mean`` | ``rate`` | ``ratio``); ``min``
+        and ``max`` are the extremes of those per-key reduced values.
         """
         items = list(key_to_value.items())
         items.sort(key=lambda kv: kv[1])
@@ -322,10 +326,11 @@ class Stats(Module):
                 "label": meta["label"],
                 "name": meta["name"],
                 "unit": meta["unit"],
+                "reduction": reduction,
                 "n": n,
                 "cv": round(compute.cv_of(key_to_value.values()), 4),
-                "min_mean": self._extreme(key_fields, min_k, min_v),
-                "max_mean": self._extreme(key_fields, max_k, max_v),
+                "min": self._extreme(key_fields, min_k, min_v),
+                "max": self._extreme(key_fields, max_k, max_v),
             }
         )
 
@@ -342,11 +347,13 @@ class Stats(Module):
                 entry["all"] = all_block()
         return entry
 
-    def _variance_entry(self, name, key_fields, means, meta=None, extra=None) -> dict | None:
-        """Gate a {key: mean} dict on between-key CV; wrap it, or None if absent/uniform."""
+    def _variance_entry(self, name, key_fields, means, meta=None, extra=None, reduction="temporal_mean") -> dict | None:
+        """Gate a {key: value} dict on between-key CV; wrap it, or None if absent/uniform."""
         if not means or compute.cv_of(means.values()) <= self.p.cv_threshold:
             return None
-        return self._metric_entry_extremes_of_means(name, key_fields, means, meta=meta, extra=extra)
+        return self._metric_entry_extremes_of_means(
+            name, key_fields, means, meta=meta, extra=extra, reduction=reduction
+        )
 
     def _counter_min_duration(self) -> float:
         return float(self.ds.sampling_interval or 0.0)
@@ -363,12 +370,15 @@ class Stats(Module):
                 per_node_totals = compute.per_node_counter_deltas(results)
                 min_dur = self._counter_min_duration()
                 means = {n: d / dur for n, (d, dur) in per_node_totals.items() if d > 0 and dur >= min_dur and dur > 0}
+                reduction = "rate"
             elif name in constants.DROP_ZERO_SERIES_METRICS:
                 results = self._fetch_series(name, step)
                 means = compute.per_label_means(results, "instance")
+                reduction = "temporal_mean"
             else:
                 means = dict(self.ds.agg_by_label(name, "instance", step))
-            entry = self._variance_entry(name, ("instance",), means)
+                reduction = "temporal_mean"
+            entry = self._variance_entry(name, ("instance",), means, reduction=reduction)
             if entry:
                 out.append(entry)
         return out
