@@ -65,3 +65,78 @@ jobs:
           S3_SECONDARY_DIRECTORY=$(date +%Y_%m_%d)
           aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/nightly/$S3_SECONDARY_DIRECTORY/ \
             --no-progress
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-wheel
+          path: dist/*.whl
+          retention-days: 1
+
+  test-wheel:
+    name: Test installed wheel
+    runs-on: ubuntu-24.04
+    needs: nightly-wheel
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Download wheel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nightly-wheel
+          path: dist/
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install wheel
+        run: pip install dist/*.whl
+
+      - name: Install test dependencies
+        run: pip install -r test/requirements.txt
+
+      - name: Comment out GPU devices (not available in GitHub)
+        run: sed -i "/devices:/,+2 s/^/#/" test/docker/slurm/compose.yaml
+
+      - name: Disable SMI collector (won't work in GitHub)
+        run: >
+          sed -i "s/enable_rocm_smi = True/enable_rocm_smi = False/" \
+            test/docker/slurm/omnistat-system.config
+
+      - name: Build container image
+        run: docker compose -f test/docker/slurm/compose.yaml build controller
+
+      - name: Start containerized environment
+        env:
+          TEST_OMNISTAT_EXECUTION: package
+        run: docker compose -f test/docker/slurm/compose.yaml up -d --no-build
+
+      - name: Wait for Prometheus
+        run: >
+          timeout 1m bash -c \
+            'until $(curl -o /dev/null --fail -s localhost:9090/metrics); do \
+               echo "Waiting for Prometheus..."; \
+               sleep 5; \
+             done'
+
+      - name: Wait for Omnistat
+        run: >
+          timeout 15m bash -c \
+            'until [[ $(curl -s -g "localhost:9090/api/v1/query?query=up{instance=\"node1:8002\"}>0" | jq ".data.result|length") != 0 ]]; do \
+               echo "Waiting for Omnistat..."; \
+               sleep 15; \
+             done'
+
+      - name: Display node logs
+        run: for i in node1 node2; do docker logs slurm-$i; done
+
+      - name: Run tests
+        working-directory: ./test
+        run: pytest -v test_integration.py test_job_system.py
