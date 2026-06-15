@@ -214,9 +214,7 @@ def reset_aware_delta(values: list[float]) -> tuple[float, bool]:
     return delta, monotonic
 
 
-def per_key_increase(
-    results: list[dict], labels: tuple[str, ...]
-) -> dict[tuple, tuple[float, float, bool]]:
+def per_key_increase(results: list[dict], labels: tuple[str, ...]) -> dict[tuple, tuple[float, float, bool]]:
     """Per-key ``(delta, observed_span_seconds, monotonic)`` from counter series.
 
     For each series: drop NaN, :func:`despike` the spurious-zero glitch, then sum

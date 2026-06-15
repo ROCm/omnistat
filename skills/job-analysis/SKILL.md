@@ -556,7 +556,9 @@ If `omnistat_hardware_counter` metrics are present, the `stats` subcommand disco
 omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID stats > $SCRATCH/stats_JOBID.json
 ```
 
-Hardware counters are **cumulative** — values grow monotonically within a session. The delta represents total work done during the job. `stats` computes this per GCD (`(instance, card)`) at the **fine step** (not a coarse step, which would truncate the first ~300 s plus a trailing partial window and undercount by 30-100 %), using **despike + reset-aware (`increase()`) summation** so the totals tolerate both the ROCm spurious-zero glitch (`100, 0, 100`) and genuine mid-job counter resets/multiplexing. It emits totals, two rates, observed spans, a `monotonic` flag, per-series counts, and architecture-specific FLOPS for every counter present.
+Hardware counters are **cumulative** — values grow monotonically within a session. The delta represents total work done during the job. `stats` computes this per GCD (`(instance, card)`) over the full job range, using reset-aware **`increase()`** summation (server-side on the TSDB; despike + client-side `increase()` on CSV). This spans the **fine-step** range (not a coarse step, which would truncate the first ~300 s plus a trailing partial window and undercount by 30-100 %) and tolerates the ROCm spurious-zero glitch (`100, 0, 100`). It emits totals, two rates, observed spans, a `monotonic` flag, per-series counts, and architecture-specific FLOPS for every counter present.
+
+**Time-multiplexing is not yet handled.** When the profiler rotates through counter sets (more counters than hardware slots), a **time-multiplexed counter behaves like a *rate*, not a cumulative counter**: it resets on every counter-set change (possibly every sample), so the TSDB series is bounded/churning (e.g. `50, 50, 60, 60, 55, 55`) rather than monotonically growing. The `increase()`-based totals here (and the default `stats` output) are **not valid** for such counters and are **not yet supported**. If a counter's totals/FLOPS look implausible (e.g. far above the architecture's per-GCD peak), suspect time-multiplexing and corroborate with `num_series` and the raw `omnistat_hardware_counter` series shape (a churning, non-monotonic series confirms it).
 
 **Active vs effective.** Each `rows[]` entry (and each `flops[]` entry) carries two rates:
 - **active** (`active_rate` / `active_rate_flops_per_s`) = total ÷ each GCD's own observed span — *how fast it computed while accumulating*.
@@ -570,7 +572,7 @@ Hardware counters are **cumulative** — values grow monotonically within a sess
 sum(increase(omnistat_hardware_counter{name="SQ_INSTS_VALU_MFMA_MOPS_BF16"}[<job-range>]))
 ```
 
-Apply the same FLOPS formula to the `increase()` result and compare to `total_flops`. Caveat: under heavy time-multiplexing a counter is sampled on only a subset of GCDs at a time, so neither the default nor a single `increase()` query sees a full continuous series — interpret multiplexed counters as lower bounds and corroborate with `num_series`.
+Apply the same FLOPS formula to the `increase()` result and compare to `total_flops`. For a genuinely cumulative counter the two should agree (the default *is* a reset-aware `increase()` over the same range). Caveat: this cross-check only validates the cumulative case — it does **not** rescue a time-multiplexed counter, whose series is rate-like rather than cumulative (see "Time-multiplexing is not yet handled" above); `increase()` over a churning series is meaningless, so neither the default nor this query is valid there.
 
 The set of counters varies by job configuration (e.g., one job may have F32 VALU counters while another has F64). The `hardware_counters` block reflects whichever counters are actually present.
 

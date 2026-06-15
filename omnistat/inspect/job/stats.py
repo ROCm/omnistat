@@ -97,31 +97,33 @@ class Stats(Module):
 
     def _hardware_counters(self) -> dict | None:
         ds = self.ds
-        # Fine step (not coarse_step): coarse truncation drops the first ~300 s
-        # plus a trailing partial window of accumulation — a job-dependent
-        # 30-100% undercount. The full in-window range query also returns every
-        # series despite activation stagger, where a boundary-window query would
-        # miss the GCDs that only report mid-job.
-        step = ds.auto_step()
+        # Reset-aware totals are computed by the backend (server-side
+        # increase()/resets() on the TSDB, full-series despike + per_key_increase
+        # on CSV). The fine step matters only for the client-side/fallback path:
+        # coarse truncation would drop the first ~300 s plus a trailing partial
+        # window of accumulation (a job-dependent 30-100% undercount), and the
+        # full range also captures GCDs that only report mid-job (activation
+        # stagger) where a boundary-window query would miss them.
         effective_duration = ds.job_duration
-        names = self._try_label_values("name", metric="omnistat_hardware_counter")
-        if not names:
+        # Group per GCD *and* counter name in one call; the backend returns one
+        # (delta, span, monotonic) tuple per (instance, card, name) key.
+        per_key = ds.counter_increase("omnistat_hardware_counter", self._HW_KEY_LABELS + ("name",))
+        if not per_key:
             return None
+
+        by_name: dict[str, list[tuple[float, float, bool]]] = {}
+        for key, value in per_key.items():
+            by_name.setdefault(key[-1], []).append(value)
 
         rows: list[dict] = []
         totals: dict[str, float] = {}
         all_spans: list[float] = []
-        for name in sorted(names):
-            results = ds.job_query("omnistat_hardware_counter", step, filters={"name": name})
-            if not results:
-                continue
-            per_key = compute.per_key_increase(results, self._HW_KEY_LABELS)
-            if not per_key:
-                continue
-            total = float(sum(d for d, _, _ in per_key.values()))
-            spans = [s for _, s, _ in per_key.values()]
+        for name in sorted(by_name):
+            entries = by_name[name]
+            total = float(sum(d for d, _, _ in entries))
+            spans = [s for _, s, _ in entries]
             active_duration = float(np.mean(spans)) if spans else 0.0
-            monotonic = all(m for _, _, m in per_key.values())
+            monotonic = all(m for _, _, m in entries)
             active_rate = total / active_duration if active_duration > 0 else 0.0
             effective_rate = total / effective_duration if effective_duration > 0 else 0.0
             rows.append(
@@ -132,7 +134,7 @@ class Stats(Module):
                     "effective_rate": round(effective_rate, 6),
                     "observed_span_seconds": round(active_duration, 4),
                     "monotonic": monotonic,
-                    "num_series": len(per_key),
+                    "num_series": len(entries),
                 }
             )
             totals[name] = total

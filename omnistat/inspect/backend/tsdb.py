@@ -7,6 +7,7 @@ Range-queries a Prometheus-compatible endpoint. :meth:`job_query` accepts
 from __future__ import annotations
 
 import json
+import math
 import time
 import urllib.parse
 import urllib.request
@@ -14,6 +15,7 @@ from datetime import datetime, timedelta, timezone
 
 from prometheus_api_client import PrometheusConnect
 
+from omnistat.inspect import compute
 from omnistat.inspect.backend.base import DataSource
 from omnistat.inspect.constants import SCAN_DAYS, SCAN_STEP
 from omnistat.inspect.helpers import build_jobs_summary
@@ -127,6 +129,98 @@ class TsdbDataSource(DataSource):
 
     def get_label_for_series(self, metric: str) -> str:
         return "instance"
+
+    # ------------------------------------------------------------------
+    # Counter increase (server-side reset-aware totals)
+    # ------------------------------------------------------------------
+
+    def _counter_rollup(
+        self, func: str, agg: str, metric: str, range_secs: int, filters: dict[str, str] | None, group_by: str
+    ) -> str:
+        """Build ``{agg} by ({group_by}) ({func}(metric[Ds]) <job-scope join>)``.
+
+        The rollup (``increase`` / ``resets`` / ``tfirst_over_time`` /
+        ``tlast_over_time``) applies directly to the raw metric selector so it
+        reads raw samples (step-independent, no subquery resampling); the
+        ``rmsjob_info`` identity multiply (value 1) then scopes the result to
+        this job's instances, exactly as :meth:`_scoped_selector`.
+        """
+        selector = metric
+        if filters:
+            selector = f"{metric}{{{_filter_str(filters)}}}"
+        # The rollup spans the whole window, so the job-scope join must too: a
+        # plain instant ``rmsjob_info`` at ``eval_at`` would drop nodes whose job
+        # record is no longer live at that single instant (staggered shutdown).
+        # ``last_over_time(...[Ds])`` yields the identity (1) for every instance
+        # that had any job sample anywhere in the window.
+        join_expr = f"max by (instance) (last_over_time({self._job_selector()}[{range_secs}s]))"
+        rolled = f"{func}({selector}[{range_secs}s])"
+        scoped = f"{rolled} * on (instance) group_left() ({join_expr})"
+        return f"{agg} by ({group_by}) ({scoped})"
+
+    def _rollup_values(self, promql: str, eval_at: datetime, key_labels: tuple[str, ...]) -> dict[tuple, float]:
+        """Evaluate an instant rollup at ``eval_at`` → ``{key: value}`` per series."""
+        results = self._query_range(promql, eval_at, eval_at, 1)
+        out: dict[tuple, float] = {}
+        for r in results:
+            m = r.get("metric", {})
+            key = tuple(str(m.get(label, "unknown")) for label in key_labels)
+            vals = r.get("values")
+            if not vals or vals[-1][1] == "NaN":
+                continue
+            try:
+                out[key] = float(vals[-1][1])
+            except (ValueError, TypeError):
+                continue
+        return out
+
+    def counter_increase(self, metric, key_labels, filters=None):
+        """Server-side reset-aware totals with a per-key client-side fallback.
+
+        Fast path: three instant rollup queries over the padded job range,
+        grouped by ``key_labels``, give per-key ``increase()`` total, observed
+        span (``tlast - tfirst``), and ``resets()`` count in one shot. A series
+        with no resets is exactly the case where despike is a no-op and
+        ``reset_aware_delta == increase()``, so ``resets == 0`` keys are
+        bit-for-bit equivalent to :func:`compute.per_key_increase`.
+
+        Fallback: keys with ``resets > 0`` are ambiguous server-side (spurious
+        zero, genuine reset, or time-mux), so they are recomputed via the full
+        per-key fetch + :func:`compute.per_key_increase`, preserving today's
+        exact behavior (including the ``monotonic`` flag).
+        """
+        group_by = ", ".join(key_labels)
+        range_secs = int(math.ceil(self.job_duration)) + 120
+        eval_at = self.end_time
+
+        total_q = self._counter_rollup("increase", "sum", metric, range_secs, filters, group_by)
+        resets_q = self._counter_rollup("resets", "sum", metric, range_secs, filters, group_by)
+        tlast_q = self._counter_rollup("tlast_over_time", "max", metric, range_secs, filters, group_by)
+        tfirst_q = self._counter_rollup("tfirst_over_time", "min", metric, range_secs, filters, group_by)
+        span_q = f"{tlast_q} - {tfirst_q}"
+
+        totals = self._rollup_values(total_q, eval_at, key_labels)
+        spans = self._rollup_values(span_q, eval_at, key_labels)
+        resets = self._rollup_values(resets_q, eval_at, key_labels)
+
+        out: dict[tuple, tuple[float, float, bool]] = {}
+        for key, delta in totals.items():
+            span = max(0.0, spans.get(key, 0.0))
+            out[key] = (delta, span, resets.get(key, 0.0) == 0)
+
+        reset_keys = {key for key, (_, _, mono) in out.items() if not mono}
+        if reset_keys:
+            fallback_filters = dict(filters or {})
+            if "name" in key_labels:
+                ni = key_labels.index("name")
+                names = sorted({key[ni] for key in reset_keys})
+                fallback_filters["name"] = "|".join(names)
+            results = self.job_query(metric, self.auto_step(), filters=fallback_filters)
+            refined = compute.per_key_increase(results, key_labels)
+            for key in reset_keys:
+                if key in refined:
+                    out[key] = refined[key]
+        return out
 
     # ------------------------------------------------------------------
     # Job discovery
