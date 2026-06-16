@@ -115,11 +115,25 @@ Rows in display order. Each entry: `{source, label, name, mean, min, max, unit, 
 Each entry: `{source, label, name, total, unit}`. Same base-unit convention as gauges. Same emit-only-if-present rule.
 
 ### `stats.hardware_counters`
-`null` or `{rows: [...], flops: [...] | null}`.
+`null` or `{rows: [...], flops: [...] | null, variance: {...}}`.
 
 Each `rows[]` entry: `{counter, total, active_rate, effective_rate, observed_span_seconds, monotonic, num_series}`. Counters are summed per GCD (`(instance, card)`) over the full job range using reset-aware `increase()` semantics, so `total` is robust to the ROCm spurious-zero glitch. `active_rate` = `total ÷ observed_span_seconds` (mean per-GCD span actually accumulating); `effective_rate` = `total ÷ job duration` (charges startup/activation idle). `monotonic` is `false` when a downward step (spurious zero, genuine reset, or multiplexing) was detected. Totals/FLOPS assume a **cumulative** counter; **time-multiplexed counters are rate-like (the series churns instead of growing) and are not yet supported**, so an implausible `total`/FLOPS or a `monotonic: false` row likely indicates multiplexing rather than a usable figure.
 
 Each `flops[]` entry: `{precision, kind, total_flops, active_rate_flops_per_s, effective_rate_flops_per_s}` (or the whole `flops` is `null`). `active_rate_flops_per_s` divides by the mean per-GCD active span, `effective_rate_flops_per_s` by full wall time.
+
+`variance` carries the **per-counter-name spatial variance** of per-GCD counter totals, with the same outer shape as `stats.kernels.variance`:
+
+```jsonc
+{
+  "cv_threshold": <float>,
+  "metric": "counter_total",     // the compared quantity = per-GCD cumulative counter delta
+  "by_node":   [ ... ],          // key fields: {instance}
+  "by_gpu_id": [ ... ],          // key fields: {card}
+  "by_gpu":    [ ... ]           // key fields: {instance, card}
+}
+```
+
+Each list entry has the same outer shape as a `stats.variance.by_*` entry (`source`/`label`/`name`/`unit`/`reduction`/`n`/`cv`/`min`/`max`/`all`|`percentiles`) **plus a `counter` field** holding the counter name; `source` is `"GPU"`, `label`/`name` are the counter name, `unit` is `"count"`, and `reduction` is `"total"`. The compared quantity is each GCD's **cumulative counter total** — a direct FLOPS-imbalance proxy, since FLOPS scale with the hardware-counter total, so a single straggler GCD surfaces here. All three lists are `[]` when nothing crossed `cv_threshold`.
 
 ### `stats.kernels`
 `null` when kernel tracing was off / no kernel data exists (the report omits the Top kernels table and the folded kernel-dispatch-duration variance rows). Otherwise:
@@ -158,7 +172,7 @@ Every entry, in every section, carries the same outer shape:
 ```jsonc
 {
   "source": "...", "label": "...", "name": "...", "unit": "...",
-  "reduction": "temporal_mean" | "rate" | "ratio",
+  "reduction": "temporal_mean" | "rate" | "ratio" | "total",
   "n": <int>, "cv": <float>,
   "min": {<key_fields>, "value": <float>},
   "max": {<key_fields>, "value": <float>},
@@ -173,6 +187,7 @@ Every entry, in every section, carries the same outer shape:
   - `temporal_mean` — the time-average of the metric's samples (plain gauges, GPU variance).
   - `rate` — Δtotal ÷ active duration, an average rate (counter-derived gauges like network RX/TX).
   - `ratio` — Δa ÷ Δb between two counters (kernel `mean_dispatch_duration_ns` = Δduration ÷ Δdispatches).
+  - `total` — a single cumulative-counter delta (last − first, reset-aware) per key. Used by the counter spatial entries (every `COUNTER_LIST` metric: IO, network, vendor energy, xGMI) that now appear in `stats.variance`, grouped by `source` exactly like gauges. GPU-source counters (xGMI) additionally get `by_gpu`/`by_gpu_id` entries; non-GPU counters get only `by_node`. These render through the existing transposed `Min | Typical | Max` gauge tables with **no new section** — a `reduction: "total"` row may incidentally co-exist with a `reduction: "rate"` row for the same xGMI/network metric (different comparison basis, both CV-gated).
 - `n` is the per-key population size (number of nodes / card slots / GPUs that contributed). Same key name as `stats.gauges[].n`, but the underlying population differs (per-sample there, per-key here).
 - `cv` is the **between-key** CV across the per-key reduced values (not the same as `stats.gauges[].cv`, which is the pooled per-sample CV).
 - `unit` is the metric's native base unit (same convention as `stats.gauges[].unit`); the renderer picks a display unit per entry without consulting the gauge row.
@@ -270,7 +285,7 @@ Stay factual — do not label any kernel "slow", "hot", or a "straggler".
 
 ### Variance
 
-A dedicated top-level section with three fixed subsections — Node-level, GPU-ID, GPU-level. Each subsection **combines gauge variance** (`stats.variance.by_*`) **with the matching axis of kernel mean-dispatch-duration variance** (`stats.kernels.variance.by_*`); there is no standalone "Kernel variance" subsection. Rendering rules below apply uniformly per section, gated only by `n`:
+A dedicated top-level section with three fixed subsections — Node-level, GPU-ID, GPU-level. Each subsection **combines gauge variance** (`stats.variance.by_*`, which now also carries counter `reduction: "total"` entries grouped by `source`) **with the matching axis of kernel mean-dispatch-duration variance** (`stats.kernels.variance.by_*`) **and hardware-counter-total variance** (`stats.hardware_counters.variance.by_*`); there is no standalone "Kernel variance" or "Hardware counter" subsection. Rendering rules below apply uniformly per section, gated only by `n`:
 
 - **Small section (`n ≤ 16`, entry carries `all`)** — render every key in a table. Today's `by_gpu_id` pattern.
 - **Large section (`n > 16`, entry carries `percentiles`)** — render a table **transposed so each metric is a row**, with columns `Min | Typical | Max` (`min.value`, the entry's `p50`, `max.value`, with units, no other annotations). The outer percentiles (`p5`, `p25`, `p75`, `p95`), `cv`, and `n` are available in the JSON and feed the optional annotations below; they do not appear in the table.
@@ -283,8 +298,10 @@ A small section emerges naturally in `by_gpu_id` (n ≤ 8 on MI250X), and also i
 
 **Folded kernel-variance table (shared rule for every subsection).** When the kernel-variance list for a subsection's axis is non-empty (`stats.kernels.variance.by_node` for Node-level, `by_gpu_id` for GPU-ID, `by_gpu` for GPU-level), append a kernel table **after** that subsection's gauge content, under a `**Kernel mean dispatch duration**` bold lead-in (no extra heading). The compared quantity is each kernel's mean dispatch duration (ns/dispatch, `reduction: ratio`). Render it **transposed** — one row per kernel, columns `Min | Typical | Max` (`min.value`; `p50` for large-n or the median of `all` for small-n; `max.value`). Convert ns → µs/ms per Unit Selection, truncate kernel names (~60 chars + ellipsis), and add no `cv`/`n`/spread columns. Factual tone only — never call a kernel slow or a straggler.
 
+**Folded hardware-counter-totals table (shared rule for every subsection).** When the hardware-counter-variance list for a subsection's axis is non-empty (`stats.hardware_counters.variance.by_node` for Node-level, `by_gpu_id` for GPU-ID, `by_gpu` for GPU-level), append a counter table **after** that subsection's gauge (and kernel) content, under a `**Hardware counter totals**` bold lead-in (no extra heading). The compared quantity is each GCD's cumulative counter total (`reduction: total`), a FLOPS-imbalance proxy. Render it **transposed** — one row per counter (`entry.counter`), columns `Min | Typical | Max` (`min.value`; `p50` for large-n or the median of `all` for small-n; `max.value`). Counter totals are dimensionless counts; pick a readable magnitude (e.g. `M`/`G` suffix) and add no `cv`/`n`/spread columns. Factual tone only — never call a GCD a straggler.
+
 #### Node-level variance
-If `stats.variance.by_node` **and** `stats.kernels.variance.by_node` are both empty (`[]`), write: **"All nodes behaved uniformly."** Otherwise render whichever parts have signal: the gauge table(s) below when `stats.variance.by_node` is non-empty, then the folded `**Kernel mean dispatch duration**` table (shared rule above) when `stats.kernels.variance.by_node` is non-empty.
+If `stats.variance.by_node`, `stats.kernels.variance.by_node`, **and** `stats.hardware_counters.variance.by_node` are all empty (`[]`), write: **"All nodes behaved uniformly."** Otherwise render whichever parts have signal: the gauge table(s) below when `stats.variance.by_node` is non-empty, then the folded `**Kernel mean dispatch duration**` table (shared rule above) when `stats.kernels.variance.by_node` is non-empty, then the folded `**Hardware counter totals**` table when `stats.hardware_counters.variance.by_node` is non-empty.
 
 For the gauge content, group entries by their `source` field (e.g. `GPU`, `Vendor`, `Host`, `Network`).
 
@@ -300,14 +317,14 @@ All three value columns are pure numbers in the row's display unit (no parenthet
 For the small-n case (`n ≤ 16`), keep the existing per-key table (one row per key, one column per entry) — that's the GPU-ID pattern below. No transposition needed because there's no key-vs-key cross-comparison to lose.
 
 #### GPU-ID variance
-If `stats.variance.by_gpu_id` **and** `stats.kernels.variance.by_gpu_id` are both empty (`[]`), write: **"All card slots behaved uniformly."** Otherwise render the gauge per-card table below when `stats.variance.by_gpu_id` is non-empty, then the folded `**Kernel mean dispatch duration**` table when `stats.kernels.variance.by_gpu_id` is non-empty.
+If `stats.variance.by_gpu_id`, `stats.kernels.variance.by_gpu_id`, **and** `stats.hardware_counters.variance.by_gpu_id` are all empty (`[]`), write: **"All card slots behaved uniformly."** Otherwise render the gauge per-card table below when `stats.variance.by_gpu_id` is non-empty, then the folded `**Kernel mean dispatch duration**` table when `stats.kernels.variance.by_gpu_id` is non-empty, then the folded `**Hardware counter totals**` table when `stats.hardware_counters.variance.by_gpu_id` is non-empty.
 
 For the gauge content (always small-n on current hardware), render a single per-card table — one row per card present in any entry's `all`, one column per entry (column header = `entry.label`). Each cell shows the slot's mean (the value from `all[card]`). Slots absent from an entry's `all` (e.g. MI250X odd cards filtered out of Power) render as a dash. Pick display units per the Unit Selection rules.
 
 Do not write an intro paragraph above the table — the section header and table column carry the metric name, and the table itself shows the per-slot values. After the table, write at most one short line of context that adds something the table cannot show, but only when it is backed by the loaded architecture profile (e.g. a note that MI250X odd cards are filtered out of Power per the profile's power-reporting quirk). Do not assert causal mechanisms that the profile does not document. Skip the line if there's nothing architecture-specific and documented to say.
 
 #### GPU variance
-If `stats.variance.by_gpu` **and** `stats.kernels.variance.by_gpu` are both empty (`[]`), write: **"All GPUs behaved uniformly."** Otherwise render the gauge table(s) below when `stats.variance.by_gpu` is non-empty, then the folded `**Kernel mean dispatch duration**` table when `stats.kernels.variance.by_gpu` is non-empty.
+If `stats.variance.by_gpu`, `stats.kernels.variance.by_gpu`, **and** `stats.hardware_counters.variance.by_gpu` are all empty (`[]`), write: **"All GPUs behaved uniformly."** Otherwise render the gauge table(s) below when `stats.variance.by_gpu` is non-empty, then the folded `**Kernel mean dispatch duration**` table when `stats.kernels.variance.by_gpu` is non-empty, then the folded `**Hardware counter totals**` table when `stats.hardware_counters.variance.by_gpu` is non-empty.
 
 For the gauge content, group entries by `source`. Large-n (typical): one table per source group, **transposed so each metric is a row**, with columns `Min | Typical | Max` (`min.value`, `p50`, `max.value`) — same shape as Node-level, no `cv`/`n`/spread row. Small-n (`n ≤ 16`, rare): full per-GPU table from `all`.
 
