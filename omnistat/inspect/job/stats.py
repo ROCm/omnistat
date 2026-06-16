@@ -143,7 +143,53 @@ class Stats(Module):
         active_duration = float(np.mean(all_spans)) if all_spans else 0.0
         flops_dicts = compute.flops(totals, active_duration, effective_duration)
         flops = [dict(**f) for f in flops_dicts] if flops_dicts else None
-        return {"rows": rows, "flops": flops}
+        variance = self._hw_counter_variance(per_key)
+        return {"rows": rows, "flops": flops, "variance": variance}
+
+    def _hw_counter_variance(self, per_key: dict[tuple, tuple]) -> dict:
+        """Per-counter-name spatial variance of per-GCD counter totals.
+
+        Mirrors :meth:`_kernel_variance`: the compared quantity is each GCD's
+        cumulative counter delta (``reduction="total"``), a direct FLOPS-imbalance
+        proxy since FLOPS scale with the hardware-counter total. ``per_key`` is
+        ``{(instance, card, name): (delta, span, monotonic)}``.
+        """
+        by_counter: dict[str, dict[tuple, float]] = {}
+        for (inst, card, name), (delta, _span, _monotonic) in per_key.items():
+            by_counter.setdefault(name, {})[(inst, card)] = delta
+
+        by_node, by_gpu_id, by_gpu = [], [], []
+        for name in sorted(by_counter):
+            per_gpu = by_counter[name]
+            meta = {"source": "GPU", "label": name, "name": name, "unit": "count"}
+            extra = {"counter": name}
+
+            entry = self._variance_entry(name, ("instance", "card"), per_gpu, meta=meta, extra=extra, reduction="total")
+            if entry:
+                by_gpu.append(entry)
+
+            node_totals: dict[str, float] = {}
+            for (inst, _card), d in per_gpu.items():
+                node_totals[inst] = node_totals.get(inst, 0.0) + d
+            entry = self._variance_entry(name, ("instance",), node_totals, meta=meta, extra=extra, reduction="total")
+            if entry:
+                by_node.append(entry)
+
+            by_card: dict[str, list[float]] = {}
+            for (_inst, card), d in per_gpu.items():
+                by_card.setdefault(card, []).append(d)
+            slot = {card: float(np.mean(by_card[card])) for card in sorted(by_card)}
+            entry = self._variance_entry(name, ("card",), slot, meta=meta, extra=extra, reduction="total")
+            if entry:
+                by_gpu_id.append(entry)
+
+        return {
+            "cv_threshold": self.p.cv_threshold,
+            "metric": "counter_total",
+            "by_node": by_node,
+            "by_gpu_id": by_gpu_id,
+            "by_gpu": by_gpu,
+        }
 
     # ------------------------------------------------------------------
     # Kernel tracing (optional collector)
@@ -271,13 +317,52 @@ class Stats(Module):
                 continue
             gpu_raw[name] = self._fetch_series(name, step)
         by_id, by_gpu = self._gpu_variance(gpu_raw)
+        c_by_node, c_by_id, c_by_gpu = self._counter_variance(step)
         return {
             "cv_threshold": self.p.cv_threshold,
             "verbose": self.p.verbose,
-            "by_node": self._per_node_variance(step, gauge_cvs),
-            "by_gpu_id": by_id,
-            "by_gpu": by_gpu,
+            "by_node": self._per_node_variance(step, gauge_cvs) + c_by_node,
+            "by_gpu_id": by_id + c_by_id,
+            "by_gpu": by_gpu + c_by_gpu,
         }
+
+    def _counter_variance(self, step: float) -> tuple[list[dict], list[dict], list[dict]]:
+        """Per-counter spatial variance of cumulative-counter totals.
+
+        Returns ``(by_node, by_gpu_id, by_gpu)``. Every ``COUNTER_LIST`` metric
+        gets a per-node ``by_node`` entry; GPU-source counters (xGMI) also get
+        per-(instance,card) ``by_gpu`` and per-card-slot ``by_gpu_id`` entries.
+        All entries carry ``reduction="total"`` (per-key cumulative delta) and
+        are CV-gated by :meth:`_variance_entry`.
+        """
+        by_node, by_gpu_id, by_gpu = [], [], []
+        for row in constants.COUNTER_LIST:
+            results = self.ds.job_query(row.name, step)
+            if not results:
+                continue
+            meta = {"source": row.source, "label": row.label, "name": row.name, "unit": row.unit}
+
+            per_node = compute.per_node_counter_deltas(results)
+            means = {inst: delta for inst, (delta, _dur) in per_node.items()}
+            entry = self._variance_entry(row.name, ("instance",), means, meta=meta, reduction="total")
+            if entry:
+                by_node.append(entry)
+
+            if row.source != "GPU":
+                continue
+            per_gpu = compute.per_key_counter_deltas(results, ("instance", "card"))
+            entry = self._variance_entry(row.name, ("instance", "card"), per_gpu, meta=meta, reduction="total")
+            if entry:
+                by_gpu.append(entry)
+
+            by_card: dict[str, list[float]] = {}
+            for (_inst, card), d in per_gpu.items():
+                by_card.setdefault(card, []).append(d)
+            slot = {card: float(np.mean(by_card[card])) for card in sorted(by_card)}
+            entry = self._variance_entry(row.name, ("card",), slot, meta=meta, reduction="total")
+            if entry:
+                by_gpu_id.append(entry)
+        return by_node, by_gpu_id, by_gpu
 
     @staticmethod
     def _extreme(key_fields: tuple, k: Any, v: float) -> dict:
