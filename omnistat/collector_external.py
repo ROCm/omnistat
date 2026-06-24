@@ -46,8 +46,8 @@ Runtime configuration (omnistat.collectors.external section):
     script = /path/to/my/script.sh
     timeout = 10
 
-The script path is required; timeout defaults to 10 seconds.  All metric names
-are prefixed with "omnistat_" before registration.
+The script path is required; timeout defaults to 10 seconds.  Metric names are
+used verbatim; an "omnistat_external" label is added to each metric for identification.
 """
 
 import configparser
