@@ -21,6 +21,9 @@ Note that Omnistat metrics generally fall into one of the two following types:
   and include a `card` label to distinguish between them. These metric types are denoted
   with a *GPU Metric* heading.
 
+In addition, an optional [External](#external) data collector is available to
+ingest additional site-specific metrics not included directly in Omnistat.
+
 <hr style="border: 1px solid black;">
 
 ## ROCm
@@ -333,3 +336,83 @@ Slingshot.
 | :-------------------------- | :----------------------------------- |
 | `omnistat_network_tx_bytes` | Total bytes transmitted by network interface. Labels: `device_class`, `interface`. |
 | `omnistat_network_rx_bytes` | Total bytes received by network interface. Labels: `device_class`, `interface`. |
+
+<hr style="border: 1px solid black;">
+
+## External
+
+The external data collector provides a mechanism to incorporate custom,
+site-specific metrics into Omnistat by executing a user-provided script at each
+collection interval. The script is expected to write metrics to stdout in
+[Prometheus text exposition
+format](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format)
+(one metric per line). Metric names and labels are not fixed in advance --
+they are discovered dynamically from the script output at runtime.
+
+All metrics produced by the external script are automatically tagged with an
+`omnistat_external="1"` label to distinguish them from native Omnistat metrics.
+Any metric that is **not** present in the script output on a given invocation
+will be automatically removed from Omnistat tracking so metrics can be dynamically added/deleted via this method.
+
+**Collector**: `enable_external`
+<br/>
+**Collector options**: `script`, `timeout`
+
+### Configuration
+
+The external collector is enabled by setting `enable_external = True` in the
+`[omnistat.collectors]` section. Collector options are configured in a
+separate `[omnistat.collectors.external]` section where `script` specifies
+the path to the executable and `timeout` (default: 10 seconds) controls how
+long Omnistat will wait for the script to complete before discarding its
+output.
+
+```eval_rst
+.. code-block:: ini
+   :caption: Example configuration
+
+    [omnistat.collectors]
+    enable_external = True
+
+    [omnistat.collectors.external]
+    script = /path/to/my_metrics.sh
+    timeout = 10
+```
+
+### Script output format
+
+The script must print metrics to stdout using the following format:
+
+```
+metric_name value
+metric_name{label1="val1",label2="val2"} value
+```
+
+Lines beginning with `#` and empty lines are ignored.
+
+### Example
+
+The following example script emits free disk space metrics for multiple
+filesystems, using a label to distinguish between them.
+
+```eval_rst
+.. code-block:: bash
+   :caption: my_metrics.sh
+
+    #!/usr/bin/env bash
+    # Emit free space (bytes) for monitored filesystems
+    for fs in /home /scratch; do
+        free_bytes=$(df --output=avail -B1 "${fs}" | tail -1)
+        echo "site_disk_free_bytes{fs=\"${fs}\"} ${free_bytes}"
+    done
+```
+
+Running the script produces output that Omnistat parses directly:
+
+```eval_rst
+.. code-block:: console
+
+    $ ./my_metrics.sh
+    site_disk_free_bytes{fs="/home"} 524288000000
+    site_disk_free_bytes{fs="/scratch"} 1932735283200
+```
