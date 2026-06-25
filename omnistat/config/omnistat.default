@@ -10,6 +10,7 @@ enable_network = True
 enable_vendor_counters = False
 enable_host_metrics = True
 enable_kernel_trace = False
+enable_external = False
 
 ## Path to local ROCM install to access SMI library
 rocm_path = /opt/rocm
@@ -98,6 +99,11 @@ counters = [
 [omnistat.collectors.rocprofiler.cache_l2_hitrate]
 sampling_mode = constant
 counters = ["TCC_HIT_sum", "TCC_MISS_sum"]
+
+## Path to external data collector
+[omnistat.collectors.external]
+script = /path/to/my_metrics.sh
+timeout = 10
 
 [omnistat.query]
 
