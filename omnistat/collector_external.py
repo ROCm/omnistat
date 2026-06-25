@@ -44,9 +44,9 @@ Example script output:
 Runtime configuration (omnistat.collectors.external section):
 
     script = /path/to/my/script.sh
-    timeout = 10
+    timeout_secs = 10
 
-The script path is required; timeout defaults to 10 seconds.  Metric names are
+The script path is required; timeout_secs defaults to 10 seconds.  Metric names are
 used verbatim; an "omnistat_external" label is added to each metric for identification.
 """
 
@@ -90,7 +90,7 @@ class ExternalScript(Collector):
             sys.exit(1)
 
         self.__script = section.get("script").strip()
-        self.__timeout = section.getint("timeout", 10)
+        self.__timeout = section.getint("timeout_secs", 10)
 
     def registerMetrics(self):
         logging.info(f"script: {self.__script}")
