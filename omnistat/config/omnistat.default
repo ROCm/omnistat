@@ -103,7 +103,7 @@ counters = ["TCC_HIT_sum", "TCC_MISS_sum"]
 ## Path to external data collector
 [omnistat.collectors.external]
 script = /path/to/my_metrics.sh
-timeout = 10
+timeout_secs = 10
 
 [omnistat.query]
 
