@@ -356,14 +356,14 @@ will be automatically removed from Omnistat tracking so metrics can be dynamical
 
 **Collector**: `enable_external`
 <br/>
-**Collector options**: `script`, `timeout`
+**Collector options**: `script`, `timeout_secs`
 
 ### Configuration
 
 The external collector is enabled by setting `enable_external = True` in the
 `[omnistat.collectors]` section. Collector options are configured in a
 separate `[omnistat.collectors.external]` section where `script` specifies
-the path to the executable and `timeout` (default: 10 seconds) controls how
+the path to the executable and `timeout_secs` (default: 10 seconds) controls how
 long Omnistat will wait for the script to complete before discarding its
 output.
 
@@ -376,7 +376,7 @@ output.
 
     [omnistat.collectors.external]
     script = /path/to/my_metrics.sh
-    timeout = 10
+    timeout_secs = 10
 ```
 
 ### Script output format

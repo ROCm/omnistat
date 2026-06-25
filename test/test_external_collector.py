@@ -46,7 +46,7 @@ class ExternalTestServer(OmnistatTestServer):
         config_sections = {
             "omnistat.collectors.external": {
                 "script": f"{EXTERNAL_COLLECTOR} {statefile}",
-                "timeout": "5",
+                "timeout_secs": "5",
             },
         }
         super().__init__(["external"], config_sections=config_sections)
