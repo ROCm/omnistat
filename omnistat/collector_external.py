@@ -126,9 +126,7 @@ class ExternalScript(Collector):
             return []
 
         if result.returncode != 0:
-            logging.warning(
-                f"ExternalScript: script exited with code {result.returncode}: {result.stderr.strip()}"
-            )
+            logging.warning(f"ExternalScript: script exited with code {result.returncode}: {result.stderr.strip()}")
 
         return result.stdout.splitlines()
 
