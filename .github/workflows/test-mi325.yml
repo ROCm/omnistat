@@ -52,7 +52,7 @@ jobs:
           amd-smi metric -E
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Update git directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
