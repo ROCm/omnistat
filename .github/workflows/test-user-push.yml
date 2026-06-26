@@ -13,7 +13,7 @@ jobs:
         execution: [ source, package ]
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Comment out GPU devices (not available in GitHub)
         run: sed -i "/devices:/,+2 s/^/#/" test/docker/slurm/compose.yaml
       - name: Disable SMI collector (won't work in GitHub)
