@@ -71,7 +71,7 @@ jobs:
 ##           path: results.xml
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@v6
         if: ${{ !cancelled() }}
         with:
           include_passed: 'true'
