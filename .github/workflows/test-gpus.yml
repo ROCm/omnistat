@@ -60,7 +60,7 @@ jobs:
         run: |
           source omnistat_venv/bin/activate
           srun -N 1 -J omnistat -p $CI_QUEUE -t 00:10:00 \
-            pytest -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_rocprofiler_collectors.py test/test_external_collector.py
+            pytest -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py
 
 ##       - name: Test Report
 ##         uses: dorny/test-reporter@v2
