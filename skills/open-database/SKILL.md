@@ -265,14 +265,14 @@ docker rm victoria-metrics
 
 ## Using Omnistat Query Tools
 
-Once VictoriaMetrics is running with your database loaded, you can use Omnistat's standalone query utilities:
+Once VictoriaMetrics is running with your database loaded, you can use `omnistat-inspect`:
 
 ```bash
 # Generate a report card for a specific job
-omnistat-query --prometheus-url http://localhost:8428 --job <job_id>
+omnistat-inspect --tsdb-url http://localhost:8428 job <job_id> report
 ```
 
-Refer to the Omnistat query documentation for more advanced usage.
+Refer to the `omnistat-inspect` documentation for more advanced usage.
 
 ## Important Notes
 
