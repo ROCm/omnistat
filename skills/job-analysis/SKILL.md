@@ -411,7 +411,22 @@ omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID times
 
 # Filter to a specific node or GPU
 omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID timeseries --metric rocm_utilization_percentage --node hostname1 --card 0 > $SCRATCH/node1_card0.json
+
+# Filter by any other label with --label KEY=VALUE (repeatable). Value may be a
+# regex (contains | or .*). Works on both TSDB and CSV. For example, export a
+# single hardware counter's raw series by its `name` label:
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID timeseries \
+  --metric omnistat_hardware_counter --label name=SQ_INSTS_VALU_FMA_F32 > $SCRATCH/fma_f32.json
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID timeseries \
+  --metric omnistat_hardware_counter --label 'name=FETCH_SIZE|WRITE_SIZE' > $SCRATCH/hbm_raw.json
 ```
+
+`timeseries` exports **raw** series (no aggregation, no rate). **Derived metrics
+over time** — FLOPS, HBM bandwidth, and L1/L2 cache hit rate — are computed via the
+`query` subcommand using the ready-to-run PromQL documented in the architecture
+profile (`gpus/mi250x.md`, `gpus/mi300x.md`); the formulas are arch-specific (e.g.
+MI300X includes F8/F6F4 matrix precisions, MI250X does not). This derived-over-time
+path is **TSDB-only** (CSV exports have no PromQL engine).
 
 For ad-hoc investigation, use the `query` subcommand with raw PromQL:
 
@@ -577,6 +592,12 @@ Apply the same FLOPS formula to the `increase()` result and compare to `total_fl
 The set of counters varies by job configuration (e.g., one job may have F32 VALU counters while another has F64). The `hardware_counters` block reflects whichever counters are actually present.
 
 **Per-GCD imbalance (FLOPS-imbalance proxy).** `hardware_counters.variance` carries per-counter-name spatial variance of the per-GCD counter totals (`reduction: "total"`, `metric: "counter_total"`), with the same `by_node`/`by_gpu_id`/`by_gpu` shape as `stats.kernels.variance` plus a `counter` field. Because FLOPS scale linearly with the hardware-counter total, the between-GCD `cv` and `min`/`max` here are a **direct FLOPS-imbalance proxy** — a single straggler GCD (and the FLOPS imbalance it implies) surfaces as a `by_gpu` entry that the scalar `num_series`/`total` in `rows[]` cannot show. CV-gated like all variance, so uniform counters are absent.
+
+The `stats` figures above are **whole-job scalars**. For the same metrics **over
+time** — FLOPS, HBM read/write bandwidth, and L1/L2 cache hit rate as time series —
+the architecture profile (`gpus/`) provides ready-to-run PromQL you paste into the
+`query` subcommand (TSDB-only). Raw single-counter series (no rate) are available on
+both backends via `timeseries --metric omnistat_hardware_counter --label name=<COUNTER>`.
 
 Consult the GPU architecture profile (`gpus/`) for platform-specific counter names, FLOPS formulas, per-GCD peaks, and bandwidth interpretation.
 

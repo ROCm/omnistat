@@ -7,7 +7,7 @@ from omnistat.inspect.job.core import Module
 
 class Timeseries(Module):
     name = "timeseries"
-    param_defaults = {"metric": None, "node": None, "card": None}
+    param_defaults = {"metric": None, "node": None, "card": None, "label": None}
 
     def build(self) -> dict:
         filters = {}
@@ -15,6 +15,11 @@ class Timeseries(Module):
             filters["instance"] = self.p.node
         if self.p.card:
             filters["card"] = self.p.card
+        for item in self.p.label or []:
+            key, sep, value = item.partition("=")
+            if not sep or not key:
+                raise ValueError(f"Malformed --label '{item}'; expected KEY=VALUE")
+            filters[key] = value
         step = self.ds.auto_step()
         results = self.ds.job_query(self.p.metric, step, filters=filters or None)
         series = [

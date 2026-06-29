@@ -159,6 +159,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_ts.add_argument("--metric", required=True, dest="metric", help="Metric name to export")
     p_ts.add_argument("--node", default=None, dest="node", help="Filter by node (instance)")
     p_ts.add_argument("--card", default=None, dest="card", help="Filter by GPU card")
+    p_ts.add_argument(
+        "--label",
+        action="append",
+        default=None,
+        dest="label",
+        metavar="KEY=VALUE",
+        help="Filter by an arbitrary label (repeatable); value may be a regex (e.g. name=FETCH_SIZE|WRITE_SIZE)",
+    )
 
     db = groups.add_parser("db", help="Inspect the data source (no job context)")
     db_subs = db.add_subparsers(dest="command")
