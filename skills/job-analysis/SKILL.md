@@ -58,12 +58,12 @@ omnistat-inspect --tsdb-url $TSDB_URL job JOBID \
 
 The `query` and `timeseries` subcommands are typically run late in the analysis,
 well after discovery. **Always pass the same `--cache-dir` you used for the
-initial `report`/`overview` call** so they rehydrate the cached discovery
+initial `report`/`info` call** so they rehydrate the cached discovery
 snapshot instead of re-scanning:
 
 ```bash
 # Early: discovery runs once and is cached (time range + sampling interval)
-omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID overview
+omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID info
 
 # Later: query/timeseries reuse the snapshot — no re-scan, correct default step
 omnistat-inspect --tsdb-url $TSDB_URL --cache-dir $SCRATCH/cache job JOBID \
@@ -197,7 +197,7 @@ Step resolution significantly affects observed statistics. Coarse steps (e.g., 6
 
 The `stats`, `health`, and `iterations` subcommands **auto-compute the finest safe query step**. The step is `max(sampling_interval, runtime / 90000)` — never finer than the actual data, never exceeding VictoriaMetrics' `search.maxPointsPerTimeseries` limit (90,000). There is no arbitrary floor: sub-second sampling intervals are preserved for short jobs where VM limits allow it.
 
-The `iterations` subcommand does **not** accept `--interval` — it always uses auto-computed steps. The `stats` and `health` subcommands accept an optional `--interval` for time-range refinement only (the query step is still auto-computed).
+`--interval` is a flag on the `job` group and must be placed *before* the subcommand (e.g. `job JOBID --interval N stats`), not after it. The `iterations` subcommand ignores `--interval` — it always uses an auto-computed step. For `stats` and `health` it refines the time range only, while the query step stays auto-computed.
 
 For `timeseries` and `query`, the default step is the discovered sampling interval (`max(sampling_interval, 1s)`) when you reuse the cached discovery snapshot via `--cache-dir` — full resolution with no extra flags. For a coarser overview on a long job, `query` accepts an explicit `--step SECONDS`; `timeseries` has no `--step`, so adjust its resolution via the cached interval or the global `--interval`.
 
@@ -220,11 +220,10 @@ The `health` block covers both data-collection coverage (completeness, timing st
 
 Review the coverage portion of the health report for:
 - **Missing nodes**: `expected_nodes` vs `reporting_nodes` — any gap means some nodes never reported
-- **Activation stagger**: `activation.spread_seconds` — how long it took for all nodes to start reporting. A spread >5% of total job duration is significant and means early-job statistics are skewed by partial participation
-- **Deactivation stagger**: `deactivation.spread_seconds` — same for shutdown. Large spread means late-job statistics are unreliable
-- **Sampling gaps**: `sampling_gaps.nodes_with_gaps` and `sampling_gaps.total_gaps` — check `gap_timing` to see if gaps are clustered (systemic event, e.g., network outage) or distributed (per-node issues). Clustered gaps at the same offset suggest a single event affecting all nodes simultaneously
-- **Reporting duration**: `reporting_duration.stats` — nodes with significantly shorter reporting durations may have crashed or been evicted mid-job
-- **Timing source**: `timing_source` — indicates which metric was used to derive per-node timing (`rmsjob_info` in TSDB mode; in CSV mode, falls back to GPU/host metrics like `rocm_utilization_percentage` when `rmsjob_info` is absent)
+- **Activation stagger**: `activation_stagger_seconds` — how long it took for all nodes to start reporting. A spread >5% of total job duration is significant and means early-job statistics are skewed by partial participation
+- **Deactivation stagger**: `deactivation_stagger_seconds` — same for shutdown. Large spread means late-job statistics are unreliable
+- **Sampling gaps**: `nodes_with_gaps` and `total_gaps` — gaps are reported only as counts, not per-gap timing. To localize them (e.g., distinguish a clustered systemic event from distributed per-node issues), drill down with `timeseries`/`query`
+- **Reporting duration**: `reporting_duration_per_node_seconds` (a `{mean, min, max}` object) — nodes with significantly shorter reporting durations may have crashed or been evicted mid-job
 
 #### Hardware health (`health`)
 
@@ -689,10 +688,9 @@ Every `omnistat-inspect` subcommand includes a `query_stats` block in its output
 
 ```json
 "query_stats": {
-  "num_queries": 12,
+  "total_queries": 12,
   "total_query_time_seconds": 3.45,
-  "queries": [...],
-  "analysis_elapsed_seconds": 5.12
+  "elapsed_seconds": 5.12
 }
 ```
 
@@ -707,7 +705,7 @@ Every `omnistat-inspect` subcommand includes a `query_stats` block in its output
    - Total analysis elapsed time
    - Step resolutions used and the sampling interval
 
-Each invocation emits its own `query_stats` block; sum the `num_queries` and `total_query_time_seconds` across the JSON outputs you saved to `$SCRATCH` to get session totals. Using `--cache-dir` avoids re-running discovery and cached module queries across invocations, so repeated runs add few or no new queries.
+Each invocation emits its own `query_stats` block; sum the `total_queries` and `total_query_time_seconds` across the JSON outputs you saved to `$SCRATCH` to get session totals. Using `--cache-dir` avoids re-running discovery and cached module queries across invocations, so repeated runs add few or no new queries.
 
 ## Reporting Guidelines
 
