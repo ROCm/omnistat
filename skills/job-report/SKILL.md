@@ -321,6 +321,8 @@ If `stats.variance.by_gpu_id`, `stats.kernels.variance.by_gpu_id`, **and** `stat
 
 For the gauge content (always small-n on current hardware), render a single per-card table — one row per card present in any entry's `all`, one column per entry (column header = `entry.label`). Each cell shows the slot's mean (the value from `all[card]`). Slots absent from an entry's `all` (e.g. MI250X odd cards filtered out of Power) render as a dash. Pick display units per the Unit Selection rules.
 
+**Folded tables here follow the shared folded-table rules exactly** (one row per kernel for `**Kernel mean dispatch duration**`, one row per counter for `**Hardware counter totals**`, both with `Min | Typical | Max` columns where `Typical` is the median of the entry's `all` across card slots). Only the gauge table above is per-card. Do **not** transpose the folded tables into a per-card layout — i.e. never emit `Card 0 … Card 7` (or any per-slot) columns in the folded kernel/counter tables; the per-slot values collapse into the `Min | Typical | Max` columns.
+
 Do not write an intro paragraph above the table — the section header and table column carry the metric name, and the table itself shows the per-slot values. After the table, write at most one short line of context that adds something the table cannot show, but only when it is backed by the loaded architecture profile (e.g. a note that MI250X odd cards are filtered out of Power per the profile's power-reporting quirk). Do not assert causal mechanisms that the profile does not document. Skip the line if there's nothing architecture-specific and documented to say.
 
 #### GPU variance
