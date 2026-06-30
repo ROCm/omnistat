@@ -66,32 +66,6 @@ to individual users or applications.
 | :---------------------- | :----------------------------------- |
 | `rmsjob_info`           | Resource manager info metric tracking running jobs. When a job is running, the `jobid` label is different than the empty string. Labels: `jobid`, `user`, `partition`, `nodes`, `batchflag`, `jobstep`, `type`. |
 
-
-### Annotations
-
-The resource manager collector optionally allows users to add application-level context to Omnistat metrics using the `omnistat-annotate` tool. This is useful for marking specific events or phases within an application, such as the start and end of a computation, making it
-easier to correlate performance data with application behavior.  To demonstrate creation of high-level markers from within a job script, the following snippet highlights annotation of repeated runs of an application with different command-line arguments (where the argument size included as text for the annotation).
-
-```eval_rst
-.. code-block:: bash
-   :caption: Example use of high-level annotations in a job script
-
-    for SIZE in 102400 358400 768000; do
-        ${OMNISTAT_DIR}/omnistat-annotate --mode start --text  "Size=${SIZE}"
-        ./my_app --size ${SIZE}
-        ${OMNISTAT_DIR}/omnistat-annotate --mode stop
-        sleep 5
-    done
-```
-
-**Collector**: `enable_rms`
-<br/>
-**Collector options**: `enable_annotations`
-
-| Node Metric             | Description                          |
-| :---------------------- | :----------------------------------- |
-| `rmsjob_annotations`    | User-provided annotations. Labels: `jobid`, `marker`. |
-
 <hr style="border: 1px solid black;">
 
 ## Host
@@ -416,3 +390,116 @@ Running the script produces output that Omnistat parses directly:
     site_disk_free_bytes{fs="/home"} 524288000000
     site_disk_free_bytes{fs="/scratch"} 1932735283200
 ```
+<hr style="border: 1px solid black;">
+
+## User-supplied
+
+In addition to the collection mechanisms highlighted above, Omnistat has several options for
+incorporating user-supplied data for overlay with existing telemetry data.  The following
+subsections highlight available options including *annotations* and *figures of merit*.
+
+### Annotations
+
+Omnistat allows users to add application-level context to telemetry data using the
+`omnistat-annotate` tool. Annotations are managed by the [resource manager](#resource-manager)
+collector and can be used to mark specific events or phases within an application, such as the start
+and end of a computation, making it easier to correlate performance data with application behavior.
+To demonstrate creation of high-level markers from within a job script, the following snippet
+highlights annotation of repeated runs of an application with different command-line arguments (where
+the argument size is included as text for the annotation).
+
+```eval_rst
+.. code-block:: bash
+   :caption: Example use of high-level annotations in a job script
+
+    for SIZE in 102400 358400 768000; do
+        ${OMNISTAT_DIR}/omnistat-annotate --mode start --text  "Size=${SIZE}"
+        ./my_app --size ${SIZE}
+        ${OMNISTAT_DIR}/omnistat-annotate --mode stop
+        sleep 5
+    done
+```
+
+**Collector**: `enable_rms`
+<br/>
+**Collector options**: `enable_annotations`
+
+| Node Metric             | Description                          |
+| :---------------------- | :----------------------------------- |
+| `rmsjob_annotations`    | User-provided annotations. Labels: `jobid`, `marker`. |
+
+### Figure of Merit
+
+Many iterative applications have a natural notion of progress (e.g., time per iteration, GFLOPS
+achieved, number of samples processed, number of epochs completed) that can be used to quantify
+application performance. Omnistat user-mode supports collection of these figures of merit (FOM)
+allowing users to inject custom application performance metrics into the telemetry data stream while
+an application is running.  By correlating FOM values with system telemetry, users can gain insights
+into how specific application performance relates to observed hardware behavior, including power and
+energy consumption.
+
+To support this feature, Omnistat exposes a `/fom` REST endpoint that accepts a JSON payload with a
+user-supplied FOM name and value; the timestamp is encoded automatically at time of receipt.  The
+following highlights a CLI example using `curl` to report a GFLOPS measurement:
+
+```eval_rst
+.. code-block:: bash
+   :caption: Example FOM submission using curl
+
+    curl -X POST http://localhost:8001/fom \
+      -H "Content-Type: application/json" \
+      -d '{"name": "gflops", "value": 511.264069}'
+```
+
+For C++ applications, a more efficient approach is to use a header-only HTTP
+client such as [cpp-httplib](https://github.com/yhirose/cpp-httplib) to issue
+the POST request directly from within the application code:
+
+```eval_rst
+.. code-block:: cpp
+   :caption: Example FOM submission from C++ using cpp-httplib
+
+    #include "httplib.h"
+    #include <iostream>
+    #include <sstream>
+
+    // Initialize connection to local Omnistat server
+    httplib::Client cli("http://localhost:8001");
+
+    // application FOM value (e.g., GFLOPS for current iteration)
+    double step_gflops = 134.45;
+
+    // build payload to send FOM to Omnistat endpoint
+    std::ostringstream data;
+    data << "{\"name\":\"step_gflops\",\"value\":" << step_gflops << "}";
+
+    auto res = cli.Post("/fom", data.str(), "application/json");
+    if (!res || res->status < 200 || res->status >= 300) {
+        std::cerr << "FOM POST failed\n";
+    }
+```
+
+Python applications can use the `requests` library to report FOM values natively:
+
+```eval_rst
+.. code-block:: python
+   :caption: Example FOM submission from Python using requests
+
+    import requests
+
+    # application FOM value (e.g., GFLOPS for current iteration)
+    step_gflops = 134.45
+
+    # build payload and send FOM to Omnistat endpoint
+    payload = {"name": "step_gflops", "value": step_gflops}
+    res = requests.post("http://localhost:8001/fom", json=payload)
+    if not res.ok:
+        print(f"FOM POST failed: {res.status_code}")
+```
+
+**Collector**: user-mode only (`omnistat-usermode`)
+
+| Node Metric             | Description                          |
+| :---------------------- | :----------------------------------- |
+| `omnistat_fom`          | Application-supplied figure of merit value. Labels: `instance`, `name`. |
+
