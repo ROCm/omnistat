@@ -49,6 +49,7 @@ SMI_METRICS = [
     {"name":"rocm_temperature_celsius",                     "validate":">=10",               "labels":["card","location"]},
     {"name":"rocm_temperature_memory_celsius",              "validate":">=10",               "labels":["card","location"]},
     {"name":"rocm_average_socket_power_watts",              "validate":">=10",               "labels":["card"]},
+    {"name":"rocm_energy_joules",                           "validate":">10",                "labels":["card"]},
     {"name":"rocm_sclk_clock_mhz",                          "validate":">=90" ,              "labels":["card"]},
     {"name":"rocm_mclk_clock_mhz",                          "validate":">=100",              "labels":["card"]},
     {"name":"rocm_vram_total_bytes",                        "validate":">1073741824",        "labels":["card"]},
