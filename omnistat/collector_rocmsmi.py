@@ -33,6 +33,7 @@ following example highlights example metrics for card 0:
 rocm_temperature_celsius{card="0",location="edge"} 41.0
 rocm_temperature_memory_celsius{card="0",location="hbm_0"} 46.0
 rocm_average_socket_power_watts{card="0"} 35.0
+rocm_energy_joules{card="0"} 2.6181130255356e+07
 rocm_sclk_clock_mhz{card="0"} 1502.0
 rocm_mclk_clock_mhz{card="0"} 1200.0
 rocm_vram_busy_percentage{card="0"} 22.0
