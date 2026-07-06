@@ -37,6 +37,7 @@ rocm_utilization_percentage{card="0"} 0.0
 rocm_vram_used_percentage{card="0"} 0.0
 rocm_vram_busy_percentage{card="0"} 22.0
 rocm_average_socket_power_watts{card="0"} 35.0
+rocm_energy_joules{card="0"} 2.6181130255356e+07
 rocm_mlck_clock_mhz{card="0"} 1200.0
 rocm_slck_clock_mhz{card="0"} 300.0
 """
