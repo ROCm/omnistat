@@ -54,7 +54,9 @@ class JsonStore:
     directory: str
 
     def _path(self, jobid: str, kind: str) -> str:
-        return os.path.join(self.directory, f"{jobid}.{kind}.json")
+        # basename() reduces the caller-supplied jobid to a single filename
+        # component so it can't escape ``directory`` (e.g. "../x", "/etc/x").
+        return os.path.join(self.directory, f"{os.path.basename(jobid)}.{kind}.json")
 
     def _read(self, path: str) -> dict | None:
         if not os.path.exists(path):
