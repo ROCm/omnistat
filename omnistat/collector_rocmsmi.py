@@ -375,6 +375,10 @@ class ROCMSMI(Collector):
         self.registerGPUMetric(
             self.__prefix + "average_socket_power_watts", "gauge", "Average Graphics Package Power (W)"
         )
+        # energy
+        self.registerGPUMetric(
+            self.__prefix + "energy_joules", "gauge", "Cumulative energy consumption (J)"
+        )
         # clock speeds
         self.registerGPUMetric(self.__prefix + "sclk_clock_mhz", "gauge", "current sclk clock speed (Mhz)")
         self.registerGPUMetric(self.__prefix + "mclk_clock_mhz", "gauge", "current mclk clock speed (Mhz)")
@@ -507,6 +511,9 @@ class ROCMSMI(Collector):
         pcie_received = ctypes.c_uint64(0)
         pcie_max_pkt_sz = ctypes.c_uint64(0)
         ras_counts = rsmi_error_count_t()
+        energy = ctypes.c_uint64(0)
+        energy_resolution = ctypes.c_float(0)
+        energy_timestamp = ctypes.c_uint64(0)
 
         for i in range(self.__num_gpus):
 
@@ -544,6 +551,22 @@ class ROCMSMI(Collector):
                 ret = self.__libsmi.rsmi_dev_power_get(device, ctypes.byref(power), ctypes.byref(power_type))
             if ret == 0:
                 self.__GPUmetrics[metric].labels(card=gpuLabel).set(power.value / 1000000.0)
+            else:
+                self.__GPUmetrics[metric].labels(card=gpuLabel).set(0.0)
+
+            # --
+            # cumulative energy [micro Joules, converted to Joules]
+            metric = self.__prefix + "energy_joules"
+            ret = self.__libsmi.rsmi_dev_energy_count_get(
+                device,
+                ctypes.byref(energy),
+                ctypes.byref(energy_resolution),
+                ctypes.byref(energy_timestamp),
+            )
+            if ret == 0:
+                self.__GPUmetrics[metric].labels(card=gpuLabel).set(
+                    energy.value / 1000000.0
+                )
             else:
                 self.__GPUmetrics[metric].labels(card=gpuLabel).set(0.0)
 

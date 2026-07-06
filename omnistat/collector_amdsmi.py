@@ -386,6 +386,13 @@ class AMDSMI(Collector):
                 self.__prefix + "power_cap_watts", "Max power cap of device (W)", labelnames=["card"]
             )
 
+        # Register energy metric
+        self.__GPUMetrics["energy_joules"] = Gauge(
+            self.__prefix + "energy_joules",
+            "Cumulative energy consumption (J)",
+            labelnames=["card"],
+        )
+
         if self.__cu_occupancy_monitoring:
             # Measure the number CUs in each GPU node ID (KFD internal GPU index),
             # and map it to KFD GPU indices.
@@ -478,6 +485,11 @@ class AMDSMI(Collector):
             if self.__power_cap_monitoring:
                 power_info = smi.amdsmi_get_power_cap_info(device)
                 self.__GPUMetrics["power_cap_watts"].labels(card=cardId).set(power_info["power_cap"] / 1000000)
+
+            # cumulative energy [micro Joules, converted to Joules]
+            energy_info = smi.amdsmi_get_energy_count(device)
+            energy_uJ = energy_info["energy_accumulator"] * energy_info["counter_resolution"]
+            self.__GPUMetrics["energy_joules"].labels(card=cardId).set(energy_uJ / 1000000.0)
 
             # CU occupancy
             if self.__cu_occupancy_monitoring:
