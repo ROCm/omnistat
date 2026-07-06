@@ -377,9 +377,7 @@ class ROCMSMI(Collector):
             self.__prefix + "average_socket_power_watts", "gauge", "Average Graphics Package Power (W)"
         )
         # energy
-        self.registerGPUMetric(
-            self.__prefix + "energy_joules", "gauge", "Cumulative energy consumption (J)"
-        )
+        self.registerGPUMetric(self.__prefix + "energy_joules", "gauge", "Cumulative energy consumption (J)")
         # clock speeds
         self.registerGPUMetric(self.__prefix + "sclk_clock_mhz", "gauge", "current sclk clock speed (Mhz)")
         self.registerGPUMetric(self.__prefix + "mclk_clock_mhz", "gauge", "current mclk clock speed (Mhz)")
@@ -565,9 +563,7 @@ class ROCMSMI(Collector):
                 ctypes.byref(energy_timestamp),
             )
             if ret == 0:
-                self.__GPUmetrics[metric].labels(card=gpuLabel).set(
-                    energy.value / 1000000.0
-                )
+                self.__GPUmetrics[metric].labels(card=gpuLabel).set(energy.value / 1000000.0)
             else:
                 self.__GPUmetrics[metric].labels(card=gpuLabel).set(0.0)
 
