@@ -183,7 +183,11 @@ class DataSource(ABC):
     # -- Counter increase (reset-aware totals) ------------------------------
 
     def counter_increase(
-        self, metric: str, key_labels: tuple[str, ...], filters: dict[str, str] | None = None
+        self,
+        metric: str,
+        key_labels: tuple[str, ...],
+        literal_filters: dict[str, str] | None = None,
+        regex_filters: dict[str, str] | None = None,
     ) -> dict[tuple, tuple[float, float, bool]]:
         """Per-key ``(delta, observed_span_seconds, monotonic)`` for a counter.
 
@@ -194,7 +198,9 @@ class DataSource(ABC):
         ``increase()`` (TSDB) override this with a cheaper fast path that is
         bit-for-bit equivalent on monotonic series.
         """
-        results = self.job_query(metric, self.auto_step(), filters=filters)
+        results = self.job_query(
+            metric, self.auto_step(), literal_filters=literal_filters, regex_filters=regex_filters
+        )
         return compute.per_key_increase(results, key_labels)
 
     # -- Abstract API -------------------------------------------------------
@@ -216,7 +222,8 @@ class DataSource(ABC):
         self,
         metric: str,
         step: float,
-        filters: dict[str, str] | None = None,
+        literal_filters: dict[str, str] | None = None,
+        regex_filters: dict[str, str] | None = None,
         join: bool = True,
         aggregate: str | None = None,
         start: datetime | None = None,
@@ -229,6 +236,8 @@ class DataSource(ABC):
         label: str,
         metric: str | None = None,
         match_filters: dict[str, str] | None = None,
+        start: datetime | None = None,
+        end: datetime | None = None,
     ) -> list[str]: ...
 
     @abstractmethod
@@ -237,7 +246,8 @@ class DataSource(ABC):
         metric: str,
         label: str,
         step: float,
-        filters: dict[str, str] | None = None,
+        literal_filters: dict[str, str] | None = None,
+        regex_filters: dict[str, str] | None = None,
     ) -> dict[str, float]: ...
 
     @abstractmethod
