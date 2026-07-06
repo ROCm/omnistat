@@ -21,11 +21,27 @@ from omnistat.inspect.constants import SCAN_DAYS, SCAN_STEP
 from omnistat.inspect.helpers import build_jobs_summary
 
 
-def _filter_str(filters: dict[str, str]) -> str:
+def _escape_label_value(v: str) -> str:
+    """Escape a value for use inside a double-quoted PromQL label matcher."""
+    return v.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _matchers(
+    literal_filters: dict[str, str] | None = None,
+    regex_filters: dict[str, str] | None = None,
+) -> str:
+    """Build a PromQL label-matcher list from explicit literal/regex filters.
+
+    Literal values use ``=`` (exact match, escaped); regex values use ``=~``
+    (Prometheus anchors ``=~`` to the full string, matching the CSV backend's
+    ``^(?:...)$`` compile). The interpretation is caller-declared, so the two
+    backends can no longer diverge on how a given value is treated.
+    """
     parts = []
-    for k, v in filters.items():
-        op = "=~" if "|" in v or ".*" in v else "="
-        parts.append(f'{k}{op}"{v}"')
+    for k, v in (literal_filters or {}).items():
+        parts.append(f'{k}="{_escape_label_value(v)}"')
+    for k, v in (regex_filters or {}).items():
+        parts.append(f'{k}=~"{v}"')
     return ", ".join(parts)
 
 
@@ -58,21 +74,33 @@ class TsdbDataSource(DataSource):
     def _job_selector(self) -> str:
         return f'rmsjob_info{{jobid="{self.jobid}", jobstep=~".*"}}'
 
-    def _scoped_selector(self, metric: str, filters: dict[str, str] | None = None, join: bool = True) -> str:
+    def _scoped_selector(
+        self,
+        metric: str,
+        literal_filters: dict[str, str] | None = None,
+        regex_filters: dict[str, str] | None = None,
+        join: bool = True,
+    ) -> str:
+        matchers = _matchers(literal_filters, regex_filters)
         selector = metric
-        if filters:
-            selector = f"{metric}{{{_filter_str(filters)}}}"
+        if matchers:
+            selector = f"{metric}{{{matchers}}}"
         if join:
             join_expr = f"max by (instance) ({self._job_selector()})"
             return f"{selector} * on (instance) group_left() ({join_expr})"
-        return f'{metric}{{jobid="{self.jobid}", jobstep=~".*"' + (f", {_filter_str(filters)}" if filters else "") + "}"
+        inner = f'jobid="{self.jobid}", jobstep=~".*"'
+        if matchers:
+            inner += f", {matchers}"
+        return f"{metric}{{{inner}}}"
 
     # ------------------------------------------------------------------
     # DataSource API
     # ------------------------------------------------------------------
 
-    def job_query(self, metric, step, filters=None, join=True, aggregate=None, start=None, end=None):
-        promql = self._scoped_selector(metric, filters, join)
+    def job_query(
+        self, metric, step, literal_filters=None, regex_filters=None, join=True, aggregate=None, start=None, end=None
+    ):
+        promql = self._scoped_selector(metric, literal_filters, regex_filters, join)
         if aggregate:
             promql = f"{aggregate}({promql})"
         q_start = start if start is not None else self.start_time
@@ -112,10 +140,11 @@ class TsdbDataSource(DataSource):
             return []
         return data
 
-    def agg_by_label(self, metric, label, step, filters=None):
+    def agg_by_label(self, metric, label, step, literal_filters=None, regex_filters=None):
+        matchers = _matchers(literal_filters, regex_filters)
         selector = metric
-        if filters:
-            selector = f"{metric}{{{_filter_str(filters)}}}"
+        if matchers:
+            selector = f"{metric}{{{matchers}}}"
         join_expr = f"max by (instance) ({self._job_selector()})"
         promql = f"avg by ({label}) ({selector} * on (instance) group_left() ({join_expr}))"
         results = self._query_range(promql, self.start_time, self.end_time, step)
@@ -135,7 +164,14 @@ class TsdbDataSource(DataSource):
     # ------------------------------------------------------------------
 
     def _counter_rollup(
-        self, func: str, agg: str, metric: str, range_secs: int, filters: dict[str, str] | None, group_by: str
+        self,
+        func: str,
+        agg: str,
+        metric: str,
+        range_secs: int,
+        literal_filters: dict[str, str] | None,
+        regex_filters: dict[str, str] | None,
+        group_by: str,
     ) -> str:
         """Build ``{agg} by ({group_by}) ({func}(metric[Ds]) <job-scope join>)``.
 
@@ -145,9 +181,10 @@ class TsdbDataSource(DataSource):
         ``rmsjob_info`` identity multiply (value 1) then scopes the result to
         this job's instances, exactly as :meth:`_scoped_selector`.
         """
+        matchers = _matchers(literal_filters, regex_filters)
         selector = metric
-        if filters:
-            selector = f"{metric}{{{_filter_str(filters)}}}"
+        if matchers:
+            selector = f"{metric}{{{matchers}}}"
         # The rollup spans the whole window, so the job-scope join must too: a
         # plain instant ``rmsjob_info`` at ``eval_at`` would drop nodes whose job
         # record is no longer live at that single instant (staggered shutdown).
@@ -174,7 +211,7 @@ class TsdbDataSource(DataSource):
                 continue
         return out
 
-    def counter_increase(self, metric, key_labels, filters=None):
+    def counter_increase(self, metric, key_labels, literal_filters=None, regex_filters=None):
         """Server-side reset-aware totals with a per-key client-side fallback.
 
         Fast path: three instant rollup queries over the padded job range,
@@ -193,10 +230,14 @@ class TsdbDataSource(DataSource):
         range_secs = int(math.ceil(self.job_duration)) + 120
         eval_at = self.end_time
 
-        total_q = self._counter_rollup("increase", "sum", metric, range_secs, filters, group_by)
-        resets_q = self._counter_rollup("resets", "sum", metric, range_secs, filters, group_by)
-        tlast_q = self._counter_rollup("tlast_over_time", "max", metric, range_secs, filters, group_by)
-        tfirst_q = self._counter_rollup("tfirst_over_time", "min", metric, range_secs, filters, group_by)
+        total_q = self._counter_rollup("increase", "sum", metric, range_secs, literal_filters, regex_filters, group_by)
+        resets_q = self._counter_rollup("resets", "sum", metric, range_secs, literal_filters, regex_filters, group_by)
+        tlast_q = self._counter_rollup(
+            "tlast_over_time", "max", metric, range_secs, literal_filters, regex_filters, group_by
+        )
+        tfirst_q = self._counter_rollup(
+            "tfirst_over_time", "min", metric, range_secs, literal_filters, regex_filters, group_by
+        )
         span_q = f"{tlast_q} - {tfirst_q}"
 
         totals = self._rollup_values(total_q, eval_at, key_labels)
@@ -210,12 +251,14 @@ class TsdbDataSource(DataSource):
 
         reset_keys = {key for key, (_, _, mono) in out.items() if not mono}
         if reset_keys:
-            fallback_filters = dict(filters or {})
+            fb_regex = dict(regex_filters or {})
             if "name" in key_labels:
                 ni = key_labels.index("name")
                 names = sorted({key[ni] for key in reset_keys})
-                fallback_filters["name"] = "|".join(names)
-            results = self.job_query(metric, self.auto_step(), filters=fallback_filters)
+                fb_regex["name"] = "|".join(names)
+            results = self.job_query(
+                metric, self.auto_step(), literal_filters=literal_filters, regex_filters=fb_regex or None
+            )
             refined = compute.per_key_increase(results, key_labels)
             for key in reset_keys:
                 if key in refined:
@@ -358,6 +401,7 @@ class TsdbDataSource(DataSource):
 
         results = self._query_range("rmsjob_info", wide_start, wide_end, "1h")
         jobs = build_jobs_summary(results)
+        hosts = sorted({r.get("metric", {}).get("instance") for r in results if r.get("metric", {}).get("instance")})
 
         # Scope the metric listing to the span covered by the jobs found above,
         # so it reflects what those jobs actually collected rather than the
@@ -372,6 +416,8 @@ class TsdbDataSource(DataSource):
         return {
             "num_jobs": len(jobs),
             "jobs": jobs,
+            "num_hosts": len(hosts),
+            "hosts": hosts,
             "num_metrics": len(relevant),
             "metrics": relevant,
         }

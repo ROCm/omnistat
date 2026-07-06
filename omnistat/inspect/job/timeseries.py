@@ -10,18 +10,23 @@ class Timeseries(Module):
     param_defaults = {"metric": None, "node": None, "card": None, "label": None}
 
     def build(self) -> dict:
-        filters = {}
+        # --node / --card are exact identifiers (literal); --label values may be
+        # a regex (documented), so they go through the regex path.
+        literal_filters = {}
         if self.p.node:
-            filters["instance"] = self.p.node
+            literal_filters["instance"] = self.p.node
         if self.p.card:
-            filters["card"] = self.p.card
+            literal_filters["card"] = self.p.card
+        regex_filters = {}
         for item in self.p.label or []:
             key, sep, value = item.partition("=")
             if not sep or not key:
                 raise ValueError(f"Malformed --label '{item}'; expected KEY=VALUE")
-            filters[key] = value
+            regex_filters[key] = value
         step = self.ds.auto_step()
-        results = self.ds.job_query(self.p.metric, step, filters=filters or None)
+        results = self.ds.job_query(
+            self.p.metric, step, literal_filters=literal_filters or None, regex_filters=regex_filters or None
+        )
         series = [
             {
                 "labels": r.get("metric", {}),
