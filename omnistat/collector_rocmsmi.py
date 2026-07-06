@@ -164,96 +164,25 @@ class rsmi_error_count_t(ctypes.Structure):
     _fields_ = [("correctable_err", ctypes.c_uint64), ("uncorrectable_err", ctypes.c_uint64)]
 
 
-class metrics_table_header_t(ctypes.Structure):
-    _fields_ = [
-        ("structure_size", ctypes.c_uint16),
-        ("format_revision", ctypes.c_uint8),
-        ("content_revision", ctypes.c_uint8),
-    ]
+def load_gpu_metrics_type(rocm_path):
+    """Load rsmi_gpu_metrics_t from the ROCm bindings file matched to the installed version. Added to avoid hardcoding the struct layout which can changes across ROCm releases.
+    """
+    bindings_path = os.path.join(rocm_path, "libexec", "rocm_smi", "rsmiBindings.py")
+    if not os.path.isfile(bindings_path):
+        logging.error("Unable to locate ROCm SMI bindings file at %s" % bindings_path)
+        sys.exit(4)
 
+    source = Path(bindings_path).read_text()
+    # remove wildcard import
+    source = source.replace("from rsmiBindingsInit import *", "pass")
+    namespace = {"__builtins__": __builtins__}
+    exec(compile(source, bindings_path, "exec"), namespace)
 
-class xcp_stats_t(ctypes.Structure):
-    _fields_ = [
-        ("gfx_busy_inst", ctypes.c_uint32 * 8),
-        ("jpeg_busy", ctypes.c_uint16 * 32),
-        ("vcn_busy", ctypes.c_uint16 * 4),
-        ("gfx_busy_acc", ctypes.c_uint64 * 8),
-        ("gfx_below_host_limit_acc", ctypes.c_uint64 * 8),
-    ]
+    if "rsmi_gpu_metrics_t" not in namespace:
+        logging.error("rsmi_gpu_metrics_t not found in %s" % bindings_path)
+        sys.exit(4)
 
-
-class rsmi_gpu_metrics_t(ctypes.Structure):
-    _fields_ = [
-        ("common_header", metrics_table_header_t),
-        ("temperature_edge", ctypes.c_uint16),
-        ("temperature_hotspot", ctypes.c_uint16),
-        ("temperature_mem", ctypes.c_uint16),
-        ("temperature_vrgfx", ctypes.c_uint16),
-        ("temperature_vrsoc", ctypes.c_uint16),
-        ("temperature_vrmem", ctypes.c_uint16),
-        ("average_gfx_activity", ctypes.c_uint16),
-        ("average_umc_activity", ctypes.c_uint16),
-        ("average_mm_activity", ctypes.c_uint16),
-        ("average_socket_power", ctypes.c_uint16),
-        ("energy_accumulator", ctypes.c_uint64),
-        ("system_clock_counter", ctypes.c_uint64),
-        ("average_gfxclk_frequency", ctypes.c_uint16),
-        ("average_socclk_frequency", ctypes.c_uint16),
-        ("average_uclk_frequency", ctypes.c_uint16),
-        ("average_vclk0_frequency", ctypes.c_uint16),
-        ("average_dclk0_frequency", ctypes.c_uint16),
-        ("average_vclk1_frequency", ctypes.c_uint16),
-        ("average_dclk1_frequency", ctypes.c_uint16),
-        ("current_gfxclk", ctypes.c_uint16),
-        ("current_socclk", ctypes.c_uint16),
-        ("current_uclk", ctypes.c_uint16),
-        ("current_vclk0", ctypes.c_uint16),
-        ("current_dclk0", ctypes.c_uint16),
-        ("current_vclk1", ctypes.c_uint16),
-        ("current_dclk1", ctypes.c_uint16),
-        ("throttle_status", ctypes.c_uint32),
-        ("current_fan_speed", ctypes.c_uint16),
-        ("pcie_link_width", ctypes.c_uint16),
-        ("pcie_link_speed", ctypes.c_uint16),
-        ("gfx_activity_acc", ctypes.c_uint32),
-        ("mem_activity_acc", ctypes.c_uint32),
-        ("temperature_hbm", ctypes.c_uint16 * 4),
-        ("firmware_timestamp", ctypes.c_uint64),
-        ("voltage_soc", ctypes.c_uint16),
-        ("voltage_gfx", ctypes.c_uint16),
-        ("voltage_mem", ctypes.c_uint16),
-        ("indep_throttle_status", ctypes.c_uint64),
-        ("current_socket_power", ctypes.c_uint16),
-        ("vcn_activity", ctypes.c_uint16 * 4),
-        ("gfxclk_lock_status", ctypes.c_uint32),
-        ("xgmi_link_width", ctypes.c_uint16),
-        ("xgmi_link_speed", ctypes.c_uint16),
-        ("pcie_bandwidth_acc", ctypes.c_uint64),
-        ("pcie_bandwidth_inst", ctypes.c_uint64),
-        ("pcie_l0_to_recov_count_acc", ctypes.c_uint64),
-        ("pcie_replay_count_acc", ctypes.c_uint64),
-        ("pcie_replay_rover_count_acc", ctypes.c_uint64),
-        ("xgmi_read_data_acc", ctypes.c_uint64 * 8),
-        ("xgmi_write_data_acc", ctypes.c_uint64 * 8),
-        ("current_gfxclks", ctypes.c_uint16 * 8),
-        ("current_socclks", ctypes.c_uint16 * 4),
-        ("current_vclk0s", ctypes.c_uint16 * 4),
-        ("current_dclk0s", ctypes.c_uint16 * 4),
-        ("jpeg_activity", ctypes.c_uint16 * 32),
-        ("pcie_nak_sent_count_acc", ctypes.c_uint32),
-        ("pcie_nak_rcvd_count_acc", ctypes.c_uint32),
-        ("accumulation_counter", ctypes.c_uint64),
-        ("prochot_residency_acc", ctypes.c_uint64),
-        ("ppt_residency_acc", ctypes.c_uint64),
-        ("socket_thm_residency_acc", ctypes.c_uint64),
-        ("vr_thm_residency_acc", ctypes.c_uint64),
-        ("hbm_thm_residency_acc", ctypes.c_uint64),
-        ("num_partition", ctypes.c_uint16),
-        ("xcp_stats", xcp_stats_t * 8),
-        ("pcie_lc_perf_other_end_recovery", ctypes.c_uint32),
-        ("vram_max_bandwidth", ctypes.c_uint64),
-        ("xgmi_link_status", ctypes.c_uint16 * 8),
-    ]
+    return namespace["rsmi_gpu_metrics_t"]
 
 
 # --
@@ -315,6 +244,7 @@ class ROCMSMI(Collector):
                 sys.exit(4)
 
             self.__rsmi_frequencies_type = get_rsmi_frequencies_type(self.__smiVersion)
+            self.__gpu_metrics_type = load_gpu_metrics_type(self.__rocm_path)
 
             # driver version
             ver_str = ctypes.create_string_buffer(256)
@@ -494,7 +424,7 @@ class ROCMSMI(Collector):
         # XGMI link monitoirng
         if self.__xgmi_monitoring:
             self.__xgmi_available = True
-            gpu_metrics = rsmi_gpu_metrics_t()
+            gpu_metrics = self.__gpu_metrics_type()
             RSMI_MAX_NUM_XGMI_LINKS = 8
 
             # determine if active links available on first GPU
@@ -684,7 +614,7 @@ class ROCMSMI(Collector):
             # --
             # XGMI data xfer
             if self.__xgmi_available:
-                gpu_metrics = rsmi_gpu_metrics_t()
+                gpu_metrics = self.__gpu_metrics_type()
                 ret = self.__libsmi.rsmi_dev_gpu_metrics_info_get(device, ctypes.byref(gpu_metrics))
                 read_total = 0
                 write_total = 0
