@@ -165,8 +165,7 @@ class rsmi_error_count_t(ctypes.Structure):
 
 
 def load_gpu_metrics_type(rocm_path):
-    """Load rsmi_gpu_metrics_t from the ROCm bindings file matched to the installed version. Added to avoid hardcoding the struct layout which can changes across ROCm releases.
-    """
+    """Load rsmi_gpu_metrics_t from the ROCm bindings file matched to the installed version. Added to avoid hardcoding the struct layout which can changes across ROCm releases."""
     bindings_path = os.path.join(rocm_path, "libexec", "rocm_smi", "rsmiBindings.py")
     if not os.path.isfile(bindings_path):
         logging.error("Unable to locate ROCm SMI bindings file at %s" % bindings_path)
