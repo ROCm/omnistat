@@ -174,10 +174,12 @@ class Module:
     # Safe-query helpers
     # ------------------------------------------------------------------
 
-    def _try_query(self, metric, step, *, filters=None, join=True):
+    def _try_query(self, metric, step, *, literal_filters=None, regex_filters=None, join=True):
         """job_query that returns [] (and logs) instead of raising."""
         try:
-            return self.ds.job_query(metric, step, filters=filters, join=join)
+            return self.ds.job_query(
+                metric, step, literal_filters=literal_filters, regex_filters=regex_filters, join=join
+            )
         except Exception as exc:
             logger.warning("%s query failed: %s", metric, exc)
             return []

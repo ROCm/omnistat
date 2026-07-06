@@ -171,21 +171,32 @@ class CsvDataSource(DataSource):
     def _compiled_filter(pattern: str) -> "re.Pattern[str]":
         return re.compile(f"^(?:{pattern})$")
 
-    def _match_filters(self, m: dict[str, str], filters: dict[str, str]) -> bool:
-        for k, v in filters.items():
-            sv = m.get(k)
-            if sv is None:
+    def _match_filters(
+        self,
+        m: dict[str, str],
+        literal_filters: dict[str, str] | None = None,
+        regex_filters: dict[str, str] | None = None,
+    ) -> bool:
+        for k, v in (literal_filters or {}).items():
+            if m.get(k) != v:
                 return False
-            if not self._compiled_filter(v).match(sv):
+        for k, v in (regex_filters or {}).items():
+            sv = m.get(k)
+            if sv is None or not self._compiled_filter(v).match(sv):
                 return False
         return True
 
-    def _iter_metric(self, metric: str, filters: dict[str, str] | None = None):
+    def _iter_metric(
+        self,
+        metric: str,
+        literal_filters: dict[str, str] | None = None,
+        regex_filters: dict[str, str] | None = None,
+    ):
         for s in self._series:
             m = s["metric"]
             if m.get("__name__") != metric:
                 continue
-            if filters and not self._match_filters(m, filters):
+            if (literal_filters or regex_filters) and not self._match_filters(m, literal_filters, regex_filters):
                 continue
             yield s
 
@@ -197,13 +208,15 @@ class CsvDataSource(DataSource):
 
     # -- DataSource API --------------------------------------------------
 
-    def job_query(self, metric, step, filters=None, join=True, aggregate=None, start=None, end=None):
+    def job_query(
+        self, metric, step, literal_filters=None, regex_filters=None, join=True, aggregate=None, start=None, end=None
+    ):
         t0 = time.monotonic()
         q_start = start if start is not None else self.start_time
         q_end = end if end is not None else self.end_time
 
         matched: list[dict] = []
-        for s in self._iter_metric(metric, filters):
+        for s in self._iter_metric(metric, literal_filters, regex_filters):
             ts, values = self._time_filter(s["timestamps"], s["values"], q_start, q_end)
             if len(ts) == 0:
                 continue
@@ -223,10 +236,19 @@ class CsvDataSource(DataSource):
 
         elapsed = time.monotonic() - t0
         points = sum(len(r["values"]) for r in results)
-        self.ledger.record(f"csv:{metric}(filters={filters}, agg={aggregate})", str(step), elapsed, points)
+        self.ledger.record(
+            f"csv:{metric}(literal={literal_filters}, regex={regex_filters}, agg={aggregate})",
+            str(step),
+            elapsed,
+            points,
+        )
         return results
 
-    def label_values(self, label, metric=None, match_filters=None):
+    def label_values(self, label, metric=None, match_filters=None, start=None, end=None):
+        # ``start``/``end`` are accepted for signature parity with the TSDB
+        # backend but ignored: a CSV export has no server-side time window, so
+        # label values are always drawn from the whole loaded dataset.
+        del start, end
         t0 = time.monotonic()
         values = set()
         for s in self._series:
@@ -248,10 +270,10 @@ class CsvDataSource(DataSource):
         self.ledger.record(f"csv:label_values({label})", "n/a", elapsed, len(out))
         return out
 
-    def agg_by_label(self, metric, label, step, filters=None):
+    def agg_by_label(self, metric, label, step, literal_filters=None, regex_filters=None):
         t0 = time.monotonic()
         grouped: dict[str, list[float]] = {}
-        for s in self._iter_metric(metric, filters):
+        for s in self._iter_metric(metric, literal_filters, regex_filters):
             ts, values = self._time_filter(s["timestamps"], s["values"], self.start_time, self.end_time)
             if len(values) == 0:
                 continue
@@ -266,6 +288,10 @@ class CsvDataSource(DataSource):
         return "instance"
 
     def discover_job(self, jobid: str) -> bool:
+        # The jobid is accepted as-is and not validated against the file
+        # contents: CSV exports don't reliably carry ``rmsjob_info``, so there is
+        # no in-file job record to check against. We therefore treat the whole
+        # export as belonging to the requested job and adopt its full time range.
         self.jobid = jobid
         self.start_time = self._csv_start
         self.end_time = self._csv_end
