@@ -563,7 +563,8 @@ class ROCMSMI(Collector):
                 ctypes.byref(energy_timestamp),
             )
             if ret == 0:
-                self.__GPUmetrics[metric].labels(card=gpuLabel).set(energy.value / 1000000.0)
+                energy_uJ = energy.value * energy_resolution.value
+                self.__GPUmetrics[metric].labels(card=gpuLabel).set(energy_uJ / 1000000.0)
             else:
                 self.__GPUmetrics[metric].labels(card=gpuLabel).set(0.0)
 
