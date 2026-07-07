@@ -136,13 +136,15 @@ COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocm_smi"],
         # rocm-smi interface is known to not report energy correctly on MI3XX
-        "metrics": SMI_METRICS + [
+        "metrics": SMI_METRICS
+        + [
             {"name": "rocm_energy_joules", "validate": ">=0" if "MI3" in gpu_type else ">10", "labels": ["card"]},
         ],
     },
     {
         "collectors": ["amd_smi"],
-        "metrics": SMI_METRICS + [
+        "metrics": SMI_METRICS
+        + [
             {"name": "rocm_energy_joules", "validate": ">10", "labels": ["card"]},
         ],
     },
