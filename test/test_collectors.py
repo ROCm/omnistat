@@ -49,7 +49,6 @@ SMI_METRICS = [
     {"name":"rocm_temperature_celsius",                     "validate":">=10",               "labels":["card","location"]},
     {"name":"rocm_temperature_memory_celsius",              "validate":">=10",               "labels":["card","location"]},
     {"name":"rocm_average_socket_power_watts",              "validate":">=10",               "labels":["card"]},
-    {"name":"rocm_energy_joules",                           "validate":">10",                "labels":["card"]},
     {"name":"rocm_sclk_clock_mhz",                          "validate":">=90" ,              "labels":["card"]},
     {"name":"rocm_mclk_clock_mhz",                          "validate":">=100",              "labels":["card"]},
     {"name":"rocm_vram_total_bytes",                        "validate":">1073741824",        "labels":["card"]},
@@ -136,11 +135,16 @@ print(f"test execution hostname: {full_hostname}\n")
 COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocm_smi"],
-        "metrics": SMI_METRICS,
+        # rocm-smi interface is known to not report energy correctly on MI3XX
+        "metrics": SMI_METRICS + [
+            {"name": "rocm_energy_joules", "validate": ">=0" if "MI3" in gpu_type else ">10", "labels": ["card"]},
+        ],
     },
     {
         "collectors": ["amd_smi"],
-        "metrics": SMI_METRICS,
+        "metrics": SMI_METRICS + [
+            {"name": "rocm_energy_joules", "validate": ">10", "labels": ["card"]},
+        ],
     },
     {
         "collectors": ["rocm_smi", "ras_ecc"],
