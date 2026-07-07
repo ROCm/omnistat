@@ -47,7 +47,7 @@ health and performance.
 | `rocm_vram_used_percentage`       | Memory utilization (%). |
 | `rocm_vram_total_bytes`           | Total GPU memory (bytes). |
 | `rocm_average_socket_power_watts` | Average socket power (W). |
-| `rocm_energy_joules`              | Cumulative energy consumption (J) - accumulated since GPU driver load. |
+| `rocm_energy_joules`              | Cumulative energy consumption (J). Data is accumulated since last GPU driver load. |
 | `rocm_sclk_clock_mhz`             | GPU clock speed (MHz). |
 | `rocm_mclk_clock_mhz`             | Memory clock speed (MHz). |
 | `rocm_temperature_celsius`        | GPU temperature (°C). Labels: `location`. |
