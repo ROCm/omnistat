@@ -104,6 +104,14 @@ ROCPROFILER_METRICS = [
     {"name": "omnistat_hardware_counter",                    "validate": ">=0",               "labels": ["source", "card", "name"]},
 ]
 
+# Network metrics are hardware-dependent (specific device classes such as
+# "cxi" or "ainic" only appear on matching NICs), so assertions stay generic:
+# any host with a non-loopback interface exposes rx/tx byte totals.
+NETWORK_METRICS = [
+    {"name": "omnistat_network_rx_bytes",                    "validate": ">=0",               "labels": ["device_class", "interface"]},
+    {"name": "omnistat_network_tx_bytes",                    "validate": ">=0",               "labels": ["device_class", "interface"]},
+]
+
 # fmt: on
 
 
@@ -171,6 +179,10 @@ COLLECTOR_CONFIGS = [
     {
         "collectors": ["host_metrics", "omnistat.collectors.host::enable_proc_io_stats"],
         "metrics": HOST_METRICS,
+    },
+    {
+        "collectors": ["network"],
+        "metrics": NETWORK_METRICS,
     },
     {
         "collectors": ["rocprofiler"],
