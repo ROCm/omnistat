@@ -305,8 +305,8 @@ export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
 
 The network data collector enables metrics providing information about data
 transfers for each network interface detected in the host platform. Currently
-supported network types include Ethernet, Infiniband, and
-Slingshot.
+supported network types include Ethernet, Infiniband, Slingshot, and AINIC (AMD
+Pensando `ionic` NICs such as Pollara).
 
 **Collector**: `enable_network`
 
