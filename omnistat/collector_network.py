@@ -25,7 +25,7 @@
 """Network monitoring
 
 Implements a prometheus info metric to track network traffic data for interfaces
-exposed under /sys/class/net and /sys/class/cxi.
+exposed under /sys/class/{net,cxi,infiniband}.
 """
 
 import configparser
@@ -65,6 +65,40 @@ class NETWORK(Collector):
         # Files to check for for infiniband devices.
         self.__ib_rx_data_paths = {}
         self.__ib_tx_data_paths = {}
+
+        # Files to check for AMD AI NIC (AINIC) devices, i.e. AMD Pensando
+        # "ionic" NICs such as Pollara. These appear under
+        # /sys/class/infiniband but do not expose the standard IB port
+        # counters; byte totals live in hw_counters instead. Unicast +
+        # multicast bytes feed the shared rx/tx metrics and capture both
+        # point-to-point RDMA and GPU-collective (RCCL) throughput.
+        self.__ainic_rx_data_paths = {}
+        self.__ainic_tx_data_paths = {}
+
+    def __is_ainic(self, nic):
+        """Return True if an infiniband-class device is an AMD AI NIC (AINIC).
+
+        AINICs (AMD Pensando "ionic" NICs, e.g. Pollara) use the "ionic"
+        driver; detect them via the device's uevent (robust). Fall back to the
+        sysfs signature of empty standard IB counters alongside populated
+        hw_counters if the uevent is unreadable.
+        """
+        try:
+            uevent = (nic / "device" / "uevent").read_text()
+            for line in uevent.splitlines():
+                if line == "DRIVER=ionic":
+                    return True
+            return False
+        except OSError:
+            pass
+
+        # Fallback: no standard IB byte counters, but hw_counters present.
+        for port in (nic / "ports").iterdir():
+            counters = port / "counters" / "port_rcv_data"
+            hw_counters = port / "hw_counters" / "rx_rdma_ucast_bytes"
+            if not counters.is_file() and hw_counters.is_file():
+                return True
+        return False
 
     def registerMetrics(self):
         """Register metrics of interest"""
@@ -141,6 +175,18 @@ class NETWORK(Collector):
         #       "mlx5_1:1": "/sys/class/infiniband/mlx5_1/ports/1/counters/port_rcv_data",
         #       }
         #   }
+        #
+        # AMD AI NICs ("ionic" driver, e.g. Pollara) also appear under as
+        # Infiniband but expose bytes via hw_counters instead of the standard
+        # IB counters, so they are detected and handled separately in the
+        # loop below. Their unicast/multicast byte paths are indexed by
+        # interface and port ID. For example, for Rx bandwidth:
+        #   __ainic_rx_data_paths = {
+        #       "ionic_0:1": [
+        #           "/sys/class/infiniband/ionic_0/ports/1/hw_counters/rx_rdma_ucast_bytes",
+        #           "/sys/class/infiniband/ionic_0/ports/1/hw_counters/rx_rdma_mcast_bytes",
+        #       ]
+        #   }
         ib_base_path = Path("/sys/class/infiniband")
 
         ib_nics = []
@@ -152,16 +198,32 @@ class NETWORK(Collector):
                 continue
 
             ports = nic / "ports"
-            for port in ports.iterdir():
-                nic_name = f"{nic.name}:{port.name}"
 
-                rx_path = port / "counters" / "port_rcv_data"
-                if rx_path.is_file() and rx_path.stat().st_size > 0:
-                    self.__ib_rx_data_paths[nic_name] = rx_path
+            if self.__is_ainic(nic):
+                for port in ports.iterdir():
+                    nic_name = f"{nic.name}:{port.name}"
+                    hw = port / "hw_counters"
 
-                tx_path = port / "counters" / "port_xmit_data"
-                if tx_path.is_file() and tx_path.stat().st_size > 0:
-                    self.__ib_tx_data_paths[nic_name] = tx_path
+                    rx_ucast = hw / "rx_rdma_ucast_bytes"
+                    rx_mcast = hw / "rx_rdma_mcast_bytes"
+                    if rx_ucast.is_file() and rx_ucast.stat().st_size > 0:
+                        self.__ainic_rx_data_paths[nic_name] = [rx_ucast, rx_mcast]
+
+                    tx_ucast = hw / "tx_rdma_ucast_bytes"
+                    tx_mcast = hw / "tx_rdma_mcast_bytes"
+                    if tx_ucast.is_file() and tx_ucast.stat().st_size > 0:
+                        self.__ainic_tx_data_paths[nic_name] = [tx_ucast, tx_mcast]
+            else:
+                for port in ports.iterdir():
+                    nic_name = f"{nic.name}:{port.name}"
+
+                    rx_path = port / "counters" / "port_rcv_data"
+                    if rx_path.is_file() and rx_path.stat().st_size > 0:
+                        self.__ib_rx_data_paths[nic_name] = rx_path
+
+                    tx_path = port / "counters" / "port_xmit_data"
+                    if tx_path.is_file() and tx_path.stat().st_size > 0:
+                        self.__ib_tx_data_paths[nic_name] = tx_path
 
         # Register Prometheus metrics for Rx and Tx. Devices are identified by
         # device class and interface name. For example, the Prometheus metric
@@ -169,7 +231,12 @@ class NETWORK(Collector):
         #   network_rx_bytes{device_class="net",interface="eth0"}
         labels = ["device_class", "interface"]
 
-        rx_data_paths = [self.__net_rx_data_paths, self.__cxi_rx_data_paths, self.__ib_rx_data_paths]
+        rx_data_paths = [
+            self.__net_rx_data_paths,
+            self.__cxi_rx_data_paths,
+            self.__ib_rx_data_paths,
+            self.__ainic_rx_data_paths,
+        ]
         num_rx = sum([len(x) for x in rx_data_paths])
         if num_rx > 0:
             logging.debug(self.__net_rx_data_paths)
@@ -178,7 +245,12 @@ class NETWORK(Collector):
             self.__rx_metric = Gauge(metric, description, labelnames=labels)
             logging.info(f"--> [registered] {metric} -> {description} (gauge)")
 
-        tx_data_paths = [self.__net_tx_data_paths, self.__cxi_tx_data_paths, self.__ib_tx_data_paths]
+        tx_data_paths = [
+            self.__net_tx_data_paths,
+            self.__cxi_tx_data_paths,
+            self.__ib_tx_data_paths,
+            self.__ainic_tx_data_paths,
+        ]
         num_tx = sum([len(x) for x in tx_data_paths])
         if num_tx > 0:
             logging.debug(self.__net_tx_data_paths)
@@ -241,5 +313,23 @@ class NETWORK(Collector):
                         metric.labels(device_class="infiniband", interface=nic).set(data * 4)
                 except:
                     pass
+
+        # AINIC: hw_counters are already in bytes (no scaling, no timestamp).
+        # rx/tx aggregate unicast + multicast.
+        ainic_data = [
+            (self.__ainic_rx_data_paths, self.__rx_metric),
+            (self.__ainic_tx_data_paths, self.__tx_metric),
+        ]
+
+        for data_paths, metric in ainic_data:
+            for nic, paths in data_paths.items():
+                total = 0
+                for path in paths:
+                    try:
+                        with open(path, "r") as f:
+                            total += int(f.read().strip())
+                    except:
+                        pass
+                metric.labels(device_class="ainic", interface=nic).set(total)
 
         return
