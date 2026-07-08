@@ -77,6 +77,15 @@ def generate_metrics_stream(dataVM, endpoint_streams):
         yield from stream
 
 
+def counted_stream(generator, counter):
+    """Wrap a byte generator to count total bytes yielded."""
+    total = 0
+    for chunk in generator:
+        total += len(chunk)
+        yield chunk
+    counter["data_bytes"] = total
+
+
 def push_to_victoria_metrics(dataVM, endpoint_streams, victoria_url, timer=None):
     start_time = time.perf_counter()
     timestamp_msecs = int(datetime.now(timezone.utc).timestamp() * 1000.0)
@@ -84,10 +93,11 @@ def push_to_victoria_metrics(dataVM, endpoint_streams, victoria_url, timer=None)
     logging.info("Pushing local node telemetry to VictoriaMetrics endpoint -> %s" % victoria_url)
     headers = {"Content-Type": "text/plain"}
 
+    byte_counter = {}
     try:
         response = requests.post(
             victoria_url + "/api/v1/import/prometheus",
-            data=generate_metrics_stream(dataVM, endpoint_streams),
+            data=counted_stream(generate_metrics_stream(dataVM, endpoint_streams), byte_counter),
             headers=headers,
         )
     except requests.ConnectionError:
@@ -128,6 +138,7 @@ def push_to_victoria_metrics(dataVM, endpoint_streams, victoria_url, timer=None)
     if timer is not None:
         timer["duration_secs"] = duration
         timer["timestamp_msecs"] = timestamp_msecs
+        timer["data_bytes"] = byte_counter.get("data_bytes", 0)
 
     return
 
@@ -292,12 +303,19 @@ class Standalone:
                         logging.info("Previous metric push is still running - blocking till complete.")
                         push_thread.join()
                         logging.info("Resuming after previous metric push complete.")
-                    # log previous bg thread timing
+                    # log previous bg thread timing and data size
                     if bg_thread_timer:
                         entry = "%s{%s} %s %i" % (
                             "omnistat_perf_push_background_seconds",
                             self.__labelDefaults,
                             bg_thread_timer["duration_secs"],
+                            bg_thread_timer["timestamp_msecs"],
+                        )
+                        self.__dataVM.append(entry)
+                        entry = "%s{%s} %s %i" % (
+                            "omnistat_perf_push_data_bytes",
+                            self.__labelDefaults,
+                            bg_thread_timer["data_bytes"],
                             bg_thread_timer["timestamp_msecs"],
                         )
                         self.__dataVM.append(entry)
