@@ -16,11 +16,10 @@ distributed with Omnistat, along with their supported metrics:
 | `source`            | :heavy_check_mark:[^1] | :heavy_check_mark: |
 | `system/rms`        | :heavy_check_mark:     | :heavy_check_mark: |
 | `system/standalone` | :heavy_check_mark:     |                    |
-| `docker`[^3]        | :heavy_check_mark:     | :heavy_check_mark: |
+| `docker`[^2]        | :heavy_check_mark:     | :heavy_check_mark: |
 
 [^1]: Includes throttling events (experimental).
-[^2]: Includes CPU, memory, IO, ethernet, and IB panels.
-[^3]: Docker dashboards are meant to be used in local Docker-based Grafana
+[^2]: Docker dashboards are meant to be used in local Docker-based Grafana
       instances to access local data collected in usermode.
 
 ## Generate Custom Dashboards
