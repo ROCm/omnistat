@@ -31,4 +31,4 @@ Import the resulting JSON file into Grafana via **Dashboards > Import**.
 ## Documentation
 
 For additional documentation, including YAML schema details and example screenshots, please consult
- the [Grafana Dashboards](../../docs/grafana.md) section of the Omnistat documentation.
+ the [Grafana Dashboards](https://github.com/ROCm/omnistat/blob/main/docs/grafana.md) section of the Omnistat documentation.
