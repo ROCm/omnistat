@@ -41,8 +41,8 @@ Must match Prometheus legendFormat: "{{instance}}-gpu{{card}}"
 
 import argparse
 import json
-import re
 import random
+import re
 import sys
 from pathlib import Path
 
