@@ -1,0 +1,190 @@
+# example_cluster.yaml — Two-rack example for documentation
+#
+# Usage: python generate_cluster_dashboard.py example_cluster.yaml -o dashboard.json
+#
+# U positions are numbered from the BOTTOM (U1 = floor level).
+# Blank 1U filler panels are inserted automatically for any unoccupied slots.
+#
+# Server types:
+#   compute  — shows GPU metric boxes (requires hostname + gpu_count, or vms list)
+#   storage  — solid coloured block with label, no GPU metrics
+#   network  — solid coloured block with label, no GPU metrics
+
+cluster_id:    example
+display_name:  "Example Cluster"
+omnistat_port: 8000
+
+# Base URL of your local Grafana instance
+grafana_url: "https://grafana.myclustere.org"
+
+# Path to the per-node dashboard — {instance} is replaced with hostname:port at render time
+node_dashboard_path: "/d/DASHBOARD_UID/node-detail?orgId=1&var-instance={instance}&from=${__from}&to=${__to}"
+
+metrics:
+  - name:        rocm_temperature_celsius
+    label:       "Temperature (°C)"
+    unit:        celsius
+    min:         30
+    max:         80
+    color:       continuous-GrYlRd
+    show_values: false
+  - name:        rocm_utilization_percentage
+    label:       "GPU Utilization (%)"
+    unit:        percent
+    min:         0
+    max:         100
+    color:       continuous-RdYlGr
+    show_values: false
+  - name:        rocm_average_socket_power_watts
+    label:       "Power (W)"
+    unit:        watt
+    min:         40
+    max:         900
+    color:       continuous-BlYlRd
+    show_values: false
+
+racks:
+
+  # ── Rack 01 — Uniform 4U/4-GPU compute ────────────────────────────────────
+  # Ten identical 4U servers, each with 4 GPUs, plus a network switch at the top.
+  - rack_id:  rack01
+    label:    Rack 01
+    col:      1
+    height_u: 52
+    servers:
+      - u_start: 49
+        u_height: 1
+        type: network
+        label: "Switch #1"
+
+      - u_start: 41
+        u_height: 4
+        type: compute
+        hostname: n001-010
+        gpu_count: 4
+        gpu_model: MI300X
+
+      - u_start: 37
+        u_height: 4
+        type: compute
+        hostname: n001-009
+        gpu_count: 4
+        gpu_model: MI300X
+
+      - u_start: 33
+        u_height: 4
+        type: compute
+        hostname: n001-008
+        gpu_count: 4
+        gpu_model: MI300X
+
+      - u_start: 29
+        u_height: 4
+        type: compute
+        hostname: n001-007
+        gpu_count: 4
+        gpu_model: MI300X
+
+      - u_start: 25
+        u_height: 4
+        type: compute
+        hostname: n001-006
+        gpu_count: 4
+        gpu_model: MI300X
+
+      - u_start: 21
+        u_height: 4
+        type: compute
+        hostname: n001-005
+        gpu_count: 4
+        gpu_model: MI300X
+
+      - u_start: 16
+        u_height: 4
+        type: compute
+        hostname: n001-004
+        gpu_count: 4
+        gpu_model: MI300X
+
+      - u_start: 12
+        u_height: 4
+        type: compute
+        hostname: n001-003
+        gpu_count: 4
+        gpu_model: MI300X
+
+      - u_start: 7
+        u_height: 4
+        type: compute
+        hostname: n001-002
+        gpu_count: 4
+        gpu_model: MI300X
+
+      - u_start: 3
+        u_height: 4
+        type: compute
+        hostname: n001-001
+        gpu_count: 4
+        gpu_model: MI300X
+
+  # ── Rack 02 — Mixed server sizes ─────────────────────────────────────────
+  # Demonstrates 4U vs 8U servers and different GPU counts.
+  - rack_id:  rack02
+    label:    Rack 02
+    col:      2
+    height_u: 52
+    servers:
+      - u_start: 49
+        u_height: 1
+        type: network
+        label: "Switch #2"
+
+      - u_start: 43
+        u_height: 4
+        type: compute
+        hostname: n002-006
+        gpu_count: 4
+        gpu_model: MI300X
+
+      - u_start: 39
+        u_height: 4
+        type: compute
+        hostname: n002-005
+        gpu_count: 4
+        gpu_model: MI300X
+
+      # 8U server with 8 individually-addressable GPUs
+      - u_start: 30
+        u_height: 8
+        type: compute
+        vms:
+          - hostname: n002-004-v1
+          - hostname: n002-004-v2
+          - hostname: n002-004-v3
+          - hostname: n002-004-v4
+          - hostname: n002-004-v5
+          - hostname: n002-004-v6
+          - hostname: n002-004-v7
+          - hostname: n002-004-v8
+
+      # 8U server with 8 GPUs
+      - u_start: 21
+        u_height: 8
+        type: compute
+        hostname: n002-003
+        gpu_count: 8
+        gpu_model: MI300X
+
+      - u_start: 12
+        u_height: 8
+        type: compute
+        hostname: n002-002
+        gpu_count: 8
+        gpu_model: MI300X
+
+      - u_start: 3
+        u_height: 8
+        type: compute
+        hostname: n002-001
+        gpu_count: 8
+        gpu_model: MI300X
