@@ -10,6 +10,12 @@ Grafana v12 or newer).
 Cluster layout and metrics controls are defined in a YAML configuration file. See
 [example_cluster.yaml](example_cluster.yaml) for a two-rack example.
 
+## Prerequisites
+
+```shell
+pip install -r requirements.txt
+```
+
 ## Quick Start
 
 ```shell
