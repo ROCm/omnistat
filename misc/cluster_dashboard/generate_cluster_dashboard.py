@@ -982,7 +982,7 @@ def generate_preview_svg(cluster: dict, output_path: Path) -> None:
     step = 1 if U_PX >= 10 else 5
     for u in range(1, max_u + 1, step):
         uy = rack_top + (max_u - u) * U_PX + U_PX // 2 + 3
-        a(f'<text x="{U_LABEL_W - 2}" y="{uy}" fill="#445566" font-size="8" ' f'text-anchor="end">{u}</text>')
+        a(f'<text x="{U_LABEL_W - 2}" y="{uy}" fill="#8899aa" font-size="8" ' f'text-anchor="end">{u}</text>')
 
     # ── Per-rack ──────────────────────────────────────────────────────────────
     for i, rack in enumerate(racks):
