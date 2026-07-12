@@ -15,7 +15,7 @@ display_name:  "Example Cluster"
 omnistat_port: 8000
 
 # Base URL of your local Grafana instance
-grafana_url: "https://grafana.myclustere.org"
+grafana_url: "https://grafana.mycluster.org"
 
 # Path to the per-node dashboard — {instance} is replaced with hostname:port at render time
 node_dashboard_path: "/d/DASHBOARD_UID/node-detail?orgId=1&var-instance={instance}&from=${__from}&to=${__to}"
