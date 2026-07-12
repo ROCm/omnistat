@@ -51,7 +51,7 @@ import yaml
 UNIT_SYM = {"celsius": "°C", "percent": "%", "watt": "W"}
 
 
-# ── Canvas geometry ────────────────────────────────────────────────────────────
+# -- Canvas geometry ------------------------------------------------------------
 
 U_PX = 14  # pixels per rack unit
 RACK_WIDTH = 220  # px width of each rack column
@@ -68,7 +68,7 @@ GPU_GAP = 2  # gap between GPU boxes within a compute server
 RIGHT_MARGIN = 20
 
 
-# ── Non-compute type palette  (bg, border, text) ──────────────────────────────
+# -- Non-compute type palette  (bg, border, text) ------------------------------
 
 TYPE_PALETTE = {
     "network": ("#0d2050", "#1a3a8a", "#88aadd"),
@@ -80,7 +80,7 @@ TYPE_PALETTE = {
 COMPUTE_BG = "#0e0e1c"
 COMPUTE_BORDER = "#3a3a5a"
 
-# ── Color scheme definitions for static color bar ─────────────────────────────
+# -- Color scheme definitions for static color bar -----------------------------
 # Each entry: list of (position 0..1, hex color) stops
 COLOR_SCHEMES = {
     "continuous-GrYlRd": [(0.0, "#2e7d32"), (0.5, "#f9a825"), (1.0, "#c62828")],
@@ -202,7 +202,7 @@ GPU_THRESHOLDS = [
 ]
 
 
-# ── Canvas element factories ──────────────────────────────────────────────────
+# -- Canvas element factories --------------------------------------------------
 # background / border are TOP-LEVEL on the element, not inside config.
 
 
@@ -301,7 +301,7 @@ def gpu_metric_el(name, top, left, width, height, field_name, show_value=True, m
     }
 
 
-# ── Geometry helpers ───────────────────────────────────────────────────────────
+# -- Geometry helpers -----------------------------------------------------------
 
 
 def rack_left(col: int) -> int:
@@ -322,7 +322,7 @@ def server_h_px(u_height: int) -> int:
     return u_height * U_PX - 1
 
 
-# ── Auto-blank fill ────────────────────────────────────────────────────────────
+# -- Auto-blank fill ------------------------------------------------------------
 
 
 def fill_blanks(servers: list, max_u: int) -> list:
@@ -341,7 +341,7 @@ def fill_blanks(servers: list, max_u: int) -> list:
     return result
 
 
-# ── Element builders ───────────────────────────────────────────────────────────
+# -- Element builders -----------------------------------------------------------
 
 
 def u_label_els(rack_top: int, max_u: int) -> list:
@@ -388,7 +388,7 @@ def rack_els(
     rack_h = max_u * U_PX
     ry = rack_top + (max_u_global - max_u) * U_PX  # top of rack outline
 
-    # ── Rack label (above outline) ────────────────────────────────────────────
+    # -- Rack label (above outline) --------------------------------------------
     label_y = ry - RACK_LABEL_H
     els.append(
         text_el(
@@ -403,7 +403,7 @@ def rack_els(
         )
     )
 
-    # ── Per-server elements (blanks auto-filled for unoccupied U slots) ──────
+    # -- Per-server elements (blanks auto-filled for unoccupied U slots) ------
     servers = fill_blanks(servers, max_u)
     for si, srv in enumerate(servers):
         u_start = srv["u_start"]
@@ -501,7 +501,7 @@ def rack_els(
                     )
                 )
 
-    # ── Rack background (drawn first, behind servers) ─────────────────────────
+    # -- Rack background (drawn first, behind servers) -------------------------
     # Rack background with border — drawn first (behind servers) so it never
     # blocks hover events on GPU elements.
     els.insert(
@@ -536,7 +536,7 @@ def rack_els(
     return els
 
 
-# ── Dashboard builder ──────────────────────────────────────────────────────────
+# -- Dashboard builder ----------------------------------------------------------
 
 
 def build_dashboard(cluster: dict) -> dict:
@@ -857,7 +857,7 @@ def build_dashboard(cluster: dict) -> dict:
     }
 
 
-# ── SVG preview ───────────────────────────────────────────────────────────────
+# -- SVG preview ---------------------------------------------------------------
 
 
 def _svg_interp_color(stops: list, t: float) -> str:
@@ -919,7 +919,7 @@ def generate_preview_svg(cluster: dict, output_path: Path) -> None:
         f"style=\"background:#0d0d0d; font-family:'Courier New',monospace;\">"
     )
 
-    # ── Header bar with colorbar ──────────────────────────────────────────────
+    # -- Header bar with colorbar ----------------------------------------------
     # Scale colorbar to fit available width
     title_w = min(HEADER_SPLIT, header_w // 2)
     cb_left = title_w + 10
@@ -978,13 +978,13 @@ def generate_preview_svg(cluster: dict, output_path: Path) -> None:
         f"{m_max}</text>"
     )
 
-    # ── U number column ───────────────────────────────────────────────────────
+    # -- U number column -------------------------------------------------------
     step = 1 if U_PX >= 10 else 5
     for u in range(1, max_u + 1, step):
         uy = rack_top + (max_u - u) * U_PX + U_PX // 2 + 3
         a(f'<text x="{U_LABEL_W - 2}" y="{uy}" fill="#8899aa" font-size="8" ' f'text-anchor="end">{u}</text>')
 
-    # ── Per-rack ──────────────────────────────────────────────────────────────
+    # -- Per-rack --------------------------------------------------------------
     for i, rack in enumerate(racks):
         rack_id = rack["rack_id"]
         col = rack.get("col", i + 1)
@@ -1068,7 +1068,7 @@ def generate_preview_svg(cluster: dict, output_path: Path) -> None:
     print(f"Preview SVG \u2192 {output_path}")
 
 
-# ── CLI ────────────────────────────────────────────────────────────────────────
+# -- CLI ------------------------------------------------------------------------
 
 
 def main() -> None:
