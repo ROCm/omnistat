@@ -132,3 +132,89 @@ To configure a dashboard:
 
    Job dashboard screenshot
 ```
+
+<hr style="border: 1px solid black;">
+
+## Cluster Rack View
+
+In addition to the pre-configured Grafana panels highlighted above, additional utilities are
+provided to generate a custom Grafana dashboard that renders a physical rack-layout
+view for visualizing a subset of Omnistat metrics. Each rack is drawn as a vertical column with
+compute servers color-coded by metric value (e.g., temperature, utilization, power) and users can
+specify rack sizes, locations, and include additional switch locations to match their local installation.
+
+
+### YAML Configuration
+
+The desired cluster layout is defined in a YAML configuration file, and a companion Python
+generator script produces the Grafana dashboard JSON for import. To illustrate the configuration options, a simple two-rack example with different server types is provided in
+[example_cluster.yaml](https://github.com/ROCm/omnistat/blob/main/misc/cluster_dashboard/example_cluster.yaml).
+
+The top-level fields are:
+
+| Field | Description |
+| :--- | :--- |
+| `cluster_id` | Short identifier used in the dashboard title and UID |
+| `display_name` | Human-readable name shown in the dashboard header |
+| `omnistat_port` | Omnistat exporter port (default: 8000) |
+| `grafana_url` | Base URL of the Grafana instance (e.g., `https://grafana.mycluster.org`) |
+| `node_dashboard_path` | URL path to a per-node dashboard; `{instance}` is replaced at render time |
+| `metrics` | List of Prometheus metrics to visualize, each with `name`, `label`, `unit`, `min`, `max`, `color`, and `show_values` |
+| `racks` | List of rack definitions |
+
+Each entry in `racks` contains:
+
+| Field | Description |
+| :--- | :--- |
+| `rack_id` | Unique rack identifier |
+| `label` | Display label shown above the rack |
+| `col` | Column position (1-indexed, left to right) |
+| `height_u` | Total rack height in rack units |
+| `servers` | List of server entries occupying the rack |
+
+Each entry in `servers` supports the following types:
+
+- **`compute`** — GPU-equipped server. Requires `hostname` and `gpu_count`,
+  or a `vms` list for servers with individually-addressable GPUs. Each GPU
+  is rendered as a color-coded box bound to the corresponding Prometheus
+  metric field.
+- **`storage`** — Rendered as a solid block with a text label; no GPU metrics.
+- **`network`** — Rendered as a solid block with a text label; no GPU metrics.
+
+Unoccupied rack unit slots are automatically filled with blank panels.
+
+### Generating the Dashboard
+
+The cluster dashboard generator utility is located at [misc/cluster_dashboard/generate_cluster_dashboard.py](https://github.com/ROCm/omnistat/blob/main/misc/cluster_dashboard/generate_cluster_dashboard.py)
+within the Omnistat repository. The generator script requires Python 3 and additional dependencies outlined in [misc/cluster_dashboard/requirements.txt](https://github.com/ROCm/omnistat/blob/main/misc/cluster_dashboard/requirements.txt).
+
+The following commands highlight basic usage. Note that a `--preview` option exists to generate a static preview (SVG format) allowing administrators to iterate on the configuration before importing a final version into Grafana. An example preview rendering for the example cluster definition is shown in {numref}`fig-cluster-preview`.
+
+```shell
+# Generate a Grafana dashboard JSON file
+python3 generate_cluster_dashboard.py example_cluster.yaml -o dashboard.json
+
+# Optionally generate a static SVG preview
+python3 generate_cluster_dashboard.py example_cluster.yaml -o dashboard.json --preview
+```
+
+```eval_rst
+.. _fig-cluster-preview:
+.. figure:: images/cluster-rack-preview.svg
+
+   Static SVG preview generated from the example cluster configuration
+```
+
+### Importing into Grafana
+
+Import the generated JSON file into Grafana following the steps described in [Import
+dashboards](#import-dashboards) above. The dashboard will display with one tab per configured metric
+with GPUs in each server color-coded based on linked Omnistat telemetry data. Hover over a
+specific GPU to see exact values and link to the associated node dashboard.
+
+
+```eval_rst
+.. figure:: images/cluster-rack-view.png
+
+   Live cluster rack example rendering in Grafana
+```
