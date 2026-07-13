@@ -10,8 +10,8 @@ In addition to the [Grafana](./grafana.md) dashboards and command-line
 [report card](query_report_card) already available, Omnistat
 provides a set of *skills* that let an AI coding agent explore, summarize, and
 analyze collected telemetry. Whether data was gathered in {ref}`user-mode or system-mode
-<user-vs-system>`, an agent can load an Omnistat database, produce a factual
-report card for a job, or run a hypothesis-driven investigation into why a job
+<user-vs-system>`, an agent can load an Omnistat database, produce a report
+card for a job, or run a hypothesis-driven investigation into why a job
 behaved as it did. This complements the interactive dashboards and standalone
 query utilities documented elsewhere.
 
@@ -33,7 +33,7 @@ available:
 
 - **open-database**: load an Omnistat database with VictoriaMetrics so it can
   be queried, then verify the data is present and ready.
-- **job-report**: produce a one-shot, factual *report card* describing what a
+- **job-report**: produce a one-shot *report card* describing what a
   job did: global statistics, energy, health findings, and data quality. It can
   also flag statistically significant differences between GPUs or nodes (spatial
   outliers), but each metric is reduced over the whole run, so the report does
@@ -128,7 +128,7 @@ The two sessions below show the kind of end-to-end interaction the skills
 enable. The agent decides which skill to invoke and which `omnistat-inspect`
 commands to run, and the user only supplies the natural-language request.
 
-#### Example session 1: a factual report card
+#### Example session 1: observational report card
 
 > **You:** *"Open the database at `/scratch/omnistat/run-2026-05-17` and give me a
 > report card for job 44092."*
