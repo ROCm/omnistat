@@ -1,3 +1,19 @@
+Version 1.13 (13 July 2026)
+
+  * add skills support for agentic analysis to analyze Omnistat databases or exported CSV files (#271)
+  * fix GPU kernel panels showing incorrect values for kernels with a single data point (#290)
+  * improve process-based I/O monitoring in user-mode to avoid duplication (#291)
+  * add ability to export host metrics (#292)
+  * introduction of new optional data collector to support external (3rd party) metrics (#296)
+  * add figure-of-merit discussion to documentation (#297, #298)
+  * update rocmsmi-based collector to dynamically derive necessary C struct bindings from
+    ROCm bindings file (#299)
+  * add `rocm_energy_joules` metric for GPU energy accumulation tracking (#300)
+  * add additional internal performance metric for user-mode data collection (#302)
+  * update default SMI collector to use amd-smi variant (#303)
+  * introduction of rack-level cluster dashboard generator for physical rack-layout
+    visualization in Grafana (#304)
+
 Version 1.12 (26 April 2026)
 
   * simplify kernel trace library finalization/flushing to avoid race condition (#276)
