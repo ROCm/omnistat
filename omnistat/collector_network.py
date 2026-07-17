@@ -100,6 +100,13 @@ class NETWORK(Collector):
                 "rx_bytes": ["rx_bytes"],
                 "tx_bytes": ["tx_bytes"],
             },
+            "extra_counters": {
+                "rx_packets": ["rx_pkts"],
+                "tx_packets": ["tx_pkts"],
+                "out_of_sequence_packets": ["out_of_sequence"],
+                "rx_discarded_packets": ["rx_roce_discards"],
+                "tx_discarded_packets": ["tx_roce_discards"],
+            },
         },
     }
 
