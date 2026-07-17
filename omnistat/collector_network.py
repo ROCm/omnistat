@@ -66,26 +66,40 @@ class NETWORK(Collector):
         self.__ib_rx_data_paths = {}
         self.__ib_tx_data_paths = {}
 
-        # hw_counter NIC (ainic, thor, ...) byte paths. Value carries the
-        # device_class alongside the list of counter files to sum, e.g.:
-        #   {"bnxt_re0:1": ("thor", [Path(".../hw_counters/rx_bytes")])}
-        self.__hw_rx_data_paths = {}
-        self.__hw_tx_data_paths = {}
+        # hw_counter NIC (ainic, thor, ...) paths, keyed by counter and
+        # interface, e.g.:
+        #   {"rx_bytes": {"ionic_0:1": ("ainic", [Path(".../rx_rdma_ucast_bytes"), ...])}}
+        # shared_counters feed the cross-class rx/tx gauges; extra_counters each
+        # get their own hw-only gauge named after the counter.
+        self.__hw_shared_data_paths = {}
+        self.__hw_extra_data_paths = {}
 
     # RoCE-over-Ethernet NICs that appear under /sys/class/infiniband but report
     # byte totals via hw_counters (already in bytes, no IB octet/4 scaling)
     # rather than the standard IB port counters. Each is detected by driver
     # string and feeds the shared rx/tx metrics under its own device_class.
     _HW_COUNTER_NICS = {
-        "ionic": {  # AMD AINIC (Pensando "ionic", e.g. Pollara)
+        "ionic": {
+            # AMD AINIC (Pensando "ionic", e.g. Pollara)
             "device_class": "ainic",
-            "rx": ["rx_rdma_ucast_bytes", "rx_rdma_mcast_bytes"],
-            "tx": ["tx_rdma_ucast_bytes", "tx_rdma_mcast_bytes"],
+            "shared_counters": {
+                "rx_bytes": ["rx_rdma_ucast_bytes", "rx_rdma_mcast_bytes"],
+                "tx_bytes": ["tx_rdma_ucast_bytes", "tx_rdma_mcast_bytes"],
+            },
+            "extra_counters": {
+                "rx_packets": ["rx_rdma_ucast_pkts", "rx_rdma_mcast_pkts"],
+                "tx_packets": ["tx_rdma_ucast_pkts", "tx_rdma_mcast_pkts"],
+                "retx_packets": ["tx_rdma_retx_pkts"],
+                "out_of_sequence_packets": ["req_rx_pkt_seq_err"],
+            },
         },
-        "bnxt_en": {  # Broadcom "Thor" (bnxt_re)
+        "bnxt_en": {
+            # Broadcom "Thor" (bnxt_re)
             "device_class": "thor",
-            "rx": ["rx_bytes"],
-            "tx": ["tx_bytes"],
+            "shared_counters": {
+                "rx_bytes": ["rx_bytes"],
+                "tx_bytes": ["tx_bytes"],
+            },
         },
     }
 
@@ -186,11 +200,13 @@ class NETWORK(Collector):
         # separate branch below. Their byte paths are indexed by interface and
         # port ID, with each value carrying the device_class and the list of
         # counter files to sum. For example, for Rx bandwidth:
-        #   __hw_rx_data_paths = {
-        #       "ionic_0:1": ("ainic", [
-        #           "/sys/class/infiniband/ionic_0/ports/1/hw_counters/rx_rdma_ucast_bytes",
-        #           "/sys/class/infiniband/ionic_0/ports/1/hw_counters/rx_rdma_mcast_bytes",
-        #       ]),
+        #   __hw_shared_data_paths = {
+        #       "rx_bytes": {
+        #           "ionic_0:1": ("ainic", [
+        #               "/sys/class/infiniband/ionic_0/ports/1/hw_counters/rx_rdma_ucast_bytes",
+        #               "/sys/class/infiniband/ionic_0/ports/1/hw_counters/rx_rdma_mcast_bytes",
+        #           ]),
+        #       }
         #   }
         ib_base_path = Path("/sys/class/infiniband")
 
@@ -214,13 +230,14 @@ class NETWORK(Collector):
                     nic_name = f"{nic.name}:{port.name}"
                     hw = port / "hw_counters"
 
-                    rx = [hw / c for c in spec["rx"]]
-                    if rx[0].is_file() and rx[0].stat().st_size > 0:
-                        self.__hw_rx_data_paths[nic_name] = (dclass, rx)
-
-                    tx = [hw / c for c in spec["tx"]]
-                    if tx[0].is_file() and tx[0].stat().st_size > 0:
-                        self.__hw_tx_data_paths[nic_name] = (dclass, tx)
+                    for dest, group in (
+                        (self.__hw_shared_data_paths, spec.get("shared_counters", {})),
+                        (self.__hw_extra_data_paths, spec.get("extra_counters", {})),
+                    ):
+                        for name, counters in group.items():
+                            paths = [hw / c for c in counters]
+                            if paths[0].is_file() and paths[0].stat().st_size > 0:
+                                dest.setdefault(name, {})[nic_name] = (dclass, paths)
             else:
                 for port in ports.iterdir():
                     nic_name = f"{nic.name}:{port.name}"
@@ -243,7 +260,7 @@ class NETWORK(Collector):
             self.__net_rx_data_paths,
             self.__cxi_rx_data_paths,
             self.__ib_rx_data_paths,
-            self.__hw_rx_data_paths,
+            self.__hw_shared_data_paths.get("rx_bytes", {}),
         ]
         num_rx = sum([len(x) for x in rx_data_paths])
         if num_rx > 0:
@@ -257,7 +274,7 @@ class NETWORK(Collector):
             self.__net_tx_data_paths,
             self.__cxi_tx_data_paths,
             self.__ib_tx_data_paths,
-            self.__hw_tx_data_paths,
+            self.__hw_shared_data_paths.get("tx_bytes", {}),
         ]
         num_tx = sum([len(x) for x in tx_data_paths])
         if num_tx > 0:
@@ -265,6 +282,18 @@ class NETWORK(Collector):
             metric = self.__prefix + "tx_bytes"
             description = "Network transmitted (bytes)"
             self.__tx_metric = Gauge(metric, description, labelnames=labels)
+            logging.info(f"--> [registered] {metric} -> {description} (gauge)")
+
+        # shared_counters map to the pre-existing cross-class gauges above.
+        self.__hw_shared_metrics = {"rx_bytes": self.__rx_metric, "tx_bytes": self.__tx_metric}
+
+        # One gauge per extra_counter discovered on any hw_counter NIC, named
+        # after the counter (e.g. rx_packets, retx_packets, out_of_sequence_packets).
+        self.__hw_extra_metrics = {}
+        for name in self.__hw_extra_data_paths:
+            metric = self.__prefix + name
+            description = f"Network {name.replace('_', ' ')}"
+            self.__hw_extra_metrics[name] = Gauge(metric, description, labelnames=labels)
             logging.info(f"--> [registered] {metric} -> {description} (gauge)")
 
     def updateMetrics(self):
@@ -322,23 +351,26 @@ class NETWORK(Collector):
                 except:
                     pass
 
-        # hw_counter NICs (ainic, thor): hw_counters are already in bytes (no
-        # scaling); rx/tx sum the per-device counter list. device_class travels
-        # with each interface's paths.
-        hw_data = [
-            (self.__hw_rx_data_paths, self.__rx_metric),
-            (self.__hw_tx_data_paths, self.__tx_metric),
+        # hw_counter NICs (ainic, thor): hw_counters are already in bytes/packets
+        # (no scaling); each metric sums its per-device counter list. device_class
+        # travels with each interface's paths. shared_counters write the shared
+        # rx/tx gauges; extra_counters write their own gauge.
+        hw_metrics = [
+            (self.__hw_shared_data_paths, self.__hw_shared_metrics),
+            (self.__hw_extra_data_paths, self.__hw_extra_metrics),
         ]
 
-        for data_paths, metric in hw_data:
-            for nic, (dclass, paths) in data_paths.items():
-                total = 0
-                for path in paths:
-                    try:
-                        with open(path, "r") as f:
-                            total += int(f.read().strip())
-                    except:
-                        pass
-                metric.labels(device_class=dclass, interface=nic).set(total)
+        for data_paths, metrics in hw_metrics:
+            for name, interfaces in data_paths.items():
+                metric = metrics[name]
+                for nic, (dclass, paths) in interfaces.items():
+                    total = 0
+                    for path in paths:
+                        try:
+                            with open(path, "r") as f:
+                                total += int(f.read().strip())
+                        except:
+                            pass
+                    metric.labels(device_class=dclass, interface=nic).set(total)
 
         return
