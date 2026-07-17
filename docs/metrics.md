@@ -312,21 +312,18 @@ Pensando `ionic` NICs such as Pollara), and Thor (Broadcom `bnxt_re` RoCE NICs).
 | `omnistat_network_tx_bytes` | Total bytes transmitted by network interface. Labels: `device_class`, `interface`. |
 | `omnistat_network_rx_bytes` | Total bytes received by network interface. Labels: `device_class`, `interface`. |
 
-### RoCE hw_counter metrics
-
-RoCE-over-Ethernet NICs that report via sysfs `hw_counters` (AINIC,
-`device_class="ainic"`; Thor, `device_class="thor"`) expose additional
+RoCE NICs that report via sysfs `hw_counters` (AINIC, Thor) expose additional
 throughput and fabric-health metrics. Availability depends on the counters the
-driver publishes, so a metric only appears for interfaces that provide it (all
-are currently reported for AINIC). For these NICs, `rx_bytes`/`tx_bytes` and
-`rx_packets`/`tx_packets` aggregate unicast and multicast RDMA traffic.
+driver publishes.
 
-| Node Metric                 | Description                          |
-| :-------------------------- | :----------------------------------- |
-| `omnistat_network_tx_packets` | Total packets transmitted by network interface. Labels: `device_class`, `interface`. |
-| `omnistat_network_rx_packets` | Total packets received by network interface. Labels: `device_class`, `interface`. |
-| `omnistat_network_retx_packets` | Total packets retransmitted by network interface; a fabric packet-loss/congestion indicator. Labels: `device_class`, `interface`. |
-| `omnistat_network_out_of_sequence_packets` | Total packets received out of sequence by network interface; typically driven by in-fabric packet loss. Labels: `device_class`, `interface`. |
+| Node Metric                 | Network Type   | Description                          |
+| :-------------------------- | :----------- | :----------------------------------- |
+| `omnistat_network_tx_packets` | AINIC, Thor | Total packets transmitted by network interface. |
+| `omnistat_network_rx_packets` | AINIC, Thor | Total packets received by network interface. |
+| `omnistat_network_out_of_sequence_packets` | AINIC, Thor | Total packets received out of sequence by network interface; typically driven by in-fabric packet loss. |
+| `omnistat_network_retx_packets` | AINIC | Total packets retransmitted by network interface; a fabric packet-loss/congestion indicator. |
+| `omnistat_network_rx_discarded_packets` | Thor | Total RoCE packets dropped on receive by network interface; a packet-loss indicator. |
+| `omnistat_network_tx_discarded_packets` | Thor | Total RoCE packets dropped on transmit by network interface; a packet-loss indicator. |
 
 <hr style="border: 1px solid black;">
 
