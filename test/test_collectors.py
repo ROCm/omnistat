@@ -420,3 +420,60 @@ class TestHardwareCounters:
         assert any(
             all(metrics[card].get(c, 0) > 0 for c in counters) for card in metrics
         ), f"No GPU had all counters > 0: {metrics}"
+
+
+class TestHostUserModeIO:
+    """Verify per-process I/O metrics in user mode by spawning a subprocess that does I/O."""
+
+    def test_user_mode_proc_io(self):
+        import subprocess
+        import sys
+
+        config_sections = {
+            "omnistat.collectors.host": {
+                "cpu_load_sampling_interval": "0.02",
+                "enable_proc_io_stats": "True",
+                "proc_io_cmds_exclude": "flux-, systemd",
+            },
+            "omnistat.internal": {
+                "mode": "user",
+                "interval_secs": "5",
+                "push_interval_secs": "Unknown",
+            },
+        }
+        server = OmnistatTestServer(
+            ["host_metrics", "omnistat.collectors.host::enable_proc_io_stats"],
+            config_sections=config_sections,
+        )
+
+        # Spawn a long-running subprocess that does I/O — its PID won't be in the init-time filter
+        io_proc = subprocess.Popen(
+            [sys.executable, "-c", "import time, os\nf=open('/dev/null','w')\nwhile True:\n f.write('x'*1024)\n time.sleep(0.01)"],
+        )
+
+        try:
+            time.sleep(0.5)
+            metrics = {}
+            for metric in server.get():
+                for sample in metric.samples:
+                    metrics.setdefault(metric.name, []).append(sample)
+
+            assert "omnistat_host_io_read_total_bytes" in metrics, (
+                f"Missing io_read_total_bytes, got: {list(metrics.keys())}"
+            )
+            assert "omnistat_host_io_write_total_bytes" in metrics, (
+                f"Missing io_write_total_bytes, got: {list(metrics.keys())}"
+            )
+
+            # Verify expected labels and at least one process with non-zero I/O
+            for metric_name in ("omnistat_host_io_read_total_bytes", "omnistat_host_io_write_total_bytes"):
+                samples = metrics[metric_name]
+                for sample in samples:
+                    assert "pid" in sample.labels, f"Missing 'pid' label for {metric_name}"
+                    assert "cmd" in sample.labels, f"Missing 'cmd' label for {metric_name}"
+                values = [s.value for s in samples]
+                assert any(v > 0 for v in values), f"Expected non-zero {metric_name}, got: {values}"
+        finally:
+            io_proc.terminate()
+            io_proc.wait()
+            server.stop()
