@@ -67,13 +67,13 @@ class ExternalTestServer(OmnistatTestServer):
 
 @pytest.fixture(scope="class")
 def external_server(request):
-    """Start a single ExternalTestServer and perform 3 sequential scrapes."""
+    """Start a single ExternalTestServer and perform 4 sequential scrapes."""
     fd, statefile = tempfile.mkstemp(suffix=".state")
     os.close(fd)
     server = ExternalTestServer(statefile)
 
     # Perform all scrapes up front so tests can reference them by index
-    request.cls.scrapes = [server.get(), server.get(), server.get()]
+    request.cls.scrapes = [server.get(), server.get(), server.get(), server.get()]
 
     yield server
 
@@ -93,6 +93,13 @@ class TestExternalCollector:
             assert labels.get("omnistat_external") == "1", f"Missing omnistat_external label: {labels}"
             assert labels.get("my_snazzy_label") == "omnistat_for_the_win"
             assert value == 42.0
+
+    def test_nolabel_metric(self):
+        """Scrape 1: verify metric emitted without labels."""
+        metrics = self.scrapes[0]
+        assert "my_nolabel_metric" in metrics, f"Missing my_nolabel_metric, got: {list(metrics.keys())}"
+        for label_set, value in metrics["my_nolabel_metric"].items():
+            assert value == 99.0
 
     def test_metric_change(self):
         """Scrape 2: verify new metric replaces previous one."""
@@ -123,3 +130,13 @@ class TestExternalCollector:
             assert labels.get("omnistat_external") == "1"
             assert labels.get("my_snazzy_label3b") == "bonus"
             assert value == 45.0
+
+    def test_nonzero_exit(self):
+        """Scrape 4: verify metrics are still recorded when script exits non-zero."""
+        metrics = self.scrapes[3]
+        assert "my_snazzy_metric4" in metrics, f"Missing my_snazzy_metric4, got: {list(metrics.keys())}"
+        for label_set, value in metrics["my_snazzy_metric4"].items():
+            labels = dict(label_set)
+            assert labels.get("omnistat_external") == "1"
+            assert labels.get("my_snazzy_label4") == "nonzero"
+            assert value == 46.0
