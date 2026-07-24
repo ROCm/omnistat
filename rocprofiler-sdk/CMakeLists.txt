@@ -49,14 +49,23 @@ if (NOT BUILD_KERNEL_TRACE_LIB)
     install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
 else()
     find_package(rocprofiler-sdk REQUIRED)
-    find_package(CURL REQUIRED)
 
     include(FetchContent)
     include(CheckCXXSourceCompiles)
 
+    # Header-only HTTP client. Fetched at configure time; for offline builds,
+    # download the source tree and point CMake at it:
+    #   -DFETCHCONTENT_SOURCE_DIR_HTTPLIB=/path/to/cpp-httplib
+    FetchContent_Declare(
+        httplib
+        URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.3.tar.gz
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+    FetchContent_MakeAvailable(httplib)
+
     add_library(omnistat_trace SHARED kernel_tracer.cpp)
     target_compile_features(omnistat_trace PRIVATE cxx_std_20)
-    target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk CURL::libcurl)
+    target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk httplib::httplib)
 
     # Check if the compiler supports std::format
     set(CMAKE_REQUIRED_FLAGS "-std=c++20")
