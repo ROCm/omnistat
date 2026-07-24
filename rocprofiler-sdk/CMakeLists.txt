@@ -25,6 +25,13 @@
 cmake_minimum_required(VERSION 3.15)
 project(omnistat_rocprofiler_sdk_extension LANGUAGES CXX)
 
+# Default to an optimized build. The kernel tracer's flush() path (including the
+# header-only HTTP client compiled into this library) is performance-sensitive,
+# so an unoptimized default would ship a needlessly slow library.
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 # The kernel tracing library is meant to be built separately from the Omnistat
 # package and extensions. When it's enabled, compile only the library and
 # nothing else.
