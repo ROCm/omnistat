@@ -56,4 +56,4 @@ concurrency = ["multiprocessing"]
 
 [tool.coverage.report]
 include = ["omnistat/collector_*.py"]
-omit = ["omnistat/collector_smi_process.py"]
+omit = ["omnistat/collector_smi_process.py", "omnistat/collector_rocprofiler.py"]
