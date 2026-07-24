@@ -56,15 +56,19 @@ extension above, it does not require a Python build step.
 ### Requirements
 
 - ROCm 6.4+
-- libcurl
 - C++20 compiler
 - CMake 3.15+
 
 ```{note}
-If the compiler does not support `std::format`, the build automatically fetches the [fmt](https://github.com/fmtlib/fmt) library via CMake's `FetchContent`.
-For offline builds, download the fmt source tree ahead of time and point CMake at it:
+The build automatically fetches the header-only
+[cpp-httplib](https://github.com/yhirose/cpp-httplib) library (used to send
+trace data over HTTP) via CMake's `FetchContent`, along with the
+[fmt](https://github.com/fmtlib/fmt) library if the compiler does not support
+`std::format`. For offline builds, download the source trees ahead of time and
+point CMake at them:
 
     cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON \
+      -DFETCHCONTENT_SOURCE_DIR_HTTPLIB=/path/to/cpp-httplib \
       -DFETCHCONTENT_SOURCE_DIR_FMT=/path/to/fmt
 ```
 

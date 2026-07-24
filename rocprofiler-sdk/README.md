@@ -90,11 +90,11 @@ kernel dispatches and streams the data to omnistat-standalone via HTTP.
 ### Requirements
 
 - ROCm 6.4+ with ROCProfiler-SDK
-- libcurl
 - C++20 compiler (GCC 13+ or Clang 16+)
 - CMake 3.15+
 
-CMake automatically fetches the `fmt` library if the compiler lacks
+CMake automatically fetches the header-only `cpp-httplib` library (used to send
+trace data over HTTP), and the `fmt` library if the compiler lacks
 `std::format`.
 
 ### Building
