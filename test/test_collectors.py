@@ -83,6 +83,10 @@ OCCUPANCY_METRICS = [
     {"name": "rocm_compute_unit_occupancy",                 "validate": ">=0",               "labels": ["card"]},
 ]
 
+EVENTS_METRICS = [
+    {"name": "rocm_throttle_events",                        "validate": ">=0",               "labels": ["card"]},
+]
+
 cores = os.cpu_count()
 
 HOST_METRICS = [
@@ -134,11 +138,12 @@ print(f"test execution hostname: {full_hostname}\n")
 
 COLLECTOR_CONFIGS = [
     {
-        "collectors": ["rocm_smi"],
+        "collectors": ["rocm_smi", "power_cap"],
         # rocm-smi interface is known to not report energy correctly on MI3XX
         "metrics": SMI_METRICS
         + [
             {"name": "rocm_energy_joules", "validate": ">=0" if "MI3" in gpu_type else ">10", "labels": ["card"]},
+            {"name": "rocm_power_cap_watts", "validate": ">0", "labels": ["card"]},
         ],
     },
     {
@@ -174,6 +179,10 @@ COLLECTOR_CONFIGS = [
     {
         "collectors": ["amd_smi", "cu_occupancy"],
         "metrics": OCCUPANCY_METRICS,
+    },
+    {
+        "collectors": ["events"],
+        "metrics": EVENTS_METRICS,
     },
     {
         "collectors": ["host_metrics", "omnistat.collectors.host::enable_proc_io_stats"],
@@ -420,6 +429,89 @@ class TestHardwareCounters:
         assert any(
             all(metrics[card].get(c, 0) > 0 for c in counters) for card in metrics
         ), f"No GPU had all counters > 0: {metrics}"
+
+
+class TestHardwareCounterConfigValidation:
+    """Verify rocprofiler_sdk config validation catches bad configs with sys.exit(4)."""
+
+    def _make_config(self, profile_opts=None, rocprofiler_opts=None):
+        config = configparser.ConfigParser()
+        config["omnistat.collectors"] = {"rocm_path": test.config.rocm_path}
+        if rocprofiler_opts:
+            config["omnistat.collectors.rocprofiler"] = rocprofiler_opts
+        if profile_opts is not None:
+            config["omnistat.collectors.rocprofiler.default"] = profile_opts
+        return config
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_bad_json_counters(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"counters": "not valid json"})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_missing_counters(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"sampling_mode": "constant"})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_non_list_counters(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"counters": '"just_a_string"'})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_invalid_sampling_mode(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"sampling_mode": "bogus", "counters": '["GRBM_COUNT"]'})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_constant_mode_multiple_counter_sets(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(
+            profile_opts={"sampling_mode": "constant", "counters": '[["GRBM_COUNT"], ["GRBM_GUI_ACTIVE"]]'}
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_deprecated_metrics_option(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(
+            rocprofiler_opts={"metrics": '["GRBM_COUNT"]'},
+            profile_opts={"sampling_mode": "constant"},
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_gpu_id_mode_single_counter_set(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(
+            profile_opts={"sampling_mode": "gpu-id", "counters": '[["GRBM_COUNT"]]'}
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
 
 
 class TestHostUserModeIO:
