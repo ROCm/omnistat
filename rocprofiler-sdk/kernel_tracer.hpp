@@ -26,10 +26,11 @@
 
 #include <rocprofiler-sdk/rocprofiler.h>
 
-#include <curl/curl.h>
+#include <httplib.h>
 
 #include <atomic>
 #include <condition_variable>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -89,8 +90,9 @@ class KernelTracer {
     std::atomic<uint64_t> failed_flushes_{0};
     std::atomic<uint64_t> failed_records_{0};
 
-    // libcurl handle for sending trace data
-    CURL* curl_handle_ = nullptr;
+    // HTTP client and endpoint path for sending trace data
+    std::unique_ptr<httplib::Client> client_;
+    std::string path_ = "/kernel_trace";
 };
 
 } // namespace omnistat
