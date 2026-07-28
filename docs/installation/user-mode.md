@@ -140,6 +140,9 @@ yellow need to be customized for the local installation path.
 
  In both examples above, the `omnistat-query` utility is used at the end of the job to query collected telemetry (prior to shutting down the server) for the assigned jobid. This should embed an ascii summary for the job similar to the [report card](query_report_card) example mentioned in the Overview directly within the recorded job output.
 
+ See [Querying job telemetry](../query.md) for the query interval defaults,
+ supported job-duration limits, and options for querying longer jobs.
+
 <!-- ## Exploring results with a local Docker environment -->
 ## Exploring results locally
 
