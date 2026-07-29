@@ -89,7 +89,7 @@ memory utilization statistics along with general I/O metrics.
 | `omnistat_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
 | `omnistat_io_write_local_total_bytes` | Total bock-level data written to **local** physical disk (bytes). |
 
-### Process-based I/O 
+### Process-based I/O
 
 **Collector**: `enable_host_metrics`
 <br/>
@@ -322,8 +322,11 @@ driver publishes.
 | `omnistat_network_rx_packets` | AINIC, Thor | Total packets received by network interface. |
 | `omnistat_network_out_of_sequence_packets` | AINIC, Thor | Total packets received out of sequence by network interface; typically driven by in-fabric packet loss. |
 | `omnistat_network_retx_packets` | AINIC | Total packets retransmitted by network interface; a fabric packet-loss/congestion indicator. |
-| `omnistat_network_rx_discarded_packets` | Thor | Total RoCE packets dropped on receive by network interface; a packet-loss indicator. |
-| `omnistat_network_tx_discarded_packets` | Thor | Total RoCE packets dropped on transmit by network interface; a packet-loss indicator. |
+| `omnistat_network_rx_discarded_packets` | Thor | Total packets dropped on receive by network interface; a packet-loss indicator. |
+| `omnistat_network_tx_discarded_packets` | Thor | Total packets dropped on transmit by network interface; a packet-loss indicator. |
+| `omnistat_network_ecn_marked_packets` | Thor | Total packets received with the ECN congestion mark; a pre-loss congestion indicator. |
+| `omnistat_network_cnp_sent_packets` | Thor | Total DCQCN congestion notification packets (CNPs) sent by network interface in response to ECN-marked traffic. |
+| `omnistat_network_cnp_handled_packets` | Thor | Total DCQCN congestion notification packets (CNPs) received and acted on by network interface (send rate throttled). |
 
 <hr style="border: 1px solid black;">
 
