@@ -106,6 +106,9 @@ class NETWORK(Collector):
                 "out_of_sequence_packets": ["out_of_sequence"],
                 "rx_discarded_packets": ["rx_roce_discards"],
                 "tx_discarded_packets": ["tx_roce_discards"],
+                "ecn_marked_packets": ["np_ecn_marked_roce_packets"],
+                "cnp_sent_packets": ["np_cnp_sent"],
+                "cnp_handled_packets": ["rp_cnp_handled"],
             },
         },
     }
