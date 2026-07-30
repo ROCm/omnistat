@@ -319,6 +319,11 @@ RoCE NICs that report via sysfs `hw_counters` (AINIC, Thor) expose additional
 throughput and fabric-health metrics. Availability depends on the counters the
 driver publishes.
 
+The ECN and CNP metrics are the two ends of the same DCQCN feedback loop: a
+receiver counts ECN-marked packets and answers with a CNP, which the sender
+counts as a request to lower its send rate. Both count packets *received*, but
+they report congestion in opposite traffic directions.
+
 | Node Metric                 | Network Type   | Description                          |
 | :-------------------------- | :----------- | :----------------------------------- |
 | `omnistat_network_tx_packets` | AINIC, Thor | Total packets transmitted by network interface. |
@@ -327,8 +332,8 @@ driver publishes.
 | `omnistat_network_retx_packets` | AINIC | Total packets retransmitted by network interface; a fabric packet-loss/congestion indicator. |
 | `omnistat_network_rx_discarded_packets` | Thor | Total packets dropped on receive by network interface; a packet-loss indicator. |
 | `omnistat_network_tx_discarded_packets` | Thor | Total packets dropped on transmit by network interface; a packet-loss indicator. |
-| `omnistat_network_ecn_marked_packets` | AINIC, Thor | Total packets received with the ECN congestion mark; a pre-loss congestion indicator. |
-| `omnistat_network_rx_cnp_packets` | AINIC | Total DCQCN congestion notification packets (CNPs) received by network interface, indicating its send rate is being throttled by peers. |
+| `omnistat_network_rx_ecn_marked_packets` | AINIC, Thor | Total packets received carrying the ECN congestion mark; a pre-loss indicator of congestion on **inbound** traffic. |
+| `omnistat_network_rx_cnp_packets` | AINIC, Thor | Total congestion notification packets (CNPs) received, each requesting a lower send rate; an indicator of congestion on **outbound** traffic. |
 
 <hr style="border: 1px solid black;">
 

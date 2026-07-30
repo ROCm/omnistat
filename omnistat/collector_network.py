@@ -91,7 +91,7 @@ class NETWORK(Collector):
                 "tx_packets": ["tx_rdma_ucast_pkts", "tx_rdma_mcast_pkts"],
                 "retx_packets": ["tx_rdma_retx_pkts"],
                 "out_of_sequence_packets": ["req_rx_pkt_seq_err"],
-                "ecn_marked_packets": ["rx_rdma_ecn_pkts"],
+                "rx_ecn_marked_packets": ["rx_rdma_ecn_pkts"],
                 "rx_cnp_packets": ["rx_rdma_cnp_pkts"],
             },
         },
@@ -108,7 +108,8 @@ class NETWORK(Collector):
                 "out_of_sequence_packets": ["out_of_sequence"],
                 "rx_discarded_packets": ["rx_roce_discards"],
                 "tx_discarded_packets": ["tx_roce_discards"],
-                "ecn_marked_packets": ["np_ecn_marked_roce_packets"],
+                "rx_ecn_marked_packets": ["np_ecn_marked_roce_packets"],
+                "rx_cnp_packets": ["rp_cnp_handled", "rp_cnp_ignored"],
             },
         },
     }
