@@ -327,9 +327,8 @@ driver publishes.
 | `omnistat_network_retx_packets` | AINIC | Total packets retransmitted by network interface; a fabric packet-loss/congestion indicator. |
 | `omnistat_network_rx_discarded_packets` | Thor | Total packets dropped on receive by network interface; a packet-loss indicator. |
 | `omnistat_network_tx_discarded_packets` | Thor | Total packets dropped on transmit by network interface; a packet-loss indicator. |
-| `omnistat_network_ecn_marked_packets` | Thor | Total packets received with the ECN congestion mark; a pre-loss congestion indicator. |
-| `omnistat_network_cnp_sent_packets` | Thor | Total DCQCN congestion notification packets (CNPs) sent by network interface in response to ECN-marked traffic. |
-| `omnistat_network_cnp_handled_packets` | Thor | Total DCQCN congestion notification packets (CNPs) received and acted on by network interface (send rate throttled). |
+| `omnistat_network_ecn_marked_packets` | AINIC, Thor | Total packets received with the ECN congestion mark; a pre-loss congestion indicator. |
+| `omnistat_network_rx_cnp_packets` | AINIC | Total DCQCN congestion notification packets (CNPs) received by network interface, indicating its send rate is being throttled by peers. |
 
 <hr style="border: 1px solid black;">
 
