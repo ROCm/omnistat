@@ -66,22 +66,22 @@ class NETWORK(Collector):
         self.__ib_rx_data_paths = {}
         self.__ib_tx_data_paths = {}
 
-        # hw_counter NIC (ainic, thor, ...) paths, keyed by counter and
+        # hw_counter NIC (ionic, bnxt_re, ...) paths, keyed by counter and
         # interface, e.g.:
-        #   {"rx_bytes": {"ionic_0:1": ("ainic", [Path(".../rx_rdma_ucast_bytes"), ...])}}
+        #   {"rx_bytes": {"ionic_0:1": ("ionic", [Path(".../rx_rdma_ucast_bytes"), ...])}}
         # shared_counters feed the cross-class rx/tx gauges; extra_counters each
         # get their own hw-only gauge named after the counter.
         self.__hw_shared_data_paths = {}
         self.__hw_extra_data_paths = {}
 
-    # RoCE-over-Ethernet NICs that appear under /sys/class/infiniband but report
-    # byte totals via hw_counters (already in bytes, no IB octet/4 scaling)
-    # rather than the standard IB port counters. Each is detected by driver
-    # string and feeds the shared rx/tx metrics under its own device_class.
+    # RoCE NICs that appear under /sys/class/infiniband but report byte totals
+    # via hw_counters (already in bytes, no IB octet/4 scaling) rather than
+    # the standard IB port counters. Each is detected by driver string and
+    # feeds the shared rx/tx metrics under its own device_class.
     _HW_COUNTER_NICS = {
+        # AMD AINIC (Pensando "ionic", e.g. Pollara)
         "ionic": {
-            # AMD AINIC (Pensando "ionic", e.g. Pollara)
-            "device_class": "ainic",
+            "device_class": "ionic",
             "shared_counters": {
                 "rx_bytes": ["rx_rdma_ucast_bytes", "rx_rdma_mcast_bytes"],
                 "tx_bytes": ["tx_rdma_ucast_bytes", "tx_rdma_mcast_bytes"],
@@ -95,9 +95,11 @@ class NETWORK(Collector):
                 "rx_cnp_packets": ["rx_rdma_cnp_pkts"],
             },
         },
+        # Broadcom "Thor". Detected as bnxt_en, the base Ethernet driver reported
+        # by uevent, but classed as bnxt_re: the RoCE driver layered on top that
+        # owns these hw_counters and names the bnxt_re* interfaces.
         "bnxt_en": {
-            # Broadcom "Thor" (bnxt_re)
-            "device_class": "thor",
+            "device_class": "bnxt_re",
             "shared_counters": {
                 "rx_bytes": ["rx_bytes"],
                 "tx_bytes": ["tx_bytes"],
@@ -213,7 +215,7 @@ class NETWORK(Collector):
         # counter files to sum. For example, for Rx bandwidth:
         #   __hw_shared_data_paths = {
         #       "rx_bytes": {
-        #           "ionic_0:1": ("ainic", [
+        #           "ionic_0:1": ("ionic", [
         #               "/sys/class/infiniband/ionic_0/ports/1/hw_counters/rx_rdma_ucast_bytes",
         #               "/sys/class/infiniband/ionic_0/ports/1/hw_counters/rx_rdma_mcast_bytes",
         #           ]),
@@ -233,7 +235,7 @@ class NETWORK(Collector):
             spec = self.__hw_counter_spec(nic)
 
             if spec is not None:
-                # hw_counter NIC (ainic, thor): byte totals live in hw_counters
+                # hw_counter NIC (ionic, bnxt_re): byte totals live in hw_counters
                 # (already in bytes). Claimed here so they never fall through to
                 # the generic IB branch, which would mislabel/double-count them.
                 dclass = spec["device_class"]
@@ -362,7 +364,7 @@ class NETWORK(Collector):
                 except:
                     pass
 
-        # hw_counter NICs (ainic, thor): hw_counters are already in bytes/packets
+        # hw_counter NICs (ionic, bnxt_re): hw_counters are already in bytes/packets
         # (no scaling); each metric sums its per-device counter list. device_class
         # travels with each interface's paths. shared_counters write the shared
         # rx/tx gauges; extra_counters write their own gauge.

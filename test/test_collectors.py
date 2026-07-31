@@ -109,7 +109,7 @@ ROCPROFILER_METRICS = [
 ]
 
 # Network metrics are hardware-dependent (specific device classes such as
-# "cxi" or "ainic" only appear on matching NICs), so assertions stay generic:
+# "cxi" or "ionic" only appear on matching NICs), so assertions stay generic:
 # any host with a non-loopback interface exposes rx/tx byte totals.
 NETWORK_METRICS = [
     {"name": "omnistat_network_rx_bytes",                    "validate": ">=0",               "labels": ["device_class", "interface"]},
