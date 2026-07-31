@@ -506,9 +506,7 @@ class TestHardwareCounterConfigValidation:
     def test_gpu_id_mode_single_counter_set(self):
         from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
 
-        config = self._make_config(
-            profile_opts={"sampling_mode": "gpu-id", "counters": '[["GRBM_COUNT"]]'}
-        )
+        config = self._make_config(profile_opts={"sampling_mode": "gpu-id", "counters": '[["GRBM_COUNT"]]'})
         with pytest.raises(SystemExit) as exc_info:
             rocprofiler_sdk(config=config)
         assert exc_info.value.code == 4
@@ -540,7 +538,11 @@ class TestHostUserModeIO:
 
         # Spawn a long-running subprocess that does I/O — its PID won't be in the init-time filter
         io_proc = subprocess.Popen(
-            [sys.executable, "-c", "import time, os\nf=open('/dev/null','w')\nwhile True:\n f.write('x'*1024)\n time.sleep(0.01)"],
+            [
+                sys.executable,
+                "-c",
+                "import time, os\nf=open('/dev/null','w')\nwhile True:\n f.write('x'*1024)\n time.sleep(0.01)",
+            ],
         )
 
         try:
@@ -550,12 +552,12 @@ class TestHostUserModeIO:
                 for sample in metric.samples:
                     metrics.setdefault(metric.name, []).append(sample)
 
-            assert "omnistat_host_io_read_total_bytes" in metrics, (
-                f"Missing io_read_total_bytes, got: {list(metrics.keys())}"
-            )
-            assert "omnistat_host_io_write_total_bytes" in metrics, (
-                f"Missing io_write_total_bytes, got: {list(metrics.keys())}"
-            )
+            assert (
+                "omnistat_host_io_read_total_bytes" in metrics
+            ), f"Missing io_read_total_bytes, got: {list(metrics.keys())}"
+            assert (
+                "omnistat_host_io_write_total_bytes" in metrics
+            ), f"Missing io_write_total_bytes, got: {list(metrics.keys())}"
 
             # Verify expected labels and at least one process with non-zero I/O
             for metric_name in ("omnistat_host_io_read_total_bytes", "omnistat_host_io_write_total_bytes"):

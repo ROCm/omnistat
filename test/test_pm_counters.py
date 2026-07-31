@@ -70,9 +70,7 @@ class PMCounterTestServer:
 
         def post_fork(server, worker):
             monitor.initMetrics()
-            app.route("/metrics")(
-                lambda: (monitor.updateAllMetrics(), {"Content-Type": "text/plain; charset=utf-8"})
-            )
+            app.route("/metrics")(lambda: (monitor.updateAllMetrics(), {"Content-Type": "text/plain; charset=utf-8"}))
 
         app = Flask("omnistat")
         options = {"bind": self.address, "workers": 1, "post_fork": post_fork}
