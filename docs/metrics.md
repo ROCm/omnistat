@@ -301,9 +301,14 @@ export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
 ## Network
 
 The network data collector enables metrics providing information about data
-transfers for each network interface detected in the host platform. Currently
-supported network types include Ethernet, Infiniband, Slingshot, AINIC (AMD
-Pensando `ionic` NICs such as Pollara), and Thor (Broadcom `bnxt_re` RoCE NICs).
+transfers for each network interface detected in the host platform. Every
+interface carries a `device_class` label naming the type it was detected as:
+
+- `net`: Ethernet and other standard IP interfaces.
+- `infiniband`: Infiniband.
+- `cxi`: Slingshot.
+- `ionic`: AINIC (AMD Pensando, e.g. Pollara).
+- `bnxt_re`: Thor (Broadcom RoCE).
 
 **Collector**: `enable_network`
 
@@ -321,16 +326,16 @@ receiver counts ECN-marked packets and answers with a CNP, which the sender
 counts as a request to lower its send rate. Both count packets *received*, but
 they report congestion in opposite traffic directions.
 
-| Node Metric                 | Network Type   | Description                          |
+| Node Metric                 | Network Type | Description                          |
 | :-------------------------- | :----------- | :----------------------------------- |
-| `omnistat_network_tx_packets` | AINIC, Thor | Total packets transmitted by network interface. |
-| `omnistat_network_rx_packets` | AINIC, Thor | Total packets received by network interface. |
-| `omnistat_network_out_of_sequence_packets` | AINIC, Thor | Total packets received out of sequence by network interface; typically driven by in-fabric packet loss. |
-| `omnistat_network_retx_packets` | AINIC | Total packets retransmitted by network interface; a fabric packet-loss/congestion indicator. |
-| `omnistat_network_rx_discarded_packets` | Thor | Total packets dropped on receive by network interface; a packet-loss indicator. |
-| `omnistat_network_tx_discarded_packets` | Thor | Total packets dropped on transmit by network interface; a packet-loss indicator. |
-| `omnistat_network_rx_ecn_marked_packets` | AINIC, Thor | Total packets received carrying the ECN congestion mark; a pre-loss indicator of congestion on **inbound** traffic. |
-| `omnistat_network_rx_cnp_packets` | AINIC, Thor | Total congestion notification packets (CNPs) received, each requesting a lower send rate; an indicator of congestion on **outbound** traffic. |
+| `omnistat_network_tx_packets` | `ionic`, `bnxt_re` | Total packets transmitted by network interface. |
+| `omnistat_network_rx_packets` | `ionic`, `bnxt_re` | Total packets received by network interface. |
+| `omnistat_network_out_of_sequence_packets` | `ionic`, `bnxt_re` | Total packets received out of sequence by network interface; typically driven by in-fabric packet loss. |
+| `omnistat_network_retx_packets` | `ionic` | Total packets retransmitted by network interface; a fabric packet-loss/congestion indicator. |
+| `omnistat_network_rx_discarded_packets` | `bnxt_re` | Total packets dropped on receive by network interface; a packet-loss indicator. |
+| `omnistat_network_tx_discarded_packets` | `bnxt_re` | Total packets dropped on transmit by network interface; a packet-loss indicator. |
+| `omnistat_network_rx_ecn_marked_packets` | `ionic`, `bnxt_re` | Total packets received carrying the ECN congestion mark; a pre-loss indicator of congestion on **inbound** traffic. |
+| `omnistat_network_rx_cnp_packets` | `ionic`, `bnxt_re` | Total congestion notification packets (CNPs) received, each requesting a lower send rate; an indicator of congestion on **outbound** traffic. |
 
 <hr style="border: 1px solid black;">
 
