@@ -89,8 +89,8 @@ class NETWORK(Collector):
             "extra_counters": {
                 "rx_packets": ["rx_rdma_ucast_pkts", "rx_rdma_mcast_pkts"],
                 "tx_packets": ["tx_rdma_ucast_pkts", "tx_rdma_mcast_pkts"],
-                "retx_packets": ["tx_rdma_retx_pkts"],
-                "out_of_sequence_packets": ["req_rx_pkt_seq_err"],
+                "tx_retransmitted_packets": ["tx_rdma_retx_pkts"],
+                "rx_out_of_sequence_packets": ["req_rx_pkt_seq_err"],
                 "rx_ecn_marked_packets": ["rx_rdma_ecn_pkts"],
                 "rx_cnp_packets": ["rx_rdma_cnp_pkts"],
             },
@@ -107,7 +107,7 @@ class NETWORK(Collector):
             "extra_counters": {
                 "rx_packets": ["rx_pkts"],
                 "tx_packets": ["tx_pkts"],
-                "out_of_sequence_packets": ["out_of_sequence"],
+                "rx_out_of_sequence_packets": ["out_of_sequence"],
                 "rx_discarded_packets": ["rx_roce_discards"],
                 "tx_discarded_packets": ["tx_roce_discards"],
                 "rx_ecn_marked_packets": ["np_ecn_marked_roce_packets"],
@@ -301,7 +301,7 @@ class NETWORK(Collector):
         self.__hw_shared_metrics = {"rx_bytes": self.__rx_metric, "tx_bytes": self.__tx_metric}
 
         # One gauge per extra_counter discovered on any hw_counter NIC, named
-        # after the counter (e.g. rx_packets, retx_packets, out_of_sequence_packets).
+        # after the counter (e.g. rx_packets, tx_retransmitted_packets).
         self.__hw_extra_metrics = {}
         for name in self.__hw_extra_data_paths:
             metric = self.__prefix + name
