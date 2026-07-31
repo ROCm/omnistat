@@ -333,8 +333,8 @@ they report congestion in opposite traffic directions.
 | :-------------------------- | :----------- | :----------------------------------- |
 | `omnistat_network_tx_packets` | `ionic`, `bnxt_re` | Total packets transmitted by network interface. |
 | `omnistat_network_rx_packets` | `ionic`, `bnxt_re` | Total packets received by network interface. |
-| `omnistat_network_out_of_sequence_packets` | `ionic`, `bnxt_re` | Total packets received out of sequence by network interface; typically driven by in-fabric packet loss. |
-| `omnistat_network_retx_packets` | `ionic` | Total packets retransmitted by network interface; a fabric packet-loss/congestion indicator. |
+| `omnistat_network_rx_out_of_sequence_packets` | `ionic`, `bnxt_re` | Total packets received out of sequence by network interface; typically driven by in-fabric packet loss. |
+| `omnistat_network_tx_retransmitted_packets` | `ionic` | Total packets retransmitted by network interface; a fabric packet-loss/congestion indicator. |
 | `omnistat_network_rx_discarded_packets` | `bnxt_re` | Total packets dropped on receive by network interface; a packet-loss indicator. |
 | `omnistat_network_tx_discarded_packets` | `bnxt_re` | Total packets dropped on transmit by network interface; a packet-loss indicator. |
 | `omnistat_network_rx_ecn_marked_packets` | `ionic`, `bnxt_re` | Total packets received carrying the ECN congestion mark; a pre-loss indicator of congestion on **inbound** traffic. |
