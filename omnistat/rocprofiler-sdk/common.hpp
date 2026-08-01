@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
 // MIT License
 //
-// Copyright (c) 2025 Advanced Micro Devices, Inc. All Rights Reserved.
+// Copyright (c) 2025 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -69,6 +69,27 @@ uint64_t parse_env_uint(const char* env_var_name, uint64_t default_value) {
 
     std::cerr << "Invalid " << env_var_name << " value (" << env_value << "), using default "
               << default_value << std::endl;
+    return default_value;
+}
+
+// Helper function to parse a boolean ("0" or "1") from an environment variable
+// Returns the value, defaulting to default_value if invalid or not set
+bool parse_env_bool(const char* env_var_name, bool default_value) {
+    const char* env_value = std::getenv(env_var_name);
+    if (env_value == nullptr) {
+        return default_value;
+    }
+
+    std::string value{env_value};
+    if (value == "0") {
+        return false;
+    }
+    if (value == "1") {
+        return true;
+    }
+
+    std::cerr << "Invalid " << env_var_name << " value (" << env_value << "), using default "
+              << (default_value ? "1" : "0") << std::endl;
     return default_value;
 }
 
