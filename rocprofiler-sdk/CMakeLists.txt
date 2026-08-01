@@ -56,6 +56,10 @@ if (NOT BUILD_KERNEL_TRACE_LIB)
     install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
 else()
     find_package(rocprofiler-sdk REQUIRED)
+    # HIP is needed for hipGetDevice() in the RCCL enumeration path. The RCCL
+    # headers (ncclComm_t, api ids) come transitively via rocprofiler-sdk/rccl.h,
+    # and ncclCommCount is resolved at runtime via dlsym, so no librccl link dep.
+    find_package(hip REQUIRED)
 
     include(FetchContent)
     include(CheckCXXSourceCompiles)
@@ -70,9 +74,10 @@ else()
     )
     FetchContent_MakeAvailable(httplib)
 
-    add_library(omnistat_trace SHARED kernel_tracer.cpp)
+    add_library(omnistat_trace SHARED trace.cpp trace_kernel_callbacks.cpp trace_rccl_callbacks.cpp)
     target_compile_features(omnistat_trace PRIVATE cxx_std_20)
-    target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk httplib::httplib)
+    target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk httplib::httplib
+                                                 hip::host)
 
     # Check if the compiler supports std::format
     set(CMAKE_REQUIRED_FLAGS "-std=c++20")
