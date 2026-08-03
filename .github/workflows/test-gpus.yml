@@ -86,11 +86,14 @@ jobs:
         if: ${{ !cancelled() }}
         run: |
           source omnistat_venv/bin/activate
-          echo "## Coverage (${{ matrix.hardware }})" > coverage-summary.md
-          coverage report --format=markdown >> coverage-summary.md
+          coverage report
+          TOTAL=$(coverage report --format=total)
+          echo "$TOTAL" > coverage-total.txt
+          echo "**Coverage (${{ matrix.hardware }}):** ${TOTAL}%" > coverage-summary.md
+          coverage report --fail-under=75 > /dev/null
 
       - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3s
         if: github.event_name == 'pull_request' && !cancelled()
         with:
           header: "coverage-${{ matrix.hardware }}"
