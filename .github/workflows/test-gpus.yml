@@ -9,7 +9,7 @@ on:
     branches: [ main, dev ]
 
   push:
-    branches: [dev, coverage]
+    branches: [main, dev]
 
 jobs:
   gpu-collectors:
@@ -108,7 +108,7 @@ jobs:
 
   coverage-badge:
     needs: gpu-collectors
-    runs-on: [self-hosted, instinct]
+    runs-on: ubuntu-latest
     if: always() && !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout badges branch
