@@ -1,1 +1,1 @@
-Badge date
+Branch to house badge data.
