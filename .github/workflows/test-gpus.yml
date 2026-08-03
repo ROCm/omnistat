@@ -99,9 +99,42 @@ jobs:
           header: "coverage-${{ matrix.hardware }}"
           path: coverage-summary.md
 
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v5
+      - name: Upload Coverage Data
+        uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
-          files: coverage.xml
-          flags: ${{ matrix.hardware }}
+          name: coverage-${{ matrix.hardware }}
+          path: coverage-total.txt
+
+  coverage-badge:
+    needs: gpu-collectors
+    runs-on: [self-hosted, instinct]
+    if: github.ref == 'refs/heads/main' && !cancelled()
+    steps:
+      - name: Checkout badges branch
+        uses: actions/checkout@v7
+        with:
+          ref: badges
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-*
+          merge-multiple: false
+
+      - name: Update coverage badge
+        run: |
+          MIN=$(cat coverage-*/coverage-total.txt | sort -n | head -1)
+          if [ $(echo "$MIN >= 75" | bc) -eq 1 ]; then
+            COLOR="green"
+          else
+            COLOR="red"
+          fi
+          cat > coverage.json <<EOF
+          {"schemaVersion":1,"label":"coverage","message":"${MIN}%","color":"${COLOR}"}
+          EOF
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add coverage.json
+          git diff --cached --quiet || git commit -m "update coverage: ${MIN}%"
+          git push
