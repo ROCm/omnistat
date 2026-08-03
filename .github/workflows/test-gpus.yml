@@ -93,7 +93,7 @@ jobs:
           coverage report --fail-under=75 > /dev/null
 
       - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v3s
+        uses: marocchino/sticky-pull-request-comment@v3
         if: github.event_name == 'pull_request' && !cancelled()
         with:
           header: "coverage-${{ matrix.hardware }}"
