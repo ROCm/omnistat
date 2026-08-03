@@ -109,7 +109,7 @@ jobs:
   coverage-badge:
     needs: gpu-collectors
     runs-on: [self-hosted, instinct]
-    if: github.ref == 'refs/heads/main' && !cancelled()
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/coverage') && !cancelled()
     steps:
       - name: Checkout badges branch
         uses: actions/checkout@v7
