@@ -109,7 +109,7 @@ jobs:
   coverage-badge:
     needs: gpu-collectors
     runs-on: [self-hosted, instinct]
-    if: always() && !cancelled() && github.event_name == 'push'
+    if: always() && !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout badges branch
         uses: actions/checkout@v7
