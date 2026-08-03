@@ -98,3 +98,10 @@ jobs:
         with:
           header: "coverage-${{ matrix.hardware }}"
           path: coverage-summary.md
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5
+        if: ${{ !cancelled() }}
+        with:
+          files: coverage.xml
+          flags: ${{ matrix.hardware }}
