@@ -64,11 +64,18 @@ int Tracer::initialize() {
 
     ROCPROFILER_CALL(rocprofiler_create_context(&context_), "create context");
 
+    // One agent enumeration feeds both streams. They cannot share a lookup:
+    // kernel dispatch records carry an agent handle, while RCCL API records
+    // carry no device at all and must be resolved via HIP.
+    const auto rocp_agents = omnistat::get_rocprofiler_agents();
+
     // Kernel-dispatch tracing: code-object tracking (kernel names), the agent
     // map (gpu attribution), and the LOSSLESS dispatch buffer. Only set up when
     // enabled — an RCCL-only job pays none of this.
     if (kernel_enabled_) {
-        agents = omnistat::build_agent_map();
+        for (const auto& agent : rocp_agents) {
+            gpu_id_by_agent[agent.id.handle] = agent.logical_node_type_id;
+        }
 
         auto code_object_ops = std::vector<rocprofiler_tracing_operation_t>{
             ROCPROFILER_CODE_OBJECT_DEVICE_KERNEL_SYMBOL_REGISTER};
@@ -99,6 +106,15 @@ int Tracer::initialize() {
     // RCCL API tracing: enumerates collectives + comm lifecycle on the app
     // thread (no kernel-dispatch join), POSTed on the periodic cadence.
     if (rccl_enabled_) {
+        // Capture the rocprofiler half of the gpu-id mapping now. The HIP half is
+        // deferred to first use in the RCCL callback: calling HIP APIs during
+        // tool_init, while HIP is still starting up, silently breaks
+        // kernel-dispatch tracing.
+        for (const auto& agent : rocp_agents) {
+            gpu_id_by_pci[pci_key_from_location(agent.domain, agent.location_id)] =
+                agent.logical_node_type_id;
+        }
+
         ROCPROFILER_CALL(
             rocprofiler_configure_callback_tracing_service(
                 context_, ROCPROFILER_CALLBACK_TRACING_RCCL_API, nullptr, 0, rccl_api_callback,

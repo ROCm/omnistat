@@ -35,6 +35,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 namespace omnistat {
 
@@ -47,6 +48,20 @@ constexpr uint64_t DEFAULT_BUFFER_SIZE_BYTES = 262144;
 // Endpoint port for sending trace data (both streams)
 constexpr uint64_t DEFAULT_TRACE_ENDPOINT_PORT = 8001;
 
+// PCI domain:bus:device packed into one key, so a rocprofiler agent can be
+// matched to a HIP device. Function bits are dropped: two GPUs differing only by
+// PCI function would collide, which does not happen for discrete GPUs.
+inline uint64_t pci_key(uint32_t domain, uint32_t bus, uint32_t device) {
+    return (static_cast<uint64_t>(domain) << 32) | (bus << 8) | device;
+}
+
+// The same key from a rocprofiler agent, which packs the BDF into a single
+// location_id as bus[15:8] / device[7:3] / function[2:0]. HIP reports the parts
+// separately and calls pci_key() directly.
+inline uint64_t pci_key_from_location(uint32_t domain, uint32_t location_id) {
+    return pci_key(domain, (location_id >> 8) & 0xFF, (location_id >> 3) & 0x1F);
+}
+
 class Tracer {
   public:
     Tracer();
@@ -55,17 +70,20 @@ class Tracer {
     // Method called during rocprofiler-sdk's tool initialization
     int initialize();
 
-    // Kernel-dispatch stream: the code-object callback fills the kernel-name
-    // map; the dispatch callback reads it plus the agent map (gpu attribution)
-    // to format records, then POSTs them via kernel_flush().
+    // Kernel-dispatch stream: the code-object callback fills kernel_names; the
+    // dispatch callback reads it plus gpu_id_by_agent to format records, then
+    // POSTs them via kernel_flush().
     std::unordered_map<rocprofiler_kernel_id_t, std::string> kernel_names = {};
-    std::unordered_map<uint64_t, uint32_t> agents = {};
+    std::unordered_map<uint64_t, uint32_t> gpu_id_by_agent = {};
 
     bool kernel_flush(std::string_view data, size_t num_records);
 
-    // RCCL stream: append one positional-array element to the collectives /
-    // comms accumulators. Called by the RCCL-API callback on the app's threads
-    // and drained by the periodic flush thread, so a single mutex guards both.
+    // RCCL stream: the RCCL-API callback resolves a gpu id via gpu_id_by_pci,
+    // its records carry no agent handle, only a HIP device ordinal. Then
+    // appends one positional-array element per call. These run on the app's own
+    // threads, concurrently with the periodic drain.
+    std::unordered_map<uint64_t, uint32_t> gpu_id_by_pci = {};
+
     void rccl_add_collective(std::string_view element);
     void rccl_add_comm(std::string_view element);
 
