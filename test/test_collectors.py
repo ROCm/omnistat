@@ -536,14 +536,24 @@ class TestHostUserModeIO:
             config_sections=config_sections,
         )
 
-        # Spawn a long-running subprocess that does I/O — its PID won't be in the init-time filter
-        io_proc = subprocess.Popen(
-            [
-                sys.executable,
-                "-c",
-                "import time, os\nf=open('/dev/null','w')\nwhile True:\n f.write('x'*1024)\n time.sleep(0.01)",
-            ],
-        )
+        # Spawn a long-running subprocess that does I/O — its PID won't be in the init-time filter.
+        # When running as root (e.g. in CI containers), the collector filters out root-owned processes.
+        # In that case, run the subprocess as "ubuntu" if available so it passes the root-process filter.
+        io_script = "import time\nf=open('/dev/null','w')\nwhile True:\n f.write('x'*1024)\n time.sleep(0.01)"
+        use_su = False
+        if os.geteuid() == 0:
+            try:
+                import pwd
+
+                pwd.getpwnam("ubuntu")
+                use_su = True
+            except KeyError:
+                pass
+
+        if use_su:
+            io_proc = subprocess.Popen(["su", "-", "ubuntu", "-c", f'{sys.executable} -c "{io_script}"'])
+        else:
+            io_proc = subprocess.Popen([sys.executable, "-c", io_script])
 
         try:
             time.sleep(0.5)
