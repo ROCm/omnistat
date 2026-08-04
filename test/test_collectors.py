@@ -120,18 +120,18 @@ NETWORK_METRICS = [
 
 
 def get_gpu_type(device=0):
-    """Return GPU Card Series by running `rocm-smi --showproductname -d <device>`."""
-    cmd = ["rocm-smi", "--showproductname", "-d", str(device)]
+    """Return GPU market name by running `amd-smi static --asic --gpu <device>`."""
+    cmd = ["amd-smi", "static", "--asic", "--gpu", str(device)]
     result = runShellCommand(cmd, capture_output=True, text=True, timeout=5)
     if not result or result.returncode != 0:
-        logging.error(f"Failed to run rocm-smi for device {device}")
+        logging.error(f"Failed to run amd-smi for device {device}")
         return ""
     for line in result.stdout.splitlines():
-        if "Card Series:" in line:
-            parts = line.split("Card Series:")
+        if "MARKET_NAME:" in line:
+            parts = line.split("MARKET_NAME:")
             if len(parts) == 2:
                 return parts[1].strip()
-    logging.warning("Card Series not found in rocm-smi output")
+    logging.warning("MARKET_NAME not found in amd-smi output")
     return ""
 
 
