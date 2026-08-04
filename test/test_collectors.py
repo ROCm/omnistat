@@ -406,22 +406,23 @@ class TestHardwareCounters:
         }
         server = OmnistatTestServer(["rocprofiler"], config_sections=config_sections)
 
-        # Run GPU workload with HSA_TOOLS_LIB so the profiler can intercept
-        # application-level PMC counter activity.
-        hsa_tools_lib = os.path.join(test.config.rocm_path, "lib", "librocprofiler64.so")
-        result = workloads.run("vector_add", [1000000], env={"HSA_TOOLS_LIB": hsa_tools_lib})
-        assert result.returncode == 0, f"vector_add failed: {result.stderr}"
+        try:
+            # Run GPU workload with HSA_TOOLS_LIB so the profiler can intercept
+            # application-level PMC counter activity.
+            hsa_tools_lib = os.path.join(test.config.rocm_path, "lib", "librocprofiler64.so")
+            result = workloads.run("vector_add", [1000000], env={"HSA_TOOLS_LIB": hsa_tools_lib})
+            assert result.returncode == 0, f"vector_add failed: {result.stderr}"
 
-        # Scrape metrics, keyed by (card, counter_name)
-        metrics = {}
-        for metric in server.get():
-            for sample in metric.samples:
-                card = sample.labels.get("card", "")
-                name = sample.labels.get("name", "")
-                if metric.name == "omnistat_hardware_counter":
-                    metrics.setdefault(card, {})[name] = sample.value
-
-        server.stop()
+            # Scrape metrics, keyed by (card, counter_name)
+            metrics = {}
+            for metric in server.get():
+                for sample in metric.samples:
+                    card = sample.labels.get("card", "")
+                    name = sample.labels.get("name", "")
+                    if metric.name == "omnistat_hardware_counter":
+                        metrics.setdefault(card, {})[name] = sample.value
+        finally:
+            server.stop()
 
         # At least one GPU should have non-zero counters from the workload
         assert len(metrics) > 0, "No hardware counter metrics found"
