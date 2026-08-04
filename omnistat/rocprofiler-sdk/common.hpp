@@ -116,15 +116,5 @@ std::vector<rocprofiler_agent_v0_t> get_rocprofiler_agents() {
     return agents;
 }
 
-std::unordered_map<uint64_t, uint32_t> build_agent_map() {
-    auto agents = get_rocprofiler_agents();
-
-    std::unordered_map<uint64_t, uint32_t> agent_map;
-    for (const auto& agent : agents) {
-        agent_map[agent.id.handle] = agent.logical_node_type_id;
-    }
-
-    return agent_map;
-}
 
 } // namespace omnistat
