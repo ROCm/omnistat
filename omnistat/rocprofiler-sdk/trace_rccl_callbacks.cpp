@@ -71,29 +71,103 @@ static void rccl_comm_args(uint32_t op, rocprofiler_callback_tracing_rccl_api_da
                 *comm = reinterpret_cast<uintptr_t>(*data->args.ncclCommSplit.newcomm);
             // nranks of a split comm is not in the args; left as -1 (unknown).
             break;
-        case ROCPROFILER_RCCL_API_ID_ncclCommDestroy:
-            *comm = reinterpret_cast<uintptr_t>(data->args.ncclCommDestroy.comm);
-            break;
-        case ROCPROFILER_RCCL_API_ID_ncclCommAbort:
-            *comm = reinterpret_cast<uintptr_t>(data->args.ncclCommAbort.comm);
-            break;
-        case ROCPROFILER_RCCL_API_ID_ncclCommFinalize:
-            *comm = reinterpret_cast<uintptr_t>(data->args.ncclCommFinalize.comm);
-            break;
         default:
             break;
     }
 }
 
+// This file deals in two GPU id spaces, and the distinction drives everything
+// below:
+//
+//   hip ordinal  index into the process's *visible* devices (0..ndev-1). What
+//                ncclCommCuDevice() and hipGetDevice() return, and what
+//                ncclCommInitAll's devlist holds. Renumbered by device masking.
+//   gpu id       the physical id the kernel-dispatch stream reports
+//                (rocprofiler's logical_node_type_id). Unaffected by masking.
+//
+// Under ROCR_VISIBLE_DEVICES the two diverge -- a rank pinned to one GPU sees
+// ordinal 0 whatever its physical id -- so an ordinal is always translated
+// before it reaches the wire.
+
+// gpu id for a hip ordinal, or the ordinal itself if it cannot be translated.
+//
+// The mapping is matched by PCI location (see pci_key): rocprofiler enumerates
+// every GPU on the node while HIP sees only the visible ones, so the two lists
+// differ in length and order and cannot be matched positionally.
+//
+// Built on first use rather than in Tracer::initialize(): calling HIP APIs
+// during rocprofiler's tool_init, while HIP is still starting up, silently
+// breaks kernel-dispatch tracing. By the time an RCCL callback fires HIP is up.
+static int gpu_id_for_ordinal(const Tracer* tracer, int hip_ordinal) {
+    static const std::vector<uint32_t> table = [tracer] {
+        int num_devices = 0;
+        (void) hipGetDeviceCount(&num_devices);
+
+        std::vector<uint32_t> gpu_ids(num_devices > 0 ? num_devices : 0, 0);
+        for (int device = 0; device < num_devices; ++device) {
+            hipDeviceProp_t prop{};
+            (void) hipGetDeviceProperties(&prop, device);
+            auto match = tracer->gpu_id_by_pci.find(
+                pci_key(static_cast<uint32_t>(prop.pciDomainID),
+                        static_cast<uint32_t>(prop.pciBusID),
+                        static_cast<uint32_t>(prop.pciDeviceID)));
+            if (match != tracer->gpu_id_by_pci.end()) {
+                gpu_ids[device] = match->second;
+            }
+        }
+        return gpu_ids;
+    }();
+
+    if (hip_ordinal >= 0 && static_cast<size_t>(hip_ordinal) < table.size()) {
+        return static_cast<int>(table[hip_ordinal]);
+    }
+    return hip_ordinal;
+}
+
+
+// hip ordinal a communicator is bound to, or -1 if it cannot be queried. This is
+// authoritative for the call, unlike the calling thread's current device, which
+// is only correct by convention. Resolved with dlsym so the trace lib gains no
+// link-time RCCL dependency.
+static int comm_hip_ordinal(uintptr_t comm) {
+    using comm_cu_device_fn = int (*)(void*, int*);
+    static comm_cu_device_fn comm_cu_device =
+        reinterpret_cast<comm_cu_device_fn>(dlsym(RTLD_DEFAULT, "ncclCommCuDevice"));
+    if (comm_cu_device == nullptr || comm == 0) {
+        return -1;
+    }
+
+    int hip_ordinal = -1;
+    if (comm_cu_device(reinterpret_cast<void*>(comm), &hip_ordinal) != 0) {
+        return -1;
+    }
+    return hip_ordinal;
+}
+
+// gpu id for a call made on `comm`, falling back to the calling thread's current
+// device when the communicator cannot be queried -- either RCCL is too old to
+// export ncclCommCuDevice, or the op yielded no handle (rccl_comm_args leaves
+// comm zero when a create op's output pointer is null).
+static int gpu_id_for_comm(const Tracer* tracer, uintptr_t comm) {
+    int hip_ordinal = comm_hip_ordinal(comm);
+    if (hip_ordinal < 0) {
+        hipGetDevice(&hip_ordinal);
+    }
+    return gpu_id_for_ordinal(tracer, hip_ordinal);
+}
+
+
+// Communicator CREATE ops. Teardown (Destroy/Abort/Finalize) is deliberately
+// not traced: those rows arrive late in process teardown and are frequently
+// lost, the communicator is already freed so they cannot be attributed to a
+// GPU, and their only downstream use -- comparing created vs destroyed -- could
+// not distinguish a real leak from an app that simply never called destroy.
 static bool is_comm_op(uint32_t op) {
     switch (op) {
         case ROCPROFILER_RCCL_API_ID_ncclCommInitRank:
         case ROCPROFILER_RCCL_API_ID_ncclCommInitAll:
         case ROCPROFILER_RCCL_API_ID_ncclCommInitRankConfig:
         case ROCPROFILER_RCCL_API_ID_ncclCommSplit:
-        case ROCPROFILER_RCCL_API_ID_ncclCommDestroy:
-        case ROCPROFILER_RCCL_API_ID_ncclCommAbort:
-        case ROCPROFILER_RCCL_API_ID_ncclCommFinalize:
             return true;
         default:
             return false;
@@ -141,7 +215,7 @@ void rccl_api_callback(rocprofiler_callback_tracing_record_t record,
             const int* devlist = data->args.ncclCommInitAll.devlist;
             ncclComm_t* comms = data->args.ncclCommInitAll.comms;
             for (int i = 0; i < ndev; ++i) {
-                int gpu_id = devlist ? devlist[i] : i;
+                int gpu_id = gpu_id_for_ordinal(tracer, devlist ? devlist[i] : i);
                 uintptr_t comm = comms ? reinterpret_cast<uintptr_t>(comms[i]) : 0;
                 std::string element;
                 fmt::format_to(std::back_inserter(element), "[{},\"{}\",{},{},{},{}]",
@@ -173,8 +247,7 @@ void rccl_api_callback(rocprofiler_callback_tracing_record_t record,
             }
         }
 
-        int gpu_id = 0;
-        hipGetDevice(&gpu_id);
+        int gpu_id = gpu_id_for_comm(tracer, comm);
 
         // Element: [gpu_id, "op", comm, nranks, h_start, h_end]
         std::string element;
@@ -244,8 +317,7 @@ void rccl_api_callback(rocprofiler_callback_tracing_record_t record,
     rocprofiler_query_callback_tracing_kind_operation_name(ROCPROFILER_CALLBACK_TRACING_RCCL_API,
                                                            record.operation, &op_name, &op_len);
 
-    int gpu_id = 0;
-    hipGetDevice(&gpu_id);
+    int gpu_id = gpu_id_for_comm(tracer, reinterpret_cast<uintptr_t>(comm));
 
     rocprofiler_timestamp_t ts = 0;
     rocprofiler_get_timestamp(&ts);
