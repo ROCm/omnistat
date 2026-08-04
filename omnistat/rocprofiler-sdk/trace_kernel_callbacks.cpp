@@ -97,10 +97,19 @@ void kernel_dispatch_callback(rocprofiler_context_id_t context [[maybe_unused]],
             auto* record =
                 static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
 
+            // Look up rather than .at(): a dispatch naming an agent or kernel we
+            // never saw registered would otherwise throw out_of_range from a
+            // rocprofiler callback thread, terminating the application. Skip the
+            // record instead -- tracing must never be able to kill the app.
+            auto agent = tracer->gpu_id_by_agent.find(record->dispatch_info.agent_id.handle);
+            auto name = tracer->kernel_names.find(record->dispatch_info.kernel_id);
+            if (agent == tracer->gpu_id_by_agent.end() || name == tracer->kernel_names.end()) {
+                continue;
+            }
+
             // Build array element: [gpu_id, "kernel_name", start_ns, end_ns]
             fmt::format_to(std::back_inserter(data), "[{},\"{}\",{},{}],",
-                           tracer->agents.at(record->dispatch_info.agent_id.handle),
-                           tracer->kernel_names.at(record->dispatch_info.kernel_id),
+                           agent->second, name->second,
                            record->start_timestamp, record->end_timestamp);
             ++num_records;
         }
