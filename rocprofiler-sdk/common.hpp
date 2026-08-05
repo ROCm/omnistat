@@ -24,13 +24,12 @@
 
 #pragma once
 
-#include <rocprofiler-sdk/fwd.h>
-#include <rocprofiler-sdk/registration.h>
+#include <rocprofiler-sdk/rocprofiler.h>
 
-#include <cstdlib>
 #include <iostream>
 #include <sstream>
-#include <unordered_map>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
 #define ROCPROFILER_CALL(result, msg)                                                              \
@@ -50,71 +49,15 @@
 
 namespace omnistat {
 
-// Helper function to parse an unsigned integer from an environment variable
+// Parses an unsigned integer from an environment variable
 // Returns the value, defaulting to default_value if invalid or not set
-uint64_t parse_env_uint(const char* env_var_name, uint64_t default_value) {
-    const char* env_value = std::getenv(env_var_name);
+uint64_t parse_env_uint(const char* env_var_name, uint64_t default_value);
 
-    if (env_value == nullptr) {
-        return default_value;
-    }
-
-    try {
-        uint64_t value = std::stoull(env_value);
-        if (value > 0) {
-            return value;
-        }
-    } catch (const std::exception&) {
-    }
-
-    std::cerr << "Invalid " << env_var_name << " value (" << env_value << "), using default "
-              << default_value << std::endl;
-    return default_value;
-}
-
-// Helper function to parse a boolean ("0" or "1") from an environment variable
+// Parses a boolean ("0" or "1") from an environment variable
 // Returns the value, defaulting to default_value if invalid or not set
-bool parse_env_bool(const char* env_var_name, bool default_value) {
-    const char* env_value = std::getenv(env_var_name);
-    if (env_value == nullptr) {
-        return default_value;
-    }
+bool parse_env_bool(const char* env_var_name, bool default_value);
 
-    std::string value{env_value};
-    if (value == "0") {
-        return false;
-    }
-    if (value == "1") {
-        return true;
-    }
-
-    std::cerr << "Invalid " << env_var_name << " value (" << env_value << "), using default "
-              << (default_value ? "1" : "0") << std::endl;
-    return default_value;
-}
-
-std::vector<rocprofiler_agent_v0_t> get_rocprofiler_agents() {
-    std::vector<rocprofiler_agent_v0_t> agents;
-    rocprofiler_query_available_agents_cb_t iterate_cb = [](rocprofiler_agent_version_t agents_ver,
-                                                            const void** agents_arr,
-                                                            size_t num_agents, void* udata) {
-        if (agents_ver != ROCPROFILER_AGENT_INFO_VERSION_0)
-            throw std::runtime_error{"unexpected rocprofiler agent version"};
-        auto* agents_v = static_cast<std::vector<rocprofiler_agent_v0_t>*>(udata);
-        for (size_t i = 0; i < num_agents; ++i) {
-            const auto* rocp_agent = static_cast<const rocprofiler_agent_v0_t*>(agents_arr[i]);
-            if (rocp_agent->type == ROCPROFILER_AGENT_TYPE_GPU)
-                agents_v->emplace_back(*rocp_agent);
-        }
-        return ROCPROFILER_STATUS_SUCCESS;
-    };
-
-    ROCPROFILER_CALL(rocprofiler_query_available_agents(
-                         ROCPROFILER_AGENT_INFO_VERSION_0, iterate_cb, sizeof(rocprofiler_agent_t),
-                         const_cast<void*>(static_cast<const void*>(&agents))),
-                     "query available agents");
-    return agents;
-}
-
+// Every GPU agent rocprofiler can see, in enumeration order
+std::vector<rocprofiler_agent_v0_t> get_rocprofiler_agents();
 
 } // namespace omnistat
