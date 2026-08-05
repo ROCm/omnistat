@@ -87,6 +87,10 @@ class Tracer {
     void rccl_add_collective(std::string_view element);
     void rccl_add_comm(std::string_view element);
 
+    // Reports an exception caught by a tracing callback; only visible under
+    // OMNISTAT_TRACE_LOG.
+    void report_callback_error(const char* where, const std::exception& error);
+
   private:
     // Thread for periodic record flushing, which happens in addition to the
     // flushing triggered by full buffers
