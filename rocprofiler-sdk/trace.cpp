@@ -294,6 +294,13 @@ bool Tracer::rccl_flush(std::string_view data, size_t num_records) {
     return success;
 }
 
+void Tracer::report_callback_error(const char* where, const std::exception& error) {
+    if (log_enabled_) {
+        std::cerr << "Omnistat: exception in " << where << " (" << error.what()
+                  << "); trace data lost" << std::endl;
+    }
+}
+
 void Tracer::record_flush_time() {
     last_flush_time_.store(std::chrono::steady_clock::now().time_since_epoch().count());
 }
