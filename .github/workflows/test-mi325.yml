@@ -14,7 +14,7 @@ jobs:
     runs-on: [linux-gfx942-1gpu-ccs-csp-ossci-rocm]
     strategy:
       matrix:
-        rocm: [6.4.4, 7.0.2, 7.1, 7.2]
+        rocm: [7.1, 7.2, 7.2.4]
       fail-fast: false
     container:
       image: rocm/dev-ubuntu-24.04:${{ matrix.rocm }}
