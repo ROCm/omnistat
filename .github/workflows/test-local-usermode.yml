@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     name: Usermode (localjob, no RMS)
-    runs-on: [linux-gfx942-1gpu-ossci-rocm]
+    runs-on: [linux-gfx942-1gpu-ccs-csp-ossci-rocm]
     steps:
 
       - name: Check out repository code
