@@ -58,14 +58,19 @@ void kernel_code_object_callback(rocprofiler_callback_tracing_record_t record,
                           rocprofiler_user_data_t* user_data [[maybe_unused]], void* tool_data) {
     auto* tracer = static_cast<Tracer*>(tool_data);
 
-    if (record.kind == ROCPROFILER_CALLBACK_TRACING_CODE_OBJECT &&
-        record.operation == ROCPROFILER_CODE_OBJECT_DEVICE_KERNEL_SYMBOL_REGISTER) {
-        auto* data =
-            static_cast<rocprofiler_callback_tracing_code_object_kernel_symbol_register_data_t*>(
-                record.payload);
-        if (record.phase == ROCPROFILER_CALLBACK_PHASE_LOAD) {
-            tracer->kernel_names.emplace(data->kernel_id, demangle(data->kernel_name));
+    try {
+
+        if (record.kind == ROCPROFILER_CALLBACK_TRACING_CODE_OBJECT &&
+            record.operation == ROCPROFILER_CODE_OBJECT_DEVICE_KERNEL_SYMBOL_REGISTER) {
+            auto* data =
+                static_cast<rocprofiler_callback_tracing_code_object_kernel_symbol_register_data_t*>(
+                    record.payload);
+            if (record.phase == ROCPROFILER_CALLBACK_PHASE_LOAD) {
+                tracer->kernel_names.emplace(data->kernel_id, demangle(data->kernel_name));
+            }
         }
+    } catch (const std::exception& error) {
+        tracer->report_callback_error("kernel_code_object_callback", error);
     }
 }
 
@@ -75,55 +80,60 @@ void kernel_dispatch_callback(rocprofiler_context_id_t context [[maybe_unused]],
                           void* tool_data, uint64_t drop_count [[maybe_unused]]) {
     auto* tracer = static_cast<Tracer*>(tool_data);
 
-    if (num_headers == 0 || headers == nullptr) {
-        return;
-    }
+    try {
 
-    // Estimate bytes per record to reserve memory upfront. Likely
-    // overestimating, but some kernel names can be very long (>700 bytes).
-    constexpr size_t max_bytes_per_record = 1024;
-
-    std::string data;
-    data.reserve(num_headers * max_bytes_per_record);
-
-    // Start JSON array
-    data.push_back('[');
-
-    size_t num_records = 0;
-    for (size_t i = 0; i < num_headers; ++i) {
-        auto* header = headers[i];
-        if (header->category == ROCPROFILER_BUFFER_CATEGORY_TRACING &&
-            header->kind == ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH) {
-            auto* record =
-                static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
-
-            // Look up rather than .at(): a dispatch naming an agent or kernel we
-            // never saw registered would otherwise throw out_of_range from a
-            // rocprofiler callback thread, terminating the application. Skip the
-            // record instead -- tracing must never be able to kill the app.
-            auto agent = tracer->gpu_id_by_agent.find(record->dispatch_info.agent_id.handle);
-            auto name = tracer->kernel_names.find(record->dispatch_info.kernel_id);
-            if (agent == tracer->gpu_id_by_agent.end() || name == tracer->kernel_names.end()) {
-                continue;
-            }
-
-            // Build array element: [gpu_id, "kernel_name", start_ns, end_ns]
-            fmt::format_to(std::back_inserter(data), "[{},\"{}\",{},{}],",
-                           agent->second, name->second,
-                           record->start_timestamp, record->end_timestamp);
-            ++num_records;
+        if (num_headers == 0 || headers == nullptr) {
+            return;
         }
-    }
 
-    if (num_records == 0) {
-        return;
-    }
+        // Estimate bytes per record to reserve memory upfront. Likely
+        // overestimating, but some kernel names can be very long (>700 bytes).
+        constexpr size_t max_bytes_per_record = 1024;
 
-    // Replace trailing comma with closing bracket
-    data.back() = ']';
+        std::string data;
+        data.reserve(num_headers * max_bytes_per_record);
 
-    if (!tracer->kernel_flush(data, num_records)) {
-        std::cerr << "Omnistat: failed to post kernel trace data" << std::endl;
+        // Start JSON array
+        data.push_back('[');
+
+        size_t num_records = 0;
+        for (size_t i = 0; i < num_headers; ++i) {
+            auto* header = headers[i];
+            if (header->category == ROCPROFILER_BUFFER_CATEGORY_TRACING &&
+                header->kind == ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH) {
+                auto* record =
+                    static_cast<rocprofiler_buffer_tracing_kernel_dispatch_record_t*>(header->payload);
+
+                // Look up rather than .at(): a dispatch naming an agent or kernel we
+                // never saw registered would otherwise throw out_of_range from a
+                // rocprofiler callback thread, terminating the application. Skip the
+                // record instead -- tracing must never be able to kill the app.
+                auto agent = tracer->gpu_id_by_agent.find(record->dispatch_info.agent_id.handle);
+                auto name = tracer->kernel_names.find(record->dispatch_info.kernel_id);
+                if (agent == tracer->gpu_id_by_agent.end() || name == tracer->kernel_names.end()) {
+                    continue;
+                }
+
+                // Build array element: [gpu_id, "kernel_name", start_ns, end_ns]
+                fmt::format_to(std::back_inserter(data), "[{},\"{}\",{},{}],",
+                               agent->second, name->second,
+                               record->start_timestamp, record->end_timestamp);
+                ++num_records;
+            }
+        }
+
+        if (num_records == 0) {
+            return;
+        }
+
+        // Replace trailing comma with closing bracket
+        data.back() = ']';
+
+        if (!tracer->kernel_flush(data, num_records)) {
+            std::cerr << "Omnistat: failed to post kernel trace data" << std::endl;
+        }
+    } catch (const std::exception& error) {
+        tracer->report_callback_error("kernel_dispatch_callback", error);
     }
 }
 
