@@ -49,7 +49,7 @@ if (NOT BUILD_KERNEL_TRACE_LIB)
 
     find_package(rocprofiler-sdk REQUIRED)
 
-    nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp)
+    nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp common.cpp)
     target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk)
 
     # Install the module to location within the Python package
@@ -74,7 +74,8 @@ else()
     )
     FetchContent_MakeAvailable(httplib)
 
-    add_library(omnistat_trace SHARED trace.cpp trace_kernel_callbacks.cpp trace_rccl_callbacks.cpp)
+    add_library(omnistat_trace SHARED trace.cpp trace_kernel_callbacks.cpp
+                                  trace_rccl_callbacks.cpp common.cpp)
     target_compile_features(omnistat_trace PRIVATE cxx_std_20)
     target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk httplib::httplib
                                                  hip::host)

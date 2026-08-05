@@ -25,6 +25,7 @@
 #include "trace.hpp"
 #include "common.hpp"
 
+#include <rocprofiler-sdk/registration.h>
 #include <rocprofiler-sdk/version.h>
 
 #ifndef ROCPROFILER_SDK_VERSION
