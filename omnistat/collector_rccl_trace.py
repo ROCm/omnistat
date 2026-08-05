@@ -142,7 +142,7 @@ class RcclTrace(EndpointCollector):
         self.__created = defaultdict(int)
 
         # Time-series snapshot buffers (bin -> {key: snapshot}). One per family.
-        self.__ts = OrderedDict()          # collective semantics
+        self.__ts = OrderedDict()  # collective semantics
         self.__comm_ts = OrderedDict()
 
         time_ms = time.time_ns() // 1_000_000
@@ -281,7 +281,6 @@ class RcclTrace(EndpointCollector):
             val[0] += 1
             val[1] += count * dsize
             self.__ts[end_bin][key] = val[:]
-
 
         return last_bin
 
