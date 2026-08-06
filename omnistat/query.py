@@ -967,7 +967,6 @@ class QueryMetrics:
         print("")
         print("--")
         print("Query interval = %.3f secs" % self.interval)
-        print("Query execution time = %.1f secs" % (timeit.default_timer() - self.timer_start))
         print("Version = %s" % self.version)
         return
 
@@ -1816,6 +1815,8 @@ def main():
 
         export_path.mkdir(exist_ok=True)
         query.export(export_path)
+
+    print("Query execution time = %.1f secs" % (timeit.default_timer() - query.timer_start))
 
 
 if __name__ == "__main__":
