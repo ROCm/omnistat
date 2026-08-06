@@ -250,10 +250,13 @@ Each profile defines a sampling mode and a set of counters to be collected:
 The ROCprofiler data collector requires [building the hardware counters
 extension](./installation/extensions.md#hardware-counters).
 
-To ensure all performance counters are collected correctly, the collector has
-the following requirements depending on how Omnistat is executed:
+To ensure all performance counters are collected correctly, the collector needs
+performance monitoring privileges, with requirements depending on how Omnistat
+is executed:
 - *System mode*: Run Omnistat with the `CAP_PERFMON` capability enabled.
-- *User mode*: Set the `HSA_TOOLS_LIB` environment variable in the application's runtime environment.
+- *User mode*: `/proc/sys/kernel/perf_event_paranoid` must be `2` or less (some
+  distributions default to `4`), and the following environment variables must be
+  set in the application's environment:
   ```shell
   export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
   export HSA_TOOLS_ROCPROFILER_V1_TOOLS=1
