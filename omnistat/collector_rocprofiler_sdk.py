@@ -41,6 +41,7 @@ omnistat_hardware_counter{source="gpu",card="0",name="TA_BUSY_avr"} 0.0
 import json
 import logging
 import os
+import re
 import sys
 
 from prometheus_client import Gauge, generate_latest
@@ -54,6 +55,13 @@ except ModuleNotFoundError as e:
     sys.exit(4)
 
 SAMPLING_MODES = ["constant", "gpu-id", "periodic"]
+
+# Counter collection requires performance monitoring privileges, granted either by
+# the CAP_PERFMON (38) or CAP_SYS_ADMIN (21) capabilities, or by a paranoid setting
+# of 2 or less.
+PERF_EVENT_PARANOID_PATH = "/proc/sys/kernel/perf_event_paranoid"
+PERF_EVENT_PARANOID_MAX = 2
+PERF_CAPABILITY_MASK = (1 << 38) | (1 << 21)
 
 initialize()
 
@@ -114,6 +122,16 @@ class rocprofiler_sdk(Collector):
         if mode == "gpu-id" and len(counters) == 1:
             logging.error('ERROR: "gpu-id" sampling mode requires multiple sets of counters')
             sys.exit(4)
+
+        try:
+            paranoid = int(open(PERF_EVENT_PARANOID_PATH).read())
+            caps = int(re.search(r"CapEff:\s*(\S+)", open("/proc/self/status").read()).group(1), 16)
+            if paranoid > PERF_EVENT_PARANOID_MAX and not caps & PERF_CAPABILITY_MASK:
+                logging.warning("WARNING: Insufficient privileges for performance counter collection")
+                logging.warning(f"--> {PERF_EVENT_PARANOID_PATH} = {paranoid}, some counters may be unavailable")
+                logging.warning(f"--> requires CAP_PERFMON, or a value of {PERF_EVENT_PARANOID_MAX} or less")
+        except (OSError, ValueError, AttributeError):
+            pass
 
         self.__samplers = get_samplers()
         self.__mode = mode
