@@ -15,6 +15,14 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v7
 
+      - name: Interrogate
+        run: |
+          rocm-smi
+          which python3
+          amd-smi version
+          cat /etc/os-release
+          amd-smi metric -E
+
       - name: Download VictoriaMetrics (v1.140.0)
         run: |
           VERSION=v1.140.0
@@ -73,16 +81,15 @@ jobs:
           grep -q "Omnistat Report Card" query_output.txt
           grep -q "GPU Statistics" query_output.txt
 
-      - name: Display query output on failure
+      - name: Display diagnostic logs on failure
         if: failure()
         run: |
-          echo "-- Query output --"
-          cat query_output.txt
-          echo "---"
-          echo "-- VictoriaMetrics server log --"
-          cat vic_server.log
           echo "-- Exporter log --"
-          cat exporter.log
+          cat exporter.log || echo "(exporter.log not found)"
+          echo "-- VictoriaMetrics server log --"
+          cat vic_server.log || echo "(vic_server.log not found)"
+          echo "-- Query output --"
+          cat query_output.txt || echo "(query_output.txt not found)"
 
       - name: Stop server
         if: always()
