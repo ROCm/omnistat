@@ -25,6 +25,8 @@
 #include "device.hpp"
 #include "common.hpp"
 
+#include <rocprofiler-sdk/registration.h>
+
 #include <hsa/hsa.h>
 
 #include <iostream>
