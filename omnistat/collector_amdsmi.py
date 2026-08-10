@@ -180,7 +180,7 @@ class AMDSMI(Collector):
         version_metric = Gauge(
             self.__prefix + "version_info",
             "GPU versioning information",
-            labelnames=["card", "driver_ver", "vbios", "type"],
+            labelnames=["card", "driver_ver", "vbios", "type", "serial"],
         )
 
         for idx, device in enumerate(self.__devices):
@@ -189,11 +189,12 @@ class AMDSMI(Collector):
             vbios = vbios_info["part_number"]
             asic_info = smi.amdsmi_get_gpu_asic_info(device)
             devtype = asic_info["market_name"]
+            serial = asic_info.get("asic_serial", "")
 
             driver_info = smi.amdsmi_get_gpu_driver_info(device)
             gpuDriverVer = driver_info["driver_version"]
 
-            version_metric.labels(card=gpuLabel, driver_ver=gpuDriverVer, vbios=vbios, type=devtype).set(1)
+            version_metric.labels(card=gpuLabel, driver_ver=gpuDriverVer, vbios=vbios, type=devtype, serial=serial).set(1)
 
         # Register memory related metrics
         self.__GPUMetrics["vram_total_bytes"] = Gauge(

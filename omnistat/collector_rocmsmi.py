@@ -299,7 +299,7 @@ class ROCMSMI(Collector):
         version_metric = Gauge(
             self.__prefix + "version_info",
             "GPU versioning information",
-            labelnames=["card", "driver_ver", "vbios", "type"],
+            labelnames=["card", "driver_ver", "vbios", "type", "serial"],
         )
         for i in range(self.__num_gpus):
             gpuLabel = self.__indexMapping[i]
@@ -312,11 +312,19 @@ class ROCMSMI(Collector):
             self.__libsmi.rsmi_dev_name_get(device, ver_str, 256)
             devtype = ver_str.value.decode()
 
+            serial = ""
+            try:
+                self.__libsmi.rsmi_dev_serial_number_get(device, ver_str, 256)
+                serial = ver_str.value.decode().strip()
+            except Exception:
+                pass
+
             version_metric.labels(
                 card=gpuLabel,
                 driver_ver=self.__gpuDriverVer,
                 vbios=vbios,
                 type=devtype,
+                serial=serial,
             ).set(1)
 
         # register desired metric names
