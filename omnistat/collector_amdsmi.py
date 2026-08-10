@@ -198,7 +198,9 @@ class AMDSMI(Collector):
             driver_info = smi.amdsmi_get_gpu_driver_info(device)
             gpuDriverVer = driver_info["driver_version"]
 
-            version_metric.labels(card=gpuLabel, driver_ver=gpuDriverVer, vbios=vbios, type=devtype, serial=serial).set(1)
+            version_metric.labels(card=gpuLabel, driver_ver=gpuDriverVer, vbios=vbios, type=devtype, serial=serial).set(
+                1
+            )
 
         # Register memory related metrics
         self.__GPUMetrics["vram_total_bytes"] = Gauge(
