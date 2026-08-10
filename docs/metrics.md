@@ -42,7 +42,7 @@ health and performance.
 
 | GPU Metric                        | Description                          |
 | :-------------------------------- | :----------------------------------- |
-| `rocm_version_info`               | GPU model and versioning information for GPU driver and VBIOS. Labels: `driver_ver`, `vbios`, `type`, `schema`. |
+| `rocm_version_info`               | GPU model and versioning information for GPU driver and VBIOS. Labels: `driver_ver`, `vbios`, `type`, `serial`. |
 | `rocm_utilization_percentage`     | GPU utilization (%). |
 | `rocm_vram_used_percentage`       | Memory utilization (%). |
 | `rocm_vram_total_bytes`           | Total GPU memory (bytes). |
