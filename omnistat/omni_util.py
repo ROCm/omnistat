@@ -441,6 +441,7 @@ class UserBasedMonitoring:
                 ssh_timeout=100,
                 max_retries=3,
                 retry_delay=5,
+                process_guard="omnistat.standalone",
             )
             self._log_ssh_parallel_timing(
                 launch_results, label="exporter launch", total_elapsed=time.perf_counter() - t_launch_start
