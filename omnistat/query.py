@@ -1668,13 +1668,15 @@ class QueryMetrics:
 
                 timestamps = [datetime.fromtimestamp(float(v[0])) for v in series["values"]]
                 if timestamps:
-                    rows.append({
-                        "instance": instance,
-                        "pid": pid,
-                        "cmd": cmd,
-                        "start_time": min(timestamps),
-                        "end_time": max(timestamps),
-                    })
+                    rows.append(
+                        {
+                            "instance": instance,
+                            "pid": pid,
+                            "cmd": cmd,
+                            "start_time": min(timestamps),
+                            "end_time": max(timestamps),
+                        }
+                    )
 
         if rows:
             df = pandas.DataFrame(rows)
