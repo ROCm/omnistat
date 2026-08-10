@@ -189,7 +189,11 @@ class AMDSMI(Collector):
             vbios = vbios_info["part_number"]
             asic_info = smi.amdsmi_get_gpu_asic_info(device)
             devtype = asic_info["market_name"]
-            serial = asic_info.get("asic_serial", "")
+            try:
+                board_info = smi.amdsmi_get_gpu_board_info(device)
+                serial = board_info.get("product_serial", "")
+            except Exception:
+                serial = ""
 
             driver_info = smi.amdsmi_get_gpu_driver_info(device)
             gpuDriverVer = driver_info["driver_version"]
