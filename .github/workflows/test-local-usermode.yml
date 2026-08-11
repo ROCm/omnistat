@@ -72,7 +72,7 @@ jobs:
 
       - name: Update runtime config
         run: |
-          sed -i "s|victoria_binary = .*|victoria_binary = ${{ github.workspace }}/victoria-metrics-prod|" omnistat/config/omnistat.default
+          sed -i "s|victoria_binary = .*|victoria_binary = ${PWD}/victoria-metrics-prod|" omnistat/config/omnistat.default
           sed -i "s|job_detection_file = .*|job_detection_file = /tmp/omni_rmsjobinfo_ciuser|" omnistat/config/omnistat.default
           sed -i "s|port = .*|port = $OMNISTAT_PORT|" omnistat/config/omnistat.default
 
