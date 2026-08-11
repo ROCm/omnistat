@@ -19,8 +19,7 @@ jobs:
         run: |
           whoami
           id runner
-          ls -la /sys/class/drm/card0/device/gpu_metrics
-          cat /sys/class/drm/card0/device/gpu_metrics 2>&1 | head -1
+          ls /opt/
           rocm-smi
           which python3
           amd-smi version
