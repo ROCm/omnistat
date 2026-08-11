@@ -17,6 +17,7 @@ jobs:
 
       - name: Interrogate
         run: |
+          whoami
           rocm-smi
           which python3
           amd-smi version
