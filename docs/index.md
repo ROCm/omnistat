@@ -10,6 +10,7 @@
 
    introduction
    metrics
+   query
    installation/index
    grafana
    agents
