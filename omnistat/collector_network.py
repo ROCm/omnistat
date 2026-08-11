@@ -95,9 +95,10 @@ class NETWORK(Collector):
                 "rx_cnp_packets": ["rx_rdma_cnp_pkts"],
             },
         },
-        # Broadcom "Thor". Detected as bnxt_en, the base Ethernet driver reported
-        # by uevent, but classed as bnxt_re: the RoCE driver layered on top that
-        # owns these hw_counters and names the bnxt_re* interfaces.
+        # Broadcom RoCE NICs (e.g. Thor). Detected as bnxt_en, the base
+        # Ethernet driver reported by uevent, but classed as bnxt_re: the RoCE
+        # driver layered on top that owns these hw_counters and names the
+        # bnxt_re* interfaces.
         "bnxt_en": {
             "device_class": "bnxt_re",
             "shared_counters": {

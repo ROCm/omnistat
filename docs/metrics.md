@@ -308,10 +308,10 @@ transfers for each network interface detected in the host platform. Every
 interface carries a `device_class` label naming the type it was detected as:
 
 - `net`: Ethernet and other standard IP interfaces.
-- `infiniband`: Infiniband.
-- `cxi`: Slingshot.
-- `ionic`: AINIC (AMD Pensando, e.g. Pollara).
-- `bnxt_re`: Thor (Broadcom RoCE).
+- `infiniband`: InfiniBand.
+- `cxi`: HPE Slingshot.
+- `ionic`: AMD Pensando AI NICs (e.g. Pollara).
+- `bnxt_re`: Broadcom RoCE NICs (e.g. Thor).
 
 **Collector**: `enable_network`
 
@@ -320,9 +320,9 @@ interface carries a `device_class` label naming the type it was detected as:
 | `omnistat_network_tx_bytes` | Total bytes transmitted by network interface. Labels: `device_class`, `interface`. |
 | `omnistat_network_rx_bytes` | Total bytes received by network interface. Labels: `device_class`, `interface`. |
 
-RoCE NICs that report via sysfs `hw_counters` (AINIC, Thor) expose additional
-throughput and fabric-health metrics. Availability depends on the counters the
-driver publishes.
+RoCE NICs that report via sysfs `hw_counters` (`ionic`, `bnxt_re`) expose
+additional throughput and fabric-health metrics. Availability depends on the
+counters the driver publishes.
 
 The ECN and CNP metrics are the two ends of the same DCQCN feedback loop: a
 receiver counts ECN-marked packets and answers with a CNP, which the sender
