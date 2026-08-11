@@ -106,7 +106,7 @@ class NETWORK(Collector):
         #   }
         cxi_base_path = Path("/sys/class/cxi")
         cxi_glob_pattern = "device/telemetry/hni_*_ok*"
-        cxi_re_pattern = "hni_(tx|rx)_ok_(\d+)[_to]*(\d+)?"
+        cxi_re_pattern = r"hni_(tx|rx)_ok_(\d+)[_to]*(\d+)?"
         cxi_data_paths = {
             "rx": self.__cxi_rx_data_paths,
             "tx": self.__cxi_tx_data_paths,
