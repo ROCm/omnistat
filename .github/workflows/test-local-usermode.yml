@@ -10,21 +10,37 @@ jobs:
   test:
     name: Usermode (localjob, no RMS)
     runs-on: [linux-gfx942-1gpu-ccs-csp-ossci-rocm]
+    container:
+      image: rocm/dev-ubuntu-24.04:7.2
+      options:
+        --ipc host
+        --cap-add SYS_PTRACE
+        --group-add video
+        --device /dev/kfd
+        --device /dev/dri
+    defaults:
+      run:
+        shell: bash
     steps:
 
-      - name: Check out repository code
-        uses: actions/checkout@v7
+      - name: Host software
+        run: |
+          sudo apt-get update -y
+          sudo apt install git python3-venv wget -y
 
       - name: Interrogate
         run: |
-          whoami
-          id runner
-          ls /opt/
           rocm-smi
           which python3
           amd-smi version
           cat /etc/os-release
           amd-smi metric -E
+
+      - name: Check out repository code
+        uses: actions/checkout@v7
+
+      - name: Update git directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Download VictoriaMetrics (v1.140.0)
         run: |
@@ -36,7 +52,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          python3 -m venv omnistat_venv
+          python3 -m venv --system-site-packages omnistat_venv
           source omnistat_venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
