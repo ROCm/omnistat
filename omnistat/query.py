@@ -1642,17 +1642,18 @@ class QueryMetrics:
         """Export a PID inventory for proc-io metrics.
 
         Produces a lightweight CSV listing each unique process observed during
-        the job, with its first and last seen timestamps. Columns:
-        instance, pid, cmd, start_time, end_time
+        the job, with its first and last seen timestamps and total bytes
+        read/written. Columns:
+        instance, pid, cmd, start_time, end_time, read_bytes, write_bytes
 
         Args:
             output_file (string): path to output CSV file
             metrics (list): list of proc-io metric names to scan
         """
 
-        rows = []
-        seen = set()
+        inventory = {}
         for metric in metrics:
+            is_read = "read" in metric
             query = "%s * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$step}))" % metric
             metric_data = self.query_job_range(query)
 
@@ -1662,24 +1663,37 @@ class QueryMetrics:
                 pid = labels.get("pid", "")
                 cmd = labels.get("cmd", "")
                 key = (instance, pid, cmd)
-                if key in seen:
+
+                values = series["values"]
+                if not values:
                     continue
-                seen.add(key)
 
-                timestamps = [datetime.fromtimestamp(float(v[0])) for v in series["values"]]
-                if timestamps:
-                    rows.append(
-                        {
-                            "instance": instance,
-                            "pid": pid,
-                            "cmd": cmd,
-                            "start_time": min(timestamps),
-                            "end_time": max(timestamps),
-                        }
-                    )
+                timestamps = [datetime.fromtimestamp(float(v[0])) for v in values]
+                total_bytes = max(0, float(values[-1][1]) - float(values[0][1]))
 
-        if rows:
-            df = pandas.DataFrame(rows)
+                if key not in inventory:
+                    inventory[key] = {
+                        "instance": instance,
+                        "pid": pid,
+                        "cmd": cmd,
+                        "start_time": min(timestamps),
+                        "end_time": max(timestamps),
+                        "read_bytes": 0,
+                        "write_bytes": 0,
+                    }
+                else:
+                    inventory[key]["start_time"] = min(inventory[key]["start_time"], min(timestamps))
+                    inventory[key]["end_time"] = max(inventory[key]["end_time"], max(timestamps))
+
+                if is_read:
+                    inventory[key]["read_bytes"] = total_bytes
+                else:
+                    inventory[key]["write_bytes"] = total_bytes
+
+        if inventory:
+            df = pandas.DataFrame(inventory.values())
+            df["read_bytes"] = df["read_bytes"].round().astype(int)
+            df["write_bytes"] = df["write_bytes"].round().astype(int)
             df = df.sort_values(["instance", "start_time", "pid"])
             df.to_csv(output_file, index=False)
 
