@@ -45,6 +45,7 @@
       "url": "/d/fdxiufe2bkyrkd-rms/node-rms"
     }
   ],
+  "liveNow": false,
   "panels": [
     {
       "collapsed": false,
@@ -54,8 +55,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 14,
-      "panels": [],
+      "id": 162,
       "title": "System Overview",
       "type": "row"
     },
@@ -69,7 +69,6 @@
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -80,8 +79,7 @@
             ]
           },
           "unit": "none"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -110,7 +108,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -138,7 +136,6 @@
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -149,8 +146,7 @@
             ]
           },
           "unit": "none"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -179,7 +175,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -208,7 +204,6 @@
             "mode": "thresholds"
           },
           "decimals": 1,
-          "mappings": [],
           "max": 100,
           "min": 0,
           "thresholds": {
@@ -225,8 +220,7 @@
             ]
           },
           "unit": "percent"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -255,7 +249,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -284,7 +278,6 @@
             "mode": "thresholds"
           },
           "decimals": 1,
-          "mappings": [],
           "max": 100,
           "min": 0,
           "thresholds": {
@@ -301,8 +294,7 @@
             ]
           },
           "unit": "percent"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -331,7 +323,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -359,7 +351,6 @@
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -373,8 +364,7 @@
               }
             ]
           }
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -403,7 +393,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -433,7 +423,6 @@
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -444,8 +433,7 @@
             ]
           },
           "unit": "none"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -474,7 +462,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -504,7 +492,6 @@
             "mode": "fixed"
           },
           "decimals": 1,
-          "mappings": [],
           "max": 100,
           "min": 0,
           "thresholds": {
@@ -521,8 +508,7 @@
             ]
           },
           "unit": "none"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -551,7 +537,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -580,7 +566,6 @@
             "mode": "thresholds"
           },
           "decimals": 1,
-          "mappings": [],
           "max": 100,
           "min": 0,
           "thresholds": {
@@ -597,8 +582,7 @@
             ]
           },
           "unit": "percent"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -627,7 +611,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -655,7 +639,6 @@
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -669,8 +652,7 @@
               }
             ]
           }
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -699,7 +681,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -708,7 +690,6 @@
           },
           "editorMode": "code",
           "expr": "count(count by (jobid) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))",
-          "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -723,13 +704,11 @@
         "type": "prometheus",
         "uid": "${source}"
       },
-      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "fixed"
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -740,8 +719,7 @@
             ]
           },
           "unit": "none"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -770,7 +748,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -799,7 +777,6 @@
             "mode": "fixed"
           },
           "decimals": 1,
-          "mappings": [],
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -815,8 +792,7 @@
             ]
           },
           "unit": "binBps"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -843,7 +819,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -864,7 +840,6 @@
           },
           "editorMode": "code",
           "expr": "sum(rate(omnistat_network_tx_bytes{device_class=\"net\"}[$__rate_interval]))",
-          "hide": false,
           "instant": false,
           "legendFormat": "Tx",
           "range": true,
@@ -885,7 +860,6 @@
             "mode": "fixed"
           },
           "decimals": 1,
-          "mappings": [],
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -901,8 +875,7 @@
             ]
           },
           "unit": "binBps"
-        },
-        "overrides": []
+        }
       },
       "gridPos": {
         "h": 4,
@@ -929,7 +902,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "13.1.1",
       "targets": [
         {
           "datasource": {
@@ -950,7 +923,6 @@
           },
           "editorMode": "code",
           "expr": "sum(rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval]))",
-          "hide": false,
           "instant": false,
           "legendFormat": "Tx",
           "range": true,
@@ -968,7 +940,7 @@
         "x": 0,
         "y": 13
       },
-      "id": 111,
+      "id": 163,
       "panels": [
         {
           "datasource": {
@@ -987,12 +959,12 @@
                 },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1020,7 +992,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 5700
+            "y": 14
           },
           "id": 110,
           "options": {
@@ -1106,12 +1078,12 @@
                 },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1139,7 +1111,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 5700
+            "y": 14
           },
           "id": 112,
           "options": {
@@ -1230,12 +1202,12 @@
                 },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1263,7 +1235,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 6368
+            "y": 682
           },
           "id": 113,
           "options": {
@@ -1357,12 +1329,12 @@
                 },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1390,7 +1362,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 6368
+            "y": 682
           },
           "id": 140,
           "options": {
@@ -1509,7 +1481,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1537,7 +1510,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 6374
+            "y": 688
           },
           "id": 139,
           "options": {
@@ -1624,7 +1597,7 @@
         "x": 0,
         "y": 14
       },
-      "id": 98,
+      "id": 164,
       "panels": [
         {
           "datasource": {
@@ -1642,14 +1615,17 @@
                   "type": "auto"
                 },
                 "filterable": true,
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -1721,7 +1697,7 @@
                 },
                 "properties": [
                   {
-                    "id": "custom.hidden",
+                    "id": "custom.hideFrom.viz",
                     "value": true
                   }
                 ]
@@ -1733,7 +1709,7 @@
                 },
                 "properties": [
                   {
-                    "id": "custom.hidden",
+                    "id": "custom.hideFrom.viz",
                     "value": true
                   }
                 ]
@@ -1745,7 +1721,7 @@
                 },
                 "properties": [
                   {
-                    "id": "custom.hidden",
+                    "id": "custom.hideFrom.viz",
                     "value": true
                   }
                 ]
@@ -1757,7 +1733,7 @@
                 },
                 "properties": [
                   {
-                    "id": "custom.hidden",
+                    "id": "custom.hideFrom.viz",
                     "value": true
                   }
                 ]
@@ -1768,24 +1744,16 @@
             "h": 13,
             "w": 24,
             "x": 0,
-            "y": 3149
+            "y": 15
           },
           "id": 99,
           "interval": "5s",
           "options": {
             "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
             "showHeader": true,
             "sortBy": []
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -1795,7 +1763,6 @@
               "editorMode": "code",
               "expr": "timestamp(group by (jobid,user,batchflag,partition,nodes) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))",
               "format": "table",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -1957,7 +1924,7 @@
         "x": 0,
         "y": 15
       },
-      "id": 97,
+      "id": 165,
       "panels": [
         {
           "datasource": {
@@ -1974,15 +1941,18 @@
                 "cellOptions": {
                   "type": "auto"
                 },
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false,
                 "minWidth": 100
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red"
+                    "color": "red",
+                    "value": 0
                   },
                   {
                     "color": "green",
@@ -2038,22 +2008,14 @@
             "h": 12,
             "w": 12,
             "x": 0,
-            "y": 7645
+            "y": 16
           },
           "id": 12,
           "options": {
             "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
             "showHeader": true
           },
-          "pluginVersion": "11.3.0-75826",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -2062,7 +2024,6 @@
               },
               "editorMode": "code",
               "expr": "avg by (jobid,user) (rocm_utilization_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -2144,15 +2105,18 @@
                 "cellOptions": {
                   "type": "auto"
                 },
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false,
                 "minWidth": 100
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red"
+                    "color": "red",
+                    "value": 0
                   },
                   {
                     "color": "green",
@@ -2208,22 +2172,14 @@
             "h": 12,
             "w": 12,
             "x": 12,
-            "y": 7645
+            "y": 16
           },
           "id": 20,
           "options": {
             "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
             "showHeader": true
           },
-          "pluginVersion": "11.3.0-75826",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -2232,7 +2188,6 @@
               },
               "editorMode": "code",
               "expr": "avg by (jobid,user) (rocm_utilization_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -2293,7 +2248,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -2304,15 +2258,18 @@
                 "cellOptions": {
                   "type": "auto"
                 },
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false,
                 "minWidth": 80
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red"
+                    "color": "red",
+                    "value": 0
                   },
                   {
                     "color": "green",
@@ -2375,23 +2332,15 @@
             "h": 12,
             "w": 12,
             "x": 0,
-            "y": 8073
+            "y": 28
           },
           "id": 21,
           "options": {
             "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
             "frameIndex": 1,
             "showHeader": true
           },
-          "pluginVersion": "11.3.0-75826",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -2412,7 +2361,6 @@
               },
               "editorMode": "code",
               "expr": "max by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))) / count by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -2498,7 +2446,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -2509,15 +2456,18 @@
                 "cellOptions": {
                   "type": "auto"
                 },
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false,
                 "minWidth": 80
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red"
+                    "color": "red",
+                    "value": 0
                   },
                   {
                     "color": "green",
@@ -2580,23 +2530,15 @@
             "h": 12,
             "w": 12,
             "x": 12,
-            "y": 8073
+            "y": 28
           },
           "id": 22,
           "options": {
             "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
             "frameIndex": 1,
             "showHeader": true
           },
-          "pluginVersion": "11.3.0-75826",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -2617,7 +2559,6 @@
               },
               "editorMode": "code",
               "expr": "max by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"}))) / count by (jobid,user) (rocm_vram_used_percentage * on (instance) group_left(jobid,user) (count by (instance,jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})))",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -2709,14 +2650,13 @@
         "x": 0,
         "y": 16
       },
-      "id": 8,
+      "id": 166,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -2748,19 +2688,18 @@
                 },
                 "show": "points"
               },
-              "fieldMinMax": false,
               "links": [
                 {
                   "title": "Job ${__data.fields[\"Job ID\"]} Dashboard",
                   "url": "/d/fdqo0h2s2drswe-rms/job-rms?var-jobid=${__data.fields[\"Job ID\"]}&${__url_time_range}"
                 }
               ],
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -2800,13 +2739,14 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 18534
+            "y": 17
           },
           "id": 28,
           "options": {
             "legend": {
               "calcs": [],
               "displayMode": "list",
+              "overflow": "ellipsis",
               "placement": "bottom",
               "showLegend": false
             },
@@ -2855,12 +2795,13 @@
               }
             ],
             "tooltip": {
+              "hideZeros": false,
               "maxHeight": 600,
               "mode": "single",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.0-75826",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -2870,7 +2811,6 @@
               "editorMode": "code",
               "expr": "rocm_utilization_percentage * on (instance) group_left(jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})",
               "format": "table",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -2884,7 +2824,6 @@
               "editorMode": "code",
               "expr": "rocm_vram_used_percentage * on (instance) group_left(jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\"})",
               "format": "table",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -2898,7 +2837,6 @@
               "editorMode": "code",
               "expr": "timestamp(group by (jobid,user) (rmsjob_info{jobid=~\"^[^\\\\s]+\", batchflag=\"1\"}))",
               "format": "table",
-              "hide": false,
               "instant": false,
               "legendFormat": "__auto",
               "range": true,
@@ -3038,14 +2976,13 @@
         "x": 0,
         "y": 17
       },
-      "id": 25,
+      "id": 167,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -3066,24 +3003,23 @@
                 }
               },
               "displayName": "Number of Jobs",
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   }
                 ]
               },
               "unit": "s"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 2834
+            "y": 18
           },
           "id": 23,
           "options": {
@@ -3152,7 +3088,7 @@
         "x": 0,
         "y": 18
       },
-      "id": 9,
+      "id": 168,
       "panels": [
         {
           "datasource": {
@@ -3199,12 +3135,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -3212,8 +3148,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -3257,7 +3192,6 @@
               },
               "editorMode": "code",
               "expr": "avg(rocm_vram_used_percentage)",
-              "hide": false,
               "instant": false,
               "legendFormat": "GPU Memory Capacity",
               "range": true,
@@ -3270,7 +3204,6 @@
               },
               "editorMode": "code",
               "expr": "avg(rocm_vram_busy_percentage)",
-              "hide": false,
               "instant": false,
               "legendFormat": "GPU Memory Controller Activity",
               "range": true,
@@ -3297,8 +3230,7 @@
                   "type": "linear"
                 }
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -3380,7 +3312,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -3421,18 +3352,17 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   }
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -3489,7 +3419,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -3530,18 +3459,17 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   }
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -3605,14 +3533,13 @@
         "x": 0,
         "y": 19
       },
-      "id": 40,
+      "id": 169,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -3653,12 +3580,12 @@
                   "mode": "area"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   },
                   {
                     "color": "#56A64B",
@@ -3671,8 +3598,7 @@
                 ]
               },
               "unit": "celsius"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -3729,7 +3655,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -3770,12 +3695,12 @@
                   "mode": "area"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   },
                   {
                     "color": "#56A64B",
@@ -3788,8 +3713,7 @@
                 ]
               },
               "unit": "celsius"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -3846,7 +3770,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -3887,12 +3810,12 @@
                   "mode": "area"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   },
                   {
                     "color": "#56A64B",
@@ -3905,8 +3828,7 @@
                 ]
               },
               "unit": "celsius"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -3963,7 +3885,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -4004,12 +3925,12 @@
                   "mode": "area"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   },
                   {
                     "color": "#56A64B",
@@ -4022,8 +3943,7 @@
                 ]
               },
               "unit": "celsius"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -4087,14 +4007,13 @@
         "x": 0,
         "y": 20
       },
-      "id": 100,
+      "id": 170,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -4135,18 +4054,17 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   }
                 ]
               },
               "unit": "watt"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -4203,7 +4121,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -4244,18 +4161,17 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   }
                 ]
               },
               "unit": "watt"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -4312,7 +4228,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -4353,18 +4268,17 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   }
                 ]
               },
               "unit": "watt"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -4421,7 +4335,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -4462,18 +4375,17 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   }
                 ]
               },
               "unit": "watt"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -4537,14 +4449,13 @@
         "x": 0,
         "y": 21
       },
-      "id": 122,
+      "id": 171,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -4585,18 +4496,17 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   }
                 ]
               },
               "unit": "rotmhz"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -4653,7 +4563,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -4694,18 +4603,17 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   }
                 ]
               },
               "unit": "rotmhz"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -4769,7 +4677,7 @@
         "x": 0,
         "y": 23
       },
-      "id": 141,
+      "id": 173,
       "panels": [
         {
           "datasource": {
@@ -4816,12 +4724,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4829,8 +4737,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -4878,7 +4785,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_sdma_correctable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "SDMA: {{instance}}",
               "range": true,
@@ -4892,7 +4798,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_gfx_correctable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "GFX: {{instance}}",
               "range": true,
@@ -4906,7 +4811,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_mmhub_correctable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "MMHUB: {{instance}}",
               "range": true,
@@ -4920,7 +4824,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_pcie_bif_correctable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "PCIE BIF: {{instance}}",
               "range": true,
@@ -4934,7 +4837,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_hdp_correctable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "HDP: {{instance}}",
               "range": true,
@@ -4948,7 +4850,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_xgmi_wafl_correctable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "XGMI WAFL: {{instance}}",
               "range": true,
@@ -5012,12 +4913,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5025,8 +4926,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -5074,7 +4974,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_sdma_uncorrectable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "SDMA: {{instance}}",
               "range": true,
@@ -5088,7 +4987,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_gfx_uncorrectable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "GFX: {{instance}}",
               "range": true,
@@ -5102,7 +5000,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_mmhub_uncorrectable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "MMHUB: {{instance}}",
               "range": true,
@@ -5116,7 +5013,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_pcie_bif_uncorrectable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "PCIE BIF: {{instance}}",
               "range": true,
@@ -5130,7 +5026,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_hdp_uncorrectable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "HDP: {{instance}}",
               "range": true,
@@ -5144,7 +5039,6 @@
               "editorMode": "code",
               "exemplar": false,
               "expr": "sum by (instance) (delta(rocm_ras_xgmi_wafl_uncorrectable_count[1m])) > 0",
-              "hide": false,
               "instant": false,
               "legendFormat": "XGMI WAFL: {{instance}}",
               "range": true,
@@ -5206,12 +5100,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5219,8 +5113,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -5273,7 +5166,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -5312,12 +5204,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5325,8 +5217,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -5414,7 +5305,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5422,8 +5314,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -5455,7 +5346,6 @@
               "editorMode": "code",
               "expr": "sum by (instance) ({__name__=~\"rocm_ras_.+_correctable_count\"})",
               "format": "table",
-              "hide": false,
               "legendFormat": "{{instance}}",
               "range": true,
               "refId": "A"
@@ -5564,7 +5454,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5572,8 +5463,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -5605,7 +5495,6 @@
               "editorMode": "code",
               "expr": "sum by (instance) ({__name__=~\"rocm_ras_.+_uncorrectable_count\"})",
               "format": "table",
-              "hide": false,
               "legendFormat": "{{instance}}",
               "range": true,
               "refId": "A"
@@ -5686,7 +5575,7 @@
         "x": 0,
         "y": 24
       },
-      "id": 156,
+      "id": 174,
       "panels": [
         {
           "datasource": {
@@ -5733,12 +5622,12 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -5746,8 +5635,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -5793,7 +5681,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -5834,18 +5721,17 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   }
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -5902,7 +5788,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -5943,18 +5828,17 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "blue"
+                    "color": "blue",
+                    "value": null
                   }
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 9,
@@ -6018,14 +5902,13 @@
         "x": 0,
         "y": 25
       },
-      "id": 36,
+      "id": 175,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6064,7 +5947,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6078,8 +5960,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -6134,7 +6015,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6173,7 +6053,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6187,8 +6066,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -6243,7 +6121,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6282,7 +6159,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6296,8 +6172,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -6359,14 +6234,13 @@
         "x": 0,
         "y": 26
       },
-      "id": 117,
+      "id": 176,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6407,7 +6281,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6422,8 +6295,7 @@
                 ]
               },
               "unit": "percent"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -6478,7 +6350,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6517,7 +6388,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6531,8 +6401,7 @@
                   }
                 ]
               }
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -6594,14 +6463,13 @@
         "x": 0,
         "y": 27
       },
-      "id": 120,
+      "id": 177,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6631,6 +6499,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -6640,7 +6509,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6655,8 +6523,7 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -6666,9 +6533,15 @@
           },
           "id": 92,
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "list",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "bottom",
               "showLegend": true
             },
@@ -6679,7 +6552,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -6688,7 +6561,6 @@
               },
               "editorMode": "code",
               "expr": "sum(rate(omnistat_host_io_read_local_total_bytes[$__rate_interval]))",
-              "hide": false,
               "instant": false,
               "legendFormat": "Read",
               "range": true,
@@ -6701,7 +6573,6 @@
               },
               "editorMode": "code",
               "expr": "sum(rate(omnistat_host_io_write_local_total_bytes[$__rate_interval]))",
-              "hide": false,
               "instant": false,
               "legendFormat": "Write",
               "range": true,
@@ -6716,7 +6587,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6746,6 +6616,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -6755,7 +6626,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6770,20 +6640,25 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 244
+            "y": 36
           },
           "id": 135,
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "table",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "right",
               "showLegend": true
             },
@@ -6794,7 +6669,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -6803,7 +6678,6 @@
               },
               "editorMode": "code",
               "expr": "sum by (instance) (rate(omnistat_host_io_read_local_total_bytes[$__rate_interval]))",
-              "hide": false,
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
@@ -6827,7 +6701,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6857,6 +6730,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -6866,7 +6740,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -6881,20 +6754,25 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 244
+            "y": 36
           },
           "id": 136,
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "table",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "right",
               "showLegend": true
             },
@@ -6905,7 +6783,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -6914,7 +6792,6 @@
               },
               "editorMode": "code",
               "expr": "sum by (instance) (rate(omnistat_host_io_write_local_total_bytes[$__rate_interval]))",
-              "hide": false,
               "instant": false,
               "legendFormat": "Node: {{instance}}",
               "range": true,
@@ -6945,14 +6822,13 @@
         "x": 0,
         "y": 28
       },
-      "id": 116,
+      "id": 178,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -6982,6 +6858,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -6991,7 +6868,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7006,8 +6882,7 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -7017,9 +6892,15 @@
           },
           "id": 148,
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "list",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "bottom",
               "showLegend": true
             },
@@ -7030,7 +6911,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7051,7 +6932,6 @@
               },
               "editorMode": "code",
               "expr": "sum(rate(omnistat_network_tx_bytes{device_class=\"net\"}[$__rate_interval]))",
-              "hide": false,
               "instant": false,
               "legendFormat": "Transmitted",
               "range": true,
@@ -7075,7 +6955,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -7105,6 +6984,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -7114,7 +6994,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7129,20 +7008,25 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 85
+            "y": 37
           },
           "id": 149,
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "table",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "right",
               "showLegend": true
             },
@@ -7153,7 +7037,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7185,7 +7069,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -7215,6 +7098,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -7224,7 +7108,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7239,20 +7122,25 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 85
+            "y": 37
           },
           "id": 150,
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "table",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "right",
               "showLegend": true
             },
@@ -7263,7 +7151,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7302,14 +7190,13 @@
         "x": 0,
         "y": 29
       },
-      "id": 67,
+      "id": 179,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -7339,6 +7226,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -7348,7 +7236,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7363,8 +7250,7 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -7374,9 +7260,15 @@
           },
           "id": 151,
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "list",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "bottom",
               "showLegend": true
             },
@@ -7387,7 +7279,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7408,7 +7300,6 @@
               },
               "editorMode": "code",
               "expr": "sum(sum by (instance) (rate(omnistat_network_tx_bytes{device_class!=\"net\"}[$__rate_interval])))",
-              "hide": false,
               "instant": false,
               "legendFormat": "Transmitted",
               "range": true,
@@ -7432,7 +7323,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -7462,6 +7352,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -7471,7 +7362,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7486,8 +7376,7 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -7497,9 +7386,15 @@
           },
           "id": 152,
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "table",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "right",
               "showLegend": true
             },
@@ -7510,7 +7405,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7542,7 +7437,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -7572,6 +7466,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -7581,7 +7476,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7596,8 +7490,7 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -7607,9 +7500,15 @@
           },
           "id": 153,
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "table",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "right",
               "showLegend": true
             },
@@ -7620,7 +7519,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7652,7 +7551,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -7682,6 +7580,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -7691,7 +7590,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7706,8 +7604,7 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -7717,9 +7614,15 @@
           },
           "id": 154,
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "table",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "right",
               "showLegend": true
             },
@@ -7730,7 +7633,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7762,7 +7665,6 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -7792,6 +7694,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -7801,7 +7704,6 @@
                   "mode": "off"
                 }
               },
-              "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -7816,8 +7718,7 @@
                 ]
               },
               "unit": "binBps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -7827,9 +7728,15 @@
           },
           "id": 155,
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "table",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "right",
               "showLegend": true
             },
@@ -7840,7 +7747,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7866,6 +7773,148 @@
             }
           ],
           "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Packet-level error counters from RoCE NICs, summed across the fleet as event rates. Sustained non-zero values indicate loss that may sharply degrade RDMA throughput.\n\n - **Out of Sequence (Rx)**: packets arrived with a gap in the sequence number.\n - **Retransmitted (Tx)**: packets this node re-sent after a NAK or timeout.\n - **Discarded (Rx/Tx)**: RoCE packets dropped by the NIC itself rather than lost in the fabric, usually from buffer exhaustion or malformed traffic.\n\nAvailability is vendor-specific. An absent series is unsupported, not zero: Ethernet, InfiniBand, and Slingshot report none of these.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "pps"
+            }
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 54
+          },
+          "id": 161,
+          "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(omnistat_network_rx_out_of_sequence_packets{}[$__rate_interval]))",
+              "instant": false,
+              "legendFormat": "Out of sequence (Rx)",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(omnistat_network_tx_retransmitted_packets{}[$__rate_interval]))",
+              "instant": false,
+              "legendFormat": "Retransmitted (Tx)",
+              "range": true,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(omnistat_network_rx_discarded_packets{}[$__rate_interval]))",
+              "instant": false,
+              "legendFormat": "Discarded (Rx)",
+              "range": true,
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(omnistat_network_tx_discarded_packets{}[$__rate_interval]))",
+              "instant": false,
+              "legendFormat": "Discarded (Tx)",
+              "range": true,
+              "refId": "D"
+            }
+          ],
+          "title": "Aggregate High Performance Interconnect Errors",
+          "type": "timeseries"
         }
       ],
       "title": "Network - High Performance Interconnect Bandwidth",
@@ -7874,19 +7923,20 @@
   ],
   "preload": false,
   "refresh": "",
-  "schemaVersion": 41,
-  "tags": [],
+  "schemaVersion": 42,
   "templating": {
     "list": [
       {
         "allowCustomValue": false,
         "hide": 2,
         "includeAll": false,
+        "multi": false,
         "name": "source",
         "options": [],
         "query": "prometheus",
         "refresh": 1,
         "regex": "",
+        "skipUrlSync": false,
         "type": "datasource"
       }
     ]
@@ -7907,7 +7957,7 @@
       "1d"
     ]
   },
-  "timezone": "",
+  "timezone": "browser",
   "title": "Global - RMS",
   "uid": "edqnz7pce7togc-rms",
   "version": 1
