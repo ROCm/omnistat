@@ -233,7 +233,7 @@ class UserBasedMonitoring:
         utils.runBGProcess(command, outputFile=vm_logfile, envAdds=envAddition)
 
         # Check VictoriaMetrics is ready to accept data. Extra sleeps added here
-        # to deal with occasional slow startup observed on shared file systems 
+        # to deal with occasional slow startup observed on shared file systems
         # like Lustre.
         health_url = "http://localhost:9090/ready"
         elapsed = 0
