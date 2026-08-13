@@ -3118,7 +3118,7 @@
             "type": "prometheus",
             "uid": "${source}"
           },
-          "description": "DCQCN congestion signals: two halves of one control loop. A congested switch marks packets with ECN, the receiving NIC answers with CNPs, and the sender throttles in response.\n - **ECN Marked (Rx)**: share of arriving packets flagged by a congested switch (left axis, %).\n - **CNP Received**: notifications arriving back from remote peers, throttling this node's sends (right axis, packets/s).\n\nRead the pair rather than either alone. Rising together is healthy and means congestion control is engaged. ECN climbing while CNP stays flat means marks are not producing notifications.\n\nAvailability is vendor-specific. An absent series is unsupported, not zero: Ethernet, InfiniBand, and Slingshot report none of these.",
+          "description": "Congestion exposure on this node's RoCE interfaces, in both directions.\n  - **ECN Marked**: arriving packets flagged by a congested switch. Congestion on paths into this node.\n  - **CNP Received**: notifications from remote receivers throttling this node's sends. Congestion on paths out of it.\n\nRead each independently. They are counted at opposite ends of the DCQCN loop, on different nodes. A receive-heavy node can show ECN with no CNP and a send-heavy node the reverse. Both may rise during the same congestion episode, as symptoms of a common cause rather than one driving the other.\n\nAvailability is vendor-specific. An absent series is unsupported, not zero: Ethernet, InfiniBand, and Slingshot report none of these.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -3171,23 +3171,8 @@
                   }
                 ]
               },
-              "unit": "percent"
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "CNP Received",
-                  "scope": "series"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "pps"
-                  }
-                ]
-              }
-            ]
+              "unit": "pps"
+            }
           },
           "gridPos": {
             "h": 8,
@@ -3224,9 +3209,9 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "100 * sum(rate(omnistat_network_rx_ecn_marked_packets{instance=\"$instance\"}[$__rate_interval])) / clamp_min(sum(rate(omnistat_network_rx_packets{device_class=~\"ionic|bnxt_re\",instance=\"$instance\"}[$__rate_interval])), 1)",
+              "expr": "sum(rate(omnistat_network_rx_ecn_marked_packets{instance=\"$instance\"}[$__rate_interval]))",
               "instant": false,
-              "legendFormat": "ECN Marked (Rx)",
+              "legendFormat": "ECN Marked",
               "range": true,
               "refId": "A"
             },
@@ -3410,6 +3395,9 @@
                 "cellOptions": {
                   "type": "auto"
                 },
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
               "thresholds": {
@@ -3417,7 +3405,7 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -3450,18 +3438,10 @@
           "id": 111,
           "options": {
             "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
             "showHeader": true,
             "sortBy": []
           },
-          "pluginVersion": "11.5.2",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
