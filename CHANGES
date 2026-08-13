@@ -1,4 +1,4 @@
-Version 1.14 (14 August 2026)
+Version 1.14 (13 August 2026)
 
   * extend network data collector to support Pensando and Broadcom RoCE NIC
     families with throughput and fabric-health metrics (#307)
