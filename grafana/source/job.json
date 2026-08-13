@@ -56,7 +56,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 190,
+      "id": 191,
       "title": "Job Info",
       "type": "row"
     },
@@ -578,7 +578,7 @@
         "x": 0,
         "y": 4
       },
-      "id": 191,
+      "id": 192,
       "title": "Performance Overview",
       "type": "row"
     },
@@ -1739,7 +1739,7 @@
         "x": 0,
         "y": 25
       },
-      "id": 192,
+      "id": 193,
       "panels": [
         {
           "datasource": {
@@ -2445,7 +2445,7 @@
         "x": 0,
         "y": 26
       },
-      "id": 193,
+      "id": 194,
       "panels": [
         {
           "datasource": {
@@ -2904,7 +2904,7 @@
         "x": 0,
         "y": 27
       },
-      "id": 194,
+      "id": 195,
       "panels": [
         {
           "datasource": {
@@ -3887,7 +3887,7 @@
         "x": 0,
         "y": 28
       },
-      "id": 195,
+      "id": 196,
       "panels": [
         {
           "datasource": {
@@ -4549,7 +4549,7 @@
         "x": 0,
         "y": 29
       },
-      "id": 196,
+      "id": 197,
       "panels": [
         {
           "datasource": {
@@ -5157,7 +5157,7 @@
         "x": 0,
         "y": 30
       },
-      "id": 197,
+      "id": 198,
       "panels": [
         {
           "datasource": {
@@ -5819,7 +5819,7 @@
         "x": 0,
         "y": 31
       },
-      "id": 198,
+      "id": 199,
       "panels": [
         {
           "datasource": {
@@ -5942,7 +5942,7 @@
         "x": 0,
         "y": 32
       },
-      "id": 199,
+      "id": 200,
       "panels": [
         {
           "datasource": {
@@ -6174,7 +6174,7 @@
         "x": 0,
         "y": 33
       },
-      "id": 200,
+      "id": 201,
       "panels": [
         {
           "datasource": {
@@ -6301,7 +6301,7 @@
         "x": 0,
         "y": 34
       },
-      "id": 201,
+      "id": 202,
       "panels": [
         {
           "datasource": {
@@ -6429,7 +6429,7 @@
         "x": 0,
         "y": 35
       },
-      "id": 202,
+      "id": 203,
       "panels": [
         {
           "datasource": {
@@ -7104,7 +7104,7 @@
         "x": 0,
         "y": 36
       },
-      "id": 203,
+      "id": 204,
       "panels": [
         {
           "datasource": {
@@ -7710,7 +7710,7 @@
         "x": 0,
         "y": 37
       },
-      "id": 204,
+      "id": 205,
       "panels": [
         {
           "datasource": {
@@ -8030,7 +8030,7 @@
         "x": 0,
         "y": 38
       },
-      "id": 205,
+      "id": 206,
       "panels": [
         {
           "datasource": {
@@ -8274,7 +8274,7 @@
         "x": 0,
         "y": 39
       },
-      "id": 206,
+      "id": 207,
       "panels": [
         {
           "datasource": {
@@ -8668,7 +8668,7 @@
         "x": 0,
         "y": 40
       },
-      "id": 207,
+      "id": 208,
       "panels": [
         {
           "datasource": {
@@ -8900,7 +8900,7 @@
         "x": 0,
         "y": 41
       },
-      "id": 208,
+      "id": 209,
       "panels": [
         {
           "datasource": {
@@ -9389,7 +9389,7 @@
               "editorMode": "code",
               "expr": "100 * sum(rate(omnistat_network_rx_ecn_marked_packets{}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"}) / clamp_min(sum(rate(omnistat_network_rx_packets{device_class=~\"ionic|bnxt_re\"}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"}), 1)",
               "instant": false,
-              "legendFormat": "ECN Marked (Rx)",
+              "legendFormat": "ECN Marked",
               "range": true,
               "refId": "A"
             },
@@ -9408,6 +9408,141 @@
           ],
           "title": "Congestion",
           "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Availability is vendor-specific. An absent series is unsupported, not zero: Ethernet, InfiniBand, and Slingshot report none of these.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "noValue": "No traffic",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "decbytes"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CNP Received",
+                  "scope": "series"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "pps"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 58
+          },
+          "id": 190,
+          "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(omnistat_network_rx_bytes{device_class=~\"ionic|bnxt_re\"}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"}) / sum(rate(omnistat_network_rx_packets{device_class=~\"ionic|bnxt_re\"}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"})",
+              "instant": false,
+              "legendFormat": "Received",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(omnistat_network_tx_bytes{device_class=~\"ionic|bnxt_re\"}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"}) / sum(rate(omnistat_network_tx_packets{device_class=~\"ionic|bnxt_re\"}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"})",
+              "instant": false,
+              "legendFormat": "Transmitted",
+              "range": true,
+              "refId": "B"
+            }
+          ],
+          "title": "Average Packet Size",
+          "type": "timeseries"
         }
       ],
       "title": "Network Bandwidth - High Performance Interconnect",
@@ -9421,7 +9556,7 @@
         "x": 0,
         "y": 42
       },
-      "id": 209,
+      "id": 210,
       "panels": [
         {
           "datasource": {
@@ -10027,7 +10162,7 @@
         "x": 0,
         "y": 43
       },
-      "id": 210,
+      "id": 211,
       "panels": [
         {
           "datasource": {
@@ -10473,7 +10608,7 @@
         "x": 0,
         "y": 44
       },
-      "id": 211,
+      "id": 212,
       "panels": [
         {
           "datasource": {
@@ -10598,7 +10733,7 @@
         "x": 0,
         "y": 45
       },
-      "id": 212,
+      "id": 213,
       "panels": [
         {
           "datasource": {
@@ -10796,7 +10931,7 @@
         "x": 0,
         "y": 46
       },
-      "id": 213,
+      "id": 214,
       "panels": [
         {
           "datasource": {
@@ -12307,7 +12442,7 @@
         "x": 0,
         "y": 47
       },
-      "id": 214,
+      "id": 215,
       "panels": [
         {
           "datasource": {
