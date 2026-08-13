@@ -279,6 +279,7 @@ following table.
 | `omnistat-network.csv`          | `network`                    | Network interface rx/tx bytes.                            |
 | `omnistat-host.csv`             | `host_metrics`               | Host CPU, memory, and local I/O metrics.                  |
 | `omnistat-host-proc-io.csv`     | `host_metrics`               | Per-process I/O (includes network I/O).                   |
+| `omnistat-host-proc-io-inventory.csv` | `host_metrics`         | PID inventory with per-process start/end times and total bytes read/written. |
 | `omnistat-rocprofiler.gpu.csv`  | `rocprofiler`                | GPU hardware performance counters.                        |
 | `omnistat-fom.csv`              | `fom`                        | Figures of merit.                                         |
 | `omnistat-vendor.csv`           | `vendor_counters`            | Node-level vendor PM counters (energy, power).            |
