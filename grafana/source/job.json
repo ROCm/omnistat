@@ -7158,7 +7158,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "13.0.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7229,7 +7229,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "13.0.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7300,7 +7300,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "13.0.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7428,7 +7428,7 @@
             "cellHeight": "sm",
             "showHeader": true
           },
-          "pluginVersion": "13.0.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7670,6 +7670,8 @@
             "legend": {
               "calcs": [],
               "displayMode": "list",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "bottom",
               "showLegend": true
             },
@@ -7679,7 +7681,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "13.0.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -7786,6 +7788,8 @@
             "legend": {
               "calcs": [],
               "displayMode": "list",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "right",
               "showLegend": true
             },
@@ -7795,7 +7799,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "13.0.1",
+          "pluginVersion": "13.1.1",
           "repeat": "top_kernels",
           "repeatDirection": "v",
           "targets": [
@@ -7888,7 +7892,7 @@
             "cellHeight": "sm",
             "showHeader": true
           },
-          "pluginVersion": "13.0.1",
+          "pluginVersion": "13.1.1",
           "repeat": "top_kernels",
           "repeatDirection": "v",
           "targets": [
@@ -8062,6 +8066,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -8096,9 +8101,15 @@
           "id": 43,
           "interval": "$interval",
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "list",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "right",
               "showLegend": true
             },
@@ -8109,7 +8120,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -8170,6 +8181,7 @@
                   "type": "linear"
                 },
                 "showPoints": "auto",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -8204,9 +8216,15 @@
           "id": 48,
           "interval": "$interval",
           "options": {
+            "annotations": {
+              "clustering": -1,
+              "multiLane": false
+            },
             "legend": {
               "calcs": [],
               "displayMode": "list",
+              "enableFacetedFilter": false,
+              "overflow": "ellipsis",
               "placement": "right",
               "showLegend": true
             },
@@ -8217,7 +8235,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.1.1",
+          "pluginVersion": "13.1.1",
           "targets": [
             {
               "datasource": {
@@ -9212,7 +9230,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(omnistat_network_rx_out_of_sequence_packets{instance=\"$instance\"}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"})",
+              "expr": "sum by (instance) (rate(omnistat_network_rx_out_of_sequence_packets{}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "legendFormat": "Out of sequence (Rx)",
               "range": true,
@@ -9224,7 +9242,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum by (instance) (rate(omnistat_network_tx_retransmitted_packets{instance=\"$instance\"}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"})",
+              "expr": "sum by (instance) (rate(omnistat_network_tx_retransmitted_packets{}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "legendFormat": "Retransmitted (Tx)",
               "range": true,
@@ -9369,7 +9387,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "100 * sum(rate(omnistat_network_rx_ecn_marked_packets{instance=\"$instance\"}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"}) / clamp_min(sum(rate(omnistat_network_rx_packets{device_class=~\"ionic|bnxt_re\",instance=\"$instance\"}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"}), 1)",
+              "expr": "100 * sum(rate(omnistat_network_rx_ecn_marked_packets{}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"}) / clamp_min(sum(rate(omnistat_network_rx_packets{device_class=~\"ionic|bnxt_re\"}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"}), 1)",
               "instant": false,
               "legendFormat": "ECN Marked (Rx)",
               "range": true,
@@ -9381,7 +9399,7 @@
                 "uid": "${source}"
               },
               "editorMode": "code",
-              "expr": "sum(rate(omnistat_network_rx_cnp_packets{instance=\"$instance\"}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"})",
+              "expr": "sum(rate(omnistat_network_rx_cnp_packets{}[$__rate_interval]) and on (instance) rmsjob_info{jobid=\"$jobid\"})",
               "instant": false,
               "legendFormat": "CNP Received",
               "range": true,
