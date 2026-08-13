@@ -42,7 +42,7 @@ health and performance.
 
 | GPU Metric                        | Description                          |
 | :-------------------------------- | :----------------------------------- |
-| `rocm_version_info`               | GPU model and versioning information for GPU driver and VBIOS. Labels: `driver_ver`, `vbios`, `type`, `schema`. |
+| `rocm_version_info`               | GPU model and versioning information for GPU driver and VBIOS. Labels: `driver_ver`, `vbios`, `type`, `serial`. |
 | `rocm_utilization_percentage`     | GPU utilization (%). |
 | `rocm_vram_used_percentage`       | Memory utilization (%). |
 | `rocm_vram_total_bytes`           | Total GPU memory (bytes). |
@@ -89,7 +89,7 @@ memory utilization statistics along with general I/O metrics.
 | `omnistat_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
 | `omnistat_io_write_local_total_bytes` | Total bock-level data written to **local** physical disk (bytes). |
 
-### Process-based I/O 
+### Process-based I/O
 
 **Collector**: `enable_host_metrics`
 <br/>
@@ -250,10 +250,13 @@ Each profile defines a sampling mode and a set of counters to be collected:
 The ROCprofiler data collector requires [building the hardware counters
 extension](./installation/extensions.md#hardware-counters).
 
-To ensure all performance counters are collected correctly, the collector has
-the following requirements depending on how Omnistat is executed:
+To ensure all performance counters are collected correctly, the collector needs
+performance monitoring privileges, with requirements depending on how Omnistat
+is executed:
 - *System mode*: Run Omnistat with the `CAP_PERFMON` capability enabled.
-- *User mode*: Set the `HSA_TOOLS_LIB` environment variable in the application's runtime environment.
+- *User mode*: `/proc/sys/kernel/perf_event_paranoid` must be `2` or less (some
+  distributions default to `4`), and the following environment variables must be
+  set in the application's environment:
   ```shell
   export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
   export HSA_TOOLS_ROCPROFILER_V1_TOOLS=1
@@ -301,9 +304,14 @@ export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
 ## Network
 
 The network data collector enables metrics providing information about data
-transfers for each network interface detected in the host platform. Currently
-supported network types include Ethernet, Infiniband, and
-Slingshot.
+transfers for each network interface detected in the host platform. Every
+interface carries a `device_class` label naming the type it was detected as:
+
+- `net`: Ethernet and other standard IP interfaces.
+- `infiniband`: InfiniBand.
+- `cxi`: HPE Slingshot.
+- `ionic`: AMD Pensando AI NICs (e.g. Pollara).
+- `bnxt_re`: Broadcom RoCE NICs (e.g. Thor).
 
 **Collector**: `enable_network`
 
@@ -311,6 +319,26 @@ Slingshot.
 | :-------------------------- | :----------------------------------- |
 | `omnistat_network_tx_bytes` | Total bytes transmitted by network interface. Labels: `device_class`, `interface`. |
 | `omnistat_network_rx_bytes` | Total bytes received by network interface. Labels: `device_class`, `interface`. |
+
+RoCE NICs that report via sysfs `hw_counters` (`ionic`, `bnxt_re`) expose
+additional throughput and fabric-health metrics. Availability depends on the
+counters the driver publishes.
+
+The ECN and CNP metrics are the two ends of the same DCQCN feedback loop: a
+receiver counts ECN-marked packets and answers with a CNP, which the sender
+counts as a request to lower its send rate. Both count packets *received*, but
+they report congestion in opposite traffic directions.
+
+| Node Metric                 | Network Type | Description                          |
+| :-------------------------- | :----------- | :----------------------------------- |
+| `omnistat_network_tx_packets` | `ionic`, `bnxt_re` | Total packets transmitted by network interface. |
+| `omnistat_network_rx_packets` | `ionic`, `bnxt_re` | Total packets received by network interface. |
+| `omnistat_network_rx_out_of_sequence_packets` | `ionic`, `bnxt_re` | Total packets received out of sequence by network interface; typically driven by in-fabric packet loss. |
+| `omnistat_network_tx_retransmitted_packets` | `ionic` | Total packets retransmitted by network interface; a fabric packet-loss/congestion indicator. |
+| `omnistat_network_rx_discarded_packets` | `bnxt_re` | Total packets dropped on receive by network interface; a packet-loss indicator. |
+| `omnistat_network_tx_discarded_packets` | `bnxt_re` | Total packets dropped on transmit by network interface; a packet-loss indicator. |
+| `omnistat_network_rx_ecn_marked_packets` | `ionic`, `bnxt_re` | Total packets received carrying the ECN congestion mark; a pre-loss indicator of congestion on **inbound** traffic. |
+| `omnistat_network_rx_cnp_packets` | `ionic`, `bnxt_re` | Total congestion notification packets (CNPs) received, each requesting a lower send rate; an indicator of congestion on **outbound** traffic. |
 
 <hr style="border: 1px solid black;">
 

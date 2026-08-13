@@ -9,11 +9,38 @@ on:
 jobs:
   test:
     name: Usermode (localjob, no RMS)
-    runs-on: [linux-gfx942-1gpu-ossci-rocm]
+    runs-on: [linux-gfx942-1gpu-ccs-csp-ossci-rocm]
+    container:
+      image: rocm/dev-ubuntu-24.04:7.2
+      options:
+        --ipc host
+        --cap-add SYS_PTRACE
+        --group-add video
+        --device /dev/kfd
+        --device /dev/dri
+    defaults:
+      run:
+        shell: bash
     steps:
+
+      - name: Host software
+        run: |
+          sudo apt-get update -y
+          sudo apt install git python3-venv wget -y
+
+      - name: Interrogate
+        run: |
+          rocm-smi
+          which python3
+          amd-smi version
+          cat /etc/os-release
+          amd-smi metric -E
 
       - name: Check out repository code
         uses: actions/checkout@v7
+
+      - name: Update git directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Download VictoriaMetrics (v1.140.0)
         run: |
@@ -25,7 +52,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          python3 -m venv omnistat_venv
+          python3 -m venv --system-site-packages omnistat_venv
           source omnistat_venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
@@ -45,7 +72,7 @@ jobs:
 
       - name: Update runtime config
         run: |
-          sed -i "s|victoria_binary = .*|victoria_binary = ${{ github.workspace }}/victoria-metrics-prod|" omnistat/config/omnistat.default
+          sed -i "s|victoria_binary = .*|victoria_binary = ${PWD}/victoria-metrics-prod|" omnistat/config/omnistat.default
           sed -i "s|job_detection_file = .*|job_detection_file = /tmp/omni_rmsjobinfo_ciuser|" omnistat/config/omnistat.default
           sed -i "s|port = .*|port = $OMNISTAT_PORT|" omnistat/config/omnistat.default
 
@@ -73,16 +100,15 @@ jobs:
           grep -q "Omnistat Report Card" query_output.txt
           grep -q "GPU Statistics" query_output.txt
 
-      - name: Display query output on failure
+      - name: Display diagnostic logs on failure
         if: failure()
         run: |
-          echo "-- Query output --"
-          cat query_output.txt
-          echo "---"
-          echo "-- VictoriaMetrics server log --"
-          cat vic_server.log
           echo "-- Exporter log --"
-          cat exporter.log
+          cat exporter.log || echo "(exporter.log not found)"
+          echo "-- VictoriaMetrics server log --"
+          cat vic_server.log || echo "(vic_server.log not found)"
+          echo "-- Query output --"
+          cat query_output.txt || echo "(query_output.txt not found)"
 
       - name: Stop server
         if: always()

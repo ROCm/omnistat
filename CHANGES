@@ -1,3 +1,16 @@
+Version 1.14 (13 August 2026)
+
+  * extend network data collector to support Pensando and Broadcom RoCE NIC
+    families with throughput and fabric-health metrics (#307)
+  * switch kernel tracing library from libcurl to header-only cpp-httplib (#308)
+  * enable automatic code coverage reporting for data collectors (#309)
+  * add warning when `perf_event_paranoid` setting is insufficient for hardware counter
+    collection (#313)
+  * improve `omnistat-query --export` performance for jobs with large numbers of short
+    processes; adds separate process inventory CSV with per-process byte counts and
+    timing (#314)
+  * add GPU serial number as a label to `rocm_version_info` metric for inventory tracking (#315)
+
 Version 1.13 (13 July 2026)
 
   * add skills support for agentic analysis to analyze Omnistat databases or exported CSV files (#271)

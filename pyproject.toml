@@ -48,3 +48,12 @@ include = '\.py$'
 profile = "black"
 src_paths = ["omnistat", "test"]
 known_local_folder = ["omnistat", "test"]
+
+[tool.coverage.run]
+source = ["omnistat"]
+parallel = true
+concurrency = ["multiprocessing"]
+
+[tool.coverage.report]
+include = ["omnistat/collector_*.py"]
+omit = ["omnistat/collector_smi_process.py", "omnistat/collector_rocprofiler.py"]

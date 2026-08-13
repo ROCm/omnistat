@@ -45,7 +45,7 @@ from omnistat.utils import runShellCommand
 # fmt: off
 SMI_METRICS = [
     {"name":"rocm_num_gpus",                                "validate":">=1",                "labels":None},
-    {"name":"rocm_version_info",                            "validate":"==1.0",              "labels":["card","driver_ver","type"]},
+    {"name":"rocm_version_info",                            "validate":"==1.0",              "labels":["card","driver_ver","serial","type"]},
     {"name":"rocm_temperature_celsius",                     "validate":">=10",               "labels":["card","location"]},
     {"name":"rocm_temperature_memory_celsius",              "validate":">=10",               "labels":["card","location"]},
     {"name":"rocm_average_socket_power_watts",              "validate":">=10",               "labels":["card"]},
@@ -83,6 +83,10 @@ OCCUPANCY_METRICS = [
     {"name": "rocm_compute_unit_occupancy",                 "validate": ">=0",               "labels": ["card"]},
 ]
 
+EVENTS_METRICS = [
+    {"name": "rocm_throttle_events",                        "validate": ">=0",               "labels": ["card"]},
+]
+
 cores = os.cpu_count()
 
 HOST_METRICS = [
@@ -104,22 +108,30 @@ ROCPROFILER_METRICS = [
     {"name": "omnistat_hardware_counter",                    "validate": ">=0",               "labels": ["source", "card", "name"]},
 ]
 
+# Network metrics are hardware-dependent (specific device classes such as
+# "cxi" or "ionic" only appear on matching NICs), so assertions stay generic:
+# any host with a non-loopback interface exposes rx/tx byte totals.
+NETWORK_METRICS = [
+    {"name": "omnistat_network_rx_bytes",                    "validate": ">=0",               "labels": ["device_class", "interface"]},
+    {"name": "omnistat_network_tx_bytes",                    "validate": ">=0",               "labels": ["device_class", "interface"]},
+]
+
 # fmt: on
 
 
 def get_gpu_type(device=0):
-    """Return GPU Card Series by running `rocm-smi --showproductname -d <device>`."""
-    cmd = ["rocm-smi", "--showproductname", "-d", str(device)]
+    """Return GPU market name by running `amd-smi static --asic --gpu <device>`."""
+    cmd = ["amd-smi", "static", "--asic", "--gpu", str(device)]
     result = runShellCommand(cmd, capture_output=True, text=True, timeout=5)
     if not result or result.returncode != 0:
-        logging.error(f"Failed to run rocm-smi for device {device}")
+        logging.error(f"Failed to run amd-smi for device {device}")
         return ""
     for line in result.stdout.splitlines():
-        if "Card Series:" in line:
-            parts = line.split("Card Series:")
+        if "MARKET_NAME:" in line:
+            parts = line.split("MARKET_NAME:")
             if len(parts) == 2:
                 return parts[1].strip()
-    logging.warning("Card Series not found in rocm-smi output")
+    logging.warning("MARKET_NAME not found in amd-smi output")
     return ""
 
 
@@ -134,11 +146,12 @@ print(f"test execution hostname: {full_hostname}\n")
 
 COLLECTOR_CONFIGS = [
     {
-        "collectors": ["rocm_smi"],
+        "collectors": ["rocm_smi", "power_cap"],
         # rocm-smi interface is known to not report energy correctly on MI3XX
         "metrics": SMI_METRICS
         + [
             {"name": "rocm_energy_joules", "validate": ">=0" if "MI3" in gpu_type else ">10", "labels": ["card"]},
+            {"name": "rocm_power_cap_watts", "validate": ">0", "labels": ["card"]},
         ],
     },
     {
@@ -176,8 +189,16 @@ COLLECTOR_CONFIGS = [
         "metrics": OCCUPANCY_METRICS,
     },
     {
+        "collectors": ["events"],
+        "metrics": EVENTS_METRICS,
+    },
+    {
         "collectors": ["host_metrics", "omnistat.collectors.host::enable_proc_io_stats"],
         "metrics": HOST_METRICS,
+    },
+    {
+        "collectors": ["network"],
+        "metrics": NETWORK_METRICS,
     },
     {
         "collectors": ["rocprofiler"],
@@ -397,22 +418,23 @@ class TestHardwareCounters:
         }
         server = OmnistatTestServer(["rocprofiler"], config_sections=config_sections)
 
-        # Run GPU workload with HSA_TOOLS_LIB so the profiler can intercept
-        # application-level PMC counter activity.
-        hsa_tools_lib = os.path.join(test.config.rocm_path, "lib", "librocprofiler64.so")
-        result = workloads.run("vector_add", [1000000], env={"HSA_TOOLS_LIB": hsa_tools_lib})
-        assert result.returncode == 0, f"vector_add failed: {result.stderr}"
+        try:
+            # Run GPU workload with HSA_TOOLS_LIB so the profiler can intercept
+            # application-level PMC counter activity.
+            hsa_tools_lib = os.path.join(test.config.rocm_path, "lib", "librocprofiler64.so")
+            result = workloads.run("vector_add", [1000000], env={"HSA_TOOLS_LIB": hsa_tools_lib})
+            assert result.returncode == 0, f"vector_add failed: {result.stderr}"
 
-        # Scrape metrics, keyed by (card, counter_name)
-        metrics = {}
-        for metric in server.get():
-            for sample in metric.samples:
-                card = sample.labels.get("card", "")
-                name = sample.labels.get("name", "")
-                if metric.name == "omnistat_hardware_counter":
-                    metrics.setdefault(card, {})[name] = sample.value
-
-        server.stop()
+            # Scrape metrics, keyed by (card, counter_name)
+            metrics = {}
+            for metric in server.get():
+                for sample in metric.samples:
+                    card = sample.labels.get("card", "")
+                    name = sample.labels.get("name", "")
+                    if metric.name == "omnistat_hardware_counter":
+                        metrics.setdefault(card, {})[name] = sample.value
+        finally:
+            server.stop()
 
         # At least one GPU should have non-zero counters from the workload
         assert len(metrics) > 0, "No hardware counter metrics found"
@@ -420,3 +442,155 @@ class TestHardwareCounters:
         assert any(
             all(metrics[card].get(c, 0) > 0 for c in counters) for card in metrics
         ), f"No GPU had all counters > 0: {metrics}"
+
+
+class TestHardwareCounterConfigValidation:
+    """Verify rocprofiler_sdk config validation catches bad configs with sys.exit(4)."""
+
+    def _make_config(self, profile_opts=None, rocprofiler_opts=None):
+        config = configparser.ConfigParser()
+        config["omnistat.collectors"] = {"rocm_path": test.config.rocm_path}
+        if rocprofiler_opts:
+            config["omnistat.collectors.rocprofiler"] = rocprofiler_opts
+        if profile_opts is not None:
+            config["omnistat.collectors.rocprofiler.default"] = profile_opts
+        return config
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_bad_json_counters(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"counters": "not valid json"})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_missing_counters(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"sampling_mode": "constant"})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_non_list_counters(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"counters": '"just_a_string"'})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_invalid_sampling_mode(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"sampling_mode": "bogus", "counters": '["GRBM_COUNT"]'})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_constant_mode_multiple_counter_sets(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(
+            profile_opts={"sampling_mode": "constant", "counters": '[["GRBM_COUNT"], ["GRBM_GUI_ACTIVE"]]'}
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_deprecated_metrics_option(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(
+            rocprofiler_opts={"metrics": '["GRBM_COUNT"]'},
+            profile_opts={"sampling_mode": "constant"},
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    def test_gpu_id_mode_single_counter_set(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"sampling_mode": "gpu-id", "counters": '[["GRBM_COUNT"]]'})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+
+class TestHostUserModeIO:
+    """Verify per-process I/O metrics in user mode by spawning a subprocess that does I/O."""
+
+    def test_user_mode_proc_io(self):
+        import subprocess
+        import sys
+
+        config_sections = {
+            "omnistat.collectors.host": {
+                "cpu_load_sampling_interval": "0.02",
+                "enable_proc_io_stats": "True",
+                "proc_io_cmds_exclude": "flux-, systemd",
+            },
+            "omnistat.internal": {
+                "mode": "user",
+                "interval_secs": "5",
+                "push_interval_secs": "Unknown",
+            },
+        }
+        server = OmnistatTestServer(
+            ["host_metrics", "omnistat.collectors.host::enable_proc_io_stats"],
+            config_sections=config_sections,
+        )
+
+        # Spawn a long-running subprocess that does I/O — its PID won't be in the init-time filter.
+        # When running as root (e.g. in CI containers), the collector filters out root-owned processes.
+        # In that case, run the subprocess as "ubuntu" if available so it passes the root-process filter.
+        io_script = "import time\nf=open('/dev/null','w')\nwhile True:\n f.write('x'*1024)\n time.sleep(0.01)"
+        use_su = False
+        if os.geteuid() == 0:
+            try:
+                import pwd
+
+                pwd.getpwnam("ubuntu")
+                use_su = True
+            except KeyError:
+                pass
+
+        if use_su:
+            io_proc = subprocess.Popen(["su", "-", "ubuntu", "-c", f'{sys.executable} -c "{io_script}"'])
+        else:
+            io_proc = subprocess.Popen([sys.executable, "-c", io_script])
+
+        try:
+            time.sleep(0.5)
+            metrics = {}
+            for metric in server.get():
+                for sample in metric.samples:
+                    metrics.setdefault(metric.name, []).append(sample)
+
+            assert (
+                "omnistat_host_io_read_total_bytes" in metrics
+            ), f"Missing io_read_total_bytes, got: {list(metrics.keys())}"
+            assert (
+                "omnistat_host_io_write_total_bytes" in metrics
+            ), f"Missing io_write_total_bytes, got: {list(metrics.keys())}"
+
+            # Verify expected labels and at least one process with non-zero I/O
+            for metric_name in ("omnistat_host_io_read_total_bytes", "omnistat_host_io_write_total_bytes"):
+                samples = metrics[metric_name]
+                for sample in samples:
+                    assert "pid" in sample.labels, f"Missing 'pid' label for {metric_name}"
+                    assert "cmd" in sample.labels, f"Missing 'cmd' label for {metric_name}"
+                values = [s.value for s in samples]
+                assert any(v > 0 for v in values), f"Expected non-zero {metric_name}, got: {values}"
+        finally:
+            io_proc.terminate()
+            io_proc.wait()
+            server.stop()

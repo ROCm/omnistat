@@ -60,19 +60,36 @@ if [ -f "$STATEFILE" ]; then
 fi
 
 # Emit metrics based on run number
+# Every run includes comment lines, a blank line, a garbage line, and a label-less
+# metric to exercise parser edge cases in collector_external.py.
 case $RUN in
     0)
+        echo '# this is a comment'
+        echo ''
+        echo 'this is garbage and should be skipped'
         echo 'my_snazzy_metric{my_snazzy_label="omnistat_for_the_win"} 42'
+        echo 'my_nolabel_metric 99'
         ;;
     1)
+        echo '# another comment'
         echo 'my_snazzy_metric2{my_snazzy_label2="rocks"} 43'
+        echo 'my_nolabel_metric 100'
         ;;
     2)
         echo 'my_snazzy_metric3{my_snazzy_label3="ftw"} 44'
         echo 'my_snazzy_metric3b{my_snazzy_label3b="bonus"} 45'
+        echo 'my_nolabel_metric 101'
+        ;;
+    3)
+        # Non-zero exit with valid output — collector should still record metrics
+        echo 'my_snazzy_metric4{my_snazzy_label4="nonzero"} 46' >&1
+        echo 'script had a partial failure' >&2
+        echo $((RUN + 1)) > "$STATEFILE"
+        exit 1
         ;;
     *)
         echo 'my_snazzy_metric{my_snazzy_label="omnistat_for_the_win"} 42'
+        echo 'my_nolabel_metric 99'
         ;;
 esac
 

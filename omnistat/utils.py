@@ -571,9 +571,15 @@ def execute_ssh_command_nohup(
     retry_delay: float,
     ssh_timeout: float,
     outputDir: str,
+    process_guard: str = None,
 ) -> list[bool, str]:
     """
     Executes a single command on a remote host via ssh with nohup for launching background processes.
+
+    Args:
+        process_guard (str): optional pattern for pgrep to check before launching. When set,
+            retries will skip the launch if a matching process is already running on the remote
+            host, preventing duplicate background processes.
 
     Returns:
         list containing [success_status, output_filename]
@@ -584,7 +590,10 @@ def execute_ssh_command_nohup(
     while attempt <= max_retries:
         try:
             outfile = outputDir + f"/omnistat_launch_{hostname}_try{attempt}.log"
-            nohup_command = f"nohup {command} > {shlex.quote(outfile)} 2>&1 &"
+            if process_guard and attempt > 1:
+                nohup_command = f"pgrep -f {shlex.quote(process_guard)} > /dev/null || nohup {command} > {shlex.quote(outfile)} 2>&1 &"
+            else:
+                nohup_command = f"nohup {command} > {shlex.quote(outfile)} 2>&1 &"
             ssh_command = ["ssh", hostname, "env BASH_ENV= bash --noprofile --norc -c " + shlex.quote(nohup_command)]
 
             logging.debug(f"[pssh] {ssh_command}")
@@ -626,6 +635,7 @@ def execute_ssh_parallel(
     retry_delay: float = 2.0,
     ssh_timeout: float = 10.0,
     outputDir: str = "/tmp",
+    process_guard: str = None,
 ) -> dict:
     """
     Spawn commands on remote servers with nohup on multiple hosts in parallel using native ssh client.
@@ -649,6 +659,7 @@ def execute_ssh_parallel(
                 retry_delay,
                 ssh_timeout,
                 outputDir,
+                process_guard,
             ): host
             for host in hostnames
         }

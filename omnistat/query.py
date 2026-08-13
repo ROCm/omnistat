@@ -967,7 +967,6 @@ class QueryMetrics:
         print("")
         print("--")
         print("Query interval = %.3f secs" % self.interval)
-        print("Query execution time = %.1f secs" % (timeit.default_timer() - self.timer_start))
         print("Version = %s" % self.version)
         return
 
@@ -1580,7 +1579,7 @@ class QueryMetrics:
 
         return
 
-    def export_metrics(self, output_file, metrics, pivot_labels):
+    def export_metrics(self, output_file, metrics, pivot_labels, aggregation=None):
         """Export time series for given metrics as a CSV file.
 
         Organize columns hierarchically, aligning timestamps and allowing
@@ -1600,13 +1599,19 @@ class QueryMetrics:
             output_file (string): path to output CSV file
             metrics (list): list of metrics to export
             pivot_labels (list): list of labels to use for hierarchical indexing
+            aggregation (string): optional PromQL aggregation to apply before the join
+                                  (e.g., "sum by (instance)")
         """
 
         index = ["timestamp"] + pivot_labels
 
         metric_dfs = []
         for metric in metrics:
-            query = "%s * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$step}))" % (metric)
+            if aggregation:
+                metric_expr = "%s (%s)" % (aggregation, metric)
+            else:
+                metric_expr = metric
+            query = "%s * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$step}))" % (metric_expr)
             metric_data = self.query_job_range(query)
 
             if len(metric_data) == 0:
@@ -1632,6 +1637,65 @@ class QueryMetrics:
         if len(metric_dfs) > 0:
             df = pandas.concat(metric_dfs, axis=1)
             df.to_csv(output_file)
+
+    def export_proc_io_inventory(self, output_file, metrics):
+        """Export a PID inventory for proc-io metrics.
+
+        Produces a lightweight CSV listing each unique process observed during
+        the job, with its first and last seen timestamps and total bytes
+        read/written. Columns:
+        instance, pid, cmd, start_time, end_time, read_bytes, write_bytes
+
+        Args:
+            output_file (string): path to output CSV file
+            metrics (list): list of proc-io metric names to scan
+        """
+
+        inventory = {}
+        for metric in metrics:
+            is_read = "read" in metric
+            query = "%s * on (instance) group_left() (max by (instance) (rmsjob_info{$job,$step}))" % metric
+            metric_data = self.query_job_range(query)
+
+            for series in metric_data:
+                labels = series["metric"]
+                instance = labels.get("instance", "")
+                pid = labels.get("pid", "")
+                cmd = labels.get("cmd", "")
+                key = (instance, pid, cmd)
+
+                values = series["values"]
+                if not values:
+                    continue
+
+                timestamps = [datetime.fromtimestamp(float(v[0])) for v in values]
+                total_bytes = max(0, float(values[-1][1]) - float(values[0][1]))
+
+                if key not in inventory:
+                    inventory[key] = {
+                        "instance": instance,
+                        "pid": pid,
+                        "cmd": cmd,
+                        "start_time": min(timestamps),
+                        "end_time": max(timestamps),
+                        "read_bytes": 0,
+                        "write_bytes": 0,
+                    }
+                else:
+                    inventory[key]["start_time"] = min(inventory[key]["start_time"], min(timestamps))
+                    inventory[key]["end_time"] = max(inventory[key]["end_time"], max(timestamps))
+
+                if is_read:
+                    inventory[key]["read_bytes"] = total_bytes
+                else:
+                    inventory[key]["write_bytes"] = total_bytes
+
+        if inventory:
+            df = pandas.DataFrame(inventory.values())
+            df["read_bytes"] = df["read_bytes"].round().astype(int)
+            df["write_bytes"] = df["write_bytes"].round().astype(int)
+            df = df.sort_values(["instance", "start_time", "pid"])
+            df.to_csv(output_file, index=False)
 
     def export(self, export_path):
         export_prefix = "omnistat-"
@@ -1701,7 +1765,8 @@ class QueryMetrics:
             (
                 "host-proc-io",
                 ["omnistat_host_io_read_total_bytes", "omnistat_host_io_write_total_bytes"],
-                ["instance", "pid", "cmd"],
+                ["instance"],
+                "sum by (instance)",
             ),
             (
                 "cxi",
@@ -1767,12 +1832,19 @@ class QueryMetrics:
             ),
         ]
 
-        for name, metrics, labels in exports:
+        for entry in exports:
+            name, metrics, labels = entry[0], entry[1], entry[2]
+            aggregation = entry[3] if len(entry) > 3 else None
             extension = ".csv"
             if "card" in labels or "accel" in labels:
                 extension = ".gpu.csv"
             export_file = f"{export_path}/{export_prefix}{name}{extension}"
-            self.export_metrics(export_file, metrics, labels)
+            self.export_metrics(export_file, metrics, labels, aggregation=aggregation)
+
+        # Export proc-io PID inventory (start/end times per process)
+        proc_io_metrics = ["omnistat_host_io_read_total_bytes", "omnistat_host_io_write_total_bytes"]
+        inventory_file = f"{export_path}/{export_prefix}host-proc-io-inventory.csv"
+        self.export_proc_io_inventory(inventory_file, proc_io_metrics)
 
 
 def main():
@@ -1816,6 +1888,8 @@ def main():
 
         export_path.mkdir(exist_ok=True)
         query.export(export_path)
+
+    print("Query execution time = %.1f secs" % (timeit.default_timer() - query.timer_start))
 
 
 if __name__ == "__main__":

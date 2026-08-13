@@ -9,7 +9,7 @@ on:
     branches: [ main, dev ]
 
   push:
-    branches: [dev]
+    branches: [main, dev]
 
 jobs:
   gpu-collectors:
@@ -63,7 +63,7 @@ jobs:
         run: |
           source omnistat_venv/bin/activate
           srun -N 1 -J omnistat -p $CI_QUEUE -t 00:10:00 \
-            pytest -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py
+            pytest -v --cov=omnistat --cov-report=xml --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py test/test_pm_counters.py  test/test_rms.py
 
 ##       - name: Test Report
 ##         uses: dorny/test-reporter@v2
@@ -82,3 +82,59 @@ jobs:
           check_name: "Collector Tests (${{ matrix.hardware }})"
           comment: 'true'
 
+      - name: Generate Coverage Summary
+        if: ${{ !cancelled() }}
+        run: |
+          source omnistat_venv/bin/activate
+          coverage report
+          TOTAL=$(coverage report --format=total)
+          echo "$TOTAL" > coverage-total.txt
+          echo "**Coverage (${{ matrix.hardware }}):** ${TOTAL}%" > coverage-summary.md
+          coverage report --fail-under=75 > /dev/null
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v3
+        if: github.event_name == 'pull_request' && !cancelled()
+        with:
+          header: "coverage-${{ matrix.hardware }}"
+          path: coverage-summary.md
+
+      - name: Upload Coverage Data
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: coverage-${{ matrix.hardware }}
+          path: coverage-total.txt
+
+  coverage-badge:
+    needs: gpu-collectors
+    runs-on: ubuntu-latest
+    if: always() && !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout badges branch
+        uses: actions/checkout@v7
+        with:
+          ref: badges
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-*
+          merge-multiple: false
+
+      - name: Update coverage badge
+        run: |
+          MIN=$(cat coverage-*/coverage-total.txt | sort -n | head -1)
+          if [ $(echo "$MIN >= 75" | bc) -eq 1 ]; then
+            COLOR="green"
+          else
+            COLOR="red"
+          fi
+          cat > coverage.json <<EOF
+          {"schemaVersion":1,"label":"coverage","message":"${MIN}%","color":"${COLOR}"}
+          EOF
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add coverage.json
+          git diff --cached --quiet || git commit -m "update coverage: ${MIN}%"
+          git push

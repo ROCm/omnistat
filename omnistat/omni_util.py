@@ -38,6 +38,7 @@ import tempfile
 import time
 from pathlib import Path
 
+import requests
 import yaml
 
 from omnistat import utils
@@ -230,6 +231,25 @@ class UserBasedMonitoring:
 
         logging.info("Server start command: %s" % command)
         utils.runBGProcess(command, outputFile=vm_logfile, envAdds=envAddition)
+
+        # Check VictoriaMetrics is ready to accept data. Extra sleeps added here
+        # to deal with occasional slow startup observed on shared file systems
+        # like Lustre.
+        health_url = "http://localhost:9090/ready"
+        elapsed = 0
+        for delay in [1, 2, 4, 8]:
+            time.sleep(delay)
+            elapsed += delay
+            try:
+                response = requests.get(health_url, timeout=2)
+                if response.status_code == 200:
+                    logging.info("VictoriaMetrics is responsive (after %ds)" % elapsed)
+                    break
+            except requests.exceptions.RequestException:
+                pass
+            logging.info("VictoriaMetrics not yet responsive (%ds elapsed)" % elapsed)
+        else:
+            logging.warning("VictoriaMetrics not responsive after %ds, proceeding." % elapsed)
 
     def startPromServer(self, victoriaMode=True):
 
@@ -441,6 +461,7 @@ class UserBasedMonitoring:
                 ssh_timeout=100,
                 max_retries=3,
                 retry_delay=5,
+                process_guard="omnistat.standalone",
             )
             self._log_ssh_parallel_timing(
                 launch_results, label="exporter launch", total_elapsed=time.perf_counter() - t_launch_start

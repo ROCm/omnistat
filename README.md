@@ -3,6 +3,8 @@
 [![User mode - Push](https://github.com/ROCm/omnistat/actions/workflows/test-user-push.yml/badge.svg)](https://github.com/ROCm/omnistat/actions/workflows/test-user-push.yml)
 [![GPU collectors](https://github.com/ROCm/omnistat/actions/workflows/test-gpus.yml/badge.svg)](https://github.com/ROCm/omnistat/actions/workflows/test-gpus.yml)
 [![MI325](https://github.com/ROCm/omnistat/actions/workflows/test-mi325.yml/badge.svg)](https://github.com/ROCm/omnistat/actions/workflows/test-mi325.yml)
+![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ROCm/omnistat/badges/coverage.json)
+
 
 
 # Omnistat

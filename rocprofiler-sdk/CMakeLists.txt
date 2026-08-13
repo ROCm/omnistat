@@ -25,6 +25,13 @@
 cmake_minimum_required(VERSION 3.15)
 project(omnistat_rocprofiler_sdk_extension LANGUAGES CXX)
 
+# Default to an optimized build. The kernel tracer's flush() path (including the
+# header-only HTTP client compiled into this library) is performance-sensitive,
+# so an unoptimized default would ship a needlessly slow library.
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 # The kernel tracing library is meant to be built separately from the Omnistat
 # package and extensions. When it's enabled, compile only the library and
 # nothing else.
@@ -49,14 +56,23 @@ if (NOT BUILD_KERNEL_TRACE_LIB)
     install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
 else()
     find_package(rocprofiler-sdk REQUIRED)
-    find_package(CURL REQUIRED)
 
     include(FetchContent)
     include(CheckCXXSourceCompiles)
 
+    # Header-only HTTP client. Fetched at configure time; for offline builds,
+    # download the source tree and point CMake at it:
+    #   -DFETCHCONTENT_SOURCE_DIR_HTTPLIB=/path/to/cpp-httplib
+    FetchContent_Declare(
+        httplib
+        URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.3.tar.gz
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+    FetchContent_MakeAvailable(httplib)
+
     add_library(omnistat_trace SHARED kernel_tracer.cpp)
     target_compile_features(omnistat_trace PRIVATE cxx_std_20)
-    target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk CURL::libcurl)
+    target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk httplib::httplib)
 
     # Check if the compiler supports std::format
     set(CMAKE_REQUIRED_FLAGS "-std=c++20")

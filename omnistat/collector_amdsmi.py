@@ -180,7 +180,7 @@ class AMDSMI(Collector):
         version_metric = Gauge(
             self.__prefix + "version_info",
             "GPU versioning information",
-            labelnames=["card", "driver_ver", "vbios", "type"],
+            labelnames=["card", "driver_ver", "vbios", "type", "serial"],
         )
 
         for idx, device in enumerate(self.__devices):
@@ -189,11 +189,18 @@ class AMDSMI(Collector):
             vbios = vbios_info["part_number"]
             asic_info = smi.amdsmi_get_gpu_asic_info(device)
             devtype = asic_info["market_name"]
+            try:
+                board_info = smi.amdsmi_get_gpu_board_info(device)
+                serial = board_info.get("product_serial", "")
+            except Exception:
+                serial = ""
 
             driver_info = smi.amdsmi_get_gpu_driver_info(device)
             gpuDriverVer = driver_info["driver_version"]
 
-            version_metric.labels(card=gpuLabel, driver_ver=gpuDriverVer, vbios=vbios, type=devtype).set(1)
+            version_metric.labels(card=gpuLabel, driver_ver=gpuDriverVer, vbios=vbios, type=devtype, serial=serial).set(
+                1
+            )
 
         # Register memory related metrics
         self.__GPUMetrics["vram_total_bytes"] = Gauge(
@@ -313,7 +320,7 @@ class AMDSMI(Collector):
                     found = source_metric
                     break
             if not found:
-                logging.warn("--> Skipping %s metric - not available on this architecture" % desired_metric)
+                logging.warning("--> Skipping %s metric - not available on this architecture" % desired_metric)
             else:
                 logging.info("--> Using mapping %s -> %s " % (desired_metric, found))
                 self.__GPUMetrics[self.__prefix + desired_metric] = Gauge(
