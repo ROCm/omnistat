@@ -62,6 +62,9 @@ int Tracer::initialize() {
         return -1;
     }
     client_->set_keep_alive(true);
+    client_->set_connection_timeout(HTTP_TIMEOUT_SECONDS);
+    client_->set_read_timeout(HTTP_TIMEOUT_SECONDS);
+    client_->set_write_timeout(HTTP_TIMEOUT_SECONDS);
 
     ROCPROFILER_CALL(rocprofiler_create_context(&context_), "create context");
 

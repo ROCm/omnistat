@@ -30,6 +30,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <ctime>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -47,6 +48,10 @@ constexpr uint64_t DEFAULT_BUFFER_SIZE_BYTES = 262144;
 
 // Endpoint port for sending trace data (both streams)
 constexpr uint64_t DEFAULT_TRACE_ENDPOINT_PORT = 8001;
+
+// HTTP client timeouts. Set explicitly because httplib defaults both the
+// connection and the client read timeout to 300 seconds.
+constexpr time_t HTTP_TIMEOUT_SECONDS = 5;
 
 // PCI domain:bus:device packed into one key, so a rocprofiler agent can be
 // matched to a HIP device. Function bits are dropped: two GPUs differing only by
