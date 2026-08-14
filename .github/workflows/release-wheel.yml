@@ -1,8 +1,6 @@
-name: Release Python Wheel
+name: Release Python Wheel (v2)
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       tag:
@@ -13,6 +11,11 @@ on:
         description: 'Upload wheel to S3 bucket?'
         type: boolean
         default: false
+      environment:
+        description: 'Target environment'
+        type: choice
+        options:
+          - dev
 
 permissions:
   id-token: write
@@ -25,17 +28,36 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      # All environment-scoped secrets are exposed here so the shell can select
+      # the active set dynamically. To add a new environment: add its secrets
+      # as new env vars below and add a matching case branch in "Resolve environment".
+      DEV_ROLE_ARN: ${{ secrets.AWS_DEV_EXTRAS_ROLE_ARN }}
+      DEV_S3_BUCKET: ${{ secrets.AWS_DEV_EXTRAS_S3_BUCKET }}
+      S3_PATH: v5/rocm/extras/omnistat/whl-next/omnistat/
 
     steps:
       - name: Resolve release tag
         id: tag
         run: |
-          if [ '${{ github.event_name }}' = 'release' ]; then
-            TAG='${{ github.event.release.tag_name }}'
-          else
-            TAG='${{ inputs.tag }}'
-          fi
-          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+
+      - name: Resolve environment
+        id: env
+        run: |
+          TARGET_ENV='${{ inputs.environment }}'
+          case "${TARGET_ENV}" in
+            dev)
+              ROLE_ARN="${DEV_ROLE_ARN}"
+              S3_BUCKET="${DEV_S3_BUCKET}"
+              ;;
+            *)
+              echo "Unknown environment: ${TARGET_ENV}" >&2
+              exit 1
+              ;;
+          esac
+          echo "role_arn=${ROLE_ARN}" >> $GITHUB_OUTPUT
+          echo "s3_bucket=${S3_BUCKET}" >> $GITHUB_OUTPUT
 
       - name: Checkout repository at tag
         uses: actions/checkout@v6
@@ -45,19 +67,17 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: ${{ steps.env.outputs.role_arn }}
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Check if release artifact already exists in S3
         id: check
         run: |
           TAG='${{ steps.tag.outputs.tag }}'
-          # Wheel filename embeds the version, e.g. omnistat-1.2.3-py3-none-any.whl
-          # Strip leading 'v' from tag to match the version in the wheel filename
           VERSION="${TAG#v}"
-          COUNT=$(aws s3 ls s3://${{ secrets.AWS_S3_BUCKET }}/release/ --no-paginate 2>/dev/null | grep -c "omnistat-${VERSION}-.*\.whl$" || true)
+          COUNT=$(aws s3 ls s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} --no-paginate 2>/dev/null | grep -c "omnistat-${VERSION}-.*\.whl$" || true)
           if [ "${COUNT}" -gt 0 ]; then
-            echo "Wheel already exists for version ${VERSION} in s3://${{ secrets.AWS_S3_BUCKET }}/release/ — skipping build and upload."
+            echo "Wheel already exists for version ${VERSION} in s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} — skipping build and upload."
             echo "skip=true" >> $GITHUB_OUTPUT
           else
             echo "No existing wheel found for version ${VERSION}. Proceeding with build."
@@ -82,9 +102,7 @@ jobs:
           python -m build --wheel --outdir dist/
 
       - name: Upload wheel to S3
-        if: >-
-          ${{ steps.check.outputs.skip == 'false' &&
-              (github.event_name == 'release' || inputs.deploy == true) }}
+        if: ${{ steps.check.outputs.skip == 'false' && inputs.deploy == true }}
         run: |
-          aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/release/ \
+          aws s3 cp dist/*.whl s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} \
             --no-progress
