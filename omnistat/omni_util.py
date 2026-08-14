@@ -401,7 +401,11 @@ class UserBasedMonitoring:
                     "%s" % detection_file,
                 ]
                 t_srun_start = time.perf_counter()
-                utils.runShellCommand(srun_cmd, timeout=35, exit_on_error=True)
+                result = utils.runShellCommand(srun_cmd, timeout=90, exit_on_error=False)
+                if result is None:
+                    logging.warning("[usermode]: rms-env srun timed out, retrying with extended timeout...")
+                    time.sleep(10)
+                    utils.runShellCommand(srun_cmd, timeout=200, exit_on_error=True)
                 logging.info(
                     "[usermode]: rms-env timing (%s hosts): %.2fs (srun, all hosts)"
                     % (numNodes, time.perf_counter() - t_srun_start)
