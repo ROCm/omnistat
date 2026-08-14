@@ -34,7 +34,7 @@ jobs:
       # as new env vars below and add a matching case branch in "Resolve environment".
       DEV_ROLE_ARN: ${{ secrets.AWS_DEV_EXTRAS_ROLE_ARN }}
       DEV_S3_BUCKET: ${{ secrets.AWS_DEV_EXTRAS_S3_BUCKET }}
-      S3_PATH: v5/rocm/extras/omnistat/whl-next/
+      S3_PATH: v5/rocm/extras/omnistat/whl-next/omnistat/
 
     steps:
       - name: Resolve release tag
