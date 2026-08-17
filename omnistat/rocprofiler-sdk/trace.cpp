@@ -134,7 +134,7 @@ int Tracer::initialize() {
 
     ROCPROFILER_CALL(rocprofiler_start_context(context_), "start context");
 
-    record_flush_time();
+    record_kernel_flush_time();
     periodic_thread_ = std::thread(&Tracer::periodic_flush, this);
 
     return 0;
@@ -163,18 +163,6 @@ Tracer::~Tracer() {
 
     if (periodic_thread_.joinable()) {
         periodic_thread_.join();
-
-        if (log_enabled_) {
-            char hostname[256];
-            gethostname(hostname, sizeof(hostname));
-
-            auto successful_records = total_records_ - failed_records_;
-            auto successful_flushes = total_flushes_ - failed_flushes_;
-            std::cout << "[" << hostname << "][" << getpid()
-                      << "][omnistat] Trace summary: " << successful_records << "/"
-                      << total_records_ << " processed records (" << successful_flushes << "/"
-                      << total_flushes_ << " successful flushes)" << std::endl;
-        }
     }
 
     // Final RCCL drain: post anything accumulated since the last periodic flush.
@@ -185,16 +173,35 @@ Tracer::~Tracer() {
     // the same). A collector must outlive the application accordingly.
     if (rccl_enabled_) {
         std::string rccl_data;
-        size_t rccl_n = 0;
-        rccl_drain(rccl_data, rccl_n);
-        if (rccl_n > 0) {
-            rccl_flush(rccl_data, rccl_n);
+        size_t rccl_records = 0;
+        rccl_drain(rccl_data, rccl_records);
+        if (rccl_records > 0 && !rccl_flush(rccl_data, rccl_records)) {
+            std::cerr << "Omnistat: failed to post final RCCL trace data" << std::endl;
         }
+    }
+
+    // Summary last, so it accounts for the final drain above.
+    if (log_enabled_ && (kernel_enabled_ || rccl_enabled_)) {
+        char hostname[256];
+        gethostname(hostname, sizeof(hostname));
+
+        // Snapshot once: the callback thread may still be flushing, so reading
+        // a counter twice would print inconsistent totals.
+        const uint64_t total_records = total_records_.load();
+        const uint64_t failed_records = failed_records_.load();
+        const uint64_t total_flushes = total_flushes_.load();
+        const uint64_t failed_flushes = failed_flushes_.load();
+
+        std::cout << "[" << hostname << "][" << getpid()
+                  << "][omnistat] Trace summary: " << (total_records - failed_records) << "/"
+                  << total_records << " processed records ("
+                  << (total_flushes - failed_flushes) << "/" << total_flushes
+                  << " successful flushes)" << std::endl;
     }
 }
 
 bool Tracer::kernel_flush(std::string_view data, size_t num_records) {
-    record_flush_time();
+    record_kernel_flush_time();
 
     auto res = client_->Post(kernel_path_, std::string(data), "application/json");
     bool success = res && res->status < 400;
@@ -216,32 +223,28 @@ void Tracer::periodic_flush() {
 
         auto now = std::chrono::steady_clock::now();
         auto last = std::chrono::steady_clock::time_point(
-            std::chrono::steady_clock::duration(last_flush_time_.load()));
-        if ((now - last) < periodic_flush_interval_) {
-            continue;
-        }
+            std::chrono::steady_clock::duration(kernel_last_flush_time_.load()));
+        const bool flushed_recently = (now - last) < periodic_flush_interval_;
 
-        // Timeout occurred, perform periodic flush. The kernel-dispatch buffer
-        // only exists when kernel tracing is enabled.
-        if (kernel_enabled_) {
+        // The kernel buffer also flushes on its own watermark, so skip the
+        // periodic flush when one happened recently.
+        if (kernel_enabled_ && !flushed_recently) {
             auto flush_status = rocprofiler_flush_buffer(kernel_buffer_);
 
             // Ignore BUFFER_BUSY errors as the buffer might be in use
             if (flush_status != ROCPROFILER_STATUS_SUCCESS &&
                 flush_status != ROCPROFILER_STATUS_ERROR_BUFFER_BUSY) {
-                std::cerr << "Warning: periodic buffer flush failed with status " << flush_status
-                          << std::endl;
+                std::cerr << "Omnistat: periodic kernel buffer flush failed with status "
+                          << flush_status << std::endl;
             }
         }
 
-        // Drain + POST the accumulated RCCL streams on the same cadence. The RCCL
-        // callback fills these synchronously on the app threads; this thread owns
-        // their flush (there is no rocprofiler buffer backing them).
+        // Drained every tick, never debounced: this is RCCL's only trigger.
         if (rccl_enabled_) {
             std::string rccl_data;
-            size_t rccl_n = 0;
-            rccl_drain(rccl_data, rccl_n);
-            if (rccl_n > 0 && !rccl_flush(rccl_data, rccl_n)) {
+            size_t rccl_records = 0;
+            rccl_drain(rccl_data, rccl_records);
+            if (rccl_records > 0 && !rccl_flush(rccl_data, rccl_records)) {
                 std::cerr << "Omnistat: failed to post RCCL trace data" << std::endl;
             }
         }
@@ -286,12 +289,8 @@ void Tracer::rccl_drain(std::string& out, size_t& num_records) {
 }
 
 bool Tracer::rccl_flush(std::string_view data, size_t num_records) {
-    // Deliberately does NOT call record_flush_time(). That timestamp debounces
-    // the periodic tick so it won't redundantly flush the kernel buffer right
-    // after a watermark-triggered flush. RCCL has no watermark trigger and the
-    // periodic thread is its only flusher, so stamping the time here would make
-    // the next tick's "flushed recently?" test skip -- draining RCCL every other
-    // tick instead of every one.
+    // No record_kernel_flush_time() here: it would suppress the next periodic
+    // kernel flush.
     auto res = client_->Post(rccl_path_, std::string(data), "application/json");
     bool success = res && res->status < 400;
     record_flush_stats(num_records, !success);
@@ -305,8 +304,8 @@ void Tracer::report_callback_error(const char* where, const std::exception& erro
     }
 }
 
-void Tracer::record_flush_time() {
-    last_flush_time_.store(std::chrono::steady_clock::now().time_since_epoch().count());
+void Tracer::record_kernel_flush_time() {
+    kernel_last_flush_time_.store(std::chrono::steady_clock::now().time_since_epoch().count());
 }
 
 void Tracer::record_flush_stats(size_t num_records, bool failed) {
