@@ -108,8 +108,8 @@ class Tracer {
     // Sends RCCL trace data (collectives + comm lifecycle) to /rccl_trace.
     bool rccl_flush(std::string_view data, size_t num_records);
 
-    // Internal helpers shared by both flush paths
-    void record_flush_time();
+    // Internal flush helpers. The stats cover both streams.
+    void record_kernel_flush_time();
     void record_flush_stats(size_t num_records, bool failed);
 
     // HTTP client and endpoint paths for sending trace data. The same client
@@ -139,14 +139,13 @@ class Tracer {
     size_t rccl_comms_count_ = 0;
 
     // Periodic flush: drains both streams on a timer. Backstops the kernel
-    // buffer watermark; for RCCL it is the only trigger. last_flush_time_
-    // debounces, so a watermark-driven flush skips the next scheduled drain.
+    // buffer watermark; for RCCL it is the only trigger.
     const std::chrono::seconds periodic_flush_interval_;
     std::thread periodic_thread_;
     std::mutex periodic_mutex_;
     std::condition_variable periodic_cv_;
     std::atomic<bool> stop_requested_{false};
-    std::atomic<std::chrono::steady_clock::rep> last_flush_time_;
+    std::atomic<std::chrono::steady_clock::rep> kernel_last_flush_time_;
 
     // Flush statistics for the exit summary, aggregated across both streams
     std::atomic<uint64_t> total_flushes_{0};
