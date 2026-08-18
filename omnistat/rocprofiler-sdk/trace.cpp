@@ -56,7 +56,7 @@ int Tracer::initialize() {
         return 0;
     }
 
-    client_ = std::make_unique<httplib::Client>("localhost", static_cast<int>(endpoint_port_));
+    client_ = std::make_unique<httplib::Client>("127.0.0.1", static_cast<int>(endpoint_port_));
     if (!client_) {
         std::cerr << "Omnistat: failed to initialize HTTP client" << std::endl;
         return -1;
@@ -180,33 +180,28 @@ Tracer::~Tracer() {
         }
     }
 
-    // Summary last, so it accounts for the final drain above.
-    if (log_enabled_ && (kernel_enabled_ || rccl_enabled_)) {
-        char hostname[256];
-        gethostname(hostname, sizeof(hostname));
-
-        // Snapshot once: the callback thread may still be flushing, so reading
-        // a counter twice would print inconsistent totals.
-        const uint64_t total_records = total_records_.load();
-        const uint64_t failed_records = failed_records_.load();
-        const uint64_t total_flushes = total_flushes_.load();
-        const uint64_t failed_flushes = failed_flushes_.load();
-
-        std::cout << "[" << hostname << "][" << getpid()
-                  << "][omnistat] Trace summary: " << (total_records - failed_records) << "/"
-                  << total_records << " processed records ("
-                  << (total_flushes - failed_flushes) << "/" << total_flushes
-                  << " successful flushes)" << std::endl;
+    // Summary last, so it accounts for the final drain above. One line per
+    // stream: a combined rate would let kernel volume mask an RCCL outage.
+    if (log_enabled_) {
+        log_stream_summary("kernel", kernel_stats_);
+        log_stream_summary("rccl", rccl_stats_);
     }
 }
 
 bool Tracer::kernel_flush(std::string_view data, size_t num_records) {
     record_kernel_flush_time();
+    return post_batch(kernel_path_, data, num_records, kernel_stats_);
+}
 
-    auto res = client_->Post(kernel_path_, std::string(data), "application/json");
-    bool success = res && res->status < 400;
+bool Tracer::post_batch(const std::string& path, std::string_view data, size_t num_records,
+                        Stats& stats) {
+    const auto start = std::chrono::steady_clock::now();
+    auto res = client_->Post(path, std::string(data), "application/json");
+    const bool success = res && res->status < 400;
 
-    record_flush_stats(num_records, !success);
+    stats.record_flush(num_records, success ? FlushStatus::Success : FlushStatus::Failure,
+                       std::chrono::duration_cast<std::chrono::microseconds>(
+                           std::chrono::steady_clock::now() - start));
     return success;
 }
 
@@ -289,12 +284,7 @@ void Tracer::rccl_drain(std::string& out, size_t& num_records) {
 }
 
 bool Tracer::rccl_flush(std::string_view data, size_t num_records) {
-    // No record_kernel_flush_time() here: it would suppress the next periodic
-    // kernel flush.
-    auto res = client_->Post(rccl_path_, std::string(data), "application/json");
-    bool success = res && res->status < 400;
-    record_flush_stats(num_records, !success);
-    return success;
+    return post_batch(rccl_path_, data, num_records, rccl_stats_);
 }
 
 void Tracer::report_callback_error(const char* where, const std::exception& error) {
@@ -308,13 +298,47 @@ void Tracer::record_kernel_flush_time() {
     kernel_last_flush_time_.store(std::chrono::steady_clock::now().time_since_epoch().count());
 }
 
-void Tracer::record_flush_stats(size_t num_records, bool failed) {
-    total_flushes_.fetch_add(1, std::memory_order_relaxed);
-    total_records_.fetch_add(num_records, std::memory_order_relaxed);
-    if (failed) {
-        failed_flushes_.fetch_add(1, std::memory_order_relaxed);
-        failed_records_.fetch_add(num_records, std::memory_order_relaxed);
+void Tracer::Stats::record_flush(size_t num_records, FlushStatus status,
+                                 std::chrono::microseconds latency) {
+    const uint64_t latency_us = latency.count();
+
+    total_flushes.fetch_add(1, std::memory_order_relaxed);
+    total_records.fetch_add(num_records, std::memory_order_relaxed);
+    total_latency_us.fetch_add(latency_us, std::memory_order_relaxed);
+
+    auto observed_max = max_latency_us.load(std::memory_order_relaxed);
+    while (latency_us > observed_max &&
+           !max_latency_us.compare_exchange_weak(observed_max, latency_us,
+                                                 std::memory_order_relaxed)) {
     }
+
+    if (status == FlushStatus::Failure) {
+        failed_flushes.fetch_add(1, std::memory_order_relaxed);
+        failed_records.fetch_add(num_records, std::memory_order_relaxed);
+    }
+}
+
+void Tracer::log_stream_summary(const char* stream, const Stats& stats) const {
+    // Snapshot once: the callback thread may still be flushing, so reading a
+    // counter twice would print inconsistent totals.
+    const uint64_t total_flushes = stats.total_flushes.load();
+    if (total_flushes == 0) {
+        return;
+    }
+    const uint64_t total_records = stats.total_records.load();
+    const uint64_t failed_flushes = stats.failed_flushes.load();
+    const uint64_t failed_records = stats.failed_records.load();
+    const uint64_t total_latency_us = stats.total_latency_us.load();
+    const uint64_t max_latency_us = stats.max_latency_us.load();
+
+    char hostname[256];
+    gethostname(hostname, sizeof(hostname));
+
+    std::cout << "[" << hostname << "][" << getpid() << "][omnistat] Trace summary (" << stream
+              << "): " << (total_records - failed_records) << "/" << total_records << " records, "
+              << (total_flushes - failed_flushes) << "/" << total_flushes << " flushes, POST avg "
+              << (total_latency_us / total_flushes) / 1000.0 << "ms max " << max_latency_us / 1000.0
+              << "ms" << std::endl;
 }
 
 } // namespace omnistat
