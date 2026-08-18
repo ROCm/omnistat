@@ -29,6 +29,7 @@
 #include <httplib.h>
 
 #include <atomic>
+#include <chrono>
 #include <condition_variable>
 #include <ctime>
 #include <memory>
@@ -101,9 +102,39 @@ class Tracer {
     void report_callback_error(const char* where, const std::exception& error);
 
   private:
+    // Outcome of one POST, so call sites read as their meaning rather than as a
+    // bare bool. Leaves room for a third state if the teardown flush that
+    // delivers its data but never reads the response is ever split out.
+    enum class FlushStatus { Success, Failure };
+
+    // Per-stream statistics. Atomic because kernel_flush() runs on the
+    // rocprofiler callback thread while the destructor reads these from the
+    // main thread.
+    struct Stats {
+        std::atomic<uint64_t> total_flushes{0};
+        std::atomic<uint64_t> total_records{0};
+        std::atomic<uint64_t> failed_flushes{0};
+        std::atomic<uint64_t> failed_records{0};
+        std::atomic<uint64_t> total_latency_us{0};
+        std::atomic<uint64_t> max_latency_us{0};
+
+        void record_flush(size_t num_records, FlushStatus status,
+                          std::chrono::microseconds latency);
+    };
+
+    void log_stream_summary(const char* stream, const Stats& stats) const;
+
     // Thread for periodic record flushing, which happens in addition to the
     // flushing triggered by full buffers
     void periodic_flush();
+
+    // Single POST path for both streams: times the request, classifies the
+    // outcome and updates that stream's stats. The wrappers differ only in
+    // endpoint, stats object, and whether the kernel flush time is stamped.
+    bool post_batch(const std::string& path, std::string_view data, size_t num_records,
+                    Stats& stats);
+
+    void record_kernel_flush_time();
 
     // Swap out the accumulated RCCL streams into a ready-to-POST JSON body and
     // reset. Returns total element count via num_records.
@@ -111,10 +142,6 @@ class Tracer {
 
     // Sends RCCL trace data (collectives + comm lifecycle) to /rccl_trace.
     bool rccl_flush(std::string_view data, size_t num_records);
-
-    // Internal flush helpers. The stats cover both streams.
-    void record_kernel_flush_time();
-    void record_flush_stats(size_t num_records, bool failed);
 
     // HTTP client and endpoint paths for sending trace data. The same client
     // (localhost:port, keep-alive) serves both the kernel-dispatch stream and
@@ -151,11 +178,8 @@ class Tracer {
     std::atomic<bool> stop_requested_{false};
     std::atomic<std::chrono::steady_clock::rep> kernel_last_flush_time_;
 
-    // Flush statistics for the exit summary, aggregated across both streams
-    std::atomic<uint64_t> total_flushes_{0};
-    std::atomic<uint64_t> total_records_{0};
-    std::atomic<uint64_t> failed_flushes_{0};
-    std::atomic<uint64_t> failed_records_{0};
+    Stats kernel_stats_;
+    Stats rccl_stats_;
 };
 
 // Free-standing rocprofiler-sdk callbacks, declared here so initialize() can
