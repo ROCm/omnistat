@@ -144,6 +144,10 @@ class RcclTrace(EndpointCollector):
         #   communicators created: (card, nranks) -> cumulative count
         self.__created = defaultdict(int)
 
+        # Records that reached the collector but whose time bin had already been
+        # released (or is still in the future), so they could not be placed.
+        self.__late_records = 0
+
         # Time-series snapshot buffers (bin -> {key: snapshot}). One per family.
         self.__ts = OrderedDict()  # collective semantics
         self.__comm_ts = OrderedDict()
@@ -256,6 +260,7 @@ class RcclTrace(EndpointCollector):
                 continue
             end_bin = self.__bin_for(h_end)
             if end_bin < comm_first or end_bin > comm_last:
+                self.__late_records += 1
                 continue
             card = gpu_id
             self.__comm_init_ns[card] += h_end - h_start
@@ -269,6 +274,7 @@ class RcclTrace(EndpointCollector):
         for gpu_id, op, count, dtype, comm, ts in collectives:
             end_bin = self.__bin_for(ts)
             if end_bin < first_bin or end_bin > last_bin:
+                self.__late_records += 1
                 continue
             coll = self.__intern(collective_label(op))
             dname, dsize = NCCL_DTYPE.get(dtype, (f"dtype{dtype}", 0))
@@ -300,6 +306,8 @@ class RcclTrace(EndpointCollector):
                 yield b"\n"
                 yield f"omnistat_rccl_collective_total_bytes{{{labels}}} {value[1]} {interval_bin}".encode()
                 yield b"\n"
+            yield f"omnistat_rccl_late_records{{{label_defaults}}} {self.__late_records} {interval_bin}".encode()
+            yield b"\n"
 
         for interval_bin, cards in comm_bins:
             for card, (init_ns, created) in cards.items():
