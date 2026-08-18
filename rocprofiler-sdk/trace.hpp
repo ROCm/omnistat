@@ -40,8 +40,12 @@
 
 namespace omnistat {
 
-// Default periodic flush interval in seconds, shared by both streams
-constexpr uint64_t DEFAULT_FLUSH_INTERVAL_SECONDS = 13;
+// Default periodic flush interval in seconds, shared by both streams. Coupled
+// to the collectors' hold window, which must satisfy window >= 2 * interval so
+// a record posted on the next tick still lands in a retained time bin. Keeping
+// HTTP_TIMEOUT_SECONDS <= this value keeps a slow-but-successful POST inside
+// that budget too.
+constexpr uint64_t DEFAULT_FLUSH_INTERVAL_SECONDS = 10;
 
 // Default size in bytes of the kernel-dispatch buffer
 constexpr uint64_t DEFAULT_BUFFER_SIZE_BYTES = 262144;

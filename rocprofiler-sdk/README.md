@@ -132,7 +132,7 @@ the corresponding trace collectors enabled.
 |---|---|---|
 | `OMNISTAT_KERNEL_TRACE` | `1` | Set to `0` to disable kernel dispatch tracing |
 | `OMNISTAT_RCCL_TRACE` | follows `OMNISTAT_KERNEL_TRACE` | Set to `0` to disable RCCL tracing, or `1` to enable it independently |
-| `OMNISTAT_TRACE_MAX_INTERVAL` | `13` (seconds) | Max time between periodic flushes (both streams) |
+| `OMNISTAT_TRACE_MAX_INTERVAL` | `10` (seconds) | Max time between periodic flushes (both streams) |
 | `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | rocprofiler-sdk buffer size for kernel dispatch records |
 | `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001` | Port for the HTTP endpoint receiving trace data |
 | `OMNISTAT_TRACE_LOG` | `0` | Set to `1` to print a trace summary on exit, and to report exceptions caught inside a tracing callback |
