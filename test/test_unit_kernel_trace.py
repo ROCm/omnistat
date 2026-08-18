@@ -320,7 +320,7 @@ class TestProcessDispatches:
 
 class TestFormatMetrics:
     def test_no_flush_holds(self, collector_instance, mock_time):
-        """With flush=False, bins within the 15s window are held back."""
+        """With flush=False, bins inside the hold window are held back."""
         dispatch = make_dispatch("0", "kernel_a", end_ns=s_to_ns(2.5), duration_ns=50)
         collector_instance._KernelTrace__dispatches.append(dispatch)
 
@@ -330,14 +330,17 @@ class TestFormatMetrics:
         assert metrics["all"] == []
 
     def test_no_flush_releases(self, collector_instance, mock_time):
-        """Bins older than the 15s window are released with flush=False."""
+        """Bins older than the hold window are released with flush=False."""
         dispatch = make_dispatch("0", "kernel_a", end_ns=s_to_ns(2.5), duration_ns=50)
         collector_instance._KernelTrace__dispatches.append(dispatch)
         set_time(mock_time, 3)
         collector_instance._KernelTrace__process_dispatches()
 
-        # Advance to t=20s -> cutoff=6000; bins 2000..6000 released
-        set_time(mock_time, 20)
+        # Advance past the hold window so bins 2000..6000 fall outside it.
+        # Derived from the collector rather than hardcoded: the window is
+        # coupled to the tracer's flush interval and has been retuned before.
+        window_s = collector_instance._KernelTrace__window_ms // 1000
+        set_time(mock_time, 5 + window_s)
         metrics = collect_metrics(collector_instance, flush=False)
 
         assert len(metrics["kernel"]) == 2
