@@ -124,10 +124,7 @@ class RcclTrace(EndpointCollector):
         logging.debug("Initializing RCCL trace collector")
 
         self.__interval_ms = max(1, int(interval * 1_000))
-        # Hold bins this long before releasing them, so late-arriving records
-        # still find their bin. Must be >= 2x the tracer's flush interval
-        # (DEFAULT_FLUSH_INTERVAL_SECONDS in rocprofiler-sdk/trace.hpp).
-        self.__window_ms = 20_000
+        self.__window_ms = 15_000
 
         # Raw staged records from POSTs, drained under lock during processing.
         self.__collectives = []
