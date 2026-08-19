@@ -41,11 +41,9 @@
 
 namespace omnistat {
 
-// Default periodic flush interval in seconds, shared by both streams. Coupled
-// to the collectors' hold window, which must satisfy window >= 2 * interval so
-// a record posted on the next tick still lands in a retained time bin. Keeping
-// HTTP_TIMEOUT_SECONDS <= this value keeps a slow-but-successful POST inside
-// that budget too.
+// Default periodic flush interval in seconds. This is a backstop: the kernel
+// buffer also flushes on its watermark, which wins above roughly 120
+// dispatches/s, so the interval only sets arrival lag for low-rate workloads.
 constexpr uint64_t DEFAULT_FLUSH_INTERVAL_SECONDS = 10;
 
 // Default size in bytes of the kernel-dispatch buffer
@@ -56,7 +54,7 @@ constexpr uint64_t DEFAULT_TRACE_ENDPOINT_PORT = 8001;
 
 // HTTP client timeouts. Set explicitly because httplib defaults both the
 // connection and the client read timeout to 300 seconds.
-constexpr time_t HTTP_TIMEOUT_SECONDS = 5;
+constexpr time_t HTTP_TIMEOUT_SECONDS = 2;
 
 // PCI domain:bus:device packed into one key, so a rocprofiler agent can be
 // matched to a HIP device. Function bits are dropped: two GPUs differing only by
