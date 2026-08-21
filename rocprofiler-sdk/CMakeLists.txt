@@ -69,7 +69,7 @@ else()
     #   -DFETCHCONTENT_SOURCE_DIR_HTTPLIB=/path/to/cpp-httplib
     FetchContent_Declare(
         httplib
-        URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.3.tar.gz
+        URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.53.1.tar.gz
         DOWNLOAD_EXTRACT_TIMESTAMP TRUE
     )
     FetchContent_MakeAvailable(httplib)
