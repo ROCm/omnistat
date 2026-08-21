@@ -202,8 +202,16 @@ bool Tracer::kernel_flush(std::string_view data, size_t num_records) {
 bool Tracer::post_batch(const std::string& path, std::string_view data, size_t num_records,
                         Stats& stats) {
     const auto start = std::chrono::steady_clock::now();
-    auto res = client_->Post(path, std::string(data), "application/json");
-    const bool success = res && res->status < 400;
+
+    bool success = false;
+    try {
+        auto res = client_->Post(path, std::string(data), "application/json");
+        success = res && res->status < 400;
+    } catch (...) {
+        if (log_enabled_) {
+            std::cout << "Omnistat: exception in post_batch; trace data lost" << std::endl;
+        }
+    }
 
     stats.record_flush(num_records, success ? FlushStatus::Success : FlushStatus::Failure,
                        std::chrono::duration_cast<std::chrono::microseconds>(
