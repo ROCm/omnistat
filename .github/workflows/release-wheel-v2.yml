@@ -16,6 +16,9 @@ on:
         type: choice
         options:
           - dev
+          - nightly
+          - rc
+          - stable-staging
 
 permissions:
   id-token: write
@@ -34,6 +37,12 @@ jobs:
       # as new env vars below and add a matching case branch in "Resolve environment".
       DEV_ROLE_ARN: ${{ secrets.AWS_DEV_EXTRAS_ROLE_ARN }}
       DEV_S3_BUCKET: ${{ secrets.AWS_DEV_EXTRAS_S3_BUCKET }}
+      NIGHTLY_ROLE_ARN: ${{ secrets.AWS_NIGHTLY_EXTRAS_ROLE_ARN }}
+      NIGHTLY_S3_BUCKET: ${{ secrets.AWS_NIGHTLY_EXTRAS_S3_BUCKET }}
+      RC_ROLE_ARN: ${{ secrets.AWS_RC_EXTRAS_ROLE_ARN }}
+      RC_S3_BUCKET: ${{ secrets.AWS_RC_EXTRAS_S3_BUCKET }}
+      STABLE_STAGING_ROLE_ARN: ${{ secrets.AWS_STABLE_STAGING_EXTRAS_ROLE_ARN }}
+      STABLE_STAGING_S3_BUCKET: ${{ secrets.AWS_STABLE_STAGING_EXTRAS_S3_BUCKET }}
       S3_PATH: v5/rocm/extras/omnistat/whl-next/omnistat/
 
     steps:
@@ -50,6 +59,18 @@ jobs:
             dev)
               ROLE_ARN="${DEV_ROLE_ARN}"
               S3_BUCKET="${DEV_S3_BUCKET}"
+              ;;
+            nightly)
+              ROLE_ARN="${NIGHTLY_ROLE_ARN}"
+              S3_BUCKET="${NIGHTLY_S3_BUCKET}"
+              ;;
+            rc)
+              ROLE_ARN="${RC_ROLE_ARN}"
+              S3_BUCKET="${RC_S3_BUCKET}"
+              ;;
+            stable-staging)
+              ROLE_ARN="${STABLE_STAGING_ROLE_ARN}"
+              S3_BUCKET="${STABLE_STAGING_S3_BUCKET}"
               ;;
             *)
               echo "Unknown environment: ${TARGET_ENV}" >&2
