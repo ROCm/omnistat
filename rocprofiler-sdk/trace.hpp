@@ -42,11 +42,15 @@
 namespace omnistat {
 
 // Default periodic flush interval in seconds. This is a backstop: the kernel
-// buffer also flushes on its watermark, which wins above roughly 120
-// dispatches/s, so the interval only sets arrival lag for low-rate workloads.
+// buffer flushes on its watermark (which wins above roughly 120 dispatches/s)
+// and RCCL on its size threshold, so the interval only sets arrival lag for
+// low-rate workloads.
 constexpr uint64_t DEFAULT_FLUSH_INTERVAL_SECONDS = 10;
 
-// Default size in bytes of the kernel-dispatch buffer
+// Bytes of trace data either stream holds before flushing, overridable via
+// OMNISTAT_TRACE_BUFFER_SIZE. Sizes the rocprofiler dispatch buffer for
+// kernels; for RCCL it is the accumulator size that asks the periodic thread
+// to drain early.
 constexpr uint64_t DEFAULT_BUFFER_SIZE_BYTES = 262144;
 
 // Endpoint port for sending trace data (both streams)
@@ -89,7 +93,7 @@ class Tracer {
     // RCCL stream: the RCCL-API callback resolves a gpu id via gpu_id_by_pci,
     // its records carry no agent handle, only a HIP device ordinal. Then
     // appends one positional-array element per call. These run on the app's own
-    // threads, concurrently with the periodic drain.
+    // threads, concurrently with the drain.
     std::unordered_map<uint64_t, uint32_t> gpu_id_by_pci = {};
 
     void rccl_add_collective(std::string_view element);
@@ -101,8 +105,7 @@ class Tracer {
 
   private:
     // Outcome of one POST, so call sites read as their meaning rather than as a
-    // bare bool. Leaves room for a third state if the teardown flush that
-    // delivers its data but never reads the response is ever split out.
+    // bare bool.
     enum class FlushStatus { Success, Failure };
 
     // Per-stream statistics. Atomic because kernel_flush() runs on the
@@ -122,8 +125,8 @@ class Tracer {
 
     void log_stream_summary(const char* stream, const Stats& stats) const;
 
-    // Thread for periodic record flushing, which happens in addition to the
-    // flushing triggered by full buffers
+    // Background flush thread: wakes on the interval, on shutdown, or when the
+    // RCCL accumulator asks to drain.
     void periodic_flush();
 
     // Single POST path for both streams: times the request, classifies the
@@ -141,8 +144,18 @@ class Tracer {
     // Sends RCCL trace data (collectives + comm lifecycle) to /rccl_trace.
     bool rccl_flush(std::string_view data, size_t num_records);
 
+    // Accumulated RCCL bytes; caller must hold rccl_mutex_.
+    size_t rccl_pending_bytes() const;
+
+    // Ask the periodic thread to drain RCCL now. Signals without any lock:
+    // periodic_mutex_ is held across the whole flush cycle including the POSTs,
+    // so blocking on it would stall an application collective thread for the
+    // length of a request, and taking it under rccl_mutex_ would invert the
+    // periodic thread's lock order.
+    void request_rccl_flush();
+
     // HTTP client and endpoint paths for sending trace data. The same client
-    // (localhost:port, keep-alive) serves both the kernel-dispatch stream and
+    // (127.0.0.1:port, keep-alive) serves both the kernel-dispatch stream and
     // the RCCL stream, which target different endpoint paths.
     std::unique_ptr<httplib::Client> client_;
     const uint64_t endpoint_port_;
@@ -158,7 +171,7 @@ class Tracer {
 
     // Kernel-dispatch state
     rocprofiler_buffer_id_t kernel_buffer_ = {};
-    const uint64_t kernel_buffer_size_bytes_;
+    const uint64_t buffer_size_bytes_;
 
     // RCCL accumulators (guarded by rccl_mutex_)
     std::mutex rccl_mutex_;
@@ -174,6 +187,7 @@ class Tracer {
     std::mutex periodic_mutex_;
     std::condition_variable periodic_cv_;
     std::atomic<bool> stop_requested_{false};
+    std::atomic<bool> rccl_flush_requested_{false};
     std::atomic<std::chrono::steady_clock::rep> kernel_last_flush_time_;
 
     Stats kernel_stats_;
