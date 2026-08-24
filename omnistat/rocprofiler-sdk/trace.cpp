@@ -280,22 +280,30 @@ void Tracer::rccl_add_comm(std::string_view element) {
 }
 
 void Tracer::rccl_drain(std::string& out, size_t& num_records) {
-    std::lock_guard<std::mutex> lock(rccl_mutex_);
-    num_records = rccl_collectives_count_ + rccl_comms_count_;
-    if (num_records == 0) {
-        return;
+    std::string collectives, comms;
+    {
+        // Swap under the lock, build outside: the RCCL callback runs on the
+        // application's own collective threads.
+        std::lock_guard<std::mutex> lock(rccl_mutex_);
+        num_records = rccl_collectives_count_ + rccl_comms_count_;
+        if (num_records == 0) {
+            return;
+        }
+        collectives.swap(rccl_collectives_buffer_);
+        comms.swap(rccl_comms_buffer_);
+        rccl_collectives_buffer_.clear();
+        rccl_comms_buffer_.clear();
+        rccl_collectives_count_ = 0;
+        rccl_comms_count_ = 0;
     }
+
     // Build: {"collectives":[...],"comms":[...]}
-    out.reserve(rccl_collectives_buffer_.size() + rccl_comms_buffer_.size() + 64);
+    out.reserve(collectives.size() + comms.size() + 64);
     out.append("{\"collectives\":[");
-    out.append(rccl_collectives_buffer_);
+    out.append(collectives);
     out.append("],\"comms\":[");
-    out.append(rccl_comms_buffer_);
+    out.append(comms);
     out.append("]}");
-    rccl_collectives_buffer_.clear();
-    rccl_comms_buffer_.clear();
-    rccl_collectives_count_ = 0;
-    rccl_comms_count_ = 0;
 }
 
 bool Tracer::rccl_flush(std::string_view data, size_t num_records) {
