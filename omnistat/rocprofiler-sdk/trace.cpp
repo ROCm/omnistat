@@ -43,7 +43,7 @@ namespace omnistat {
 Tracer::Tracer()
     : periodic_flush_interval_(std::chrono::seconds(
           parse_env_uint("OMNISTAT_TRACE_MAX_INTERVAL", DEFAULT_FLUSH_INTERVAL_SECONDS))),
-      kernel_buffer_size_bytes_(parse_env_uint("OMNISTAT_TRACE_BUFFER_SIZE", DEFAULT_BUFFER_SIZE_BYTES)),
+      buffer_size_bytes_(parse_env_uint("OMNISTAT_TRACE_BUFFER_SIZE", DEFAULT_BUFFER_SIZE_BYTES)),
       endpoint_port_(parse_env_uint("OMNISTAT_TRACE_ENDPOINT_PORT", DEFAULT_TRACE_ENDPOINT_PORT)),
       log_enabled_(parse_env_uint("OMNISTAT_TRACE_LOG", 0) != 0) {
     kernel_enabled_ = parse_env_bool("OMNISTAT_KERNEL_TRACE", true);
@@ -90,9 +90,9 @@ int Tracer::initialize() {
                 code_object_ops.size(), kernel_code_object_callback, this),
             "configure code object tracing service");
 
-        const auto buffer_watermark_bytes = kernel_buffer_size_bytes_ - (kernel_buffer_size_bytes_ / 8);
+        const auto buffer_watermark_bytes = buffer_size_bytes_ - (buffer_size_bytes_ / 8);
         ROCPROFILER_CALL(
-            rocprofiler_create_buffer(context_, kernel_buffer_size_bytes_, buffer_watermark_bytes,
+            rocprofiler_create_buffer(context_, buffer_size_bytes_, buffer_watermark_bytes,
                                       ROCPROFILER_BUFFER_POLICY_LOSSLESS, kernel_dispatch_callback, this,
                                       &kernel_buffer_),
             "create buffer");
@@ -109,7 +109,8 @@ int Tracer::initialize() {
     }
 
     // RCCL API tracing: enumerates collectives + comm lifecycle on the app
-    // thread (no kernel-dispatch join), POSTed on the periodic cadence.
+    // thread (no kernel-dispatch join), POSTed by the flush thread on its
+    // interval or when the accumulator fills.
     if (rccl_enabled_) {
         // Capture the rocprofiler half of the gpu-id mapping now. The HIP half is
         // deferred to first use in the RCCL callback: calling HIP APIs during
@@ -172,7 +173,7 @@ Tracer::~Tracer() {
         periodic_thread_.join();
     }
 
-    // Final RCCL drain: post anything accumulated since the last periodic flush.
+    // Final RCCL drain: post anything accumulated since the last flush.
     // Note this lands late in process teardown -- measurements show communicator
     // teardown rows reach a collector on the order of tens of seconds after the
     // application's last output, dominated by runtime finalization rather than
@@ -224,12 +225,15 @@ void Tracer::periodic_flush() {
     while (true) {
         std::unique_lock<std::mutex> lock(periodic_mutex_);
 
-        // wait_for returns false on timeout, true if predicate returns true
-        bool stop_signaled = periodic_cv_.wait_for(lock, periodic_flush_interval_,
-                                                   [this] { return stop_requested_.load(); });
-        if (stop_signaled) {
+        // Wake on the timer, a stop, or an RCCL size request.
+        periodic_cv_.wait_for(lock, periodic_flush_interval_, [this] {
+            return stop_requested_.load() || rccl_flush_requested_.load();
+        });
+        if (stop_requested_.load()) {
             break;
         }
+
+        rccl_flush_requested_.store(false);
 
         auto now = std::chrono::steady_clock::now();
         auto last = std::chrono::steady_clock::time_point(
@@ -249,7 +253,7 @@ void Tracer::periodic_flush() {
             }
         }
 
-        // Drained every tick, never debounced: this is RCCL's only trigger.
+        // Drained on every wake, timer or size trigger, and never debounced.
         if (rccl_enabled_) {
             std::string rccl_data;
             size_t rccl_records = 0;
@@ -262,21 +266,49 @@ void Tracer::periodic_flush() {
 }
 
 void Tracer::rccl_add_collective(std::string_view element) {
-    std::lock_guard<std::mutex> lock(rccl_mutex_);
-    if (rccl_collectives_count_ > 0) {
-        rccl_collectives_buffer_.push_back(',');
+    bool over_threshold = false;
+    {
+        std::lock_guard<std::mutex> lock(rccl_mutex_);
+        if (rccl_collectives_count_ > 0) {
+            rccl_collectives_buffer_.push_back(',');
+        }
+        rccl_collectives_buffer_.append(element);
+        ++rccl_collectives_count_;
+        over_threshold = rccl_pending_bytes() >= buffer_size_bytes_;
     }
-    rccl_collectives_buffer_.append(element);
-    ++rccl_collectives_count_;
+    if (over_threshold) {
+        request_rccl_flush();
+    }
 }
 
 void Tracer::rccl_add_comm(std::string_view element) {
-    std::lock_guard<std::mutex> lock(rccl_mutex_);
-    if (rccl_comms_count_ > 0) {
-        rccl_comms_buffer_.push_back(',');
+    bool over_threshold = false;
+    {
+        std::lock_guard<std::mutex> lock(rccl_mutex_);
+        if (rccl_comms_count_ > 0) {
+            rccl_comms_buffer_.push_back(',');
+        }
+        rccl_comms_buffer_.append(element);
+        ++rccl_comms_count_;
+        over_threshold = rccl_pending_bytes() >= buffer_size_bytes_;
     }
-    rccl_comms_buffer_.append(element);
-    ++rccl_comms_count_;
+    if (over_threshold) {
+        request_rccl_flush();
+    }
+}
+
+size_t Tracer::rccl_pending_bytes() const {
+    return rccl_collectives_buffer_.size() + rccl_comms_buffer_.size();
+}
+
+void Tracer::request_rccl_flush() {
+    // Only the thread that raises the flag notifies, so a burst of appends past
+    // the threshold does not repeat the wake. A notify lost between the waiter's
+    // predicate check and its block just defers the drain to the next tick,
+    // which is the pre-existing behaviour.
+    if (!rccl_flush_requested_.exchange(true)) {
+        periodic_cv_.notify_one();
+    }
 }
 
 void Tracer::rccl_drain(std::string& out, size_t& num_records) {
