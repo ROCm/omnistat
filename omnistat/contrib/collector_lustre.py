@@ -162,15 +162,41 @@ class Lustre(Collector):
 
     @staticmethod
     def __usecs(buf, tag):
-        """usecs_per_rpc from a read/write_data_averages block."""
+        """usecs_per_rpc from a read/write_data_averages block of `import`:
+
+               connection:
+                  idle: 10 sec
+               ...
+               read_data_averages:
+                  bytes_per_rpc: 7859386
+                  usecs_per_rpc: 24420
+                  MB_per_sec: 321.84
+               write_data_averages:
+                  bytes_per_rpc: 16070623
+                  usecs_per_rpc: 4163
+                  MB_per_sec: 3860.34
+
+        The search is bounded by the next *_data_averages header rather than a
+        byte count: the two blocks are only ~105 bytes apart, so any fixed
+        window wide enough to cover one block also reaches into the next, and a
+        read block missing its usecs_per_rpc line would silently return the
+        write value.
+        """
         i = buf.find(tag)
         if i < 0:
             return 0
-        j = buf.find(b"usecs_per_rpc:", i)
-        if j < 0 or j - i > 200:
+        end = buf.find(b"_data_averages", i + len(tag))
+        if end < 0:
+            end = len(buf)
+        key = b"usecs_per_rpc:"
+        j = buf.find(key, i, end)
+        if j < 0:
             return 0
+        nl = buf.find(b"\n", j)
+        if nl < 0:
+            nl = len(buf)
         try:
-            return int(buf[j + 14 : buf.find(b"\n", j)])
+            return int(buf[j + len(key) : nl])
         except ValueError:
             return 0
 
@@ -195,6 +221,8 @@ class Lustre(Collector):
                         self.__accumulate(totals, cur)
                     continue
 
+                # `import` reports seconds since the last completed RPC:
+                #        idle: 10 sec
                 i = buf.find(b"idle:")
                 try:
                     idle = int(buf[i + 5 : buf.find(b" sec", i)]) if i >= 0 else -1
@@ -220,6 +248,13 @@ class Lustre(Collector):
                     continue
                 nread += 1
 
+                # `rpc_stats`, summed over all bins to give cumulative RPC
+                # counts. Reads are the first column group, writes the second:
+                #
+                #     rpcs in flight        rpcs   % cum % |       rpcs   % cum %
+                #     1:                   14762  51  51   |       1406  98  98
+                #     2:                    5774  20  71   |         23   1  99
+                #        f[0]                f[1] ...      f[4]     f[5]
                 cr = cw = 0
                 i = buf.find(b"rpcs in flight")
                 if i >= 0:
