@@ -143,7 +143,7 @@ int Tracer::initialize() {
     ROCPROFILER_CALL(rocprofiler_start_context(context_), "start context");
 
     record_kernel_flush_time();
-    periodic_thread_ = std::thread(&Tracer::periodic_flush, this);
+    flush_thread_ = std::thread(&Tracer::flush_loop, this);
 
     return 0;
 }
@@ -164,13 +164,13 @@ Tracer::~Tracer() {
     }
 
     {
-        std::lock_guard<std::mutex> lock(periodic_mutex_);
+        std::lock_guard<std::mutex> lock(flush_mutex_);
         stop_requested_.store(true);
     }
-    periodic_cv_.notify_one();
+    flush_cv_.notify_one();
 
-    if (periodic_thread_.joinable()) {
-        periodic_thread_.join();
+    if (flush_thread_.joinable()) {
+        flush_thread_.join();
     }
 
     // Final RCCL drain: post anything accumulated since the last flush.
@@ -221,12 +221,12 @@ bool Tracer::post_batch(const std::string& path, std::string_view data, size_t n
     return success;
 }
 
-void Tracer::periodic_flush() {
+void Tracer::flush_loop() {
     while (true) {
-        std::unique_lock<std::mutex> lock(periodic_mutex_);
+        std::unique_lock<std::mutex> lock(flush_mutex_);
 
         // Wake on the timer, a stop, or an RCCL size request.
-        periodic_cv_.wait_for(lock, periodic_flush_interval_, [this] {
+        flush_cv_.wait_for(lock, periodic_flush_interval_, [this] {
             return stop_requested_.load() || rccl_flush_requested_.load();
         });
         if (stop_requested_.load()) {
@@ -240,8 +240,8 @@ void Tracer::periodic_flush() {
             std::chrono::steady_clock::duration(kernel_last_flush_time_.load()));
         const bool flushed_recently = (now - last) < periodic_flush_interval_;
 
-        // The kernel buffer also flushes on its own watermark, so skip the
-        // periodic flush when one happened recently.
+        // The kernel buffer also flushes on its own watermark, so skip this
+        // one when a flush happened recently.
         if (kernel_enabled_ && !flushed_recently) {
             auto flush_status = rocprofiler_flush_buffer(kernel_buffer_);
 
@@ -307,7 +307,7 @@ void Tracer::request_rccl_flush() {
     // predicate check and its block just defers the drain to the next tick,
     // which is the pre-existing behaviour.
     if (!rccl_flush_requested_.exchange(true)) {
-        periodic_cv_.notify_one();
+        flush_cv_.notify_one();
     }
 }
 
