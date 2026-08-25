@@ -342,6 +342,24 @@ they report congestion in opposite traffic directions.
 
 <hr style="border: 1px solid black;">
 
+## Lustre
+
+The Lustre data collector reports per-RPC **server service time**: how long the
+storage servers take to service each I/O request, aggregated over every OST
+(Object Storage Target) the node has issued I/O to. The values come from
+counters the servers report back to the Lustre client.
+
+**Collector**: `enable_lustre`
+
+| Node Metric | Description |
+| :---------- | :---------- |
+| `omnistat_lustre_rpc_service_usecs` | Cumulative server service time for all bulk RPCs (microseconds). Labels: `dir` (`read`, `write`). |
+| `omnistat_lustre_rpc_count` | Cumulative bulk RPCs issued by this client. Labels: `dir` (`read`, `write`). |
+| `omnistat_lustre_samples_total` | Successful collector samples since startup; used to gate the latency query. |
+| `omnistat_lustre_collection_errors_total` | Cumulative procfs files the collector could not read. A *monitoring* failure, not a Lustre I/O error. |
+
+<hr style="border: 1px solid black;">
+
 ## External
 
 The external data collector provides a mechanism to incorporate custom,
