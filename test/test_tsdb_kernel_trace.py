@@ -66,7 +66,7 @@ def run_kernel_trace_pipeline(trace, advance_ms=None):
         collector = KernelTrace(configparser.ConfigParser(), Mock(), interval_s)
 
     if advance_ms is None:
-        advance_ms = collector._KernelTrace__window_ms + 1000
+        advance_ms = collector._window_ms + 1000
 
     # Inject each batch via a Flask request context, then process dispatches
     # at the batch's simulated wall-clock time.
@@ -76,7 +76,7 @@ def run_kernel_trace_pipeline(trace, advance_ms=None):
         with flask_app.test_request_context(data=json_data, content_type="application/json"):
             collector.handleRequest()
         with patch("time.time_ns", return_value=process_time_ns):
-            collector._KernelTrace__process_dispatches()
+            collector.updateMetrics()
 
     # Format remaining bins at advance_ms past the last bin (no flush=True).
     flush_time_ns = (trace.base_bin_ms + (trace.num_intervals * trace.interval_ms) + advance_ms) * 1_000_000
