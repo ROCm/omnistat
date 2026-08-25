@@ -49,7 +49,7 @@ constexpr uint64_t DEFAULT_FLUSH_INTERVAL_SECONDS = 10;
 
 // Bytes of trace data either stream holds before flushing, overridable via
 // OMNISTAT_TRACE_BUFFER_SIZE. Sizes the rocprofiler dispatch buffer for
-// kernels; for RCCL it is the accumulator size that asks the periodic thread
+// kernels; for RCCL it is the accumulator size that asks the flush thread
 // to drain early.
 constexpr uint64_t DEFAULT_BUFFER_SIZE_BYTES = 262144;
 
@@ -127,7 +127,7 @@ class Tracer {
 
     // Background flush thread: wakes on the interval, on shutdown, or when the
     // RCCL accumulator asks to drain.
-    void periodic_flush();
+    void flush_loop();
 
     // Single POST path for both streams: times the request, classifies the
     // outcome and updates that stream's stats. The wrappers differ only in
@@ -147,11 +147,11 @@ class Tracer {
     // Accumulated RCCL bytes; caller must hold rccl_mutex_.
     size_t rccl_pending_bytes() const;
 
-    // Ask the periodic thread to drain RCCL now. Signals without any lock:
-    // periodic_mutex_ is held across the whole flush cycle including the POSTs,
+    // Ask the flush thread to drain RCCL now. Signals without any lock:
+    // flush_mutex_ is held across the whole flush cycle including the POSTs,
     // so blocking on it would stall an application collective thread for the
     // length of a request, and taking it under rccl_mutex_ would invert the
-    // periodic thread's lock order.
+    // flush thread's lock order.
     void request_rccl_flush();
 
     // HTTP client and endpoint paths for sending trace data. The same client
@@ -180,12 +180,12 @@ class Tracer {
     size_t rccl_collectives_count_ = 0;
     size_t rccl_comms_count_ = 0;
 
-    // Periodic flush: drains both streams on a timer. Backstops the kernel
-    // buffer watermark; for RCCL it is the only trigger.
+    // Flush thread: drains both streams. Wakes on the interval, on shutdown,
+    // or when the RCCL accumulator asks to drain.
     const std::chrono::seconds periodic_flush_interval_;
-    std::thread periodic_thread_;
-    std::mutex periodic_mutex_;
-    std::condition_variable periodic_cv_;
+    std::thread flush_thread_;
+    std::mutex flush_mutex_;
+    std::condition_variable flush_cv_;
     std::atomic<bool> stop_requested_{false};
     std::atomic<bool> rccl_flush_requested_{false};
     std::atomic<std::chrono::steady_clock::rep> kernel_last_flush_time_;
