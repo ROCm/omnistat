@@ -32,7 +32,7 @@ import requests
 from flask import Flask
 
 from .generate_kernels import KernelGenerator
-from omnistat.collector_kernel_trace import KernelTrace
+from omnistat.collector_trace_kernel import KernelTrace
 from omnistat.standalone import push_to_victoria_metrics
 from omnistat.utils import readConfig
 
