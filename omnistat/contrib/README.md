@@ -60,14 +60,25 @@ counters the servers report back to the Lustre client.
 
 **Collector**: `enable_lustre`
 <br/>
-**Collector options**: `sampling_interval`, `idle_filter`, `debug`
+**Collector options**: `sampling_interval`, `idle_filter`
 
 | Node Metric | Description |
 | :---------- | :---------- |
-| `omnistat_lustre_rpc_service_usecs` | Cumulative server service time for all bulk RPCs (microseconds). Labels: `dir` (`read`, `write`). |
-| `omnistat_lustre_rpc_count` | Cumulative bulk RPCs issued by this client. Labels: `dir` (`read`, `write`). |
+| `omnistat_lustre_read_service_seconds` | Cumulative server service time for bulk read RPCs. |
+| `omnistat_lustre_write_service_seconds` | Cumulative server service time for bulk write RPCs. |
+| `omnistat_lustre_read_rpcs` | Cumulative bulk read RPCs issued by this client. |
+| `omnistat_lustre_write_rpcs` | Cumulative bulk write RPCs issued by this client. |
 | `omnistat_lustre_samples_total` | Successful collector samples since startup; used to gate the latency query. |
 | `omnistat_lustre_collection_errors_total` | Cumulative procfs files the collector could not read. A *monitoring* failure, not a Lustre I/O error. |
+
+All values are cumulative, so service time per RPC is the ratio of two rates,
+gated on the collector still sampling:
+
+```
+rate(omnistat_lustre_write_service_seconds[5m])
+  / rate(omnistat_lustre_write_rpcs[5m])
+  and on(instance) (increase(omnistat_lustre_samples_total[30s]) > 0)
+```
 
 Configuration file example with settings related to the Lustre collector:
 ```ini
@@ -77,12 +88,9 @@ enable_lustre = True
 [omnistat.collectors.contrib.lustre]
 sampling_interval = 10
 idle_filter = True
-debug = False
 ```
 
 `sampling_interval` is the cadence of the background sampling thread, which is
 independent of the polling interval; it also sets the idle-filter cutoff. The
 `idle_filter` skips reading per-target RPC statistics for OSTs with no recent
-traffic, roughly a 3x reduction in sampling cost. Setting `debug = True` exports
-additional diagnostics (`active_targets`, `sample_duration_seconds`,
-`targets_read`, `sample_failures_total`).
+traffic, roughly a 3x reduction in sampling cost.

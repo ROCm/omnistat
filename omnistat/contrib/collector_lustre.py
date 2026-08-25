@@ -28,36 +28,25 @@ Reports per-RPC *server* service time: how long the storage servers take,
 independent of how much the job asked for. Throughput cannot separate a
 congested filesystem from an idle job; this can.
 
-Metrics, all cumulative, so every query is a rate or an increase:
+Exports cumulative counters -- {read,write}_service_seconds,
+{read,write}_rpcs, samples_total and collection_errors_total -- so every query
+is a rate or an increase:
 
-    omnistat_lustre_rpc_service_usecs{dir}   total server service time
-    omnistat_lustre_rpc_count{dir}           total bulk RPCs
-    omnistat_lustre_samples_total            liveness gate
-    omnistat_lustre_collection_errors_total  procfs reads that failed -- a
-                                             MONITORING failure, not Lustre I/O
-
-Latency in ms, gated on the collector still sampling:
-
-    (rate(omnistat_lustre_rpc_service_usecs{dir="write"}[5m])
-       / rate(omnistat_lustre_rpc_count{dir="write"}[5m]) / 1000)
+    rate(omnistat_lustre_write_service_seconds[5m])
+      / rate(omnistat_lustre_write_rpcs[5m])
       and on(instance) (increase(omnistat_lustre_samples_total[30s]) > 0)
 
-The gate is required. Omnistat pushes to VictoriaMetrics rather than being
-scraped, so a dead collector's last values are served for ~5 minutes and the
-ungated query reports a plausible but wrong latency for that whole time. The
-gate window must be >= ~2x sampling_interval, or increase() lacks samples even
-when healthy and the query blanks a working collector.
+giving seconds of server service time per RPC. See omnistat/contrib/README.md
+for the metric table.
 
-Source, per OST: usecs_per_rpc from `import` is an integer cumulative mean and
-uselessly damped alone, but times the RPC count from `rpc_stats` it recovers the
-cumulative total -- which is additive, so differencing it is exact.
+samples_total is the liveness gate. Omnistat pushes to VictoriaMetrics rather
+than being scraped, so a dead collector's last values keep being served for
+minutes, and an ungated latency query reports a plausible but wrong number that
+whole time. The gate window must be >= ~2x sampling_interval.
 
-Sampling runs on a background thread (pattern from collector_pm_counters.py):
-one sweep costs ~50 ms across 1350 OSTs, too much for a sub-second poll loop.
-Decoupling is safe because the counters are cumulative; a slower cadence loses
-no data, only time resolution.
-
-Set debug=True in [omnistat.collectors.contrib.lustre] for extra diagnostics.
+Sampling runs on a background thread: one sweep costs ~50 ms across 1350 OSTs,
+too much for a sub-second poll loop. Safe because the counters are cumulative:
+a slower cadence loses no data, only time resolution.
 """
 
 import configparser
@@ -71,7 +60,15 @@ from prometheus_client import Gauge
 
 from omnistat.collector_base import Collector
 
-BUF = 1 << 16
+# The files read here are a few KB. A read that fills this buffer means the
+# content was truncated, which would corrupt every derived value.
+MAX_PROCFS_BYTES = 64 * 1024
+
+OSC_DIR = "/proc/fs/lustre/osc"
+
+# Counters are accumulated in integer microseconds (exact) and converted only
+# at export, since Omnistat metric names carry seconds.
+USECS_PER_SECOND = 1_000_000
 
 
 class Lustre(Collector):
@@ -81,11 +78,9 @@ class Lustre(Collector):
         Args:
             config (configparser.ConfigParser): Cached copy of runtime configuration.
         """
-
         logging.debug("Initializing Lustre data collector")
 
         self.__prefix = "omnistat_lustre_"
-        self.__osc_dir = "/proc/fs/lustre/osc"
         self.__disabled = True
 
         self.__interval = config["omnistat.internal"]["interval_secs"]
@@ -94,13 +89,10 @@ class Lustre(Collector):
         # default: counters are cumulative, so sampling faster adds no information.
         self.__sampling_interval = 10.0
         self.__use_idle_filter = True
-        self.__debug = False
         section = "omnistat.collectors.contrib.lustre"
         if config.has_section(section):
             self.__sampling_interval = config[section].getfloat("sampling_interval", self.__sampling_interval)
             self.__use_idle_filter = config[section].getboolean("idle_filter", self.__use_idle_filter)
-            self.__osc_dir = config[section].get("osc_dir", self.__osc_dir)
-            self.__debug = config[section].getboolean("debug", False)
 
         self.__targets = {}
         self.__cached = None
@@ -108,25 +100,21 @@ class Lustre(Collector):
         self.__sampler_running = False
         self.__prev_totals = None
 
-        # samples_total is the liveness gate. The sampler can hang (procfs reads
-        # have no timeout) or fail every cycle; both freeze the counters, which
-        # downstream looks identical to an idle job. When it stops advancing,
-        # increase() decays and the gated latency query suppresses itself.
-        self.__samples = 0  # successful samples; the liveness gate
-        self.__failures = 0  # samples that raised (debug only)
-        self.__collection_errors = 0  # cumulative: files that could not be read
+        # Liveness gate: the sampler can hang (procfs reads have no timeout) or
+        # fail every cycle, and both freeze the counters. When this stops
+        # advancing, the gated latency query suppresses itself.
+        self.__samples = 0
+        self.__collection_errors = 0  # cumulative files that could not be read
 
         # Last known per-target counters. A target skipped by the idle filter
         # still contributes these, or the exported sum would go backwards.
         # Exact: an idle target's counters cannot have changed.
-        self.__last = {}
+        self.__last_counters = {}
 
         # The first sweep must be unfiltered: with no cache yet, skipped targets
         # contribute nothing, and each would later add its whole lifetime counter
         # at once -- which rate() reports as a burst of I/O that never happened.
         self.__primed = False
-
-    # ------------------------------------------------------------------ helpers
 
     def __read(self, path):
         """Read a procfs file whole. Returns None on any error: a collector
@@ -136,9 +124,9 @@ class Lustre(Collector):
         except OSError:
             return None
         try:
-            data = os.read(fd, BUF)
+            data = os.read(fd, MAX_PROCFS_BYTES)
             # A full buffer means truncation, which would corrupt every delta.
-            return None if len(data) == BUF else data
+            return None if len(data) == MAX_PROCFS_BYTES else data
         except OSError:
             return None
         finally:
@@ -150,12 +138,12 @@ class Lustre(Collector):
     def __discover(self):
         """Map OST index -> procfs directory."""
         targets = {}
-        for path in glob.glob(os.path.join(self.__osc_dir, "*/")):
-            i = path.find("OST")
-            if i < 0:
+        for path in glob.glob(os.path.join(OSC_DIR, "*/")):
+            ost_pos = path.find("OST")
+            if ost_pos < 0:
                 continue
             try:
-                targets[int(path[i + 3 : i + 7], 16)] = path
+                targets[int(path[ost_pos + 3 : ost_pos + 7], 16)] = path
             except ValueError:
                 pass
         return targets
@@ -182,71 +170,67 @@ class Lustre(Collector):
         read block missing its usecs_per_rpc line would silently return the
         write value.
         """
-        i = buf.find(tag)
-        if i < 0:
+        block_start = buf.find(tag)
+        if block_start < 0:
             return 0
-        end = buf.find(b"_data_averages", i + len(tag))
-        if end < 0:
-            end = len(buf)
+        block_end = buf.find(b"_data_averages", block_start + len(tag))
+        if block_end < 0:
+            block_end = len(buf)
         key = b"usecs_per_rpc:"
-        j = buf.find(key, i, end)
-        if j < 0:
+        field = buf.find(key, block_start, block_end)
+        if field < 0:
             return 0
-        nl = buf.find(b"\n", j)
-        if nl < 0:
-            nl = len(buf)
+        eol = buf.find(b"\n", field)
+        if eol < 0:
+            eol = len(buf)
         try:
-            return int(buf[j + len(key) : nl])
+            return int(buf[field + len(key) : eol])
         except ValueError:
             return 0
 
     def __sweep(self):
-        """One pass over all OSTs. Returns cumulative sums plus sweep metadata."""
-        cut = (self.__sampling_interval + 30) if self.__use_idle_filter else None
-        if not self.__primed:
-            cut = None  # full sweep to populate __last
-        totals = {"read": [0, 0], "write": [0, 0]}  # [usecs, count]
-        active = {"read": 0, "write": 0}
-        errs = 0
-        nread = 0
+        """One pass over all OSTs.
 
-        for idx, d in self.__targets.items():
+        Returns ([usecs_read, count_read, usecs_write, count_write], errors),
+        with the service times in integer microseconds.
+        """
+        idle_cutoff = (self.__sampling_interval + 30) if self.__use_idle_filter else None
+        if not self.__primed:
+            idle_cutoff = None  # full sweep, to populate __last_counters
+        totals = [0, 0, 0, 0]
+        errors = 0
+
+        idle_key = b"idle:"
+
+        for idx, target_dir in self.__targets.items():
             try:
-                buf = self.__read(d + "import")
+                buf = self.__read(target_dir + "import")
                 if buf is None:
-                    errs += 1
-                    # fall through to the cached value below
-                    cur = self.__last.get(idx)
-                    if cur:
-                        self.__accumulate(totals, cur)
+                    errors += 1
+                    self.__carry(totals, idx)
                     continue
 
                 # `import` reports seconds since the last completed RPC:
                 #        idle: 10 sec
-                i = buf.find(b"idle:")
+                pos = buf.find(idle_key)
                 try:
-                    idle = int(buf[i + 5 : buf.find(b" sec", i)]) if i >= 0 else -1
+                    idle = int(buf[pos + len(idle_key) : buf.find(b" sec", pos)]) if pos >= 0 else -1
                 except ValueError:
                     idle = -1
 
                 # idle < 0 means unparseable: fail OPEN and read it anyway.
-                if cut is not None and 0 <= cut < idle:
-                    cur = self.__last.get(idx)
-                    if cur:
-                        self.__accumulate(totals, cur)
+                if idle_cutoff is not None and 0 <= idle_cutoff < idle:
+                    self.__carry(totals, idx)
                     continue
 
-                ur = self.__usecs(buf, b"read_data_averages")
-                uw = self.__usecs(buf, b"write_data_averages")
+                usecs_read = self.__usecs(buf, b"read_data_averages")
+                usecs_write = self.__usecs(buf, b"write_data_averages")
 
-                buf = self.__read(d + "rpc_stats")
+                buf = self.__read(target_dir + "rpc_stats")
                 if buf is None:
-                    errs += 1
-                    cur = self.__last.get(idx)
-                    if cur:
-                        self.__accumulate(totals, cur)
+                    errors += 1
+                    self.__carry(totals, idx)
                     continue
-                nread += 1
 
                 # `rpc_stats`, summed over all bins to give cumulative RPC
                 # counts. Reads are the first column group, writes the second:
@@ -254,42 +238,40 @@ class Lustre(Collector):
                 #     rpcs in flight        rpcs   % cum % |       rpcs   % cum %
                 #     1:                   14762  51  51   |       1406  98  98
                 #     2:                    5774  20  71   |         23   1  99
-                #        f[0]                f[1] ...      f[4]     f[5]
-                cr = cw = 0
-                i = buf.find(b"rpcs in flight")
-                if i >= 0:
-                    j = buf.find(b"\noffset", i)
-                    block = buf[buf.find(b"\n", i) + 1 : j if j > 0 else len(buf)]
+                #     fields[0]           fields[1] ... fields[4] fields[5]
+                reads = writes = 0
+                section = buf.find(b"rpcs in flight")
+                if section >= 0:
+                    section_end = buf.find(b"\noffset", section)
+                    block = buf[buf.find(b"\n", section) + 1 : section_end if section_end > 0 else len(buf)]
                     for line in block.split(b"\n"):
-                        f = line.split()
-                        # read counts in f[1], write in f[5]; f[4] is a literal '|'
-                        if len(f) < 6 or not f[0].endswith(b":"):
+                        fields = line.split()
+                        # fields[4] is a literal '|' separating the two column groups
+                        if len(fields) < 6 or not fields[0].endswith(b":"):
                             continue
-                        cr += int(f[1])
-                        cw += int(f[5])
+                        reads += int(fields[1])
+                        writes += int(fields[5])
 
-                cur = (ur * cr, cr, uw * cw, cw)
-                prev = self.__last.get(idx)
-                if prev is not None:
-                    if cur[1] > prev[1]:
-                        active["read"] += 1
-                    if cur[3] > prev[3]:
-                        active["write"] += 1
-                self.__last[idx] = cur
-                self.__accumulate(totals, cur)
+                # usecs_per_rpc is a cumulative MEAN, uselessly damped alone; times
+                # the count it recovers the cumulative TOTAL service time, which is
+                # additive and so exact under differencing by rate().
+                self.__last_counters[idx] = (usecs_read * reads, reads, usecs_write * writes, writes)
+                self.__carry(totals, idx)
 
             except (ValueError, IndexError, OSError):
-                errs += 1
+                errors += 1
 
         self.__primed = True
-        return totals, active, errs, nread
+        return totals, errors
 
-    @staticmethod
-    def __accumulate(totals, cur):
-        totals["read"][0] += cur[0]
-        totals["read"][1] += cur[1]
-        totals["write"][0] += cur[2]
-        totals["write"][1] += cur[3]
+    def __carry(self, totals, idx):
+        """Add a target's last known counters to the running totals. Skipped and
+        unreadable targets contribute these, or the sum would go backwards and
+        rate() would read it as a counter reset."""
+        last = self.__last_counters.get(idx)
+        if last:
+            for i in range(4):
+                totals[i] += last[i]
 
     def lustre_sampler(self, sample_interval: float):
         """Background thread caching Lustre counters.
@@ -298,83 +280,62 @@ class Lustre(Collector):
             sample_interval (float): Time in seconds between sweeps.
         """
         while self.__sampler_running:
-            start = time.perf_counter()
             try:
-                totals, active, errs, nread = self.__sweep()
-                duration = time.perf_counter() - start
-                # Cumulative: a decrease means a cache or filter bug, and rate()
-                # would silently read it as a counter reset.
-                if self.__prev_totals is not None:
-                    for d in ("read", "write"):
-                        for i, what in ((0, "usecs"), (1, "count")):
-                            if totals[d][i] < self.__prev_totals[d][i]:
-                                logging.warning(
-                                    "Lustre %s %s total decreased (%d -> %d)"
-                                    % (d, what, self.__prev_totals[d][i], totals[d][i])
-                                )
-                self.__prev_totals = {d: list(totals[d]) for d in totals}
+                totals, errors = self.__sweep()
+                # Cumulative: a decrease means a cache or filter bug, which
+                # rate() would silently read as a counter reset.
+                if self.__prev_totals and any(now < prev for now, prev in zip(totals, self.__prev_totals)):
+                    logging.warning("Lustre totals decreased: %s -> %s" % (self.__prev_totals, totals))
+                self.__prev_totals = list(totals)
                 with self.__polling_lock:
-                    self.__cached = (totals, active, errs, nread, duration)
+                    self.__cached = totals
                     self.__samples += 1
-                    self.__collection_errors += errs
-            except Exception as e:  # never let the thread die
-                with self.__polling_lock:
-                    self.__failures += 1
-                logging.warning("Lustre sweep failed: %s" % e)
+                    self.__collection_errors += errors
+            except Exception as exc:  # never let the thread die
+                logging.warning("Lustre sweep failed: %s" % exc)
             time.sleep(sample_interval)
-
-    # -- Required API
 
     def registerMetrics(self):
         """Register metrics of interest"""
 
-        if not os.path.isdir(self.__osc_dir):
-            logging.warning("--> %s does not exist" % self.__osc_dir)
+        if not os.path.isdir(OSC_DIR):
+            logging.warning("--> %s does not exist" % OSC_DIR)
             logging.warning("--> skipping Lustre data collection")
             return
 
         self.__targets = self.__discover()
         if not self.__targets:
-            logging.warning("--> no Lustre OSTs found under %s" % self.__osc_dir)
+            logging.warning("--> no Lustre OSTs found under %s" % OSC_DIR)
             logging.warning("--> skipping Lustre data collection")
             return
 
         # Never sweep faster than the poll interval; a cumulative counter gains
         # nothing from being sampled more often than it is read.
         try:
-            poll = float(self.__interval)
+            poll_interval = float(self.__interval)
         except (TypeError, ValueError):
-            poll = 1.0
-        interval = max(self.__sampling_interval, poll)
+            poll_interval = 1.0
+        interval = max(self.__sampling_interval, poll_interval)
         logging.info("Lustre OSTs detected: %d" % len(self.__targets))
         logging.info("Lustre sampling thread interval: %.2f seconds" % interval)
         logging.info("Lustre idle filter: %s" % ("enabled" if self.__use_idle_filter else "disabled"))
 
         self.__metrics = {}
         gauges = [
-            ("rpc_service_usecs", "Cumulative RPC service time reported by servers (usecs)", ["dir"]),
-            ("rpc_count", "Cumulative bulk RPCs issued by this client", ["dir"]),
-            ("samples_total", "Successful Lustre samples since startup", None),
+            ("read_service_seconds", "Cumulative server service time for read RPCs (seconds)"),
+            ("write_service_seconds", "Cumulative server service time for write RPCs (seconds)"),
+            ("read_rpcs", "Cumulative bulk read RPCs issued by this client"),
+            ("write_rpcs", "Cumulative bulk write RPCs issued by this client"),
+            ("samples_total", "Successful Lustre samples since startup"),
             (
                 "collection_errors_total",
                 "Cumulative procfs files the collector could not read "
                 "(a monitoring failure, NOT a Lustre I/O error)",
-                None,
             ),
         ]
-        if self.__debug:
-            gauges += [
-                ("active_targets", "OSTs with new bulk RPCs in the last sample", ["dir"]),
-                ("sample_duration_seconds", "Duration of the last sample (secs)", None),
-                ("targets_read", "OSTs whose rpc_stats was read in the last sample", None),
-                ("sample_failures_total", "Samples that raised an exception", None),
-            ]
-        for name, description, labels in gauges:
+        for name, description in gauges:
             metric = self.__prefix + name
-            if labels:
-                self.__metrics[name] = Gauge(metric, description, labelnames=labels)
-            else:
-                self.__metrics[name] = Gauge(metric, description)
+            self.__metrics[name] = Gauge(metric, description)
             logging.info("--> [registered] %s -> %s (gauge)" % (metric, description))
 
         # Initiate background sampler thread
@@ -399,22 +360,20 @@ class Lustre(Collector):
         return
 
     def updateMetrics(self):
-        """Update metrics using cached data from the sampler thread"""
+        """Update metrics from the sampler thread's cached values"""
 
         if self.__disabled:
             return
 
         with self.__polling_lock:
             cached = self.__cached
-            samples, failures = self.__samples, self.__failures
-            coll_errs = self.__collection_errors
+            samples = self.__samples
+            collection_errors = self.__collection_errors
 
         # Published even with no cached data, so a collector that never sampled
         # is visible rather than absent.
         self.__metrics["samples_total"].set(samples)
-        self.__metrics["collection_errors_total"].set(coll_errs)
-        if self.__debug:
-            self.__metrics["sample_failures_total"].set(failures)
+        self.__metrics["collection_errors_total"].set(collection_errors)
 
         if not self.__sampler_thread.is_alive() and not self.__warned_dead:
             logging.warning("Lustre sampler thread is no longer alive; values are frozen")
@@ -422,14 +381,10 @@ class Lustre(Collector):
 
         if cached is None:
             return
-        totals, active, errs, nread, duration = cached
+        totals = cached
 
-        for direction in ("read", "write"):
-            self.__metrics["rpc_service_usecs"].labels(dir=direction).set(totals[direction][0])
-            self.__metrics["rpc_count"].labels(dir=direction).set(totals[direction][1])
-            if self.__debug:
-                self.__metrics["active_targets"].labels(dir=direction).set(active[direction])
-        if self.__debug:
-            self.__metrics["sample_duration_seconds"].set(duration)
-            self.__metrics["targets_read"].set(nread)
+        self.__metrics["read_service_seconds"].set(totals[0] / USECS_PER_SECOND)
+        self.__metrics["read_rpcs"].set(totals[1])
+        self.__metrics["write_service_seconds"].set(totals[2] / USECS_PER_SECOND)
+        self.__metrics["write_rpcs"].set(totals[3])
         return
