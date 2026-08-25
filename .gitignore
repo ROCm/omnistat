@@ -7,6 +7,7 @@ data_prom
 *~
 build
 dist/
+build-trace*
 docker/data/*
 docker/prometheus-data/
 !docker/data/README.md
