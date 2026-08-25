@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------
 # MIT License
 #
-# Copyright (c) 2026 Advanced Micro Devices, Inc. All Rights Reserved.
+# Copyright (c) 2023 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -57,7 +57,7 @@ one sweep costs ~50 ms across 1350 OSTs, too much for a sub-second poll loop.
 Decoupling is safe because the counters are cumulative; a slower cadence loses
 no data, only time resolution.
 
-Set debug=True in [omnistat.collectors.lustre] for extra diagnostics.
+Set debug=True in [omnistat.collectors.contrib.lustre] for extra diagnostics.
 """
 
 import configparser
@@ -95,7 +95,7 @@ class Lustre(Collector):
         self.__sampling_interval = 10.0
         self.__use_idle_filter = True
         self.__debug = False
-        section = "omnistat.collectors.lustre"
+        section = "omnistat.collectors.contrib.lustre"
         if config.has_section(section):
             self.__sampling_interval = config[section].getfloat("sampling_interval", self.__sampling_interval)
             self.__use_idle_filter = config[section].getboolean("idle_filter", self.__use_idle_filter)

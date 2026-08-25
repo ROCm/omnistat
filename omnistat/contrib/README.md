@@ -48,3 +48,41 @@ enable_kmsg = True
 min_severity = ERROR
 include_existing_messages = False
 ```
+
+---
+
+## Lustre Service Time Collector
+
+The Lustre data collector reports per-RPC **server service time**: how long the
+storage servers take to service each I/O request, aggregated over every OST
+(Object Storage Target) the node has issued I/O to. The values come from
+counters the servers report back to the Lustre client.
+
+**Collector**: `enable_lustre`
+<br/>
+**Collector options**: `sampling_interval`, `idle_filter`, `debug`
+
+| Node Metric | Description |
+| :---------- | :---------- |
+| `omnistat_lustre_rpc_service_usecs` | Cumulative server service time for all bulk RPCs (microseconds). Labels: `dir` (`read`, `write`). |
+| `omnistat_lustre_rpc_count` | Cumulative bulk RPCs issued by this client. Labels: `dir` (`read`, `write`). |
+| `omnistat_lustre_samples_total` | Successful collector samples since startup; used to gate the latency query. |
+| `omnistat_lustre_collection_errors_total` | Cumulative procfs files the collector could not read. A *monitoring* failure, not a Lustre I/O error. |
+
+Configuration file example with settings related to the Lustre collector:
+```ini
+[omnistat.collectors]
+enable_lustre = True
+
+[omnistat.collectors.contrib.lustre]
+sampling_interval = 10
+idle_filter = True
+debug = False
+```
+
+`sampling_interval` is the cadence of the background sampling thread, which is
+independent of the polling interval; it also sets the idle-filter cutoff. The
+`idle_filter` skips reading per-target RPC statistics for OSTs with no recent
+traffic, roughly a 3x reduction in sampling cost. Setting `debug = True` exports
+additional diagnostics (`active_targets`, `sample_duration_seconds`,
+`targets_read`, `sample_failures_total`).
