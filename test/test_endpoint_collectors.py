@@ -36,7 +36,7 @@ from werkzeug.serving import make_server
 
 import test.config
 import test.workloads as workloads
-from omnistat.collector_kernel_trace import KernelTrace
+from omnistat.collector_trace_kernel import KernelTrace
 
 requires_rocm = pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
 
