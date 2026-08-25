@@ -120,7 +120,6 @@ class RcclTrace(BinnedTraceCollector):
         logging.debug("Initializing RCCL trace collector")
 
         super().__init__(interval)
-        self.__window_ms = 15_000
 
         # Raw staged records from POSTs, drained under lock during processing.
         self.__collectives = []
