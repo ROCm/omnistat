@@ -70,6 +70,9 @@ OSC_DIR = "/proc/fs/lustre/osc"
 # at export, since Omnistat metric names carry seconds.
 USECS_PER_SECOND = 1_000_000
 
+# Slot layout of the accumulated totals, named after the metrics they feed.
+TOTAL_NAMES = ("read_service", "read_rpcs", "write_service", "write_rpcs")
+
 
 class Lustre(Collector):
     def __init__(self, config: configparser.ConfigParser):
@@ -282,10 +285,23 @@ class Lustre(Collector):
         while self.__sampler_running:
             try:
                 totals, errors = self.__sweep()
-                # Cumulative: a decrease means a cache or filter bug, which
-                # rate() would silently read as a counter reset.
-                if self.__prev_totals and any(now < prev for now, prev in zip(totals, self.__prev_totals)):
-                    logging.warning("Lustre totals decreased: %s -> %s" % (self.__prev_totals, totals))
+
+                # mean*count understates the true total by a fluctuating amount,
+                # so the sum can dip even though real service time only rises.
+                # Prometheus reads a dip as a counter reset, so clamp; the running
+                # max stays below the true total, so nothing is invented. A dip
+                # larger than the RPC count is not rounding, so warn.
+                if self.__prev_totals:
+                    for i, previous in enumerate(self.__prev_totals):
+                        if totals[i] >= previous:
+                            continue
+                        bound = totals[i + 1] if i in (0, 2) else 0
+                        if previous - totals[i] > bound:
+                            logging.warning(
+                                "Lustre %s dropped %d, past the %d rounding bound; "
+                                "clamping (counter reset?)" % (TOTAL_NAMES[i], previous - totals[i], bound)
+                            )
+                        totals[i] = previous
                 self.__prev_totals = list(totals)
                 with self.__polling_lock:
                     self.__cached = totals
