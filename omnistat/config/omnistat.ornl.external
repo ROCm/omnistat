@@ -13,6 +13,7 @@ enable_rocprofiler = False
 enable_network = True
 enable_vendor_counters = True
 enable_kernel_trace = False
+enable_rccl_trace = False
 
 ## Path to local ROCM install to access SMI library
 rocm_path = /opt/rocm-7.2.0
