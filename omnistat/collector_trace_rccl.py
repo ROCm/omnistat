@@ -22,7 +22,7 @@
 # SOFTWARE.
 # -------------------------------------------------------------------------------
 
-# RCCL trace endpoint collector (Tier 0+1: enumeration + comm lifecycle).
+# RCCL trace endpoint collector.
 #
 # Receives two parallel streams per flush from the rocprofiler-sdk trace library
 # (positional arrays, POSTed to /rccl_trace):
@@ -33,16 +33,15 @@
 # The RCCL API call (collectives) carries the semantics (op/size/datatype). This
 # variant records EXACT enumeration only — collective counts and logical bytes,
 # plus communicator creation. Teardown (Destroy/Abort/Finalize) is not traced:
-# those rows arrive late in process teardown and are frequently lost, and
-# created-vs-destroyed could not distinguish a leak from an app that simply
-# never called destroy. It does NOT measure GPU execution time: the
-# kernel-dispatch tracing + correlation-id join that produced group timing (the
-# "Tier 2" metrics group_duration_ns / group_dispatch_latency_ns) has been
-# removed to keep collection minimal and avoid the ~13x wire volume and
+# created-vs-destroyed cannot distinguish a communicator leak from an
+# application that simply never calls destroy. It does NOT measure GPU
+# execution time: the kernel-dispatch tracing + correlation-id join that
+# produced group timing (group_duration_ns / group_dispatch_latency_ns) has
+# been removed to keep collection minimal and avoid the ~13x wire volume and
 # per-dispatch overhead of kernel-dispatch tracing.
 #
 # Time-series binning, boot->unix offset, string interning, and the hold-window
-# release mirror collector_kernel_trace.py.
+# release mirror collector_trace_kernel.py.
 
 import configparser
 import logging
@@ -53,7 +52,7 @@ from collections import OrderedDict, defaultdict
 import orjson
 from flask import Flask, request
 
-from omnistat.collector_endpoint_base import EndpointCollector
+from omnistat.collector_trace_base import BinnedTraceCollector
 
 # ncclDataType_t enum -> (name, bytes-per-element). From rccl.h.
 NCCL_DTYPE = {
@@ -87,10 +86,7 @@ SIZE_BUCKET_EDGES = [
 ]
 SIZE_BUCKET_OVERFLOW = "inf"
 
-# Communicator size (nranks) is reported EXACTLY, not binned. RCCL traces are
-# collected for user jobs (not system-wide), so the set of distinct
-# communicator sizes is small and fixed (a natural, low-cardinality subset) —
-# exact values are more useful than buckets and won't explode series count.
+# Communicator size (nranks) is reported EXACTLY, not binned.
 # "unknown" is used when the rank count is unavailable.
 NRANKS_UNKNOWN = "unknown"
 
@@ -119,11 +115,11 @@ def collective_label(op):
     return op[4:] if op.startswith("nccl") else op
 
 
-class RcclTrace(EndpointCollector):
+class RcclTrace(BinnedTraceCollector):
     def __init__(self, config: configparser.ConfigParser, route: Flask.route, interval: float):
         logging.debug("Initializing RCCL trace collector")
 
-        self.__interval_ms = max(1, int(interval * 1_000))
+        super().__init__(interval)
         self.__window_ms = 15_000
 
         # Raw staged records from POSTs, drained under lock during processing.
@@ -133,49 +129,25 @@ class RcclTrace(EndpointCollector):
 
         # Global cumulative accumulators.
         #   collective semantics (EXACT, no duration):
-        #     key:   (card, collective, datatype, size_bucket, comm_size)
+        #     key:   (gpu_id, collective, datatype, size_bucket, comm_size)
         #     value: [count, bytes]
-        self.__values = defaultdict(lambda: [0, 0])
-        #   comm init duration: card -> cumulative ns spent creating communicators
+        self.__collective_values = defaultdict(lambda: [0, 0])
+        #   comm init duration: gpu_id -> cumulative ns spent creating communicators
         self.__comm_init_ns = defaultdict(int)
-        #   communicators created: (card, nranks) -> cumulative count
-        self.__created = defaultdict(int)
-
-        # Records that reached the collector but whose time bin had already been
-        # released (or is still in the future), so they could not be placed.
-        self.__late_records = 0
+        #   communicators created: gpu_id -> nranks label -> cumulative count
+        self.__comm_created = defaultdict(lambda: defaultdict(int))
 
         # Time-series snapshot buffers (bin -> {key: snapshot}). One per family.
-        self.__ts = OrderedDict()  # collective semantics
-        self.__comm_ts = OrderedDict()
-
-        time_ms = time.time_ns() // 1_000_000
-        current_bin = ((time_ms // self.__interval_ms) + 1) * self.__interval_ms
-        self.__ts[current_bin] = {}
-        self.__comm_ts[current_bin] = {}
-
-        boot_time_ns = time.clock_gettime_ns(time.CLOCK_BOOTTIME)
-        unix_time_ns = time.time_ns()
-        self.__offset_ns = unix_time_ns - boot_time_ns
+        self.__collective_ts = self._new_series()
+        self.__comm_ts = self._new_series()
 
         # comm handle -> nranks, for the collective's comm_size lookup.
         self.__comm_nranks = {}
-
-        # Interned label strings (op names, bucket labels) — small fixed sets,
-        # but keeps yielded tuples sharing objects like KernelTrace does.
-        self.__strings = {}
 
         # Explicit endpoint name: Flask derives the endpoint from the view
         # function's __name__, which would collide with KernelTrace.handleRequest
         # when both trace collectors are enabled. Give ours a unique name.
         route("/rccl_trace", methods=["POST"], endpoint="rccl_trace")(self.handleRequest)
-
-    def __intern(self, s):
-        ref = self.__strings.get(s)
-        if ref is None:
-            self.__strings[s] = s
-            ref = s
-        return ref
 
     def handleRequest(self):
         try:
@@ -204,42 +176,18 @@ class RcclTrace(EndpointCollector):
 
     def formatMetrics(self, label_defaults, flush=False):
         last_bin = self.__process()
-        cutoff = last_bin if flush else last_bin - self.__window_ms
-        coll_bins = self.__pop_bins(self.__ts, cutoff)
-        comm_bins = self.__pop_bins(self.__comm_ts, cutoff)
-        return self.__format(coll_bins, comm_bins, label_defaults)
-
-    def __pop_bins(self, ts, cutoff_bin):
-        num_pop = 0
-        for interval_bin in ts:
-            if interval_bin > cutoff_bin:
-                break
-            num_pop += 1
-        return [ts.popitem(last=False) for _ in range(num_pop)]
-
-    def __extend_bins(self, ts, current_bin):
-        if not ts:
-            ts[current_bin] = {}
-        last_bin = next(reversed(ts))
-        for i in range(last_bin + self.__interval_ms, current_bin + 1, self.__interval_ms):
-            ts[i] = {}
-            last_bin = i
-        return next(iter(ts)), last_bin
-
-    def __bin_for(self, end_ns):
-        end_ms = (end_ns + self.__offset_ns) // 1_000_000
-        return ((end_ms // self.__interval_ms) * self.__interval_ms) + self.__interval_ms
+        cutoff = self._cutoff(last_bin, flush)
+        collective_bins = self._pop_bins(self.__collective_ts, cutoff)
+        comm_bins = self._pop_bins(self.__comm_ts, cutoff)
+        return self.__format(collective_bins, comm_bins, label_defaults)
 
     def __process(self):
         """Drain staged records, update accumulators, snapshot into bins.
 
         Returns the most recent collective bin (ms).
         """
-        time_ms = time.time_ns() // 1_000_000
-        current_bin = ((time_ms // self.__interval_ms) + 1) * self.__interval_ms
-
-        first_bin, last_bin = self.__extend_bins(self.__ts, current_bin)
-        self.__extend_bins(self.__comm_ts, current_bin)
+        first_bin, last_bin = self._extend_bins(self.__collective_ts)
+        comm_first, comm_last = self._extend_bins(self.__comm_ts)
 
         collectives = comms = []
         if self.__collectives or self.__comms:
@@ -250,66 +198,61 @@ class RcclTrace(EndpointCollector):
         # 1) Comm CREATES: register comm -> nranks so collectives in this same
         # cycle can resolve their comm_size. Teardown ops are not collected --
         # see the module docstring.
-        comm_first = next(iter(self.__comm_ts))
-        comm_last = next(reversed(self.__comm_ts))
         for gpu_id, op, comm, nranks, h_start, h_end in comms:
             if op not in COMM_CREATE_OPS:
                 continue
-            end_bin = self.__bin_for(h_end)
-            if end_bin < comm_first or end_bin > comm_last:
-                self.__late_records += 1
+            end_bin = self._bin_for(h_end)
+            if not self._in_window(end_bin, comm_first, comm_last):
+                self._late_records += 1
                 continue
-            card = gpu_id
-            self.__comm_init_ns[card] += h_end - h_start
+            self.__comm_init_ns[gpu_id] += h_end - h_start
             self.__comm_nranks[comm] = nranks
-            self.__created[(card, self.__intern(nranks_label(nranks)))] += 1
-            self.__snapshot_comm(card, end_bin)
+            self.__comm_created[gpu_id][self._intern(nranks_label(nranks))] += 1
+            self.__snapshot_comm(gpu_id, end_bin)
 
-        # 2) Collectives: record EXACT semantics (count, bytes). Enumeration only
-        # — no GPU duration (that required the kernel join, removed in this
-        # Tier 0+1 variant).
+        # 2) Collectives: record EXACT semantics (count, bytes). Enumeration
+        # only — no GPU duration, which would require the kernel join.
         for gpu_id, op, count, dtype, comm, ts in collectives:
-            end_bin = self.__bin_for(ts)
-            if end_bin < first_bin or end_bin > last_bin:
-                self.__late_records += 1
+            end_bin = self._bin_for(ts)
+            if not self._in_window(end_bin, first_bin, last_bin):
+                self._late_records += 1
                 continue
-            coll = self.__intern(collective_label(op))
+            collective = self._intern(collective_label(op))
             dname, dsize = NCCL_DTYPE.get(dtype, (f"dtype{dtype}", 0))
-            sbucket = self.__intern(size_bucket(count * dsize))
+            sbucket = self._intern(size_bucket(count * dsize))
             key = (
                 gpu_id,
-                coll,
-                self.__intern(dname),
+                collective,
+                self._intern(dname),
                 sbucket,
-                self.__intern(nranks_label(self.__comm_nranks.get(comm))),
+                self._intern(nranks_label(self.__comm_nranks.get(comm))),
             )
-            val = self.__values[key]
+            val = self.__collective_values[key]
             val[0] += 1
             val[1] += count * dsize
-            self.__ts[end_bin][key] = val[:]
+            self.__collective_ts[end_bin][key] = val[:]
 
         return last_bin
 
-    def __snapshot_comm(self, card, end_bin):
-        created = {nb: cnt for (c, nb), cnt in self.__created.items() if c == card}
-        self.__comm_ts[end_bin][card] = (self.__comm_init_ns[card], created)
+    def __snapshot_comm(self, gpu_id, end_bin):
+        self.__comm_ts[end_bin][gpu_id] = (self.__comm_init_ns[gpu_id], dict(self.__comm_created[gpu_id]))
 
-    def __format(self, coll_bins, comm_bins, label_defaults):
+    def __format(self, collective_bins, comm_bins, label_defaults):
         # Collective semantics — EXACT (count, bytes). No duration here.
-        for interval_bin, keys in coll_bins:
-            for (card, coll, dtype, sbucket, cbucket), value in keys.items():
-                labels = f'{label_defaults},card="{card}",collective="{coll}",datatype="{dtype}",size_bucket="{sbucket}",comm_size="{cbucket}"'
+        for interval_bin, keys in collective_bins:
+            for (gpu_id, collective, dtype, sbucket, comm_size), value in keys.items():
+                labels = f'{label_defaults},card="{gpu_id}",collective="{collective}",datatype="{dtype}",size_bucket="{sbucket}",comm_size="{comm_size}"'
                 yield f"omnistat_rccl_collective_count{{{labels}}} {value[0]} {interval_bin}".encode()
                 yield b"\n"
                 yield f"omnistat_rccl_collective_total_bytes{{{labels}}} {value[1]} {interval_bin}".encode()
                 yield b"\n"
-            yield f"omnistat_rccl_late_records{{{label_defaults}}} {self.__late_records} {interval_bin}".encode()
+            yield f"omnistat_rccl_late_records{{{label_defaults}}} {self._late_records} {interval_bin}".encode()
             yield b"\n"
 
-        for interval_bin, cards in comm_bins:
-            for card, (init_ns, created) in cards.items():
-                yield f'omnistat_rccl_comm_init_total_duration_ns{{{label_defaults},card="{card}"}} {init_ns} {interval_bin}'.encode()
+        for interval_bin, gpus in comm_bins:
+            for gpu_id, (init_ns, created) in gpus.items():
+                yield f'omnistat_rccl_comm_init_total_duration_ns{{{label_defaults},card="{gpu_id}"}} {init_ns} {interval_bin}'.encode()
                 yield b"\n"
-                for nb, cnt in created.items():
-                    yield f'omnistat_rccl_comm_created_count{{{label_defaults},card="{card}",nranks="{nb}"}} {cnt} {interval_bin}'.encode()
+                for nranks, count in created.items():
+                    yield f'omnistat_rccl_comm_created_count{{{label_defaults},card="{gpu_id}",nranks="{nranks}"}} {count} {interval_bin}'.encode()
                     yield b"\n"
