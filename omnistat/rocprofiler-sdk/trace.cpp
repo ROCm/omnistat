@@ -248,7 +248,7 @@ void Tracer::flush_loop() {
             // Ignore BUFFER_BUSY errors as the buffer might be in use
             if (flush_status != ROCPROFILER_STATUS_SUCCESS &&
                 flush_status != ROCPROFILER_STATUS_ERROR_BUFFER_BUSY) {
-                std::cerr << "Omnistat: periodic kernel buffer flush failed with status "
+                std::cerr << "Omnistat: kernel buffer flush failed with status "
                           << flush_status << std::endl;
             }
         }
