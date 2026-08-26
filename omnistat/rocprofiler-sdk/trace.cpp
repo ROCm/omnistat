@@ -207,7 +207,7 @@ bool Tracer::post_batch(const std::string& path, std::string_view data, size_t n
 
     bool success = false;
     try {
-        auto res = client_->Post(path, std::string(data), "application/json");
+        auto res = client_->Post(path, data.data(), data.size(), "application/json");
         success = res && res->status < 400;
     } catch (...) {
         if (log_enabled_) {
