@@ -121,8 +121,10 @@ int Tracer::initialize() {
                 agent.logical_node_type_id;
         }
 
+        const auto& rccl_ops = rccl_traced_operations();
         const auto status = rocprofiler_configure_callback_tracing_service(
-            context_, ROCPROFILER_CALLBACK_TRACING_RCCL_API, nullptr, 0, rccl_api_callback, this);
+            context_, ROCPROFILER_CALLBACK_TRACING_RCCL_API, rccl_ops.data(), rccl_ops.size(),
+            rccl_api_callback, this);
         if (status != ROCPROFILER_STATUS_SUCCESS) {
             std::cerr << "Omnistat: RCCL tracing disabled ("
                       << rocprofiler_get_status_string(status) << ")" << std::endl;

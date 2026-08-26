@@ -47,6 +47,27 @@ namespace fmt = std;
 
 namespace omnistat {
 
+// RCCL ops rocprofiler is asked to intercept. Must be kept in sync with the
+// switch statements below.
+const std::vector<rocprofiler_tracing_operation_t>& rccl_traced_operations() {
+    static const std::vector<rocprofiler_tracing_operation_t> ops = {
+        // Collectives -- must match the switch in rccl_api_callback().
+        ROCPROFILER_RCCL_API_ID_ncclAllReduce,
+        ROCPROFILER_RCCL_API_ID_ncclBroadcast,
+        ROCPROFILER_RCCL_API_ID_ncclReduce,
+        ROCPROFILER_RCCL_API_ID_ncclAllGather,
+        ROCPROFILER_RCCL_API_ID_ncclReduceScatter,
+        ROCPROFILER_RCCL_API_ID_ncclSend,
+        ROCPROFILER_RCCL_API_ID_ncclRecv,
+        // Communicator creation -- must match the switch in is_comm_op().
+        ROCPROFILER_RCCL_API_ID_ncclCommInitRank,
+        ROCPROFILER_RCCL_API_ID_ncclCommInitAll,
+        ROCPROFILER_RCCL_API_ID_ncclCommInitRankConfig,
+        ROCPROFILER_RCCL_API_ID_ncclCommSplit,
+    };
+    return ops;
+}
+
 // Extract the communicator handle + nranks from a comm-lifecycle op's args.
 // Create ops (Init/Split) expose the comm via an OUTPUT pointer that is only
 // populated at EXIT, so this must be read on the EXIT phase. Destroy ops take
@@ -155,7 +176,6 @@ static int gpu_id_for_comm(const Tracer* tracer, uintptr_t comm) {
     }
     return gpu_id_for_ordinal(tracer, hip_ordinal);
 }
-
 
 // Communicator CREATE ops. Teardown (Destroy/Abort/Finalize) is deliberately
 // not traced: those rows arrive late in process teardown and are frequently

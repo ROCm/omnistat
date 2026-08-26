@@ -204,4 +204,7 @@ void kernel_dispatch_callback(rocprofiler_context_id_t context, rocprofiler_buff
 void rccl_api_callback(rocprofiler_callback_tracing_record_t record,
                        rocprofiler_user_data_t* user_data, void* tool_data);
 
+// List of RCCL ops to intercept.
+const std::vector<rocprofiler_tracing_operation_t>& rccl_traced_operations();
+
 } // namespace omnistat
