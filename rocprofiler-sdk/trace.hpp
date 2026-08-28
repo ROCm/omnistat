@@ -1,0 +1,210 @@
+// ---------------------------------------------------------------------------
+// MIT License
+//
+// Copyright (c) 2025 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+// ---------------------------------------------------------------------------
+
+#pragma once
+
+#include <rocprofiler-sdk/rocprofiler.h>
+
+#include <httplib.h>
+
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <ctime>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
+
+namespace omnistat {
+
+// Default periodic flush interval in seconds. This is a backstop: the kernel
+// buffer flushes on its watermark (which wins above roughly 120 dispatches/s)
+// and RCCL on its size threshold, so the interval only sets arrival lag for
+// low-rate workloads.
+constexpr uint64_t DEFAULT_FLUSH_INTERVAL_SECONDS = 10;
+
+// Bytes of trace data either stream holds before flushing, overridable via
+// OMNISTAT_TRACE_BUFFER_SIZE. Sizes the rocprofiler dispatch buffer for
+// kernels; for RCCL it is the accumulator size that asks the flush thread
+// to drain early.
+constexpr uint64_t DEFAULT_BUFFER_SIZE_BYTES = 262144;
+
+// Endpoint port for sending trace data (both streams)
+constexpr uint64_t DEFAULT_TRACE_ENDPOINT_PORT = 8001;
+
+// HTTP client timeouts. Set explicitly because httplib defaults both the
+// connection and the client read timeout to 300 seconds.
+constexpr time_t HTTP_TIMEOUT_SECONDS = 2;
+
+// PCI domain:bus:device packed into one key, so a rocprofiler agent can be
+// matched to a HIP device. Function bits are dropped: two GPUs differing only by
+// PCI function would collide, which does not happen for discrete GPUs.
+inline uint64_t pci_key(uint32_t domain, uint32_t bus, uint32_t device) {
+    return (static_cast<uint64_t>(domain) << 32) | (bus << 8) | device;
+}
+
+// The same key from a rocprofiler agent, which packs the BDF into a single
+// location_id as bus[15:8] / device[7:3] / function[2:0]. HIP reports the parts
+// separately and calls pci_key() directly.
+inline uint64_t pci_key_from_location(uint32_t domain, uint32_t location_id) {
+    return pci_key(domain, (location_id >> 8) & 0xFF, (location_id >> 3) & 0x1F);
+}
+
+class Tracer {
+  public:
+    Tracer();
+    ~Tracer();
+
+    // Method called during rocprofiler-sdk's tool initialization
+    int initialize();
+
+    // Kernel-dispatch stream: the code-object callback fills kernel_names; the
+    // dispatch callback reads it plus gpu_id_by_agent to format records, then
+    // POSTs them via kernel_flush().
+    std::unordered_map<rocprofiler_kernel_id_t, std::string> kernel_names = {};
+    std::unordered_map<uint64_t, uint32_t> gpu_id_by_agent = {};
+
+    bool kernel_flush(std::string_view data, size_t num_records);
+
+    // RCCL stream: the RCCL-API callback resolves a gpu id via gpu_id_by_pci,
+    // its records carry no agent handle, only a HIP device ordinal. Then
+    // appends one positional-array element per call. These run on the app's own
+    // threads, concurrently with the drain.
+    std::unordered_map<uint64_t, uint32_t> gpu_id_by_pci = {};
+
+    void rccl_add_collective(std::string_view element);
+    void rccl_add_comm(std::string_view element);
+
+    // Reports an exception caught by a tracing callback; only visible under
+    // OMNISTAT_TRACE_LOG.
+    void report_callback_error(const char* where, const std::exception& error);
+
+  private:
+    // Outcome of one POST, so call sites read as their meaning rather than as a
+    // bare bool.
+    enum class FlushStatus { Success, Failure };
+
+    // Per-stream statistics. Atomic because kernel_flush() runs on the
+    // rocprofiler callback thread while the destructor reads these from the
+    // main thread.
+    struct Stats {
+        std::atomic<uint64_t> total_flushes{0};
+        std::atomic<uint64_t> total_records{0};
+        std::atomic<uint64_t> failed_flushes{0};
+        std::atomic<uint64_t> failed_records{0};
+        std::atomic<uint64_t> total_latency_us{0};
+        std::atomic<uint64_t> max_latency_us{0};
+
+        void record_flush(size_t num_records, FlushStatus status,
+                          std::chrono::microseconds latency);
+    };
+
+    void log_stream_summary(const char* stream, const Stats& stats) const;
+
+    // Background flush thread: wakes on the interval, on shutdown, or when the
+    // RCCL accumulator asks to drain.
+    void flush_loop();
+
+    // Single POST path for both streams: times the request, classifies the
+    // outcome and updates that stream's stats. The wrappers differ only in
+    // endpoint, stats object, and whether the kernel flush time is stamped.
+    bool post_batch(const std::string& path, std::string_view data, size_t num_records,
+                    Stats& stats);
+
+    void record_kernel_flush_time();
+
+    // Swap out the accumulated RCCL streams into a ready-to-POST JSON body and
+    // reset. Returns total element count via num_records.
+    void rccl_drain(std::string& out, size_t& num_records);
+
+    // Sends RCCL trace data (collectives + comm lifecycle) to /rccl_trace.
+    bool rccl_flush(std::string_view data, size_t num_records);
+
+    // Accumulated RCCL bytes; caller must hold rccl_mutex_.
+    size_t rccl_pending_bytes() const;
+
+    // Ask the flush thread to drain RCCL now. Signals without any lock:
+    // flush_mutex_ is held across the whole flush cycle including the POSTs,
+    // so blocking on it would stall an application collective thread for the
+    // length of a request, and taking it under rccl_mutex_ would invert the
+    // flush thread's lock order.
+    void request_rccl_flush();
+
+    // HTTP client and endpoint paths for sending trace data. The same client
+    // (127.0.0.1:port, keep-alive) serves both the kernel-dispatch stream and
+    // the RCCL stream, which target different endpoint paths.
+    std::unique_ptr<httplib::Client> client_;
+    const uint64_t endpoint_port_;
+    const bool log_enabled_;
+
+    std::string kernel_path_ = "/kernel_trace";
+    std::string rccl_path_ = "/rccl_trace";
+
+    bool kernel_enabled_ = true;
+    bool rccl_enabled_ = true;
+
+    rocprofiler_context_id_t context_ = {.handle = 0};
+
+    // Kernel-dispatch state
+    rocprofiler_buffer_id_t kernel_buffer_ = {};
+    const uint64_t buffer_size_bytes_;
+
+    // RCCL accumulators (guarded by rccl_mutex_)
+    std::mutex rccl_mutex_;
+    std::string rccl_collectives_buffer_;  // comma-joined [gpu,op,count,dtype,comm,ts]
+    std::string rccl_comms_buffer_;        // comma-joined [gpu,op,comm,nranks,h_start,h_end]
+    size_t rccl_collectives_count_ = 0;
+    size_t rccl_comms_count_ = 0;
+
+    // Flush thread: drains both streams. Wakes on the interval, on shutdown,
+    // or when the RCCL accumulator asks to drain.
+    const std::chrono::seconds periodic_flush_interval_;
+    std::thread flush_thread_;
+    std::mutex flush_mutex_;
+    std::condition_variable flush_cv_;
+    std::atomic<bool> stop_requested_{false};
+    std::atomic<bool> rccl_flush_requested_{false};
+    std::atomic<std::chrono::steady_clock::rep> kernel_last_flush_time_;
+
+    Stats kernel_stats_;
+    Stats rccl_stats_;
+};
+
+// Free-standing rocprofiler-sdk callbacks, declared here so initialize() can
+// reference them across translation units.
+void kernel_code_object_callback(rocprofiler_callback_tracing_record_t record,
+                                 rocprofiler_user_data_t* user_data, void* tool_data);
+void kernel_dispatch_callback(rocprofiler_context_id_t context, rocprofiler_buffer_id_t buffer_id,
+                              rocprofiler_record_header_t** headers, size_t num_headers,
+                              void* tool_data, uint64_t drop_count);
+void rccl_api_callback(rocprofiler_callback_tracing_record_t record,
+                       rocprofiler_user_data_t* user_data, void* tool_data);
+
+// List of RCCL ops to intercept.
+const std::vector<rocprofiler_tracing_operation_t>& rccl_traced_operations();
+
+} // namespace omnistat

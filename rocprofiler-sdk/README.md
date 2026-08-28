@@ -82,14 +82,19 @@ advanced usage using Omnistat.
 
 ---
 
-## Kernel Tracing Library
+## Tracing Library
 
-A standalone C++ shared library (`libomnistat_trace.so`) that traces GPU
-kernel dispatches and streams the data to omnistat-standalone via HTTP.
+A standalone C++ shared library (`libomnistat_trace.so`) that streams two
+independent trace streams to omnistat-standalone via HTTP:
+
+- **Kernel dispatches** -- name, duration, and GPU of every kernel dispatch.
+- **RCCL communication** -- collective enumeration (operation, message size,
+  datatype) and communicator creation.
 
 ### Requirements
 
 - ROCm 6.4+ with ROCProfiler-SDK
+- HIP (used to resolve the GPU a communicator is bound to)
 - C++20 compiler (GCC 13+ or Clang 16+)
 - CMake 3.15+
 
@@ -110,25 +115,30 @@ This produces `build-trace/libomnistat_trace.so`.
 
 The library is loaded via rocprofiler-sdk's tool loading mechanism. Point the
 `ROCP_TOOL_LIBRARIES` environment variable at the built shared library, then
-run any application and kernel dispatches are traced automatically.
+run any application and both streams are traced automatically.
 
 ```bash
 export ROCP_TOOL_LIBRARIES=/path/to/libomnistat_trace.so
 ```
 
-Dispatch records are JSON-encoded and sent via HTTP POST to
-`localhost:<port>/kernel_trace` (default port 8001, configurable via
-`OMNISTAT_TRACE_ENDPOINT_PORT`). This requires Omnistat to be running with the
-kernel tracing collector enabled.
+Records are JSON-encoded and sent via HTTP POST to `localhost:<port>`, on
+`/kernel_trace` and `/rccl_trace` respectively (default port 8001, configurable
+via `OMNISTAT_TRACE_ENDPOINT_PORT`). This requires Omnistat to be running with
+the corresponding trace collectors enabled.
 
 ### Environment Variables
 
 | Variable | Default | Description |
 |---|---|---|
-| `OMNISTAT_TRACE_MAX_INTERVAL` | `13` (seconds) | Max time between periodic buffer flushes |
-| `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | rocprofiler-sdk buffer size for dispatch records |
-| `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001` | Port for the HTTP endpoint receiving kernel trace data |
-| `OMNISTAT_TRACE_LOG` | `0` | Set to `1` to print a trace summary to stdout on exit |
+| `OMNISTAT_KERNEL_TRACE` | `1` | Set to `0` to disable kernel dispatch tracing |
+| `OMNISTAT_RCCL_TRACE` | follows `OMNISTAT_KERNEL_TRACE` | Set to `0` to disable RCCL tracing, or `1` to enable it independently |
+| `OMNISTAT_TRACE_MAX_INTERVAL` | `10` (seconds) | Max time between periodic flushes (both streams) |
+| `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | rocprofiler-sdk buffer size for kernel dispatch records |
+| `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001` | Port for the HTTP endpoint receiving trace data |
+| `OMNISTAT_TRACE_LOG` | `0` | Set to `1` to print a trace summary on exit, and to report exceptions caught inside a tracing callback |
+
+RCCL tracing follows kernel tracing by default because it adds a small fraction
+of the kernel trace data volume and negligible runtime overhead.
 
 ### Exit Summary
 
