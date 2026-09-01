@@ -137,6 +137,12 @@ def get_gpu_type(device=0):
 
 gpu_type = get_gpu_type()
 
+# Optional energy accumulator which is not available on all hardware:
+#  - rocm_smi: unsupported on MI3XX, RDNA4
+#  - amd_smi:  unsupported on RDNA4
+energy_supported_rocmsmi = "MI3" not in gpu_type and "Radeon" not in gpu_type
+energy_supported_amdsmi = "Radeon" not in gpu_type
+
 # Cache hostname for skip checks
 try:
     full_hostname = socket.getfqdn()
@@ -147,45 +153,50 @@ print(f"test execution hostname: {full_hostname}\n")
 COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocm_smi", "power_cap"],
-        # rocm-smi interface does not support energy accumulator on MI3XX; metric is
-        # now probed at init and only registered when the hardware supports it.
         "metrics": SMI_METRICS
-        + (
-            []
-            if "MI3" in gpu_type
-            else [
-                {"name": "rocm_energy_joules", "validate": ">10", "labels": ["card"]},
-            ]
-        )
+        + ([{"name": "rocm_energy_joules", "validate": ">10", "labels": ["card"]}] if energy_supported_rocmsmi else [])
         + [
             {"name": "rocm_power_cap_watts", "validate": ">0", "labels": ["card"]},
         ],
     },
     {
         "collectors": ["amd_smi"],
-        "metrics": SMI_METRICS
-        + [
-            {"name": "rocm_energy_joules", "validate": ">10", "labels": ["card"]},
-        ],
+        "metrics": (
+            SMI_METRICS
+            + [
+                {"name": "rocm_energy_joules", "validate": ">10", "labels": ["card"]},
+            ]
+            if energy_supported_amdsmi
+            else []
+        ),
     },
     {
         "collectors": ["rocm_smi", "ras_ecc"],
-        "metrics": [
-            x
-            for x in RAS_METRICS
-            if "_deferred_count" not in x["name"]
-            and ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))
-            and ("skip" not in x or not any(pattern in full_hostname for pattern in x["skip"]))
-        ],
+        # RAS/ECC not supported on consumer GPUs (RDNA4)
+        "metrics": (
+            []
+            if "Radeon" in gpu_type
+            else [
+                x
+                for x in RAS_METRICS
+                if "_deferred_count" not in x["name"]
+                and ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))
+                and ("skip" not in x or not any(pattern in full_hostname for pattern in x["skip"]))
+            ]
+        ),
     },
     {
         "collectors": ["amd_smi", "ras_ecc"],
-        "metrics": [
-            x
-            for x in RAS_METRICS
-            if ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))
-            and ("skip" not in x or not any(pattern in full_hostname for pattern in x["skip"]))
-        ],
+        "metrics": (
+            []
+            if "Radeon" in gpu_type
+            else [
+                x
+                for x in RAS_METRICS
+                if ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))
+                and ("skip" not in x or not any(pattern in full_hostname for pattern in x["skip"]))
+            ]
+        ),
     },
     {
         "collectors": ["rocm_smi", "cu_occupancy"],
