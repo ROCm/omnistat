@@ -395,9 +395,8 @@ class ROCMSMI(Collector):
         self.__energy_monitoring = ret == 0
         if self.__energy_monitoring:
             self.registerGPUMetric(self.__prefix + "energy_joules", "gauge", "Cumulative energy consumption (J)")
-            logging.info("--> Energy accumulator available")
         else:
-            logging.warning("--> Energy accumulator not supported on this hardware, skipping energy_joules metric")
+            logging.warning("--> [   skipped] Energy accumulator not supported on this hardware, skipping energy_joules metric")
         # clock speeds
         self.registerGPUMetric(self.__prefix + "sclk_clock_mhz", "gauge", "current sclk clock speed (Mhz)")
         self.registerGPUMetric(self.__prefix + "mclk_clock_mhz", "gauge", "current mclk clock speed (Mhz)")
@@ -459,9 +458,9 @@ class ROCMSMI(Collector):
                     self.__xgmi_links.append(index)
 
             if len(self.__xgmi_links) > 0:
-                logging.info(f"--> Identified {len(self.__xgmi_links)+1} active XGMI links")
+                logging.debug(f"--> Identified {len(self.__xgmi_links)+1} active XGMI links")
             else:
-                logging.warning("--> No XGMI links detected, XGMI metrics disabled")
+                logging.warning("--> [   skipped] no XGMI links detected, XGMI metrics disabled")
                 self.__xgmi_available = False
 
             # Confirm same active link configuration on all remaining GPUs
