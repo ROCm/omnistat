@@ -1,0 +1,90 @@
+name: RDNA4
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 */12 * * *"
+
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  gpu-collectors-rdna4:
+    runs-on: [linux-gfx120X-gpu-rocm]
+    strategy:
+      matrix:
+        rocm: [7.2.4]
+      fail-fast: false
+    container:
+      image: rocm/dev-ubuntu-24.04:${{ matrix.rocm }}
+      options:
+        --ipc host
+        --cap-add SYS_PTRACE
+        --group-add video
+        --device /dev/kfd
+        --device /dev/dri
+    defaults:
+      run:
+        shell: bash
+    steps:
+
+      - name: Host software
+        run: |
+          sudo apt-get update -y
+          sudo apt install git cmake -y
+          sudo apt install python3-venv -y
+          sudo apt install python3-yaml libcurl4-openssl-dev libdw-dev -y
+
+      - name: Interrogate
+        run: |
+          rocm-smi
+          which python3
+          amd-smi version
+          cat /etc/os-release
+          amd-smi metric -E
+
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Update git directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Create virtual environment
+        run: |
+          python3 -m venv --system-site-packages omnistat_venv
+          source omnistat_venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r test/requirements.txt
+          pip install "nanobind<3.0"
+          cmake -S rocprofiler-sdk/ -B build/ -DCMAKE_PREFIX_PATH=/opt/rocm
+          cmake --build build/
+          cmake --install build/ --prefix .
+
+      - name: Build kernel trace library
+        run: |
+          cmake -B build -S rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON -DCMAKE_PREFIX_PATH=/opt/rocm
+          cmake --build build
+
+      - name: Build test workloads
+        run: make -C test/workloads
+
+      - name: Collector tests
+        env:
+          ROCP_TOOL_LIBRARIES: ${{ github.workspace }}/build/libomnistat_trace.so
+          LD_LIBRARY_PATH: /opt/rocm/lib
+          HSA_TOOLS_ROCPROFILER_V1_TOOLS: 1
+        run: |
+          source omnistat_venv/bin/activate
+          su - ubuntu -c "sleep 300 &"
+          pytest -s -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v6
+        if: ${{ !cancelled() }}
+        with:
+          include_passed: 'true'
+          report_paths: 'results.xml'
+          check_name: "Collector Tests (rdna4) - ${{ matrix.rocm }}"
+          comment: 'true'
