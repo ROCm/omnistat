@@ -50,8 +50,11 @@ from omnistat.collector_base import Collector
 
 try:
     from omnistat.rocprofiler_sdk_extension import get_samplers, initialize
-except ModuleNotFoundError as e:
-    logging.error(f"Missing ROCProfiler-SDK extension: build with installation required")
+except ModuleNotFoundError:
+    logging.error(f"ERROR: Missing ROCProfiler-SDK extension, build with installation required")
+    sys.exit(4)
+except ImportError as e:
+    logging.error(f"ERROR: Unable to load ROCProfiler-SDK extension, check ROCm installation and rebuild: {e}")
     sys.exit(4)
 
 SAMPLING_MODES = ["constant", "gpu-id", "periodic"]
