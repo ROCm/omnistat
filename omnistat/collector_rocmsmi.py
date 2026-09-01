@@ -396,7 +396,9 @@ class ROCMSMI(Collector):
         if self.__energy_monitoring:
             self.registerGPUMetric(self.__prefix + "energy_joules", "gauge", "Cumulative energy consumption (J)")
         else:
-            logging.warning("--> [   skipped] Energy accumulator not supported on this hardware, skipping energy_joules metric")
+            logging.warning(
+                "--> [   skipped] Energy accumulator not supported on this hardware, skipping energy_joules metric"
+            )
         # clock speeds
         self.registerGPUMetric(self.__prefix + "sclk_clock_mhz", "gauge", "current sclk clock speed (Mhz)")
         self.registerGPUMetric(self.__prefix + "mclk_clock_mhz", "gauge", "current mclk clock speed (Mhz)")
