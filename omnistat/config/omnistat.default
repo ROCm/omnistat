@@ -120,6 +120,12 @@ ssh_key = ~/.ssh/id_rsa
 
 mode = energy
 
+## Python class implementing the optimization algorithm.
+## Must be a subclass of omnistat.optimizer_base.BaseOptimizer.
+## Default uses the Phase I hierarchical step-down search.
+
+optimizer_class = omnistat.optimizer_stepdown.StepDownOptimizer
+
 ## Port on which the optimizer process listens for FOM data forwarded
 ## from standalone.py instances on each job node.
 
@@ -156,6 +162,11 @@ max_performance_drop = 5.0
 ## by the feedback control system.
 
 fom_history_cache_mb = 10
+
+## Optional label for FOM units (e.g. "GFLOPS", "seconds", "iterations/sec").
+## Passed to the optimizer for logging/display. No default.
+
+# fom_units =
 
 [omnistat.optimize.frequencies.gfx950]
 sclk_min = 501
