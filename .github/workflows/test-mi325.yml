@@ -30,8 +30,11 @@ jobs:
         shell: bash
     steps:
 
-      - name: Host software
+      - name: Deal with missing sudo for (observed in 10.0.0 image)
         run: |
+          if ! command -v sudo &>/dev/null; then
+            apt-get update -y && apt-get install -y sudo
+          fi
           sudo apt-get update -y
           sudo apt install git cmake -y
           sudo apt install python3-venv -y
