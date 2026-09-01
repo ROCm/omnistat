@@ -42,6 +42,7 @@ jobs:
           which python3
           amd-smi version
           cat /etc/os-release
+          amd-smi static --asic --gpu 0
           amd-smi metric -E
 
       - name: Checkout code
