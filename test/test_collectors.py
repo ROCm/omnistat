@@ -150,9 +150,13 @@ COLLECTOR_CONFIGS = [
         # rocm-smi interface does not support energy accumulator on MI3XX; metric is
         # now probed at init and only registered when the hardware supports it.
         "metrics": SMI_METRICS
-        + ([]  if "MI3" in gpu_type else [
-            {"name": "rocm_energy_joules", "validate": ">10", "labels": ["card"]},
-        ])
+        + (
+            []
+            if "MI3" in gpu_type
+            else [
+                {"name": "rocm_energy_joules", "validate": ">10", "labels": ["card"]},
+            ]
+        )
         + [
             {"name": "rocm_power_cap_watts", "validate": ">0", "labels": ["card"]},
         ],
