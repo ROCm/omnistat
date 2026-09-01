@@ -394,12 +394,19 @@ class AMDSMI(Collector):
                 self.__prefix + "power_cap_watts", "Max power cap of device (W)", labelnames=["card"]
             )
 
-        # Register energy metric
-        self.__GPUMetrics["energy_joules"] = Gauge(
-            self.__prefix + "energy_joules",
-            "Cumulative energy consumption (J)",
-            labelnames=["card"],
-        )
+        # Register energy metric if available
+        self.__energy_monitoring = False
+        try:
+            smi.amdsmi_get_energy_count(self.__devices[0])
+            self.__energy_monitoring = True
+            self.__GPUMetrics["energy_joules"] = Gauge(
+                self.__prefix + "energy_joules",
+                "Cumulative energy consumption (J)",
+                labelnames=["card"],
+            )
+            logging.info("--> Energy accumulator available")
+        except smi.AmdSmiLibraryException:
+            logging.warning("--> Energy accumulator not supported on this hardware, skipping energy_joules metric")
 
         if self.__cu_occupancy_monitoring:
             # Measure the number CUs in each GPU node ID (KFD internal GPU index),
@@ -495,9 +502,10 @@ class AMDSMI(Collector):
                 self.__GPUMetrics["power_cap_watts"].labels(card=cardId).set(power_info["power_cap"] / 1000000)
 
             # cumulative energy [micro Joules, converted to Joules]
-            energy_info = smi.amdsmi_get_energy_count(device)
-            energy_uJ = energy_info["energy_accumulator"] * energy_info["counter_resolution"]
-            self.__GPUMetrics["energy_joules"].labels(card=cardId).set(energy_uJ / 1000000.0)
+            if self.__energy_monitoring:
+                energy_info = smi.amdsmi_get_energy_count(device)
+                energy_uJ = energy_info["energy_accumulator"] * energy_info["counter_resolution"]
+                self.__GPUMetrics["energy_joules"].labels(card=cardId).set(energy_uJ / 1000000.0)
 
             # CU occupancy
             if self.__cu_occupancy_monitoring:
