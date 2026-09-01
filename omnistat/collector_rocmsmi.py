@@ -384,8 +384,20 @@ class ROCMSMI(Collector):
         self.registerGPUMetric(
             self.__prefix + "average_socket_power_watts", "gauge", "Average Graphics Package Power (W)"
         )
-        # energy
-        self.registerGPUMetric(self.__prefix + "energy_joules", "gauge", "Cumulative energy consumption (J)")
+        # energy (probe first - not all GPUs support energy accumulator, e.g. RDNA4)
+        energy = ctypes.c_uint64(0)
+        energy_resolution = ctypes.c_float(0)
+        energy_timestamp = ctypes.c_uint64(0)
+        device = ctypes.c_uint32(0)
+        ret = self.__libsmi.rsmi_dev_energy_count_get(
+            device, ctypes.byref(energy), ctypes.byref(energy_resolution), ctypes.byref(energy_timestamp)
+        )
+        self.__energy_monitoring = ret == 0
+        if self.__energy_monitoring:
+            self.registerGPUMetric(self.__prefix + "energy_joules", "gauge", "Cumulative energy consumption (J)")
+            logging.info("--> Energy accumulator available")
+        else:
+            logging.warning("--> Energy accumulator not supported on this hardware, skipping energy_joules metric")
         # clock speeds
         self.registerGPUMetric(self.__prefix + "sclk_clock_mhz", "gauge", "current sclk clock speed (Mhz)")
         self.registerGPUMetric(self.__prefix + "mclk_clock_mhz", "gauge", "current mclk clock speed (Mhz)")
@@ -563,18 +575,17 @@ class ROCMSMI(Collector):
 
             # --
             # cumulative energy [micro Joules, converted to Joules]
-            metric = self.__prefix + "energy_joules"
-            ret = self.__libsmi.rsmi_dev_energy_count_get(
-                device,
-                ctypes.byref(energy),
-                ctypes.byref(energy_resolution),
-                ctypes.byref(energy_timestamp),
-            )
-            if ret == 0:
-                energy_uJ = energy.value * energy_resolution.value
-                self.__GPUmetrics[metric].labels(card=gpuLabel).set(energy_uJ / 1000000.0)
-            else:
-                self.__GPUmetrics[metric].labels(card=gpuLabel).set(0.0)
+            if self.__energy_monitoring:
+                metric = self.__prefix + "energy_joules"
+                ret = self.__libsmi.rsmi_dev_energy_count_get(
+                    device,
+                    ctypes.byref(energy),
+                    ctypes.byref(energy_resolution),
+                    ctypes.byref(energy_timestamp),
+                )
+                if ret == 0:
+                    energy_uJ = energy.value * energy_resolution.value
+                    self.__GPUmetrics[metric].labels(card=gpuLabel).set(energy_uJ / 1000000.0)
 
             # --
             # clock speeds [Hz, converted to megaHz]
