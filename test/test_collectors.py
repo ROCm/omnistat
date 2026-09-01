@@ -147,10 +147,13 @@ print(f"test execution hostname: {full_hostname}\n")
 COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocm_smi", "power_cap"],
-        # rocm-smi interface is known to not report energy correctly on MI3XX
+        # rocm-smi interface does not support energy accumulator on MI3XX; metric is
+        # now probed at init and only registered when the hardware supports it.
         "metrics": SMI_METRICS
+        + ([]  if "MI3" in gpu_type else [
+            {"name": "rocm_energy_joules", "validate": ">10", "labels": ["card"]},
+        ])
         + [
-            {"name": "rocm_energy_joules", "validate": ">=0" if "MI3" in gpu_type else ">10", "labels": ["card"]},
             {"name": "rocm_power_cap_watts", "validate": ">0", "labels": ["card"]},
         ],
     },
