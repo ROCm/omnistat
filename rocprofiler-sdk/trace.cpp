@@ -73,6 +73,7 @@ int Tracer::initialize() {
     client_->set_write_timeout(HTTP_TIMEOUT_SECONDS);
 
     ROCPROFILER_CALL(rocprofiler_create_context(&context_), "create context");
+    context_created_ = true;
 
     // One agent enumeration feeds both streams. They cannot share a lookup:
     // kernel dispatch records carry an agent handle, while RCCL API records
@@ -101,6 +102,7 @@ int Tracer::initialize() {
                                       ROCPROFILER_BUFFER_POLICY_LOSSLESS, kernel_dispatch_callback, this,
                                       &kernel_buffer_),
             "create buffer");
+        kernel_buffer_created_ = true;
 
         ROCPROFILER_CALL(rocprofiler_configure_buffer_tracing_service(
                              context_, ROCPROFILER_BUFFER_TRACING_KERNEL_DISPATCH, nullptr, 0,
@@ -156,17 +158,18 @@ int Tracer::initialize() {
 }
 
 Tracer::~Tracer() {
-    // Flush -> stop -> flush, mirroring rocprofv3's finalization sequence. The
-    // buffer only exists when kernel tracing was enabled; the context only when
-    // at least one stream was enabled. Guard accordingly.
-    if (kernel_enabled_) {
+    // Flush -> stop -> flush, mirroring rocprofv3's finalization sequence. Guard
+    // on what was constructed, not on what was enabled: a run that gives up part
+    // way through initialize() would otherwise flush a zeroed buffer id or stop
+    // context handle 0, neither of which is checked.
+    if (kernel_buffer_created_) {
         rocprofiler_flush_buffer(kernel_buffer_);
     }
-    if (kernel_enabled_ || rccl_enabled_) {
+    if (context_created_) {
         rocprofiler_stop_context(context_);
     }
 
-    if (kernel_enabled_) {
+    if (kernel_buffer_created_) {
         rocprofiler_flush_buffer(kernel_buffer_);
     }
 
