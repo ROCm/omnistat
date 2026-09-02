@@ -49,8 +49,8 @@ SMI_METRICS = [
     {"name":"rocm_temperature_celsius",                     "validate":">=10",               "labels":["card","location"]},
     {"name":"rocm_temperature_memory_celsius",              "validate":">=10",               "labels":["card","location"]},
     {"name":"rocm_average_socket_power_watts",              "validate":">=10",               "labels":["card"]},
-    {"name":"rocm_sclk_clock_mhz",                          "validate":">=90" ,              "labels":["card"]},
-    {"name":"rocm_mclk_clock_mhz",                          "validate":">=100",              "labels":["card"]},
+    {"name":"rocm_sclk_clock_mhz",                          "validate":">=90" ,              "labels":["card"],         "hardware":["MI2","MI3"]},
+    {"name":"rocm_mclk_clock_mhz",                          "validate":">=90",               "labels":["card"]},
     {"name":"rocm_vram_total_bytes",                        "validate":">1073741824",        "labels":["card"]},
     {"name":"rocm_vram_used_percentage",                    "validate":">=0",                "labels":["card"]},
     {"name":"rocm_vram_busy_percentage",                    "validate":">=0.0",              "labels":["card"]},
@@ -79,7 +79,7 @@ RAS_METRICS = [
 ]
 
 OCCUPANCY_METRICS = [
-    {"name": "rocm_num_compute_units",                      "validate": ">=100",             "labels": ["card"]},
+    {"name": "rocm_num_compute_units",                      "validate": ">=64",              "labels": ["card"]},
     {"name": "rocm_compute_unit_occupancy",                 "validate": ">=0",               "labels": ["card"]},
 ]
 
@@ -136,6 +136,9 @@ def get_gpu_type(device=0):
 
 
 gpu_type = get_gpu_type()
+
+# Filter SMI_METRICS based on hardware allowlist
+SMI_METRICS = [x for x in SMI_METRICS if ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))]
 
 # Optional energy accumulator which is not available on all hardware:
 #  - rocm_smi: unsupported on MI3XX, RDNA4
