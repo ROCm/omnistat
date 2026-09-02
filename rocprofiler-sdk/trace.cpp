@@ -185,8 +185,16 @@ Tracer::~Tracer() {
         std::string rccl_data;
         size_t rccl_records = 0;
         rccl_drain(rccl_data, rccl_records);
-        if (rccl_records > 0 && !rccl_flush(rccl_data, rccl_records)) {
-            std::cerr << "Omnistat: failed to post final RCCL trace data" << std::endl;
+        if (rccl_records > 0) {
+            // Post from a new thread: this runs from tool_fini at process exit,
+            // where httplib's thread_local status-line regex has already been
+            // destroyed and silently fails to match, turning a 204 into an error.
+            bool success = false;
+            std::thread poster([&] { success = rccl_flush(rccl_data, rccl_records); });
+            poster.join();
+            if (!success) {
+                std::cerr << "Omnistat: failed to post final RCCL trace data" << std::endl;
+            }
         }
     }
 
