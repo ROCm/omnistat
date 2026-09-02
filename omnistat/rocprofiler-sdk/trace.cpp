@@ -61,6 +61,11 @@ int Tracer::initialize() {
         std::cerr << "Omnistat: failed to initialize HTTP client" << std::endl;
         return -1;
     }
+
+    // Every trace batch exceeds CPPHTTPLIB_EXPECT_100_THRESHOLD (1 KB), so httplib
+    // would add Expect: 100-continue and pay a round trip for a handshake the
+    // collector never uses. An empty header suppresses it.
+    client_->set_default_headers({{"Expect", ""}});
     client_->set_keep_alive(true);
     client_->set_tcp_nodelay(true);
     client_->set_connection_timeout(HTTP_TIMEOUT_SECONDS);
