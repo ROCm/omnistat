@@ -429,6 +429,7 @@ class TestCollectors:
 
 class TestHardwareCounters:
     @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif("Radeon" in gpu_type, reason="hardware counters not supported on RDNA4")
     def test_counters_with_workload(self):
         config_sections = {
             "omnistat.collectors.rocprofiler": {"profile": "default"},
