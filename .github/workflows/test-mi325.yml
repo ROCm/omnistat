@@ -72,9 +72,9 @@ jobs:
           cmake --build build/
           cmake --install build/ --prefix .
           
-      - name: Build kernel trace library
+      - name: Build kernel trace and counter libraries
         run: |
-          cmake -B build -S rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON -DCMAKE_PREFIX_PATH=/opt/rocm
+          cmake -B build -S rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON -DBUILD_COUNT_LIB=ON -DCMAKE_PREFIX_PATH=/opt/rocm
           cmake --build build
 
       - name: Build test workloads
@@ -82,11 +82,11 @@ jobs:
 
       - name: Collector tests
         env:
-          ROCP_TOOL_LIBRARIES: ${{ github.workspace }}/build/libomnistat_trace.so
           LD_LIBRARY_PATH: /opt/rocm/lib
-          # Workaround to make sure counters work when tracing is also enabled
-          HSA_TOOLS_ROCPROFILER_V1_TOOLS: 1
         run: |
+          # Trailing colon is required: rocprofiler-sdk drops the last entry when
+          # parsing this variable, so the counter library would not be loaded.
+          export ROCP_TOOL_LIBRARIES="$GITHUB_WORKSPACE/build/libomnistat_trace.so:$GITHUB_WORKSPACE/build/libomnistat_count.so:"
           source omnistat_venv/bin/activate
           su - ubuntu -c "sleep 300 &"
           pytest -s -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py

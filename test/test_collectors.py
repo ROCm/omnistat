@@ -42,6 +42,11 @@ from omnistat.monitor import Monitor
 from omnistat.node_monitoring import OmnistatServer
 from omnistat.utils import runShellCommand
 
+requires_counters = pytest.mark.skipif(
+    not test.config.rocm_host or "ROCP_TOOL_LIBRARIES" not in os.environ,
+    reason="requires ROCm and ROCP_TOOL_LIBRARIES",
+)
+
 # fmt: off
 SMI_METRICS = [
     {"name":"rocm_num_gpus",                                "validate":">=1",                "labels":None},
@@ -435,7 +440,7 @@ class TestCollectors:
 
 
 class TestHardwareCounters:
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @requires_counters
     @pytest.mark.skipif("Radeon" in gpu_type, reason="hardware counters not supported on RDNA4")
     def test_counters_with_workload(self):
         config_sections = {
@@ -448,10 +453,9 @@ class TestHardwareCounters:
         server = OmnistatTestServer(["rocprofiler"], config_sections=config_sections)
 
         try:
-            # Run GPU workload with HSA_TOOLS_LIB so the profiler can intercept
-            # application-level PMC counter activity.
-            hsa_tools_lib = os.path.join(test.config.rocm_path, "lib", "librocprofiler64.so")
-            result = workloads.run("vector_add", [1000000], env={"HSA_TOOLS_LIB": hsa_tools_lib})
+            # Run GPU workload with the tool libraries from the environment, which
+            # must include the counter enablement library.
+            result = workloads.run("vector_add", [1000000])
             assert result.returncode == 0, f"vector_add failed: {result.stderr}"
 
             # Scrape metrics, keyed by (card, counter_name)

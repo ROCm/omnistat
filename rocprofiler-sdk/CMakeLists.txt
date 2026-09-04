@@ -32,32 +32,23 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-# The kernel tracing library is meant to be built separately from the Omnistat
-# package and extensions. When it's enabled, compile only the library and
-# nothing else.
+# The kernel tracing and counter enablement libraries are meant to be built
+# separately from the Omnistat package and extensions. Enabling either option
+# below builds only the corresponding libraries; they are independent and can be
+# enabled together.
 option(BUILD_KERNEL_TRACE_LIB "Build the kernel tracing library" OFF)
+option(BUILD_COUNT_LIB "Build the counter enablement library" OFF)
 
-if (NOT BUILD_KERNEL_TRACE_LIB)
-    find_package(Python COMPONENTS Interpreter Development REQUIRED)
-
-    set(CMAKE_EXECUTE_PROCESS_COMMAND_ECHO STDOUT)
-    execute_process(
-        COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
-        OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
-
-    find_package(nanobind CONFIG REQUIRED)
-
+if (BUILD_KERNEL_TRACE_LIB OR BUILD_COUNT_LIB)
     find_package(rocprofiler-sdk REQUIRED)
+endif()
 
-    nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp)
-    target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk
-                                                            hsa-runtime64::hsa-runtime64)
+if (BUILD_COUNT_LIB)
+    add_library(omnistat_count SHARED count_enable.cpp)
+    target_link_libraries(omnistat_count PRIVATE rocprofiler-sdk::rocprofiler-sdk)
+endif()
 
-    # Install the module to location within the Python package
-    install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
-else()
-    find_package(rocprofiler-sdk REQUIRED)
-
+if (BUILD_KERNEL_TRACE_LIB)
     include(FetchContent)
     include(CheckCXXSourceCompiles)
 
@@ -99,4 +90,24 @@ else()
         target_compile_definitions(omnistat_trace PRIVATE FMT_HEADER_ONLY)
         target_include_directories(omnistat_trace PRIVATE ${fmt_SOURCE_DIR}/include)
     endif()
+endif()
+
+if (NOT BUILD_KERNEL_TRACE_LIB AND NOT BUILD_COUNT_LIB)
+    find_package(Python COMPONENTS Interpreter Development REQUIRED)
+
+    set(CMAKE_EXECUTE_PROCESS_COMMAND_ECHO STDOUT)
+    execute_process(
+        COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
+
+    find_package(nanobind CONFIG REQUIRED)
+
+    find_package(rocprofiler-sdk REQUIRED)
+
+    nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp)
+    target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk
+                                                            hsa-runtime64::hsa-runtime64)
+
+    # Install the module to location within the Python package
+    install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
 endif()
