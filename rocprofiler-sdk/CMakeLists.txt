@@ -50,7 +50,8 @@ if (NOT BUILD_KERNEL_TRACE_LIB)
     find_package(rocprofiler-sdk REQUIRED)
 
     nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp)
-    target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk)
+    target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk
+                                                            hsa-runtime64::hsa-runtime64)
 
     # Install the module to location within the Python package
     install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
