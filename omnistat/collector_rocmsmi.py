@@ -340,6 +340,7 @@ class ROCMSMI(Collector):
         device = ctypes.c_uint32(0)
 
         # primary temperature location
+        self.__temp_location_index = None
         for temp_type in rsmi_temperature_type_t:
             temp_location = ctypes.c_int32(temp_type.value)
             ret = self.__libsmi.rsmi_dev_temp_metric_get(device, temp_location, temp_metric, ctypes.byref(temperature))
@@ -365,14 +366,18 @@ class ROCMSMI(Collector):
             else:
                 continue
 
-        self.registerGPUMetric(
-            self.__prefix + "temperature_celsius",
-            "gauge",
-            "Temperature (C)",
-            labelExtra=["location"],
-        )
+        # Ignore temperature on devices without a supported location.
+        if self.__temp_location_index is not None:
+            self.registerGPUMetric(
+                self.__prefix + "temperature_celsius",
+                "gauge",
+                "Temperature (C)",
+                labelExtra=["location"],
+            )
+        else:
+            logging.warning("--> Ignoring temperature, no supported location found")
 
-        if self.__temp_memory_location_index:
+        if self.__temp_memory_location_index is not None:
             self.registerGPUMetric(
                 self.__prefix + "temperature_memory_celsius",
                 "gauge",
@@ -543,17 +548,18 @@ class ROCMSMI(Collector):
 
             # --
             # temperature [millidegrees Celcius, converted to degrees Celcius]
-            metric = self.__prefix + "temperature_celsius"
-            ret = self.__libsmi.rsmi_dev_temp_metric_get(
-                device, self.__temp_location_index, temp_metric, ctypes.byref(temperature)
-            )
-            self.__GPUmetrics[metric].labels(card=gpuLabel, location=self.__temp_location_name).set(
-                temperature.value / 1000.0
-            )
+            if self.__temp_location_index is not None:
+                metric = self.__prefix + "temperature_celsius"
+                ret = self.__libsmi.rsmi_dev_temp_metric_get(
+                    device, self.__temp_location_index, temp_metric, ctypes.byref(temperature)
+                )
+                self.__GPUmetrics[metric].labels(card=gpuLabel, location=self.__temp_location_name).set(
+                    temperature.value / 1000.0
+                )
 
             # --
             # HBM temperature [millidegrees Celcius, converted to degrees Celcius]
-            if self.__temp_memory_location_index:
+            if self.__temp_memory_location_index is not None:
                 metric = self.__prefix + "temperature_memory_celsius"
                 ret = self.__libsmi.rsmi_dev_temp_metric_get(
                     device, self.__temp_memory_location_index, temp_metric, ctypes.byref(temperature)
