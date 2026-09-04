@@ -151,7 +151,17 @@ class AMDSMI(Collector):
         # verify minimum version met
         check_min_version("24.7.1")
 
-        devices = smi.amdsmi_get_processor_handles()
+        # Ignore devices without support for the metrics query, like the
+        # integrated GPUs included in some CPUs.
+        devices = []
+        for device in smi.amdsmi_get_processor_handles():
+            try:
+                smi.amdsmi_get_gpu_metrics_info(device)
+                devices.append(device)
+            except smi.AmdSmiLibraryException:
+                asic_info = smi.amdsmi_get_gpu_asic_info(device)
+                logging.warning("--> Ignoring device without GPU metrics: %s" % asic_info["market_name"])
+
         self.__devices = devices
         self.__num_gpus = len(devices)
         logging.debug(f"Number of devices = {self.__num_gpus}")

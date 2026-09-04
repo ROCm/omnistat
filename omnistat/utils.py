@@ -185,8 +185,10 @@ def gpu_index_mapping_based_on_guids(guidMapping, expectedNumGPUs):
             logging.warning("Unable to access expected file (%s)" % file)
             return pass_through_indexing(expectedNumGPUs)
 
-    if numGPUs != expectedNumGPUs:
-        logging.warning("--> did not detect expected number of GPUs in sysfs (%i vs %i)" % (numGPUs, expectedNumGPUs))
+    # Callers may track a subset of the GPUs of a host, so sysfs is only
+    # expected to report at least as many.
+    if numGPUs < expectedNumGPUs:
+        logging.warning("--> detected fewer GPUs in sysfs than expected (%i vs %i)" % (numGPUs, expectedNumGPUs))
         return pass_through_indexing(expectedNumGPUs)
 
     gpuMappingOrder = {}
@@ -243,8 +245,10 @@ def gpu_index_mapping_based_on_bdfs(bdfMapping, expectedNumGPUs):
             logging.warning("Unable to access expected file (%s)" % file)
             return pass_through_indexing(expectedNumGPUs)
 
-    if numGPUs != expectedNumGPUs:
-        logging.warning("--> did not detect expected number of GPUs in sysfs (%i vs %i)" % (numGPUs, expectedNumGPUs))
+    # Callers may track a subset of the GPUs of a host, so sysfs is only
+    # expected to report at least as many.
+    if numGPUs < expectedNumGPUs:
+        logging.warning("--> detected fewer GPUs in sysfs than expected (%i vs %i)" % (numGPUs, expectedNumGPUs))
         return pass_through_indexing(expectedNumGPUs)
 
     gpuMappingOrder = {}

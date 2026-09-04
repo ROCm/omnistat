@@ -79,7 +79,7 @@ RAS_METRICS = [
 ]
 
 OCCUPANCY_METRICS = [
-    {"name": "rocm_num_compute_units",                      "validate": ">=64",              "labels": ["card"]},
+    {"name": "rocm_num_compute_units",                      "validate": ">=32",              "labels": ["card"]},
     {"name": "rocm_compute_unit_occupancy",                 "validate": ">=0",               "labels": ["card"]},
 ]
 
@@ -119,23 +119,26 @@ NETWORK_METRICS = [
 # fmt: on
 
 
-def get_gpu_type(device=0):
-    """Return GPU market name by running `amd-smi static --asic --gpu <device>`."""
+def get_gpu_asic_info(device=0):
+    """Return GPU market name and graphics version from `amd-smi static --asic --gpu <device>`."""
     cmd = ["amd-smi", "static", "--asic", "--gpu", str(device)]
     result = runShellCommand(cmd, capture_output=True, text=True, timeout=5)
     if not result or result.returncode != 0:
         logging.error(f"Failed to run amd-smi for device {device}")
-        return ""
+        return "", ""
+
+    fields = {"MARKET_NAME": "", "TARGET_GRAPHICS_VERSION": ""}
     for line in result.stdout.splitlines():
-        if "MARKET_NAME:" in line:
-            parts = line.split("MARKET_NAME:")
-            if len(parts) == 2:
-                return parts[1].strip()
-    logging.warning("MARKET_NAME not found in amd-smi output")
-    return ""
+        for field in fields:
+            if f"{field}:" in line:
+                parts = line.split(f"{field}:")
+                if len(parts) == 2:
+                    fields[field] = parts[1].strip()
+
+    return fields["MARKET_NAME"], fields["TARGET_GRAPHICS_VERSION"]
 
 
-gpu_type = get_gpu_type()
+gpu_type, gpu_arch = get_gpu_asic_info()
 
 # Filter SMI_METRICS based on hardware allowlist
 SMI_METRICS = [x for x in SMI_METRICS if ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))]
@@ -242,6 +245,10 @@ COLLECTOR_CONFIGS = [
     },
 ]
 
+
+# Hardware counters unsupported on RDNA4
+if gpu_arch.startswith("gfx12"):
+    COLLECTOR_CONFIGS = [x for x in COLLECTOR_CONFIGS if "rocprofiler" not in x["collectors"]]
 
 SUPPORTED_COLLECTORS = set()
 for config in COLLECTOR_CONFIGS:
