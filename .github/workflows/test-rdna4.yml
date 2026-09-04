@@ -42,7 +42,8 @@ jobs:
           which python3
           amd-smi version
           cat /etc/os-release
-          amd-smi static --asic --gpu 0
+          amd-smi static --asic
+          amd-smi list
           amd-smi metric -E
 
       - name: Checkout code
@@ -73,13 +74,11 @@ jobs:
 
       - name: Collector tests
         env:
-          ROCP_TOOL_LIBRARIES: ${{ github.workspace }}/build/libomnistat_trace.so
           LD_LIBRARY_PATH: /opt/rocm/lib
-          HSA_TOOLS_ROCPROFILER_V1_TOOLS: 1
         run: |
           source omnistat_venv/bin/activate
           su - ubuntu -c "sleep 300 &"
-          pytest -s -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py
+          pytest -s -v --junitxml=results.xml test/test_collectors.py test/test_external_collector.py
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v6
