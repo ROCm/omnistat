@@ -77,6 +77,7 @@ jobs:
           LD_LIBRARY_PATH: /opt/rocm/lib
           HSA_TOOLS_ROCPROFILER_V1_TOOLS: 1
         run: |
+          export HIP_VISIBLE_DEVICES=0
           source omnistat_venv/bin/activate
           su - ubuntu -c "sleep 300 &"
           pytest -s -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py
