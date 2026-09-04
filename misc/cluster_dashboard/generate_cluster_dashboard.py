@@ -40,6 +40,7 @@ Must match Prometheus legendFormat: "{{instance}}-gpu{{card}}"
 """
 
 import argparse
+import html
 import json
 import random
 import re
@@ -803,7 +804,7 @@ def build_dashboard(cluster: dict) -> dict:
         )
 
     return {
-        "title": f"{cluster_id}  —  Rack View",
+        "title": f"{display_name}  —  Rack View",
         "tags": ["gpu", "rocm", "cluster", "omnistat"],
         "editable": True,
         "liveNow": False,
@@ -952,12 +953,12 @@ def generate_preview_svg(cluster: dict, output_path: Path) -> None:
     # Title text
     a(
         f'<text x="8" y="{header_top + HEADER_H // 2 + 5}" fill="#c0d0e8" '
-        f'font-size="14" font-weight="bold">{display_name}  \u2014  Rack View</text>'
+        f'font-size="14" font-weight="bold">{html.escape(display_name)}  \u2014  Rack View</text>'
     )
     # Metric name (full label including unit)
     a(
         f'<text x="{cb_left}" y="{header_top + HEADER_H // 2 + 5}" fill="#ffffff" '
-        f'font-size="11">{default_metric["label"]}</text>'
+        f'font-size="11">{html.escape(default_metric["label"])}</text>'
     )
     # Min value
     a(
@@ -1005,7 +1006,7 @@ def generate_preview_svg(cluster: dict, output_path: Path) -> None:
         a(
             f'<text x="{lx + RACK_WIDTH // 2}" y="{ly}" fill="#a0b4d0" '
             f'font-size="14" font-weight="bold" text-anchor="middle">'
-            f'{rack.get("label", rack_id)}</text>'
+            f'{html.escape(rack.get("label", rack_id))}</text>'
         )
 
         # Servers
@@ -1060,7 +1061,7 @@ def generate_preview_svg(cluster: dict, output_path: Path) -> None:
                     a(
                         f'<text x="{sx + sw // 2}" y="{cy}" fill="{txt_color}" '
                         f'font-size="10" font-weight="bold" text-anchor="middle">'
-                        f"{label}</text>"
+                        f"{html.escape(label)}</text>"
                     )
 
     a("</svg>")
