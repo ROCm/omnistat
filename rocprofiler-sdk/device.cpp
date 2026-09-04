@@ -169,9 +169,12 @@ std::vector<double> DeviceSampler::sample() {
                                                records_.data(), &size);
 
     // Aggregate counter records: sums all records from each counter in an
-    // attempt to return a value that represents total activity.
+    // attempt to return a value that represents total activity. Only the
+    // records written by this sample are aggregated: the rest of the buffer
+    // still holds the records of the previous one.
     rocprofiler_counter_id_t counter_id = {.handle = 0};
-    for (const auto& record : records_) {
+    for (size_t i = 0; i < size; i++) {
+        const auto& record = records_[i];
         rocprofiler_query_record_counter_id(record.id, &counter_id);
         aggregate[counter_id.handle] += record.counter_value;
     }
