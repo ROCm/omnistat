@@ -321,7 +321,7 @@ composition over time.
 
 | Node Metric | Description |
 | :--- | :--- |
-| `omnistat_kernel_dropped_dispatches` | Cumulative number of dispatches excluded from metrics collection because their timestamps fell outside the valid time range. This is an Omnistat bookkeeping metric and does not affect GPU execution. |
+| `omnistat_kernel_dropped_dispatches` | Cumulative number of dispatch records that could not be recorded because their time bin was outside the range the collector still accepts. A rising value usually means records are arriving later than the collector's hold window allows. This is an Omnistat bookkeeping metric and does not affect GPU execution. |
 
 ### RCCL Communication
 
