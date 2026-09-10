@@ -9,7 +9,7 @@ Omnistat includes two optional components that can be built and installed to
 provide additional data collector capabilities.
 
 1. [Hardware counters](#hardware-counters)
-2. [Kernel tracing](#kernel-tracing)
+2. [Tracing](#tracing)
 
 Both rely on C++ compilations via `cmake` and additional instructions for each optional component
 are outlined below.
@@ -46,12 +46,20 @@ python -m venv ~/venv/omnistat
 BUILD_ROCPROFILER_SDK_EXTENSION=1 ~/venv/omnistat/bin/python -m pip install .[query]
 ```
 
-## Kernel Tracing
+## Tracing
 
-The kernel tracing extension is a standalone C++ shared library
-(`libomnistat_trace.so`) that intercepts GPU kernel dispatches at runtime to
-collect per-kernel timing and execution metrics. Unlike the ROCprofiler
-extension above, it does not require a Python build step.
+The tracing extension is a standalone C++ shared library
+(`libomnistat_trace.so`) that instruments a GPU application at runtime. It
+provides two independent trace streams:
+
+- **Kernel dispatches**: per-kernel timing and execution metrics.
+- **RCCL communication**: collective enumeration (operation, message size,
+  datatype) and communicator creation.
+
+Unlike the ROCprofiler extension above, it does not require a Python build
+step. A single build produces both streams; which ones are active at runtime is
+controlled by environment variables described in [Tracing
+metrics](../metrics.md#tracing).
 
 ### Requirements
 
@@ -80,4 +88,4 @@ cmake --build build-trace/
 ```
 
 The resulting library is located at `build-trace/libomnistat_trace.so`. See
-[Kernel Tracing metrics](../metrics.md#kernel-tracing) for usage instructions.
+[Tracing metrics](../metrics.md#tracing) for usage instructions.
