@@ -1,0 +1,143 @@
+#--
+# Configuration for ORNL Lux
+#--
+
+[omnistat.collectors]
+
+port = 8001
+enable_rocm_smi = True
+enable_amd_smi = False
+enable_ras_ecc = False
+enable_rms = True
+enable_rocprofiler = False
+enable_network = True
+enable_vendor_counters = True
+enable_kernel_trace = False
+
+enable_perf_collector_subtimers = True
+
+## Path to local ROCM install to access SMI library
+rocm_path = /opt/rocm-7.14.0
+
+## List of IPs allowed to query the collector (comma separated). By
+## default, access will be restricted to the localhost (127.0.0.1).
+## Expand this value to include IP of local Prometheus server.
+allowed_ips = 127.0.0.1, 0.0.0.0
+
+[omnistat.collectors.rms]
+
+host_skip = "login.*"
+enable_annotations = True
+job_detection_file = %(XDG_RUNTIME_DIR)s/omni_rmsjobinfo
+
+
+[omnistat.collectors.host]
+enable_proc_io_stats = True
+cpu_load_sampling_interval = 0.05
+
+[omnistat.collectors.rocprofiler]
+profile = default
+
+## Collect the number of free-running GPU cycles and the number of GPU active
+## cycles.
+[omnistat.collectors.rocprofiler.default]
+sampling_mode = constant
+counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
+
+## Collect total number of bytes read from and written to HBM.
+[omnistat.collectors.rocprofiler.hbm]
+sampling_mode = constant
+counters = ["FETCH_SIZE", "WRITE_SIZE"]
+
+## Collect instruction counters to calculate FLOPS on MI250 GPUs.
+##
+## A complete FLOPS calculation requires monitoring 16 distinct counters. Since
+## MI250s can sample a maximum of 8 SQ counters at any given time, the counters
+## are divided into two sets:
+##  - Set 1: FP64 vector and FP32 vector instructions
+##  - Set 2: FP16 vector and all matrix instructions
+##
+## The two counter sets are cyclically assigned to different GPU IDs in each
+## node, allowing to monitor all counters simultaneously:
+##  - GPU IDs 0, 2, 4, 6 are assigned Set 1
+##  - GPU IDs 1, 3, 5, 7 are assigned Set 2
+[omnistat.collectors.rocprofiler.flops_gpuid]
+sampling_mode = gpu-id
+counters = [
+        [
+            "SQ_INSTS_VALU_ADD_F64", "SQ_INSTS_VALU_MUL_F64",
+            "SQ_INSTS_VALU_TRANS_F64", "SQ_INSTS_VALU_FMA_F64",
+            "SQ_INSTS_VALU_ADD_F32", "SQ_INSTS_VALU_MUL_F32",
+            "SQ_INSTS_VALU_TRANS_F32", "SQ_INSTS_VALU_FMA_F32"
+        ],
+        [
+            "SQ_INSTS_VALU_ADD_F16", "SQ_INSTS_VALU_MUL_F16",
+            "SQ_INSTS_VALU_TRANS_F16", "SQ_INSTS_VALU_FMA_F16",
+            "SQ_INSTS_VALU_MFMA_MOPS_F64", "SQ_INSTS_VALU_MFMA_MOPS_F32",
+            "SQ_INSTS_VALU_MFMA_MOPS_F16", "SQ_INSTS_VALU_MFMA_MOPS_BF16"
+        ]
+    ]
+
+## Collect L1 and L2 cache hit rate counters. The 5 TCP counters needed for
+## L1 hit rate exceed the 4 counter registers per TCP block, so they are
+## split into two groups and cyclically assigned to different GPU IDs. TCC
+## counters (L2) use a separate hardware block and can be collected alongside
+## TCP counters without conflict.
+##
+## Counter sets are cyclically assigned to GPU IDs:
+##  - GPU IDs 0, 2... sample L1 read/write misses + L2 counters
+##  - GPU IDs 1, 3... sample L1 atomic misses + L2 counters
+## Requires at least 2 GPUs per node.
+[omnistat.collectors.rocprofiler.cache_l1l2_hitrate_gpuid]
+sampling_mode = gpu-id
+counters = [
+        [
+            "TCP_TOTAL_CACHE_ACCESSES_sum",
+            "TCP_TCC_READ_REQ_sum",
+            "TCP_TCC_WRITE_REQ_sum",
+            "TCC_HIT_sum",
+            "TCC_MISS_sum"
+        ],
+        [
+            "TCP_TOTAL_CACHE_ACCESSES_sum",
+            "TCP_TCC_ATOMIC_WITH_RET_REQ_sum",
+            "TCP_TCC_ATOMIC_WITHOUT_RET_REQ_sum",
+            "TCC_HIT_sum",
+            "TCC_MISS_sum"
+        ]
+    ]
+
+## Collect L2 cache hit rate counters only. Both counters are collected from
+## all GPUs on every sample.
+[omnistat.collectors.rocprofiler.cache_l2_hitrate]
+sampling_mode = constant
+counters = ["TCC_HIT_sum", "TCC_MISS_sum"]
+
+[omnistat.query]
+
+prometheus_url = http://localhost:9090
+system_name = ORNL Lux
+
+
+#--
+# User-mode Settings
+#--
+
+[omnistat.usermode]
+
+victoria_binary = /sw/lux/amdsw/omnistat//victoria-metrics-linux-amd64-v1.109.0/victoria-metrics-prod
+victoria_datadir = /lustre/orion/%(SLURM_JOB_ACCOUNT)s/scratch/%(USER)s/omnistat/%(SLURM_JOB_ID)s
+victoria_logfile = vic_server.log
+
+#victoria_datadir = /tmp/omnistat/%(SLURM_JOB_ID)s
+#victoria_datadir = /lustre/orion/%(SLURM_JOB_ACCOUNT)s/world-shared/omnistat/%(SLURM_JOB_ID)s
+
+## Bind user-mode Omnistat monitor and VictoriaMetrics to specific cores.
+## Requires numactl. When these options are not set, no binding is enforced.
+##
+## Note: you can also control these settings via environment variables:
+## OMNISTAT_EXPORTER_COREBINDING, OMNISTAT_VICTORIA_COREBINDING
+
+#exporter_corebinding = 0
+#victoria_corebinding = 95
+
