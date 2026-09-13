@@ -68,9 +68,9 @@ class RMSJob(Collector):
         self.__annotationsEnabled = config["omnistat.collectors.rms"].getboolean("enable_annotations", False)
 
         self.__rmsJobMode = config["omnistat.collectors.rms"].get("job_detection_mode", "file-based")
-        self.__rmsJobFile = config["omnistat.collectors.rms"].get("job_detection_file", "/tmp/omni_rmsjobinfo")
+        self.__rmsJobFile = config["omnistat.collectors.rms"].get("job_detection_file", "/tmp/omni_rmsjobinfo", vars=os.environ)
         self.__rmsJobStepFile = config["omnistat.collectors.rms"].get(
-            "step_detection_file", "/tmp/omni_rmsjobinfo_step"
+            "step_detection_file", "/tmp/omni_rmsjobinfo_step", vars=os.environ
         )
 
     def querySlurmJob(self, timeout=1, exit_on_error=False, mode="squeue"):

@@ -386,7 +386,7 @@ class UserBasedMonitoring:
         else:
             logging.info("[usermode]: Skipping exporter corebinding")
 
-        detection_file = self.runtimeConfig["omnistat.collectors.rms"].get("job_detection_file", "/tmp/omni_rmsjobinfo")
+        detection_file = self.runtimeConfig["omnistat.collectors.rms"].get("job_detection_file", "/tmp/omni_rmsjobinfo", vars=os.environ)
         if rms_mode:
             logging.info("[usermode]: Saving RMS job state locally to compute hosts...")
             if self.__rms == "slurm":
