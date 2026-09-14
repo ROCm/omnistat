@@ -28,7 +28,7 @@
 setup_env() {
     # setup local env
     module try-load python
-#    module try-load rocm/7.2.0
+    module try-load rocm/7.14.0
     module use /sw/lux/amdsw/modulefiles
     if [[ -n ${OMNISTAT_WRAPPER_VERSION} ]];then
 	module try-load omnistat/${OMNISTAT_WRAPPER_VERSION}
