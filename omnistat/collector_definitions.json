@@ -85,8 +85,14 @@
         {
             "runtime_option": "enable_kernel_trace",
             "enabled_by_default": false,
-            "file": "omnistat.collector_kernel_trace",
+            "file": "omnistat.collector_trace_kernel",
             "class_name": "KernelTrace"
+        },
+        {
+            "runtime_option": "enable_rccl_trace",
+            "enabled_by_default": false,
+            "file": "omnistat.collector_trace_rccl",
+            "class_name": "RcclTrace"
         }
     ]
 }

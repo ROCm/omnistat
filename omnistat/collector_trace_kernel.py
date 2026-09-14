@@ -31,20 +31,19 @@ from collections import OrderedDict, defaultdict
 import orjson
 from flask import Flask, request
 
-from omnistat.collector_endpoint_base import EndpointCollector
+from omnistat.collector_trace_base import BinnedTraceCollector
 
 
-class KernelTrace(EndpointCollector):
+class KernelTrace(BinnedTraceCollector):
     def __init__(self, config: configparser.ConfigParser, route: Flask.route, interval: float):
         logging.debug("Initializing kernel trace collector")
 
-        self.__interval_ms = max(1, int(interval * 1_000))
-        self.__window_ms = 15_000
+        super().__init__(interval)
 
         # Unprocessed dispatch data, almost the same as recieved from
         # rsdk-based library, but parsed to extract specific fields
         self.__dispatches = []
-        self.__dispatches_lock = threading.Lock()
+        self.__lock = threading.Lock()
 
         # Accumulated metric values. Keys are tuples, values are lists:
         #   Keys: (gpu_id, kernel_name)
@@ -55,27 +54,7 @@ class KernelTrace(EndpointCollector):
         # database. This buffer is necessary for two different scenarios: 1)
         # to handle long-running kernels, and 2) to handle applications or
         # sections with a low rate of kernel dispatches.
-        self.__ts = OrderedDict()
-
-        # Initialize time series window buffer
-        time_ms = time.time_ns() // 1_000_000
-        current_bin = ((time_ms // self.__interval_ms) + 1) * self.__interval_ms
-        self.__ts[current_bin] = {}
-
-        # Measure offset applied to GPU timestamps to convert them to unix
-        # timestamps in the same format as the time series database
-        boot_time_ns = time.clock_gettime_ns(time.CLOCK_BOOTTIME)
-        unix_time_ns = time.time_ns()
-        self.__offset_ns = unix_time_ns - boot_time_ns
-
-        # Cumulative count of dispatches dropped due to out-of-range bins
-        self.__dropped_dispatches = 0
-
-        # Pool of interned kernel name strings. Each unique name is stored
-        # once and all references (dispatches, time-series keys, yielded
-        # tuples) share the same object, avoiding duplicate kernel name
-        # strings which can be 600+ byte strings.
-        self.__kernel_names = {}
+        self.__ts = self._new_series()
 
         route("/kernel_trace", methods=["POST"])(self.handleRequest)
 
@@ -86,14 +65,11 @@ class KernelTrace(EndpointCollector):
 
             dispatches = []
             for gpu_id, kernel, start_ns, end_ns in records:
-                kernel_ref = self.__kernel_names.get(kernel)
-                if kernel_ref is None:
-                    self.__kernel_names[kernel] = kernel
-                    kernel_ref = kernel
+                kernel_ref = self._intern(kernel)
                 dispatch = (gpu_id, kernel_ref, end_ns, end_ns - start_ns)
                 dispatches.append(dispatch)
 
-            with self.__dispatches_lock:
+            with self.__lock:
                 self.__dispatches.extend(dispatches)
 
             return "", 204
@@ -103,37 +79,15 @@ class KernelTrace(EndpointCollector):
 
     def updateMetrics(self):
         logging.debug("Checking kernel tracing data...")
-        self.__process_dispatches()
+        self.__process()
         return
 
     def formatMetrics(self, label_defaults, flush=False):
-        last_bin = self.__process_dispatches()
-        cutoff = last_bin if flush else last_bin - self.__window_ms
-        bins = self.__pop_bins(cutoff)
-        return self.__format_bins(bins, label_defaults)
+        last_bin = self.__process()
+        bins = self._pop_bins(self.__ts, self._cutoff(last_bin, flush))
+        return self.__format(bins, label_defaults)
 
-    def __pop_bins(self, cutoff_bin):
-        num_pop = 0
-        for interval_bin in self.__ts:
-            if interval_bin > cutoff_bin:
-                break
-            num_pop += 1
-        bins = []
-        for _ in range(num_pop):
-            bins.append(self.__ts.popitem(last=False))
-        return bins
-
-    def __format_bins(self, bins, label_defaults):
-        for interval_bin, kernels in bins:
-            for (gpu_id, name), value in kernels.items():
-                yield f'omnistat_kernel_dispatch_count{{{label_defaults},card="{gpu_id}",kernel="{name}"}} {value[0]} {interval_bin}'.encode()
-                yield b"\n"
-                yield f'omnistat_kernel_total_duration_ns{{{label_defaults},card="{gpu_id}",kernel="{name}"}} {value[1]} {interval_bin}'.encode()
-                yield b"\n"
-            yield f"omnistat_kernel_dropped_dispatches{{{label_defaults}}} {self.__dropped_dispatches} {interval_bin}".encode()
-            yield b"\n"
-
-    def __process_dispatches(self):
+    def __process(self):
         """Process pending dispatches and update time-series bins
 
         Consumes dispatch data from the queue (self.__dispatches) and performs
@@ -153,34 +107,19 @@ class KernelTrace(EndpointCollector):
             int: The last (most recent) bin in the time series (in ms).
         """
         dispatches = []
-
-        time_ms = time.time_ns() // 1_000_000
-        current_bin = ((time_ms // self.__interval_ms) + 1) * self.__interval_ms
-
-        # Re-seed if __ts has been emptied (e.g. a flush=True formatMetrics call)
-        if not self.__ts:
-            self.__ts[current_bin] = {}
-
-        first_bin = next(iter(self.__ts))
-        last_bin = next(reversed(self.__ts))
-
-        # Keep in-order dictionary of time series intervals
-        for i in range(last_bin + self.__interval_ms, current_bin + 1, self.__interval_ms):
-            self.__ts[i] = {}
-            last_bin = i
+        first_bin, last_bin = self._extend_bins(self.__ts)
 
         if len(self.__dispatches) > 0:
-            with self.__dispatches_lock:
+            with self.__lock:
                 dispatches = self.__dispatches
                 self.__dispatches = []
 
         for gpu_id, name, end_ns, duration_ns in dispatches:
-            end_ms = (end_ns + self.__offset_ns) // 1_000_000
-            end_bin = ((end_ms // self.__interval_ms) * self.__interval_ms) + self.__interval_ms
+            end_bin = self._bin_for(end_ns)
 
-            if end_bin < first_bin or end_bin > last_bin:
+            if not self._in_window(end_bin, first_bin, last_bin):
                 logging.info(f"Ignore out of range dispatch of kernel {name} = {end_bin}")
-                self.__dropped_dispatches += 1
+                self._late_records += 1
                 continue
 
             key = (gpu_id, name)
@@ -190,3 +129,13 @@ class KernelTrace(EndpointCollector):
             self.__ts[end_bin][key] = value[:]
 
         return last_bin
+
+    def __format(self, bins, label_defaults):
+        for interval_bin, kernels in bins:
+            for (gpu_id, name), value in kernels.items():
+                yield f'omnistat_kernel_dispatch_count{{{label_defaults},card="{gpu_id}",kernel="{name}"}} {value[0]} {interval_bin}'.encode()
+                yield b"\n"
+                yield f'omnistat_kernel_total_duration_ns{{{label_defaults},card="{gpu_id}",kernel="{name}"}} {value[1]} {interval_bin}'.encode()
+                yield b"\n"
+            yield f"omnistat_kernel_dropped_dispatches{{{label_defaults}}} {self._late_records} {interval_bin}".encode()
+            yield b"\n"

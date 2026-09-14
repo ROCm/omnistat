@@ -136,7 +136,7 @@ may differ from the ordering used by ROCm.
 
 ### Kernel Tracing
 
-[Kernel tracing](metrics.md#kernel-tracing) is available on Frontier starting
+[Kernel tracing](metrics.md#tracing) is available on Frontier starting
 with Omnistat **1.12.0**. It works by loading a tracing library
 (`libomnistat_trace.so`) into the application's runtime environment to
 intercept GPU kernel dispatches. Pre-built tracing libraries are currently
