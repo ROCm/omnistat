@@ -1,0 +1,104 @@
+#!/bin/bash
+# -------------------------------------------------------------------------------
+# MIT License
+#
+# Copyright (c) 2023 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# -------------------------------------------------------------------------------
+
+# Convenience launch wrapper tool for use on ORNL/Lux
+
+setup_env() {
+    # setup local env
+    module try-load python
+#    module try-load rocm/7.2.0
+    module use /sw/lux/amdsw/modulefiles
+    if [[ -n ${OMNISTAT_WRAPPER_VERSION} ]];then
+	module try-load omnistat/${OMNISTAT_WRAPPER_VERSION}
+    else
+	module try-load omnistat
+    fi
+    if [[ -z ${OMNISTAT_DIR} ]];then
+       echo "Error: unable to load Omnistat environment"
+       exit 1
+    fi
+    if [[ -z ${OMNISTAT_CONFIG} ]];then
+       export OMNISTAT_CONFIG=${OMNISTAT_DIR}/omnistat/config/omnistat.lux
+    fi
+}
+
+
+usage() {
+    echo ""
+    echo "Wrapper tool to setup python environment and execute Omnistat utilities."
+    echo ""
+    echo "Usage: omnistat-lux [-h,--help] <mode> [arguments...]"
+    echo ""
+    echo "Options:"
+    echo "  -h, --help          Show usage info and exit"
+    echo ""
+    echo "Modes:"
+    echo "  usermode             Run omnistat-usermode"
+    echo "  query                Run omnistat-query"
+    echo "  rms                  Run omnistat-rms-env (used for job steps)"
+    echo ""
+    echo "Arguments:"
+    echo "   [arguments]         Additional command line args to pass to desired mode"
+    echo ""
+}
+
+# command-line args
+interval=60
+
+if [[ "$1" == "-h" || "$1" == "--help" ]];then
+   usage
+   exit 0
+fi
+
+if [[ -z "$1" ]];then
+   echo "Error: Mode argument is required"
+   usage
+   exit 1
+fi
+
+mode=$1
+shift
+echo "Running in ${mode} mode"
+setup_env
+
+case "${mode}" in
+    usermode)
+	${OMNISTAT_DIR}/omnistat-usermode "$@"
+	;;
+    query)
+	${OMNISTAT_DIR}/omnistat-query "$@"
+	;;
+    rms)
+	${OMNISTAT_DIR}/omnistat-rms-env "$@"
+	;;
+    *)
+	echo "Error: Unsupported mode supplied -> ${mode}"
+	usage
+	exit 1
+	;;
+esac
+
+
+
