@@ -216,7 +216,7 @@ The collection is configured through the `profile` option in the configuration
 file.
 
 The ROCprofiler data collector requires [building the hardware counters
-extension](./installation/extensions.md#hardware-counters).
+extension](./installation/extensions.md#hardware-counter-support).
 
 To ensure all performance counters are collected correctly, the collector needs
 performance monitoring privileges, with requirements depending on how Omnistat
@@ -306,7 +306,7 @@ per-kernel time series metrics that enable detailed analysis of GPU workload
 composition over time.
 
 The collector requires [building the kernel tracing
-library](./installation/extensions.md#kernel-tracing). To intercept kernel
+library](./installation/extensions.md#kernel-tracing-support). To intercept kernel
 dispatches, the `ROCP_TOOL_LIBRARIES` environment variable must be set in the
 GPU application's runtime environment pointing to the built library:
 
