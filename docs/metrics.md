@@ -254,8 +254,9 @@ longer distributed.
 ```
 
 The collection of hardware counters is configured through the `profile` option
-in the configuration file. Each profile defines a sampling mode and a set of
-counters to be collected:
+in the `[omnistat.collectors.rocprofiler]` section, which selects a matching
+`[omnistat.collectors.rocprofiler.<profile>]` section. Each profile defines a
+sampling mode and a set of counters to be collected:
 - `sampling_mode`: This option controls how counter sets are distributed
   across the available GPUs:
     - `constant`: Assigns one set of counters to all GPUs.
@@ -273,6 +274,9 @@ counters to be collected:
 .. code-block:: ini
    :caption: Example profile to collect free-running and active cycles on all GPUs
 
+    [omnistat.collectors.rocprofiler]
+    profile = cycles
+
     [omnistat.collectors.rocprofiler.cycles]
     sampling_mode = constant
     counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
@@ -281,6 +285,9 @@ counters to be collected:
 ```eval_rst
 .. code-block:: ini
    :caption: Example profile to collect HBM reads and writes from different GPU IDs
+
+    [omnistat.collectors.rocprofiler]
+    profile = hbm
 
     [omnistat.collectors.rocprofiler.hbm]
     sampling_mode = gpu-id
@@ -321,7 +328,7 @@ ROCProfiler-SDK drops the last entry while parsing the variable, so without it
 the final library is not loaded and no error is reported.
 ```
 
-**Collector**: `enable_kernel_trace`
+**Collector**: `enable_kernel_trace` (user-mode only)
 
 | GPU Metric | Description |
 | :--- | :--- |
