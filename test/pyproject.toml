@@ -15,7 +15,7 @@ requires = ["setuptools>=61", "wheel", "setuptools-git-versioning>=2.0,<3"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["omnistat_tests"]
+packages = ["omnistat_tests", "omnistat_tests.pm_counters", "omnistat_tests.workloads"]
 
 [tool.setuptools.package-dir]
 omnistat_tests = "."
