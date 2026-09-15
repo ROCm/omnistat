@@ -18,11 +18,22 @@ are outlined below.
 
 ## Hardware Counters
 
+Collecting GPU hardware counters relies on two separate pieces:
+
+1. The [collector extension](#collector-extension), built into Omnistat, which
+   samples counters from the GPUs. Always required.
+2. The [counter enablement library](#counter-enablement-library), loaded into
+   the application being monitored. Only required when running Omnistat in user
+   mode, as described in [Hardware Counters
+   metrics](../metrics.md#hardware-counters).
+
+### Collector extension
+
 The ROCprofiler extension provides access to low-level GPU hardware counters
 for in-depth performance analysis. There are different ways to build and
 install this extension depending on how Omnistat is installed.
 
-### Install with setuptools
+#### Install with setuptools
 
 This method builds the extension in-place, without installing an Omnistat package.
 ```bash
@@ -33,7 +44,7 @@ pip install cmake-build-extension nanobind
 BUILD_ROCPROFILER_SDK_EXTENSION=1 python setup.py build_ext --inplace
 ```
 
-### Install with pip
+#### Install with pip
 
 This method builds the extension and installs Omnistat as a package.
 ```bash
@@ -45,6 +56,30 @@ With a **`venv`** virtual environment:
 python -m venv ~/venv/omnistat
 BUILD_ROCPROFILER_SDK_EXTENSION=1 ~/venv/omnistat/bin/python -m pip install .[query]
 ```
+
+### Counter enablement library
+
+`libomnistat_count.so` is a standalone C++ shared library loaded into the
+application being monitored. It enables counter collection for the queues of
+that process, so that a separate Omnistat instance can sample those counters
+without additional privileges. Unlike the collector extension, it does not
+require a Python build step.
+
+#### Requirements
+
+- ROCm with ROCProfiler-SDK
+- CMake 3.15+
+
+#### Build
+
+```bash
+cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+cmake --build build-count/
+```
+
+The resulting library is located at `build-count/libomnistat_count.so`. See
+[Hardware Counters metrics](../metrics.md#hardware-counters) for usage
+instructions.
 
 ## Kernel Tracing
 

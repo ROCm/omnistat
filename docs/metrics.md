@@ -255,12 +255,31 @@ performance monitoring privileges, with requirements depending on how Omnistat
 is executed:
 - *System mode*: Run Omnistat with the `CAP_PERFMON` capability enabled.
 - *User mode*: `/proc/sys/kernel/perf_event_paranoid` must be `2` or less (some
-  distributions default to `4`), and the following environment variables must be
-  set in the application's environment:
+  distributions default to `4`), and the [counter enablement
+  library](./installation/extensions.md#counter-enablement-library) must be
+  loaded in the application's environment:
   ```shell
-  export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
-  export HSA_TOOLS_ROCPROFILER_V1_TOOLS=1
+  export ROCP_TOOL_LIBRARIES=/path/to/build-count/libomnistat_count.so:
   ```
+
+```{note}
+The trailing colon is required when listing more than one library in
+`ROCP_TOOL_LIBRARIES`, like when enabling counters and [kernel
+tracing](#kernel-tracing) at the same time: ROCProfiler-SDK drops the last entry
+while parsing the variable, and that library would not be loaded. Keeping the
+trailing colon is harmless with a single library.
+```
+
+```{note}
+In ROCm versions before 10, counters were enabled with the ROCProfiler v1 tool
+library instead of `libomnistat_count.so`:
+
+    export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
+    export HSA_TOOLS_ROCPROFILER_V1_TOOLS=1
+
+These variables have no effect in ROCm 10, where `librocprofiler64.so` is no
+longer distributed.
+```
 
 **Collector**: `enable_rocprofiler`
 <br/>
