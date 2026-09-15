@@ -212,10 +212,7 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 The ROCprofiler data collector provides access to low-level GPU hardware
 counters for in-depth performance analysis. Counters are collected by sampling
 the GPUs at the device level with minimal impact on application performance.
-The collection is configured through the `profile` option in the configuration
-file.
-
-The ROCprofiler data collector requires [building the hardware counters
+This collector requires [building the hardware counters
 extension](./installation/extensions.md#hardware-counter-support).
 
 To ensure all performance counters are collected correctly, the collector needs
@@ -229,7 +226,7 @@ is executed:
   library](./installation/extensions.md#counter-enablement-library) must be
   loaded in the application's environment:
   ```shell
-  export ROCP_TOOL_LIBRARIES=/path/to/build-count/libomnistat_count.so:
+  export ROCP_TOOL_LIBRARIES=/path/to/build-count/libomnistat_count.so
   ```
 
   Counters are only collected for queues that have counting enabled, which the
@@ -238,11 +235,11 @@ is executed:
   the environment of Omnistat itself.
 
 ```{note}
-The trailing colon is required when listing more than one library in
-`ROCP_TOOL_LIBRARIES`, like when enabling counters and [kernel
-tracing](#kernel-tracing) at the same time: ROCProfiler-SDK drops the last entry
-while parsing the variable, and that library would not be loaded. Keeping the
-trailing colon is harmless with a single library.
+Counter collection and [kernel tracing](#kernel-tracing) can be enabled at the
+same time by listing both libraries in `ROCP_TOOL_LIBRARIES`, like
+`libomnistat_count.so:libomnistat_trace.so:`. The trailing colon is required:
+ROCProfiler-SDK drops the last entry while parsing the variable, so without it
+the final library is not loaded and no error is reported.
 ```
 
 ```{note}
@@ -256,7 +253,9 @@ These variables have no effect in ROCm 10, where `librocprofiler64.so` is no
 longer distributed.
 ```
 
-Each profile defines a sampling mode and a set of counters to be collected:
+The collection of hardware counters is configured through the `profile` option
+in the configuration file. Each profile defines a sampling mode and a set of
+counters to be collected:
 - `sampling_mode`: This option controls how counter sets are distributed
   across the available GPUs:
     - `constant`: Assigns one set of counters to all GPUs.
@@ -312,6 +311,14 @@ GPU application's runtime environment pointing to the built library:
 
 ```shell
 export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
+```
+
+```{note}
+Kernel tracing and [hardware counter collection](#hardware-counters) can be
+enabled at the same time by listing both libraries in `ROCP_TOOL_LIBRARIES`, like
+`libomnistat_count.so:libomnistat_trace.so:`. The trailing colon is required:
+ROCProfiler-SDK drops the last entry while parsing the variable, so without it
+the final library is not loaded and no error is reported.
 ```
 
 **Collector**: `enable_kernel_trace`
