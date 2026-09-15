@@ -28,7 +28,7 @@ import tempfile
 
 import pytest
 
-from test.test_collectors import OmnistatTestServer
+from .test_collectors import OmnistatTestServer
 
 EXTERNAL_COLLECTOR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts", "external_collector.sh")
 
