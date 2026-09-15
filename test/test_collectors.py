@@ -36,8 +36,7 @@ from flask import Flask
 from prometheus_client.parser import text_string_to_metric_families
 
 from . import config as test_config
-from . import hardware
-from . import workloads
+from . import hardware, workloads
 from omnistat.monitor import Monitor
 from omnistat.node_monitoring import OmnistatServer
 
