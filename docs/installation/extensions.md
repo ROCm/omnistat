@@ -8,21 +8,32 @@
 Omnistat includes two optional components that can be built and installed to
 provide additional data collector capabilities.
 
-1. [Hardware counters](#hardware-counters)
-2. [Kernel tracing](#kernel-tracing)
+1. [Hardware counter support](#hardware-counter-support)
+2. [Kernel tracing support](#kernel-tracing-support)
 
 Both rely on C++ compilations via `cmake` and additional instructions for each optional component
 are outlined below.
 
 ---
 
-## Hardware Counters
+## Hardware counter support
+
+Collecting GPU hardware counters relies on two separate pieces:
+
+1. The [collector extension](#collector-extension), built into Omnistat, which
+   samples counters from the GPUs. Always required.
+2. The [counter enablement library](#counter-enablement-library), loaded into
+   the application being monitored. Only required when running Omnistat in user
+   mode, as described in [Hardware Counters
+   metrics](../metrics.md#hardware-counters).
+
+### Collector extension
 
 The ROCprofiler extension provides access to low-level GPU hardware counters
 for in-depth performance analysis. There are different ways to build and
 install this extension depending on how Omnistat is installed.
 
-### Install with setuptools
+#### Install with setuptools
 
 This method builds the extension in-place, without installing an Omnistat package.
 ```bash
@@ -33,7 +44,7 @@ pip install cmake-build-extension nanobind
 BUILD_ROCPROFILER_SDK_EXTENSION=1 python setup.py build_ext --inplace
 ```
 
-### Install with pip
+#### Install with pip
 
 This method builds the extension and installs Omnistat as a package.
 ```bash
@@ -46,14 +57,43 @@ python -m venv ~/venv/omnistat
 BUILD_ROCPROFILER_SDK_EXTENSION=1 ~/venv/omnistat/bin/python -m pip install .[query]
 ```
 
-## Kernel Tracing
+### Counter enablement library
 
-The kernel tracing extension is a standalone C++ shared library
-(`libomnistat_trace.so`) that intercepts GPU kernel dispatches at runtime to
-collect per-kernel timing and execution metrics. Unlike the ROCprofiler
-extension above, it does not require a Python build step.
+`libomnistat_count.so` is a standalone C++ shared library loaded into the
+application being monitored. It enables counter collection for the queues of
+that process, so that a separate Omnistat instance can sample those counters
+without additional privileges. Unlike the collector extension, it does not
+require a Python build step.
 
-### Requirements
+(counter-enablement-requirements)=
+#### Requirements
+
+- ROCm with ROCProfiler-SDK
+- CMake 3.15+
+
+(counter-enablement-build)=
+#### Build
+
+```bash
+cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+cmake --build build-count/
+```
+
+The resulting library is located at `build-count/libomnistat_count.so`. See
+[Hardware Counters metrics](../metrics.md#hardware-counters) for usage
+instructions.
+
+## Kernel tracing support
+
+### Kernel tracing library
+
+`libomnistat_trace.so` is a standalone C++ shared library that intercepts GPU
+kernel dispatches at runtime to collect per-kernel timing and execution
+metrics. Like the counter enablement library, it does not require a Python
+build step.
+
+(kernel-tracing-requirements)=
+#### Requirements
 
 - ROCm 6.4+
 - C++20 compiler
@@ -72,7 +112,8 @@ point CMake at them:
       -DFETCHCONTENT_SOURCE_DIR_FMT=/path/to/fmt
 ```
 
-### Build
+(kernel-tracing-build)=
+#### Build
 
 ```bash
 cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON

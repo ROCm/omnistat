@@ -212,10 +212,51 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 The ROCprofiler data collector provides access to low-level GPU hardware
 counters for in-depth performance analysis. Counters are collected by sampling
 the GPUs at the device level with minimal impact on application performance.
-The collection is configured through the `profile` option in the configuration
-file.
+This collector requires [building the hardware counters
+extension](./installation/extensions.md#hardware-counter-support).
 
-Each profile defines a sampling mode and a set of counters to be collected:
+To ensure all performance counters are collected correctly, the collector needs
+performance monitoring privileges, with requirements depending on how Omnistat
+is executed:
+- [*System mode*](./installation/system-install.md): Run Omnistat with the
+  `CAP_PERFMON` capability enabled.
+- [*User mode*](./installation/user-mode.md):
+  `/proc/sys/kernel/perf_event_paranoid` must be `2` or less (some
+  distributions default to `4`), and the [counter enablement
+  library](./installation/extensions.md#counter-enablement-library) must be
+  loaded in the application's environment:
+  ```shell
+  export ROCP_TOOL_LIBRARIES=/path/to/build-count/libomnistat_count.so
+  ```
+
+  Counters are only collected for queues that have counting enabled, which the
+  library does for the process it is loaded into. The variable therefore needs
+  to be set in the environment of the application being monitored, and not in
+  the environment of Omnistat itself.
+
+```{note}
+Counter collection and [kernel tracing](#kernel-tracing) can be enabled at the
+same time by listing both libraries in `ROCP_TOOL_LIBRARIES`, like
+`libomnistat_count.so:libomnistat_trace.so:`. The trailing colon is required:
+ROCProfiler-SDK drops the last entry while parsing the variable, so without it
+the final library is not loaded and no error is reported.
+```
+
+```{note}
+In ROCm versions before 10, counters were enabled with the ROCProfiler v1 tool
+library instead of `libomnistat_count.so`:
+
+    export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
+    export HSA_TOOLS_ROCPROFILER_V1_TOOLS=1
+
+These variables have no effect in ROCm 10, where `librocprofiler64.so` is no
+longer distributed.
+```
+
+The collection of hardware counters is configured through the `profile` option
+in the `[omnistat.collectors.rocprofiler]` section, which selects a matching
+`[omnistat.collectors.rocprofiler.<profile>]` section. Each profile defines a
+sampling mode and a set of counters to be collected:
 - `sampling_mode`: This option controls how counter sets are distributed
   across the available GPUs:
     - `constant`: Assigns one set of counters to all GPUs.
@@ -233,6 +274,9 @@ Each profile defines a sampling mode and a set of counters to be collected:
 .. code-block:: ini
    :caption: Example profile to collect free-running and active cycles on all GPUs
 
+    [omnistat.collectors.rocprofiler]
+    profile = cycles
+
     [omnistat.collectors.rocprofiler.cycles]
     sampling_mode = constant
     counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
@@ -242,24 +286,12 @@ Each profile defines a sampling mode and a set of counters to be collected:
 .. code-block:: ini
    :caption: Example profile to collect HBM reads and writes from different GPU IDs
 
+    [omnistat.collectors.rocprofiler]
+    profile = hbm
+
     [omnistat.collectors.rocprofiler.hbm]
     sampling_mode = gpu-id
     counters = [["FETCH_SIZE"], ["WRITE_SIZE"]]
-  ```
-
-The ROCprofiler data collector requires [building the hardware counters
-extension](./installation/extensions.md#hardware-counters).
-
-To ensure all performance counters are collected correctly, the collector needs
-performance monitoring privileges, with requirements depending on how Omnistat
-is executed:
-- *System mode*: Run Omnistat with the `CAP_PERFMON` capability enabled.
-- *User mode*: `/proc/sys/kernel/perf_event_paranoid` must be `2` or less (some
-  distributions default to `4`), and the following environment variables must be
-  set in the application's environment:
-  ```shell
-  export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
-  export HSA_TOOLS_ROCPROFILER_V1_TOOLS=1
   ```
 
 **Collector**: `enable_rocprofiler`
@@ -280,7 +312,7 @@ per-kernel time series metrics that enable detailed analysis of GPU workload
 composition over time.
 
 The collector requires [building the kernel tracing
-library](./installation/extensions.md#kernel-tracing). To intercept kernel
+library](./installation/extensions.md#kernel-tracing-support). To intercept kernel
 dispatches, the `ROCP_TOOL_LIBRARIES` environment variable must be set in the
 GPU application's runtime environment pointing to the built library:
 
@@ -288,7 +320,17 @@ GPU application's runtime environment pointing to the built library:
 export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
 ```
 
+```{note}
+Kernel tracing and [hardware counter collection](#hardware-counters) can be
+enabled at the same time by listing both libraries in `ROCP_TOOL_LIBRARIES`, like
+`libomnistat_count.so:libomnistat_trace.so:`. The trailing colon is required:
+ROCProfiler-SDK drops the last entry while parsing the variable, so without it
+the final library is not loaded and no error is reported.
+```
+
 **Collector**: `enable_kernel_trace`
+<br/>
+**Availability**: user-mode only
 
 | GPU Metric | Description |
 | :--- | :--- |
@@ -526,7 +568,7 @@ Python applications can use the `requests` library to report FOM values natively
         print(f"FOM POST failed: {res.status_code}")
 ```
 
-**Collector**: user-mode only (`omnistat-usermode`)
+**Availability**: user-mode only
 
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
