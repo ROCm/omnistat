@@ -34,9 +34,7 @@ from flask import Flask
 from prometheus_client.parser import text_string_to_metric_families
 from werkzeug.serving import make_server
 
-from . import config
-from . import hardware
-from . import workloads
+from . import config, hardware, workloads
 from omnistat.collector_kernel_trace import KernelTrace
 
 requires_rocm = pytest.mark.skipif(not config.rocm_host, reason="requires ROCm")

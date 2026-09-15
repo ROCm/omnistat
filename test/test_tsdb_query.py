@@ -31,10 +31,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from .generate_telemetry import GPU_METRIC_NAMES, TelemetryGenerator
 from omnistat.query import QueryMetrics
 from omnistat.standalone import push_to_victoria_metrics
 from omnistat.utils import readConfig
-from .generate_telemetry import GPU_METRIC_NAMES, TelemetryGenerator
 
 test_path = Path(__file__).resolve().parent
 CONFIG_FILE = f"{test_path}/docker/victoriametrics/omnistat-query.config"
