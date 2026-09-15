@@ -33,7 +33,7 @@ import requests
 from flask import Flask
 from prometheus_client.parser import text_string_to_metric_families
 
-import test.config
+from . import config as test_config
 from omnistat.collector_pm_counters import PM_COUNTERS
 from omnistat.monitor import Monitor
 from omnistat.node_monitoring import OmnistatServer
@@ -54,13 +54,13 @@ class PMCounterTestServer:
     """Test server for PM counter collector using fixture data."""
 
     def __init__(self):
-        self.address = f"localhost:{test.config.port}"
+        self.address = f"localhost:{test_config.port}"
         self.url = f"http://{self.address}/metrics"
         self.timeout = 5.0
 
         config = configparser.ConfigParser()
         config["omnistat.collectors"] = {
-            "rocm_path": test.config.rocm_path,
+            "rocm_path": test_config.rocm_path,
             "enable_rocm_smi": "False",
             "enable_amd_smi": "False",
             "enable_vendor_counters": "True",

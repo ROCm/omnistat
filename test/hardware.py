@@ -26,13 +26,13 @@
 hardware available in the test environment.
 """
 
-import test.config
+from . import config
 from omnistat.utils import load_amdsmi_interface
 
 
 def get_gpu_asic_info(device=0):
     """Return GPU market name and graphics version of the given device."""
-    smi = load_amdsmi_interface(test.config.rocm_path)
+    smi = load_amdsmi_interface(config.rocm_path)
 
     smi.amdsmi_init()
     handles = smi.amdsmi_get_processor_handles()
@@ -42,7 +42,7 @@ def get_gpu_asic_info(device=0):
     return info["market_name"], info["target_graphics_version"]
 
 
-gpu_type, gpu_arch = get_gpu_asic_info() if test.config.rocm_host else ("", "")
+gpu_type, gpu_arch = get_gpu_asic_info() if config.rocm_host else ("", "")
 
 # Consumer GPUs (RDNA) lack RAS/ECC counters, energy accumulators, and
 # hardware counters. Matching on "Radeon" rather than "Instinct" so that an
