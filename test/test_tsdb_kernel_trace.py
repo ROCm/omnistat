@@ -31,10 +31,10 @@ import pytest
 import requests
 from flask import Flask
 
+from .generate_kernels import KernelGenerator
 from omnistat.collector_kernel_trace import KernelTrace
 from omnistat.standalone import push_to_victoria_metrics
 from omnistat.utils import readConfig
-from .generate_kernels import KernelGenerator
 
 test_path = Path(__file__).resolve().parent
 CONFIG_FILE = f"{test_path}/docker/victoriametrics/omnistat-query.config"
