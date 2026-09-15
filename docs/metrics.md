@@ -328,7 +328,9 @@ ROCProfiler-SDK drops the last entry while parsing the variable, so without it
 the final library is not loaded and no error is reported.
 ```
 
-**Collector**: `enable_kernel_trace` (user-mode only)
+**Collector**: `enable_kernel_trace`
+<br/>
+**Availability**: user-mode only
 
 | GPU Metric | Description |
 | :--- | :--- |
@@ -566,7 +568,7 @@ Python applications can use the `requests` library to report FOM values natively
         print(f"FOM POST failed: {res.status_code}")
 ```
 
-**Collector**: user-mode only (`omnistat-usermode`)
+**Availability**: user-mode only
 
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
