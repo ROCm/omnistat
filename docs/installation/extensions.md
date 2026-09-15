@@ -8,15 +8,15 @@
 Omnistat includes two optional components that can be built and installed to
 provide additional data collector capabilities.
 
-1. [Hardware counters](#hardware-counters)
-2. [Kernel tracing](#kernel-tracing)
+1. [Hardware counter support](#hardware-counter-support)
+2. [Kernel tracing support](#kernel-tracing-support)
 
 Both rely on C++ compilations via `cmake` and additional instructions for each optional component
 are outlined below.
 
 ---
 
-## Hardware Counters
+## Hardware counter support
 
 Collecting GPU hardware counters relies on two separate pieces:
 
@@ -65,11 +65,13 @@ that process, so that a separate Omnistat instance can sample those counters
 without additional privileges. Unlike the collector extension, it does not
 require a Python build step.
 
+(counter-enablement-requirements)=
 #### Requirements
 
 - ROCm with ROCProfiler-SDK
 - CMake 3.15+
 
+(counter-enablement-build)=
 #### Build
 
 ```bash
@@ -81,14 +83,17 @@ The resulting library is located at `build-count/libomnistat_count.so`. See
 [Hardware Counters metrics](../metrics.md#hardware-counters) for usage
 instructions.
 
-## Kernel Tracing
+## Kernel tracing support
 
-The kernel tracing extension is a standalone C++ shared library
-(`libomnistat_trace.so`) that intercepts GPU kernel dispatches at runtime to
-collect per-kernel timing and execution metrics. Unlike the ROCprofiler
-extension above, it does not require a Python build step.
+### Kernel tracing library
 
-### Requirements
+`libomnistat_trace.so` is a standalone C++ shared library that intercepts GPU
+kernel dispatches at runtime to collect per-kernel timing and execution
+metrics. Like the counter enablement library, it does not require a Python
+build step.
+
+(kernel-tracing-requirements)=
+#### Requirements
 
 - ROCm 6.4+
 - C++20 compiler
@@ -107,7 +112,8 @@ point CMake at them:
       -DFETCHCONTENT_SOURCE_DIR_FMT=/path/to/fmt
 ```
 
-### Build
+(kernel-tracing-build)=
+#### Build
 
 ```bash
 cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
