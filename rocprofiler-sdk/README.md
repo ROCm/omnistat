@@ -1,6 +1,7 @@
 # Omnistat ROCProfiler-SDK Integration
 
 - [Performance Counter Sampling (Python Extension)](#performance-counter-sampling-python-extension)
+- [Counter Enablement Library](#counter-enablement-library)
 - [Kernel Tracing Library](#kernel-tracing-library)
 
 ---
@@ -22,7 +23,7 @@ hardware counters from AMD GPUs directly in Python applications.
 ### Installation
 
 For standard installations of the extension as part of Omnistat, refer to the
-documentation to [build the ROCprofiler extensions](https://rocm.github.io/omnistat/installation/building-extensions.html#rocprofiler).
+documentation to [build the ROCprofiler extensions](https://rocm.github.io/omnistat/installation/extensions.html#collector-extension).
 
 For development and custom builds, the extension can be installed with CMake:
 ```bash
@@ -77,8 +78,50 @@ for sampler in samplers:
 ```
 
 Refer to the documentation of the [ROCprofiler
-collector](https://rocm.github.io/omnistat/metrics.html#rocprofiler) for more
+collector](https://rocm.github.io/omnistat/metrics.html#hardware-counters) for more
 advanced usage using Omnistat.
+
+---
+
+## Counter Enablement Library
+
+A standalone C++ shared library (`libomnistat_count.so`) that enables hardware
+counter collection for the queues of the application it is loaded into, so that
+a separate Omnistat instance can sample those counters. It is only needed in
+user mode; in system mode, running Omnistat with the `CAP_PERFMON` capability is
+enough.
+
+The library registers a ROCProfiler-SDK device counting service and never starts
+it: registration alone is what makes the application's queues visible to counter
+collection. This reproduces what ROCProfiler v1 provided through
+`HSA_TOOLS_LIB`, which is no longer available in ROCm 10.
+
+### Requirements
+
+- ROCm with ROCProfiler-SDK
+- CMake 3.15+
+
+### Building
+
+```bash
+cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+cmake --build build-count/
+```
+
+This produces `build-count/libomnistat_count.so`.
+
+### Usage
+
+Load the library into the application being monitored, not into Omnistat:
+
+```bash
+export ROCP_TOOL_LIBRARIES=/path/to/libomnistat_count.so
+```
+
+On startup the library prints `Omnistat: counters enabled` to the application's
+standard error, or `Omnistat: counters disabled (...)` with a reason. An
+application that never loads the library collects no counters and reports
+nothing, so these messages are the only confirmation that it is active.
 
 ---
 
