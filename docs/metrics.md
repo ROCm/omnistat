@@ -232,6 +232,11 @@ is executed:
   export ROCP_TOOL_LIBRARIES=/path/to/build-count/libomnistat_count.so:
   ```
 
+  Counters are only collected for queues that have counting enabled, which the
+  library does for the process it is loaded into. The variable therefore needs
+  to be set in the environment of the application being monitored, and not in
+  the environment of Omnistat itself.
+
 ```{note}
 The trailing colon is required when listing more than one library in
 `ROCP_TOOL_LIBRARIES`, like when enabling counters and [kernel
