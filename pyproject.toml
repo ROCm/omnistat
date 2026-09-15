@@ -1,6 +1,6 @@
 [project]
 name = "omnistat"
-dynamic = ["version", "dependencies", "optional-dependencies"]
+dynamic = ["version", "dependencies"]
 readme = "README.md"
 requires-python = ">=3.8"
 
@@ -21,8 +21,7 @@ build-backend = "setuptools.build_meta"
 packages = ["omnistat", "omnistat.contrib", "omnistat.inspect", "omnistat.inspect.backend", "omnistat.inspect.job"]
 
 [tool.setuptools.dynamic]
-dependencies = { file = ["requirements.txt"] }
-optional-dependencies = { query = { file = ["requirements-query.txt"] } }
+dependencies = { file = ["requirements.txt", "requirements-query.txt"] }
 
 [tool.setuptools.package-data]
 "omnistat" = ["config/omnistat.default","collector_definitions.json"]

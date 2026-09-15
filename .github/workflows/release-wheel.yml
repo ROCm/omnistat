@@ -121,6 +121,7 @@ jobs:
         if: ${{ steps.check.outputs.skip == 'false' }}
         run: |
           python -m build --wheel --outdir dist/
+          python -m build --wheel --outdir dist/ test/
 
       - name: Upload wheel to S3
         if: ${{ steps.check.outputs.skip == 'false' && inputs.deploy == true }}
