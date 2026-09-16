@@ -43,9 +43,10 @@ config = readConfig(CONFIG_FILE)
 try:
     URL = config["omnistat.query"]["prometheus_url"]
 except KeyError:
-    pytest.skip("TSDB config not available", allow_module_level=True)
+    URL = None
 
 
+@pytest.mark.tsdb
 class TestQuery:
     # Validate job reports from the query tool by generating traces with known
     # values in all samples.
