@@ -23,6 +23,7 @@ omnistat_tests = "."
 [tool.setuptools.package-data]
 "omnistat_tests" = [
     "pm_counters/**/*",
+    "scripts/**/*",
     "workloads/**/*",
 ]
 
