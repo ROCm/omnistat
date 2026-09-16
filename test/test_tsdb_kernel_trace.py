@@ -43,7 +43,7 @@ config = readConfig(CONFIG_FILE)
 try:
     URL = config["omnistat.query"]["prometheus_url"]
 except KeyError:
-    pytest.skip("TSDB config not available", allow_module_level=True)
+    URL = None
 
 METRIC_COUNT = "omnistat_kernel_dispatch_count"
 METRIC_DURATION = "omnistat_kernel_total_duration_ns"
@@ -105,6 +105,7 @@ def query_at(metric, labels_str, timestamp_ms):
     return int(float(results[0]["value"][1])) if results else None
 
 
+@pytest.mark.tsdb
 class TestKernelTrace:
     def test_buffer_hold(self):
         trace = KernelGenerator(duration_s=1, interval_s=1.0)
