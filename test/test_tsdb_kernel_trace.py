@@ -40,7 +40,10 @@ test_path = Path(__file__).resolve().parent
 CONFIG_FILE = f"{test_path}/docker/victoriametrics/omnistat-query.config"
 
 config = readConfig(CONFIG_FILE)
-URL = config["omnistat.query"]["prometheus_url"]
+try:
+    URL = config["omnistat.query"]["prometheus_url"]
+except KeyError:
+    pytest.skip("TSDB config not available", allow_module_level=True)
 
 METRIC_COUNT = "omnistat_kernel_dispatch_count"
 METRIC_DURATION = "omnistat_kernel_total_duration_ns"
