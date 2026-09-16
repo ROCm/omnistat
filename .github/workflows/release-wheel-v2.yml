@@ -76,7 +76,6 @@ jobs:
         run: |
           python -m venv test_venv
           source test_venv/bin/activate
-          pip install --upgrade pip
           pip install dist/omnistat-*.whl
           pip install dist/omnistat_tests-*.whl
 
