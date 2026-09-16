@@ -43,7 +43,7 @@ config = readConfig(CONFIG_FILE)
 try:
     URL = config["omnistat.query"]["prometheus_url"]
 except KeyError:
-    URL = None
+    pytest.skip("TSDB config not available", allow_module_level=True)
 
 METRIC_COUNT = "omnistat_kernel_dispatch_count"
 METRIC_DURATION = "omnistat_kernel_total_duration_ns"
