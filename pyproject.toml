@@ -21,7 +21,7 @@ build-backend = "setuptools.build_meta"
 packages = ["omnistat", "omnistat.contrib", "omnistat.inspect", "omnistat.inspect.backend", "omnistat.inspect.job"]
 
 [tool.setuptools.dynamic]
-dependencies = { file = ["requirements.txt", "requirements-query.txt"] }
+dependencies = { file = ["requirements.txt"] }
 
 [tool.setuptools.package-data]
 "omnistat" = ["config/omnistat.default","collector_definitions.json"]
