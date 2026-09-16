@@ -258,10 +258,6 @@ Note that this recipe assumes existence of a dedicated non-root user to run the 
         requirements: "{{ omnistat_dir }}/requirements.txt"
       become_user: "{{ omnistat_user }}"
 
-    - name: Install python package dependencies to support query tool
-      ansible.builtin.pip:
-        requirements: "{{ omnistat_dir }}/requirements-query.txt"
-      become_user: "{{ omnistat_user }}"
 
     #--
     # omnistat service file
