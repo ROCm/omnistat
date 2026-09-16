@@ -83,7 +83,7 @@ jobs:
         run: |
           source test_venv/bin/activate
           srun -N 1 -J omnistat-wheel-test -p mi2101x -t 00:10:00 \
-            pytest --pyargs omnistat_tests.test_collectors omnistat_tests.test_endpoint_collectors omnistat_tests.test_external_collector omnistat_tests.test_pm_counters omnistat_tests.test_rms -v
+            pytest --pyargs omnistat_tests -v
 
   upload-wheel:
     name: Upload wheels to S3
