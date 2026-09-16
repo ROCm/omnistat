@@ -48,13 +48,13 @@ BUILD_ROCPROFILER_SDK_EXTENSION=1 python setup.py build_ext --inplace
 
 This method builds the extension and installs Omnistat as a package.
 ```bash
-BUILD_ROCPROFILER_SDK_EXTENSION=1 pip install .[query]
+BUILD_ROCPROFILER_SDK_EXTENSION=1 pip install .
 ```
 
 With a **`venv`** virtual environment:
 ```bash
 python -m venv ~/venv/omnistat
-BUILD_ROCPROFILER_SDK_EXTENSION=1 ~/venv/omnistat/bin/python -m pip install .[query]
+BUILD_ROCPROFILER_SDK_EXTENSION=1 ~/venv/omnistat/bin/python -m pip install .
 ```
 
 ### Counter enablement library
