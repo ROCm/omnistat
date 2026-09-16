@@ -82,6 +82,7 @@ jobs:
       - name: Run tests
         run: |
           source test_venv/bin/activate
+          cd /tmp
           srun -N 1 -J omnistat-wheel-test -p mi2101x -t 00:10:00 \
             pytest --pyargs omnistat_tests -v
 
