@@ -1,0 +1,167 @@
+name: Release Python Wheel (v2)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to build (e.g. v1.2.3)'
+        type: string
+        required: true
+      deploy:
+        description: 'Upload wheel to S3 bucket?'
+        type: boolean
+        default: false
+      environment:
+        description: 'Target environment'
+        type: choice
+        options:
+          - dev
+          - nightly
+          - rc
+          - stable-staging
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-wheel:
+    name: Build wheels
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        run: |
+          pip install build
+          pip install -r requirements.txt
+
+      - name: Build wheels
+        run: |
+          python -m build --wheel --outdir dist/
+          python -m build --wheel --outdir dist/ test/
+
+      - name: Upload wheels as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels
+          path: dist/*.whl
+
+  test-wheel:
+    name: Test wheels
+    needs: build-wheel
+    runs-on: [self-hosted, instinct]
+    defaults:
+      run:
+        shell: bash --login {0}
+    steps:
+      - name: Download wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels
+          path: dist/
+
+      - name: Create virtual environment
+        run: |
+          python -m venv test_venv
+          source test_venv/bin/activate
+          pip install --upgrade pip
+          pip install dist/omnistat-*.whl
+          pip install dist/omnistat_tests-*.whl
+
+      - name: Run tests
+        run: |
+          source test_venv/bin/activate
+          srun -N 1 -J omnistat-wheel-test -p mi2101x -t 00:10:00 \
+            pytest --pyargs omnistat_tests -v
+
+  upload-wheel:
+    name: Upload wheels to S3
+    needs: test-wheel
+    if: ${{ inputs.deploy == true }}
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    env:
+      DEV_ROLE_ARN: ${{ secrets.AWS_DEV_EXTRAS_ROLE_ARN }}
+      DEV_S3_BUCKET: ${{ secrets.AWS_DEV_EXTRAS_S3_BUCKET }}
+      NIGHTLY_ROLE_ARN: ${{ secrets.AWS_NIGHTLY_EXTRAS_ROLE_ARN }}
+      NIGHTLY_S3_BUCKET: ${{ secrets.AWS_NIGHTLY_EXTRAS_S3_BUCKET }}
+      RC_ROLE_ARN: ${{ secrets.AWS_RC_EXTRAS_ROLE_ARN }}
+      RC_S3_BUCKET: ${{ secrets.AWS_RC_EXTRAS_S3_BUCKET }}
+      STABLE_STAGING_ROLE_ARN: ${{ secrets.AWS_STABLE_STAGING_EXTRAS_ROLE_ARN }}
+      STABLE_STAGING_S3_BUCKET: ${{ secrets.AWS_STABLE_STAGING_EXTRAS_S3_BUCKET }}
+      S3_PATH: v5/rocm/extras/omnistat/whl-next/omnistat/
+    steps:
+      - name: Resolve environment
+        id: env
+        run: |
+          TARGET_ENV='${{ inputs.environment }}'
+          case "${TARGET_ENV}" in
+            dev)
+              ROLE_ARN="${DEV_ROLE_ARN}"
+              S3_BUCKET="${DEV_S3_BUCKET}"
+              ;;
+            nightly)
+              ROLE_ARN="${NIGHTLY_ROLE_ARN}"
+              S3_BUCKET="${NIGHTLY_S3_BUCKET}"
+              ;;
+            rc)
+              ROLE_ARN="${RC_ROLE_ARN}"
+              S3_BUCKET="${RC_S3_BUCKET}"
+              ;;
+            stable-staging)
+              ROLE_ARN="${STABLE_STAGING_ROLE_ARN}"
+              S3_BUCKET="${STABLE_STAGING_S3_BUCKET}"
+              ;;
+            *)
+              echo "Unknown environment: ${TARGET_ENV}" >&2
+              exit 1
+              ;;
+          esac
+          echo "role_arn=${ROLE_ARN}" >> $GITHUB_OUTPUT
+          echo "s3_bucket=${S3_BUCKET}" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ steps.env.outputs.role_arn }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Check if release artifact already exists in S3
+        id: check
+        run: |
+          TAG='${{ inputs.tag }}'
+          VERSION="${TAG#v}"
+          COUNT=$(aws s3 ls s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} --no-paginate 2>/dev/null | grep -c "omnistat-${VERSION}-.*\.whl$" || true)
+          if [ "${COUNT}" -gt 0 ]; then
+            echo "Wheel already exists for version ${VERSION} — skipping upload."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download wheels
+        if: ${{ steps.check.outputs.skip == 'false' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels
+          path: dist/
+
+      - name: Upload wheels to S3
+        if: ${{ steps.check.outputs.skip == 'false' }}
+        run: |
+          aws s3 cp dist/*.whl s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} \
+            --no-progress
