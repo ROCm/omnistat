@@ -35,7 +35,6 @@ path accessible from all nodes.
    ```shell-session
    [user@login]$ cd omnistat-{__VERSION__}
    [user@login]$ pip install --user -r requirements.txt
-   [user@login]$ pip install --user -r requirements-query.txt
    ```
 
 ```{note}
