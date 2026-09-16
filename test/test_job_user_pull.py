@@ -74,6 +74,7 @@ $OMNISTAT_DIR/omnistat-usermode --stop --no-push
 """
 
 
+@pytest.mark.docker
 class TestJobUser:
     job_file = "slurm-job-user.sh"
 

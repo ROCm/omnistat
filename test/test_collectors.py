@@ -445,6 +445,7 @@ class TestHardwareCounters:
         ), f"No GPU had all counters > 0: {metrics}"
 
 
+@pytest.mark.rocprofiler
 class TestHardwareCounterConfigValidation:
     """Verify rocprofiler_sdk config validation catches bad configs with sys.exit(4)."""
 
