@@ -249,8 +249,8 @@ library instead of `libomnistat_count.so`:
     export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
     export HSA_TOOLS_ROCPROFILER_V1_TOOLS=1
 
-These variables have no effect in ROCm 10, where `librocprofiler64.so` is no
-longer distributed.
+These variables have no effect in ROCm 10 or later, where `librocprofiler64.so`
+is no longer distributed.
 ```
 
 The collection of hardware counters is configured through the `profile` option
