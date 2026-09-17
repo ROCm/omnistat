@@ -79,22 +79,28 @@ jobs:
           pip install dist/omnistat-*.whl
           pip install dist/omnistat_tests-*.whl
 
-      - name: Build optional extensions from installed wheel
-        run: |
-          set -e
-          source "$(pwd)/test_venv/bin/activate"
-          omnistat-build-extensions
-          python -c "import omnistat.rocprofiler_sdk_extension; print('counter module import OK')"
-          tracelib=$(omnistat-build-extensions --print-trace-lib)
-          test -f "$tracelib" && echo "trace lib present: $tracelib"
-
-      - name: Run tests
+      - name: Test wheel (no optional extensions)
         run: |
           source "$(pwd)/test_venv/bin/activate"
-          rundir="${RUNNER_TEMP}/omnistat-wheel-test-run"
+          rundir="${RUNNER_TEMP}/omnistat-wheel-test-baseline"
           rm -rf "$rundir"; mkdir -p "$rundir"
           cd "$rundir"
           srun -N 1 -J omnistat-wheel-test -p mi2101x -t 00:10:00 \
+            pytest --pyargs omnistat_tests -v
+
+      - name: Build optional extensions from installed wheel
+        run: |
+          source "$(pwd)/test_venv/bin/activate"
+          omnistat-build-extensions
+
+      - name: Test optional extensions (counters and kernel tracing)
+        run: |
+          source "$(pwd)/test_venv/bin/activate"
+          export ROCP_TOOL_LIBRARIES="$(omnistat-build-extensions --print-trace-lib):$(omnistat-build-extensions --print-count-lib):"
+          rundir="${RUNNER_TEMP}/omnistat-wheel-test-extensions"
+          rm -rf "$rundir"; mkdir -p "$rundir"
+          cd "$rundir"
+          srun -N 1 -J omnistat-wheel-ext-test -p mi2101x -t 00:10:00 \
             pytest --pyargs omnistat_tests -v
 
   upload-wheel:
