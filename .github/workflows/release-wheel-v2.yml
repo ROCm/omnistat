@@ -81,7 +81,10 @@ jobs:
 
       - name: Run tests
         run: |
-          source test_venv/bin/activate
+          source "$(pwd)/test_venv/bin/activate"
+          rundir="${RUNNER_TEMP}/omnistat-wheel-test-run"
+          rm -rf "$rundir"; mkdir -p "$rundir"
+          cd "$rundir"
           srun -N 1 -J omnistat-wheel-test -p mi2101x -t 00:10:00 \
             pytest --pyargs omnistat_tests -v
 
