@@ -22,11 +22,16 @@
 # SOFTWARE.
 # -------------------------------------------------------------------------------
 
+import shutil
+
 import pytest
 import requests
 from prometheus_api_client import PrometheusConnect
 
 from . import config
+
+if not shutil.which("docker"):
+    pytest.skip("Docker not available", allow_module_level=True)
 
 
 @pytest.mark.docker
