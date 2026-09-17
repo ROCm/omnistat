@@ -39,7 +39,6 @@ filterwarnings = [
     "default::DeprecationWarning:omnistat.*:",
 ]
 markers = [
-    "rocm: requires ROCm GPU hardware (rocminfo in PATH)",
     "rocprofiler: requires rocprofiler SDK libraries (ROCP_TOOL_LIBRARIES)",
     "tsdb: requires VictoriaMetrics or Prometheus TSDB",
     "docker: requires Docker and containerized SLURM cluster",
