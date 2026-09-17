@@ -81,14 +81,12 @@ jobs:
 
       - name: Build optional extensions from installed wheel
         run: |
+          set -e
           source "$(pwd)/test_venv/bin/activate"
-          srun -N 1 -J omnistat-wheel-ext -p mi2101x -t 00:10:00 bash -c '
-            set -e
-            omnistat-build-extensions
-            python -c "import omnistat.rocprofiler_sdk_extension; print(\"counter module import OK\")"
-            tracelib=$(omnistat-build-extensions --print-trace-lib)
-            test -f "$tracelib" && echo "trace lib present: $tracelib"
-          '
+          omnistat-build-extensions
+          python -c "import omnistat.rocprofiler_sdk_extension; print('counter module import OK')"
+          tracelib=$(omnistat-build-extensions --print-trace-lib)
+          test -f "$tracelib" && echo "trace lib present: $tracelib"
 
       - name: Run tests
         run: |
