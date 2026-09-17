@@ -10,9 +10,6 @@ dependencies = [
     "pytest-cov",
 ]
 
-[project.entry-points.pytest11]
-omnistat-tests = "omnistat_tests.conftest"
-
 [build-system]
 requires = ["setuptools>=61", "wheel", "setuptools-git-versioning>=2.0,<3"]
 build-backend = "setuptools.build_meta"

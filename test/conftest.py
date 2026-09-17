@@ -5,14 +5,17 @@ import pytest
 
 
 def pytest_addoption(parser):
-    parser.addoption("--require-rocm", action="store_true",
-                     help="Fail (don't skip) if ROCm is unavailable")
     parser.addoption("--require-rocprofiler", action="store_true",
                      help="Fail (don't skip) if rocprofiler SDK is unavailable")
     parser.addoption("--require-tsdb", action="store_true",
                      help="Fail (don't skip) if VictoriaMetrics/Prometheus TSDB is unavailable")
     parser.addoption("--require-docker", action="store_true",
                      help="Fail (don't skip) if Docker is unavailable")
+
+
+def pytest_configure(config):
+    for marker in ("rocprofiler", "tsdb", "docker"):
+        config.addinivalue_line("markers", f"{marker}: requires {marker} infrastructure")
 
 
 def _rocm_available():
@@ -42,19 +45,28 @@ def _tsdb_available():
         return False
 
 
+def _is_required(config, marker_name):
+    # --require-<marker> is only registered when this conftest loads at startup
+    # (running by path, e.g. `pytest test/foo.py`). Under `pytest --pyargs
+    # omnistat_tests` the conftest loads too late for pytest_addoption, so
+    # getoption uses a default and forcing falls back to the env var.
+    flag = config.getoption(f"--require-{marker_name}", default=False)
+    env = os.environ.get(f"OMNISTAT_REQUIRE_{marker_name.upper()}") == "1"
+    return flag or env
+
+
 def pytest_collection_modifyitems(config, items):
     checks = {
-        "rocm": (_rocm_available, "--require-rocm", "ROCm not available"),
-        "rocprofiler": (_rocprofiler_available, "--require-rocprofiler", "rocprofiler SDK not available"),
-        "tsdb": (_tsdb_available, "--require-tsdb", "TSDB config not available"),
-        "docker": (_docker_available, "--require-docker", "Docker not available"),
+        "rocprofiler": (_rocprofiler_available, "rocprofiler SDK not available"),
+        "tsdb": (_tsdb_available, "TSDB config not available"),
+        "docker": (_docker_available, "Docker not available"),
     }
 
     for item in items:
-        for marker_name, (check_fn, cli_flag, reason) in checks.items():
+        for marker_name, (check_fn, reason) in checks.items():
             if marker_name in item.keywords:
                 if check_fn():
                     continue
-                if config.getoption(cli_flag):
-                    continue  # let it run and fail hard
+                if _is_required(config, marker_name):
+                    continue  # forced: let it run and fail hard
                 item.add_marker(pytest.mark.skip(reason=reason))
