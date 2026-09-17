@@ -204,6 +204,7 @@ COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocprofiler"],
         "metrics": ROCPROFILER_METRICS,
+        "marks": [pytest.mark.rocprofiler],
         "config_sections": {
             "omnistat.collectors.rocprofiler": {"profile": "default"},
             "omnistat.collectors.rocprofiler.default": {
@@ -355,8 +356,9 @@ def pytest_generate_tests(metafunc):
         ids = []
         for config in COLLECTOR_CONFIGS:
             config_sections = config.get("config_sections")
+            marks = config.get("marks", [])
             for metric in config["metrics"]:
-                argvalues.append(((config["collectors"], config_sections), metric))
+                argvalues.append(pytest.param((config["collectors"], config_sections), metric, marks=marks))
                 collector_config = config["collectors"].copy()
                 if len(collector_config) > 1:
                     if "::" in collector_config[1]:

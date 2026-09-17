@@ -5,12 +5,15 @@ import pytest
 
 
 def pytest_addoption(parser):
-    parser.addoption("--require-rocprofiler", action="store_true",
-                     help="Fail (don't skip) if rocprofiler SDK is unavailable")
-    parser.addoption("--require-tsdb", action="store_true",
-                     help="Fail (don't skip) if VictoriaMetrics/Prometheus TSDB is unavailable")
-    parser.addoption("--require-docker", action="store_true",
-                     help="Fail (don't skip) if Docker is unavailable")
+    parser.addoption(
+        "--require-rocprofiler", action="store_true", help="Fail (don't skip) if rocprofiler SDK is unavailable"
+    )
+    parser.addoption(
+        "--require-tsdb",
+        action="store_true",
+        help="Fail (don't skip) if VictoriaMetrics/Prometheus TSDB is unavailable",
+    )
+    parser.addoption("--require-docker", action="store_true", help="Fail (don't skip) if Docker is unavailable")
 
 
 def pytest_configure(config):
@@ -39,6 +42,7 @@ def _tsdb_available():
         return False
     try:
         from omnistat.utils import readConfig
+
         cfg = readConfig(str(config_file))
         return "omnistat.query" in cfg
     except Exception:
