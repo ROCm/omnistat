@@ -43,13 +43,13 @@ jobs:
           pip install -r requirements.txt
           pip install -r test/requirements.txt
           pip install "nanobind<3.0"
-          cmake -S rocprofiler-sdk/ -B build/
+          cmake -S omnistat/rocprofiler-sdk/ -B build/
           cmake --build build/
           cmake --install build/ --prefix .
 
       - name: Build kernel trace and counter libraries
         run: |
-          cmake -B build -S rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON -DBUILD_COUNT_LIB=ON
+          cmake -B build -S omnistat/rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON -DBUILD_COUNT_LIB=ON
           cmake --build build
 
       - name: Build test workloads

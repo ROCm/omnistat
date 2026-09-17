@@ -31,7 +31,7 @@ For development and custom builds, the extension can be installed with CMake:
 pip install nanobind
 
 # Build and install in place
-cmake -S rocprofiler-sdk/ -B build/
+cmake -S omnistat/rocprofiler-sdk/ -B build/
 cmake --build build/
 cmake --install build/ --prefix .
 ```
@@ -40,7 +40,7 @@ With a **`venv`** virtual environment:
 ```bash
 python3 -m venv ~/venv/omnistat
 ~/venv/omnistat/bin/pip install nanobind
-cmake -S rocprofiler-sdk/ -B build/ -DPython_EXECUTABLE=~/venv/omnistat/bin/python
+cmake -S omnistat/rocprofiler-sdk/ -B build/ -DPython_EXECUTABLE=~/venv/omnistat/bin/python
 cmake --build build/
 cmake --install build/ --prefix .
 ```
@@ -143,7 +143,7 @@ trace data over HTTP), and the `fmt` library if the compiler lacks
 ### Building
 
 ```bash
-cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
+cmake -S omnistat/rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
 cmake --build build-trace/
 ```
 

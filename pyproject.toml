@@ -12,6 +12,7 @@ omnistat-query = "omnistat.query:main"
 omnistat-rms-env = "omnistat.rms_env:main"
 omnistat-standalone = "omnistat.standalone:main"
 omnistat-inspect = "omnistat.inspect.cli:main"
+omnistat-build-extensions = "omnistat.build_extensions:main"
 
 [build-system]
 requires = ["setuptools>=61", "wheel", "setuptools-git-versioning>=2.0,<3", "cmake-build-extension", "cmake", "nanobind<3.0"]
@@ -24,7 +25,13 @@ packages = ["omnistat", "omnistat.contrib", "omnistat.inspect", "omnistat.inspec
 dependencies = { file = ["requirements.txt"] }
 
 [tool.setuptools.package-data]
-"omnistat" = ["config/omnistat.default","collector_definitions.json"]
+"omnistat" = [
+    "config/omnistat.default",
+    "collector_definitions.json",
+    "rocprofiler-sdk/**/*.cpp",
+    "rocprofiler-sdk/**/*.hpp",
+    "rocprofiler-sdk/**/CMakeLists.txt",
+]
 
 [tool.setuptools-git-versioning]
 enabled = true
