@@ -1,11 +1,5 @@
 # User-mode execution
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
-
 In user-mode executions, Omnistat data collectors and a companion VictoriaMetrics
 server are deployed temporarily on hosts assigned to a user's job, as
 highlighted in {numref}`fig-user-mode`. The following assumptions are made
@@ -55,7 +49,7 @@ directory of the release.
 
 For user-mode execution, Omnistat includes additional options in the `[omnistast.usermode]` section of the runtime configuration file. A portion of the [default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default) config file is highlighted below with the lines in yellow indicating settings to confirm or customize for your local environment.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :caption: Sample Omnistat configuration file
    :emphasize-lines: 2,4,8,11,12,13
@@ -82,7 +76,7 @@ yellow need to be customized for the local installation path.
 
 
    ### SLURM example
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :emphasize-lines: 6-7
    :caption: Example SLURM job file using user-mode Omnistat with a 10 second sampling interval
@@ -110,7 +104,7 @@ yellow need to be customized for the local installation path.
 
   ### Flux example
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :emphasize-lines: 8-9
    :caption: Example FLUX job file using user-mode Omnistat with a 1 second sampling interval
@@ -290,7 +284,7 @@ following table.
 Exported data can be easily loaded as a data frame using tools like Pandas for
 further processing.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: python
    :caption: Python script to read exported time series as a Pandas data frame
 
@@ -312,7 +306,7 @@ further processing.
 
   ```
 
-```eval_rst
+```{eval-rst}
 .. code-block:: python
    :caption: Python script to plot average GPU Utilization per node
 

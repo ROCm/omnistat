@@ -1,0 +1,26 @@
+# Navigation for the Omnistat documentation (sphinx-external-toc).
+# Each captioned subtree renders as a bold section header with its pages
+# listed directly beneath it.
+root: index
+subtrees:
+  - caption: Introduction
+    entries:
+      - file: introduction
+      - file: metrics
+  - caption: Installation
+    entries:
+      - file: installation/index
+      - file: installation/system-install
+      - file: installation/user-mode
+      - file: installation/extensions
+  - caption: Visualization & Analysis
+    entries:
+      - file: grafana
+      - file: agents
+  - caption: Site-Specific Instructions
+    entries:
+      - file: sites
+      - file: site.frontier
+      - file: site.tuo
+  - entries:
+      - file: developer/developers
