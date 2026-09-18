@@ -1,14 +1,4 @@
-# Site-Specific Instructions
-
-```eval_rst
-.. toctree::
-   :hidden:
-   :glob:
-   :maxdepth: 4
-
-   site.frontier
-   site.tuo
-```
+# Overview
 
 
 Omnistat is installed on several supercomputers and the following links provide site-specific instructions to get going using User-mode data collection during an analysis job.

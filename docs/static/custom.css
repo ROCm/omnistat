@@ -1,18 +1,78 @@
-/* override table width restrictions */
-.wy-table-responsive table td, .wy-table-responsive table th {
+/* Allow wide metric tables to wrap instead of forcing horizontal scroll. */
+.bd-article table td,
+.bd-article table th {
     white-space: normal;
 }
-.wy-table-responsive {
-    margin-bottom: 24px;
-    max-width: 100%;
-    overflow: visible;
-}
 
-.wy-table-responsive code {
+/* Denser inline code inside tables for long metric listings. */
+.bd-article table code {
     font-size: 0.85em;
 }
 
-.wy-nav-content {
-    /* max-width: none !important; */ /* For full width */
-    max-width: 1000px !important;
+/* Tighten vertical spacing between list items. The theme wraps each item in a
+   <p> and gives it ~.25rem top/bottom margins via a high-specificity rule
+   (ul li>p:first-child), so !important is needed to collapse it; a small
+   per-item margin then provides controlled, compact spacing. */
+.bd-article li > p {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    line-height: 1.4;
+}
+.bd-article ul li,
+.bd-article ol li {
+    margin-bottom: 0.2rem;
+}
+
+/* Keep code blocks (and their captions) left-aligned; some base rules
+   otherwise center literal blocks, which garbles pre-formatted ASCII output. */
+.bd-article div.highlight pre,
+.bd-article .literal-block-wrapper,
+.bd-article .code-block-caption {
+    text-align: left;
+}
+
+/* Space around the header divider between the AMD logo and the site title.
+   The theme markup uses mx-40/my-25 utility classes that are undefined in
+   this rocm-docs-core version, so the divider renders flush without them. */
+.rocm-header .header-logo-title .vr {
+    margin-left: 1.25rem;
+    margin-right: 1.25rem;
+}
+
+/* Left-align the whole layout so the sidebar hugs the left edge instead of
+   the page being centered (which leaves empty margin left of the navbar). */
+.bd-container {
+    justify-content: flex-start;
+}
+
+/* Fixed-width left (primary) sidebar (theme default is a fluid 25%). */
+.bd-sidebar-primary {
+    width: 15rem;
+    flex: 0 0 15rem;
+}
+
+/* Developer Guide has a single page, so render it as one bold, top-level
+   section link aligned with the caption headers (a caption + lone child would
+   just duplicate the label). Matches the caption weight/color/indent. */
+.bd-links li.toctree-l1 > a[href*="developers.html"] {
+    font-weight: var(--pst-sidebar-header-font-weight);
+    color: var(--pst-color-text-base);
+    font-size: var(--pst-sidebar-font-size);
+    padding-left: 0;
+    margin-top: 0.65rem;
+}
+
+/* Tighten vertical spacing in the left (primary) sidebar navigation. */
+.bd-links p.caption {
+    margin-top: 0.65rem;
+    margin-bottom: 0.15rem;
+}
+.bd-links ul.bd-sidenav {
+    margin-bottom: 0.15rem;
+}
+.bd-links li.toctree-l1 > a,
+.bd-links li.toctree-l2 > a {
+    padding-top: 0.12rem;
+    padding-bottom: 0.12rem;
+    line-height: 1.25;
 }

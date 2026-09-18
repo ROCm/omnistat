@@ -1,10 +1,5 @@
 # Building optional components
 
-```eval_rst
-.. toctree::
-   :hidden:
-```
-
 Omnistat includes two optional components that can be built and installed to
 provide additional data collector capabilities.
 

@@ -1,14 +1,6 @@
 # Overview
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
-
 Welcome to the documentation area for the **Omnistat** project.  Use the navigation links on the left-hand side of this page to access more information on installation and capabilities.
-
-[Browse Omnistat source code on Github](https://github.com/ROCm/omnistat)
 
 ## What is Omnistat?
 
@@ -24,7 +16,9 @@ Omnistat provides a set of utilities to aid cluster administrators or individual
   * ROCm driver version
   * GPU type
   * GPU vBIOS version
-### Additional optional metrics:
+
+**Additional optional metrics:**
+
 * RAS information (error counts per GPU block)
 * GPU power caps
 * GPU throttling events
@@ -63,7 +57,7 @@ In the __system-wide monitoring__ case, a system administrator enables data coll
 Conversely, in the __user-mode__ case,  Omnistat data collector(s) and a companion VictoriaMetrics server are deployed temporarily on hosts assigned to a user's job.  At the end of the job, Omnistat utilities can query cached telemetry data to summarize GPU utilization details or it can be visualized offline after the job completes. An example command-line summary from this user-mode approach is highlighted as follows:
 
 (query_report_card)=
-```eval_rst
+```{eval-rst}
 .. _report_card:
 
 .. code-block:: none

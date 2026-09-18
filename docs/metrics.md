@@ -1,11 +1,5 @@
 # Metrics Available
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
-
 Omnistat supports multiple embedded data collectors to aggregate a large
 collection of metrics from a variety of system sources.  Many of the available
 data collectors are optional and can be enabled via runtime configuration
@@ -229,7 +223,7 @@ Each profile defines a sampling mode and a set of counters to be collected:
   flat or nested JSON list. For a complete list of supported counters, see the
   [ROCm documentation](https://rocm.docs.amd.com/en/latest/conceptual/gpu-arch/mi300-mi200-performance-counters.html).
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :caption: Example profile to collect free-running and active cycles on all GPUs
 
@@ -238,7 +232,7 @@ Each profile defines a sampling mode and a set of counters to be collected:
     counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
   ```
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :caption: Example profile to collect HBM reads and writes from different GPU IDs
 
@@ -370,7 +364,7 @@ the path to the executable and `timeout_secs` (default: 10 seconds) controls how
 long Omnistat will wait for the script to complete before discarding its
 output.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :caption: Example configuration
 
@@ -398,7 +392,7 @@ Lines beginning with `#` and empty lines are ignored.
 The following example script emits free disk space metrics for multiple
 filesystems, using a label to distinguish between them.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: my_metrics.sh
 
@@ -412,7 +406,7 @@ filesystems, using a label to distinguish between them.
 
 Running the script produces output that Omnistat parses directly:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: console
 
     $ ./my_metrics.sh
@@ -437,7 +431,7 @@ To demonstrate creation of high-level markers from within a job script, the foll
 highlights annotation of repeated runs of an application with different command-line arguments (where
 the argument size is included as text for the annotation).
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: Example use of high-level annotations in a job script
 
@@ -471,7 +465,7 @@ To support this feature, Omnistat exposes a `/fom` REST endpoint that accepts a 
 user-supplied FOM name and value; the timestamp is encoded automatically at time of receipt.  The
 following highlights a CLI example using `curl` to report a GFLOPS measurement:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: Example FOM submission using curl
 
@@ -484,7 +478,7 @@ For C++ applications, a more efficient approach is to use a header-only HTTP
 client such as [cpp-httplib](https://github.com/yhirose/cpp-httplib) to issue
 the POST request directly from within the application code:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: cpp
    :caption: Example FOM submission from C++ using cpp-httplib
 
@@ -510,7 +504,7 @@ the POST request directly from within the application code:
 
 Python applications can use the `requests` library to report FOM values natively:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: python
    :caption: Example FOM submission from Python using requests
 
