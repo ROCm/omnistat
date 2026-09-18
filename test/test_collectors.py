@@ -35,14 +35,13 @@ import requests
 from flask import Flask
 from prometheus_client.parser import text_string_to_metric_families
 
-import test.config
-import test.hardware
-import test.workloads as workloads
+from . import config as test_config
+from . import hardware, workloads
 from omnistat.monitor import Monitor
 from omnistat.node_monitoring import OmnistatServer
 
 requires_counters = pytest.mark.skipif(
-    not test.config.rocm_host or "ROCP_TOOL_LIBRARIES" not in os.environ,
+    not test_config.rocm_host or "ROCP_TOOL_LIBRARIES" not in os.environ,
     reason="requires ROCm and ROCP_TOOL_LIBRARIES",
 )
 
@@ -143,8 +142,8 @@ NETWORK_METRICS = [
 # fmt: on
 
 
-gpu_type = test.hardware.gpu_type
-consumer_gpu = test.hardware.consumer_gpu
+gpu_type = hardware.gpu_type
+consumer_gpu = hardware.consumer_gpu
 
 # Cache hostname for skip checks
 try:
@@ -205,6 +204,7 @@ COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocprofiler"],
         "metrics": ROCPROFILER_METRICS,
+        "marks": [pytest.mark.rocprofiler],
         "config_sections": {
             "omnistat.collectors.rocprofiler": {"profile": "default"},
             "omnistat.collectors.rocprofiler.default": {
@@ -241,7 +241,7 @@ ops = {
 
 class OmnistatTestServer:
     def __init__(self, collectors, config_sections=None):
-        self.address = f"localhost:{test.config.port}"
+        self.address = f"localhost:{test_config.port}"
         self.url = f"http://{self.address}/metrics"
         self.timeout = 5.0
         self.collectors = collectors
@@ -276,7 +276,7 @@ class OmnistatTestServer:
 
     def generate_config(self, enabled_collectors, config_sections=None):
         config = configparser.ConfigParser()
-        collectors = {"rocm_path": test.config.rocm_path}
+        collectors = {"rocm_path": test_config.rocm_path}
 
         for collector in SUPPORTED_COLLECTORS:
             collectors[f"enable_{collector}"] = False
@@ -356,8 +356,9 @@ def pytest_generate_tests(metafunc):
         ids = []
         for config in COLLECTOR_CONFIGS:
             config_sections = config.get("config_sections")
+            marks = config.get("marks", [])
             for metric in config["metrics"]:
-                argvalues.append(((config["collectors"], config_sections), metric))
+                argvalues.append(pytest.param((config["collectors"], config_sections), metric, marks=marks))
                 collector_config = config["collectors"].copy()
                 if len(collector_config) > 1:
                     if "::" in collector_config[1]:
@@ -368,7 +369,7 @@ def pytest_generate_tests(metafunc):
 
 
 class TestCollectors:
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_collector_metrics(self, server, available_metrics, desired_metric):
         # Ensure the fixture supplied metrics are fetched
         assert available_metrics is not None, "Failed to fetch metrics from server"
@@ -376,7 +377,7 @@ class TestCollectors:
             desired_metric["name"] in available_metrics["metrics"]
         ), f"Missing metric {desired_metric['name']} with {server.collectors}"
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_collector_labels(self, server, available_metrics, desired_metric):
         assert available_metrics is not None, "Failed to fetch metrics from server"
 
@@ -386,7 +387,7 @@ class TestCollectors:
             for label in desired_metric["labels"]:
                 assert label in available_labels, f"Missing label '{label}' for '{name}'"
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_collector_values(self, server, available_metrics, desired_metric):
         assert available_metrics is not None, "Failed to fetch metrics from server"
         validate_expr = desired_metric["validate"]
@@ -446,19 +447,20 @@ class TestHardwareCounters:
         ), f"No GPU had all counters > 0: {metrics}"
 
 
+@pytest.mark.rocprofiler
 class TestHardwareCounterConfigValidation:
     """Verify rocprofiler_sdk config validation catches bad configs with sys.exit(4)."""
 
     def _make_config(self, profile_opts=None, rocprofiler_opts=None):
         config = configparser.ConfigParser()
-        config["omnistat.collectors"] = {"rocm_path": test.config.rocm_path}
+        config["omnistat.collectors"] = {"rocm_path": test_config.rocm_path}
         if rocprofiler_opts:
             config["omnistat.collectors.rocprofiler"] = rocprofiler_opts
         if profile_opts is not None:
             config["omnistat.collectors.rocprofiler.default"] = profile_opts
         return config
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_bad_json_counters(self):
         from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
 
@@ -467,7 +469,7 @@ class TestHardwareCounterConfigValidation:
             rocprofiler_sdk(config=config)
         assert exc_info.value.code == 4
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_missing_counters(self):
         from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
 
@@ -476,7 +478,7 @@ class TestHardwareCounterConfigValidation:
             rocprofiler_sdk(config=config)
         assert exc_info.value.code == 4
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_non_list_counters(self):
         from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
 
@@ -485,7 +487,7 @@ class TestHardwareCounterConfigValidation:
             rocprofiler_sdk(config=config)
         assert exc_info.value.code == 4
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_invalid_sampling_mode(self):
         from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
 
@@ -494,7 +496,7 @@ class TestHardwareCounterConfigValidation:
             rocprofiler_sdk(config=config)
         assert exc_info.value.code == 4
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_constant_mode_multiple_counter_sets(self):
         from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
 
@@ -505,7 +507,7 @@ class TestHardwareCounterConfigValidation:
             rocprofiler_sdk(config=config)
         assert exc_info.value.code == 4
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_deprecated_metrics_option(self):
         from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
 
@@ -517,7 +519,7 @@ class TestHardwareCounterConfigValidation:
             rocprofiler_sdk(config=config)
         assert exc_info.value.code == 4
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_gpu_id_mode_single_counter_set(self):
         from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
 

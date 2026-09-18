@@ -34,21 +34,19 @@ from flask import Flask
 from prometheus_client.parser import text_string_to_metric_families
 from werkzeug.serving import make_server
 
-import test.config
-import test.hardware
-import test.workloads as workloads
+from . import config, hardware, workloads
 from omnistat.collector_kernel_trace import KernelTrace
 
-requires_rocm = pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+requires_rocm = pytest.mark.skipif(not config.rocm_host, reason="requires ROCm")
 
 requires_tracing = pytest.mark.skipif(
-    not test.config.rocm_host or "ROCP_TOOL_LIBRARIES" not in os.environ,
+    not config.rocm_host or "ROCP_TOOL_LIBRARIES" not in os.environ,
     reason="requires ROCm and ROCP_TOOL_LIBRARIES",
 )
 
 # Number of kernels launched by tracing tests. RDNA GPUs are unreliable with
 # the highest dispatch rate.
-KERNEL_COUNTS = [1, 100, 1000] if test.hardware.consumer_gpu else [1, 100, 1000, 10000]
+KERNEL_COUNTS = [1, 100, 1000] if hardware.consumer_gpu else [1, 100, 1000, 10000]
 
 METRIC_KERNEL_DROPPED = "omnistat_kernel_dropped_dispatches"
 METRIC_KERNEL_DISPATCH_COUNT = "omnistat_kernel_dispatch_count"
@@ -77,7 +75,7 @@ class StandaloneTestServer:
         self._thread = threading.Thread(target=self._update_loop, daemon=True)
         self._thread.start()
 
-        self._port = int(test.config.port)
+        self._port = int(config.port)
         self._http_server = make_server(self._address, self._port, self.app)
         self._http_thread = threading.Thread(target=self._http_server.serve_forever, daemon=True)
         self._http_thread.start()

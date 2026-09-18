@@ -31,18 +31,22 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from .generate_telemetry import GPU_METRIC_NAMES, TelemetryGenerator
 from omnistat.query import QueryMetrics
 from omnistat.standalone import push_to_victoria_metrics
 from omnistat.utils import readConfig
-from test.generate_telemetry import GPU_METRIC_NAMES, TelemetryGenerator
 
 test_path = Path(__file__).resolve().parent
 CONFIG_FILE = f"{test_path}/docker/victoriametrics/omnistat-query.config"
 
 config = readConfig(CONFIG_FILE)
-URL = config["omnistat.query"]["prometheus_url"]
+try:
+    URL = config["omnistat.query"]["prometheus_url"]
+except KeyError:
+    pytest.skip("TSDB config not available", allow_module_level=True)
 
 
+@pytest.mark.tsdb
 class TestQuery:
     # Validate job reports from the query tool by generating traces with known
     # values in all samples.

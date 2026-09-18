@@ -26,9 +26,10 @@ import pytest
 import requests
 from prometheus_api_client import PrometheusConnect
 
-from test import config
+from . import config
 
 
+@pytest.mark.docker
 class TestIntegration:
     def test_request(self):
         response = requests.get(config.prometheus_url)

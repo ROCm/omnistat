@@ -1,4 +1,4 @@
-name: Release Python Wheel
+name: Release Python Wheel (v2)
 
 on:
   workflow_dispatch:
@@ -25,16 +25,93 @@ permissions:
   contents: read
 
 jobs:
-  release-wheel:
-    name: Build and upload release Python wheel
+  build-wheel:
+    name: Build wheels
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        run: |
+          pip install build
+          pip install -r requirements.txt
+
+      - name: Build wheels
+        run: |
+          python -m build --wheel --outdir dist/
+          python -m build --wheel --outdir dist/ test/
+
+      - name: Upload wheels as artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: wheels
+          path: dist/*.whl
+
+  test-wheel:
+    name: Test wheels
+    needs: build-wheel
+    runs-on: [self-hosted, instinct]
+    defaults:
+      run:
+        shell: bash --login {0}
+    steps:
+      - name: Download wheels
+        uses: actions/download-artifact@v8
+        with:
+          name: wheels
+          path: dist/
+
+      - name: Create virtual environment
+        run: |
+          python -m venv test_venv
+          source test_venv/bin/activate
+          pip install dist/omnistat-*.whl
+          pip install dist/omnistat_tests-*.whl
+
+      - name: Test wheel (no optional extensions)
+        run: |
+          source "$(pwd)/test_venv/bin/activate"
+          rundir="${RUNNER_TEMP}/omnistat-wheel-test-baseline"
+          rm -rf "$rundir"; mkdir -p "$rundir"
+          cd "$rundir"
+          srun -N 1 -J omnistat-wheel-test -p mi2101x -t 00:10:00 \
+            pytest --pyargs omnistat_tests -v
+
+      - name: Build optional extensions from installed wheel
+        run: |
+          source "$(pwd)/test_venv/bin/activate"
+          omnistat-build-extensions
+
+      - name: Test optional extensions (counters and kernel tracing)
+        run: |
+          source "$(pwd)/test_venv/bin/activate"
+          export ROCP_TOOL_LIBRARIES="$(omnistat-build-extensions --print-trace-lib):$(omnistat-build-extensions --print-count-lib):"
+          rundir="${RUNNER_TEMP}/omnistat-wheel-test-extensions"
+          rm -rf "$rundir"; mkdir -p "$rundir"
+          cd "$rundir"
+          srun -N 1 -J omnistat-wheel-ext-test -p mi2101x -t 00:10:00 \
+            pytest --pyargs omnistat_tests.test_collectors omnistat_tests.test_endpoint_collectors -v
+
+  upload-wheel:
+    name: Upload wheels to S3
+    needs: test-wheel
+    if: ${{ inputs.deploy == true }}
     runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash
     env:
-      # All environment-scoped secrets are exposed here so the shell can select
-      # the active set dynamically. To add a new environment: add its secrets
-      # as new env vars below and add a matching case branch in "Resolve environment".
       DEV_ROLE_ARN: ${{ secrets.AWS_DEV_EXTRAS_ROLE_ARN }}
       DEV_S3_BUCKET: ${{ secrets.AWS_DEV_EXTRAS_S3_BUCKET }}
       NIGHTLY_ROLE_ARN: ${{ secrets.AWS_NIGHTLY_EXTRAS_ROLE_ARN }}
@@ -44,13 +121,7 @@ jobs:
       STABLE_STAGING_ROLE_ARN: ${{ secrets.AWS_STABLE_STAGING_EXTRAS_ROLE_ARN }}
       STABLE_STAGING_S3_BUCKET: ${{ secrets.AWS_STABLE_STAGING_EXTRAS_S3_BUCKET }}
       S3_PATH: v5/rocm/extras/omnistat/whl-next/omnistat/
-
     steps:
-      - name: Resolve release tag
-        id: tag
-        run: |
-          echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
-
       - name: Resolve environment
         id: env
         run: |
@@ -80,11 +151,6 @@ jobs:
           echo "role_arn=${ROLE_ARN}" >> $GITHUB_OUTPUT
           echo "s3_bucket=${S3_BUCKET}" >> $GITHUB_OUTPUT
 
-      - name: Checkout repository at tag
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ steps.tag.outputs.tag }}
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -94,37 +160,25 @@ jobs:
       - name: Check if release artifact already exists in S3
         id: check
         run: |
-          TAG='${{ steps.tag.outputs.tag }}'
+          TAG='${{ inputs.tag }}'
           VERSION="${TAG#v}"
           COUNT=$(aws s3 ls s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} --no-paginate 2>/dev/null | grep -c "omnistat-${VERSION}-.*\.whl$" || true)
           if [ "${COUNT}" -gt 0 ]; then
-            echo "Wheel already exists for version ${VERSION} in s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} — skipping build and upload."
+            echo "Wheel already exists for version ${VERSION} — skipping upload."
             echo "skip=true" >> $GITHUB_OUTPUT
           else
-            echo "No existing wheel found for version ${VERSION}. Proceeding with build."
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Set up Python
+      - name: Download wheels
         if: ${{ steps.check.outputs.skip == 'false' }}
-        uses: actions/setup-python@v6
+        uses: actions/download-artifact@v8
         with:
-          python-version: '3.14'
+          name: wheels
+          path: dist/
 
-      - name: Install dependencies
+      - name: Upload wheels to S3
         if: ${{ steps.check.outputs.skip == 'false' }}
-        run: |
-          pip install build
-          pip install -r requirements.txt
-
-      - name: Build wheel
-        if: ${{ steps.check.outputs.skip == 'false' }}
-        run: |
-          python -m build --wheel --outdir dist/
-          python -m build --wheel --outdir dist/ test/
-
-      - name: Upload wheel to S3
-        if: ${{ steps.check.outputs.skip == 'false' && inputs.deploy == true }}
         run: |
           aws s3 cp dist/*.whl s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} \
             --no-progress

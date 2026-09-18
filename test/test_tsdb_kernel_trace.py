@@ -31,16 +31,19 @@ import pytest
 import requests
 from flask import Flask
 
+from .generate_kernels import KernelGenerator
 from omnistat.collector_kernel_trace import KernelTrace
 from omnistat.standalone import push_to_victoria_metrics
 from omnistat.utils import readConfig
-from test.generate_kernels import KernelGenerator
 
 test_path = Path(__file__).resolve().parent
 CONFIG_FILE = f"{test_path}/docker/victoriametrics/omnistat-query.config"
 
 config = readConfig(CONFIG_FILE)
-URL = config["omnistat.query"]["prometheus_url"]
+try:
+    URL = config["omnistat.query"]["prometheus_url"]
+except KeyError:
+    pytest.skip("TSDB config not available", allow_module_level=True)
 
 METRIC_COUNT = "omnistat_kernel_dispatch_count"
 METRIC_DURATION = "omnistat_kernel_total_duration_ns"
@@ -102,6 +105,7 @@ def query_at(metric, labels_str, timestamp_ms):
     return int(float(results[0]["value"][1])) if results else None
 
 
+@pytest.mark.tsdb
 class TestKernelTrace:
     def test_buffer_hold(self):
         trace = KernelGenerator(duration_s=1, interval_s=1.0)
