@@ -1,11 +1,5 @@
 # System-wide installation
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
-
 There are different ways to deploy and install Omnistat in a data center, and
 each system will generally require a certain level of customization. Here, we
 provide the basic manual steps to install the Omnistat client
@@ -150,7 +144,7 @@ Now that the software is installed under a dedicated user and basic functionalit
 * `CPUAffinity` set to the CPU core index where omnistat-monitor will be pinned -->
 
 
-```eval_rst
+```{eval-rst}
 .. literalinclude:: omnistat.service
    :language: ini
    :emphasize-lines: 8-11
@@ -162,7 +156,7 @@ Using elevated credentials, install the omnistat.service file across all desired
 
 By default, the omnistat data collector will only respond to queries initiated from the local host where the service is running.  This functionality is controlled by a runtime configuration and generally needs to be updated to include the IP address of a companion Prometheus server in order to gather system-wide metrics (see follow-on [discussion](#prometheus-server) for additional details on configuring a Prometheus server).  For example, if your locally configured Prometheus instance has an IP address of `10.0.0.42`, update the `omnistat/config/omnistat.default` runtime file (or equivalent if using a custom configfile) to include the following setting:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :emphasize-lines: 3
 
@@ -239,7 +233,7 @@ For production cluster or data center deployments, configuration management tool
 
 Note that this recipe assumes existence of a dedicated non-root user to run the Omnistat exporter, templated as `{{ omnistat_user }}`.  It also assumes that an Omnistat release has been downloaded into a local path, templated to be in the `{{ omnistat_dir }}`.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: yaml
    :caption: roles/omnistat/tasks/main.yml
 
@@ -280,7 +274,7 @@ Note that this recipe assumes existence of a dedicated non-root user to run the 
         state: started
 ```
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :caption: roles/omnistat/templates/omnistat.service.j2
 
@@ -317,7 +311,7 @@ An optional info metric capability exists within Omnistat to allow collected tel
 
 1. To enable resource manager tracking on the Omnistat client side, edit the chosen runtime config file and update the `[omnistat.collectors]` and `[omnistat.collectors.rms]` sections to have the following settings highlighted in yellow.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :caption: omnistat.default
    :emphasize-lines: 4,7-8
@@ -333,7 +327,7 @@ An optional info metric capability exists within Omnistat to allow collected tel
 ```
 The settings above enable the resource manager collector and configures Omnistat to query the `/tmp/omni_rmsjobinfo` file to derive dynamic job information.  This file can be generated using the `omnistat-rms-env` utility from within an actively running job, or during prolog execution.  The resulting file contains a simple JSON format as follows:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: json
    :caption: /tmp/omni_rmsjobinfo
 
@@ -358,7 +352,7 @@ Prolog=/etc/slurm/slurm.prolog
 Epilog=/etc/slurm/slurm.epilog
 ```
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: /etc/slurm/slurm.prolog snippet
 
@@ -370,7 +364,7 @@ Epilog=/etc/slurm/slurm.epilog
     fi
 ```
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: /etc/slurm/slurm.epilog snippet
 
