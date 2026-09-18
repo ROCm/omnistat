@@ -56,21 +56,30 @@ int Tracer::initialize() {
         return 0;
     }
 
-    client_ = std::make_unique<httplib::Client>("127.0.0.1", static_cast<int>(endpoint_port_));
-    if (!client_) {
+    auto make_client = [this]() {
+        auto client = std::make_unique<httplib::Client>("127.0.0.1", static_cast<int>(endpoint_port_));
+        if (!client) {
+            return client;
+        }
+
+        // Every trace batch exceeds CPPHTTPLIB_EXPECT_100_THRESHOLD (1 KB), so httplib
+        // would add Expect: 100-continue and pay a round trip for a handshake the
+        // collector never uses. An empty header suppresses it.
+        client->set_default_headers({{"Expect", ""}});
+        client->set_keep_alive(true);
+        client->set_tcp_nodelay(true);
+        client->set_connection_timeout(HTTP_TIMEOUT_SECONDS);
+        client->set_read_timeout(HTTP_TIMEOUT_SECONDS);
+        client->set_write_timeout(HTTP_TIMEOUT_SECONDS);
+        return client;
+    };
+
+    kernel_client_ = make_client();
+    rccl_client_ = make_client();
+    if (!kernel_client_ || !rccl_client_) {
         std::cerr << "Omnistat: failed to initialize HTTP client" << std::endl;
         return -1;
     }
-
-    // Every trace batch exceeds CPPHTTPLIB_EXPECT_100_THRESHOLD (1 KB), so httplib
-    // would add Expect: 100-continue and pay a round trip for a handshake the
-    // collector never uses. An empty header suppresses it.
-    client_->set_default_headers({{"Expect", ""}});
-    client_->set_keep_alive(true);
-    client_->set_tcp_nodelay(true);
-    client_->set_connection_timeout(HTTP_TIMEOUT_SECONDS);
-    client_->set_read_timeout(HTTP_TIMEOUT_SECONDS);
-    client_->set_write_timeout(HTTP_TIMEOUT_SECONDS);
 
     ROCPROFILER_CALL(rocprofiler_create_context(&context_), "create context");
     context_created_ = true;
@@ -216,16 +225,16 @@ Tracer::~Tracer() {
 
 bool Tracer::kernel_flush(std::string_view data, size_t num_records) {
     record_kernel_flush_time();
-    return post_batch(kernel_path_, data, num_records, kernel_stats_);
+    return post_batch(*kernel_client_, kernel_path_, data, num_records, kernel_stats_);
 }
 
-bool Tracer::post_batch(const std::string& path, std::string_view data, size_t num_records,
-                        Stats& stats) {
+bool Tracer::post_batch(httplib::Client& client, const std::string& path, std::string_view data,
+                        size_t num_records, Stats& stats) {
     const auto start = std::chrono::steady_clock::now();
 
     bool success = false;
     try {
-        auto res = client_->Post(path, data.data(), data.size(), "application/json");
+        auto res = client.Post(path, data.data(), data.size(), "application/json");
         success = res && res->status < 400;
     } catch (...) {
         if (log_enabled_) {
@@ -357,7 +366,7 @@ void Tracer::rccl_drain(std::string& out, size_t& num_records) {
 }
 
 bool Tracer::rccl_flush(std::string_view data, size_t num_records) {
-    return post_batch(rccl_path_, data, num_records, rccl_stats_);
+    return post_batch(*rccl_client_, rccl_path_, data, num_records, rccl_stats_);
 }
 
 void Tracer::report_callback_error(const char* where, const std::exception& error) {
