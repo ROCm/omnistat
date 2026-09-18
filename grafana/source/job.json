@@ -56,7 +56,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 191,
+      "id": 227,
       "title": "Job Info",
       "type": "row"
     },
@@ -108,7 +108,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -176,7 +176,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -248,7 +248,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -335,7 +335,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -417,7 +417,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -484,7 +484,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -551,7 +551,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -578,7 +578,7 @@
         "x": 0,
         "y": 4
       },
-      "id": 192,
+      "id": 228,
       "title": "Performance Overview",
       "type": "row"
     },
@@ -638,7 +638,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -789,7 +789,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -875,7 +875,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -1028,7 +1028,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -1114,7 +1114,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -1240,7 +1240,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -1314,7 +1314,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -1443,7 +1443,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -1518,7 +1518,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -1673,7 +1673,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.1.1",
+      "pluginVersion": "13.2.1",
       "targets": [
         {
           "datasource": {
@@ -1739,7 +1739,7 @@
         "x": 0,
         "y": 25
       },
-      "id": 193,
+      "id": 229,
       "panels": [
         {
           "datasource": {
@@ -2445,7 +2445,7 @@
         "x": 0,
         "y": 26
       },
-      "id": 194,
+      "id": 230,
       "panels": [
         {
           "datasource": {
@@ -2904,7 +2904,7 @@
         "x": 0,
         "y": 27
       },
-      "id": 195,
+      "id": 231,
       "panels": [
         {
           "datasource": {
@@ -3887,7 +3887,7 @@
         "x": 0,
         "y": 28
       },
-      "id": 196,
+      "id": 232,
       "panels": [
         {
           "datasource": {
@@ -4549,7 +4549,7 @@
         "x": 0,
         "y": 29
       },
-      "id": 197,
+      "id": 233,
       "panels": [
         {
           "datasource": {
@@ -5157,7 +5157,7 @@
         "x": 0,
         "y": 30
       },
-      "id": 198,
+      "id": 234,
       "panels": [
         {
           "datasource": {
@@ -5819,7 +5819,7 @@
         "x": 0,
         "y": 31
       },
-      "id": 199,
+      "id": 235,
       "panels": [
         {
           "datasource": {
@@ -5942,7 +5942,7 @@
         "x": 0,
         "y": 32
       },
-      "id": 200,
+      "id": 236,
       "panels": [
         {
           "datasource": {
@@ -6174,7 +6174,7 @@
         "x": 0,
         "y": 33
       },
-      "id": 201,
+      "id": 237,
       "panels": [
         {
           "datasource": {
@@ -6301,7 +6301,7 @@
         "x": 0,
         "y": 34
       },
-      "id": 202,
+      "id": 238,
       "panels": [
         {
           "datasource": {
@@ -6429,7 +6429,7 @@
         "x": 0,
         "y": 35
       },
-      "id": 203,
+      "id": 239,
       "panels": [
         {
           "datasource": {
@@ -7104,7 +7104,7 @@
         "x": 0,
         "y": 36
       },
-      "id": 204,
+      "id": 240,
       "panels": [
         {
           "datasource": {
@@ -7710,7 +7710,7 @@
         "x": 0,
         "y": 37
       },
-      "id": 205,
+      "id": 241,
       "panels": [
         {
           "datasource": {
@@ -8030,7 +8030,1333 @@
         "x": 0,
         "y": 38
       },
-      "id": 206,
+      "id": 253,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Total RCCL collectives issued by the job over the selected range, across all ranks. Read together with '# Late Records', which is non-zero when this is an undercount.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "none"
+            }
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 8,
+            "x": 0,
+            "y": 39
+          },
+          "id": 254,
+          "interval": "$interval",
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(last_over_time(omnistat_rccl_collective_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "# Collectives",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "RCCL records discarded by Omnistat because their timestamp fell outside the collection window. Non-zero means the collective counts and byte totals on this row are undercounts. It does not affect the application.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "none"
+            }
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 8,
+            "x": 8,
+            "y": 39
+          },
+          "id": 255,
+          "interval": "$interval",
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(omnistat_rccl_late_records[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "# Late Records",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Rate of RCCL collectives issued, by collective type. Straggler/mix view.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "cps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 42
+          },
+          "id": 256,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "sum by (collective) (rate(omnistat_rccl_collective_count[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "instant": false,
+              "legendFormat": "{{collective}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Collective Rate [by type]",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Rate of logical bytes moved by RCCL collectives, bucketed by message size.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "Bps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 42
+          },
+          "id": 257,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "sum by (size_bucket) (rate(omnistat_rccl_collective_total_bytes[$__rate_interval]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "instant": false,
+              "legendFormat": "<={{size_bucket}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Logical Bytes Moved [by size bucket]",
+          "type": "timeseries",
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^<=inf$",
+                "renamePattern": ">4G"
+              }
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Total RCCL collectives issued and logical bytes moved, per collective type, over the range. Shows every collective that ran \u2014 including rare/startup ones (e.g. a single AllGather) that don't register on the rate panel.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": true,
+                "inspect": false
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Bytes"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 50
+          },
+          "id": 258,
+          "interval": "$interval",
+          "options": {
+            "cellHeight": "sm",
+            "showHeader": true,
+            "footer": {
+              "reducers": []
+            }
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (collective) (last_over_time(omnistat_rccl_collective_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (collective) (last_over_time(omnistat_rccl_collective_total_bytes[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "B"
+            }
+          ],
+          "title": "Collective Count [by type]",
+          "transformations": [
+            {
+              "id": "groupBy",
+              "options": {
+                "fields": {
+                  "collective": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "Value #A": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "Value #B": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  }
+                }
+              }
+            },
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "includeByName": {},
+                "indexByName": {
+                  "collective": 0,
+                  "Value #A (sum)": 1,
+                  "Value #B (sum)": 2
+                },
+                "renameByName": {
+                  "collective": "Collective",
+                  "Value #A (sum)": "Count",
+                  "Value #B (sum)": "Bytes"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "Count"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "RCCL communicators created per NODE, sliced by exact communicator rank count. Reads out the job's parallelism layout (small=TP/PP, large=DP). Cumulative: teardown is not traced, so this is communicators created, not currently live -- a rising line mid-run means communicators are being rebuilt. Per-node (not per-card): all GPUs on a node share the same communicators, so max-by-node avoids 8x double-counting.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 58
+          },
+          "id": 259,
+          "interval": "$interval",
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "expr": "max by (instance, nranks) (last_over_time(omnistat_rccl_comm_created_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "instant": false,
+              "legendFormat": "{{instance}} ranks={{nranks}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Communicators Created [by node]",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "Per rank (instance+card) over the range: communicators created and their average creation time. Creation confined to startup is healthy; a count that keeps climbing mid-run is a rebuild-in-a-loop smell. Communicator creation synchronizes across ranks, so its duration is dominated by waiting for the last rank to arrive \u2014 read a large average as rank startup skew rather than RCCL setup cost.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": true,
+                "inspect": false
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Avg Init"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "ns"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 24,
+            "x": 0,
+            "y": 66
+          },
+          "id": 260,
+          "interval": "$interval",
+          "options": {
+            "cellHeight": "sm",
+            "showHeader": true,
+            "footer": {
+              "reducers": []
+            }
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (instance, card) (last_over_time(omnistat_rccl_comm_created_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (instance, card) (last_over_time(omnistat_rccl_comm_init_total_duration_ns[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) / sum by (instance, card) (last_over_time(omnistat_rccl_comm_created_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "B"
+            }
+          ],
+          "title": "Communicator Creation [per rank]",
+          "transformations": [
+            {
+              "id": "groupBy",
+              "options": {
+                "fields": {
+                  "instance": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "card": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "Value #A": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "Value #B": {
+                    "aggregations": [
+                      "mean"
+                    ],
+                    "operation": "aggregate"
+                  }
+                }
+              }
+            },
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "includeByName": {},
+                "indexByName": {
+                  "instance": 0,
+                  "card": 1,
+                  "Value #A (sum)": 2,
+                  "Value #B (mean)": 3
+                },
+                "renameByName": {
+                  "instance": "Node",
+                  "card": "Card",
+                  "Value #A (sum)": "Created",
+                  "Value #B (mean)": "Avg Init"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "Created"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "One row per rank (instance+card) over the selected range: collectives issued and logical bytes. Sort by any column to find the straggler across ranks/nodes.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": true,
+                "inspect": false
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Bytes"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 24,
+            "x": 0,
+            "y": 75
+          },
+          "id": 261,
+          "interval": "$interval",
+          "options": {
+            "cellHeight": "sm",
+            "showHeader": true,
+            "footer": {
+              "reducers": []
+            }
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (instance, card) (last_over_time(omnistat_rccl_collective_count[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (instance, card) (last_over_time(omnistat_rccl_collective_total_bytes[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "B"
+            }
+          ],
+          "title": "Per-Rank RCCL Summary",
+          "transformations": [
+            {
+              "id": "groupBy",
+              "options": {
+                "fields": {
+                  "instance": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "card": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "Value #A": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "Value #B": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  }
+                }
+              }
+            },
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "includeByName": {},
+                "indexByName": {
+                  "instance": 0,
+                  "card": 1,
+                  "Value #A (sum)": 2,
+                  "Value #B (sum)": 3
+                },
+                "renameByName": {
+                  "instance": "Node",
+                  "card": "Card",
+                  "Value #A (sum)": "Collectives",
+                  "Value #B (sum)": "Bytes"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "Collectives"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "AllReduce collectives over the range, grouped by datatype, message size bucket, and exact communicator size (rank count). Columns: count, total logical bytes.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": true,
+                "inspect": false
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Bytes"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Size"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "regex",
+                        "options": {
+                          "pattern": "^inf$",
+                          "result": {
+                            "text": ">4G",
+                            "index": 0
+                          }
+                        }
+                      },
+                      {
+                        "type": "regex",
+                        "options": {
+                          "pattern": "(.+)",
+                          "result": {
+                            "text": "<=$1",
+                            "index": 1
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 24,
+            "x": 0,
+            "y": 84
+          },
+          "id": 262,
+          "interval": "$interval",
+          "options": {
+            "cellHeight": "sm",
+            "showHeader": true,
+            "footer": {
+              "reducers": []
+            }
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (datatype, size_bucket, comm_size) (last_over_time(omnistat_rccl_collective_count{collective=\"AllReduce\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (datatype, size_bucket, comm_size) (last_over_time(omnistat_rccl_collective_total_bytes{collective=\"AllReduce\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "B"
+            }
+          ],
+          "title": "AllReduce Message Summary",
+          "transformations": [
+            {
+              "id": "groupBy",
+              "options": {
+                "fields": {
+                  "datatype": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "size_bucket": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "comm_size": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "Value #A": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "Value #B": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  }
+                }
+              }
+            },
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "includeByName": {},
+                "indexByName": {
+                  "datatype": 0,
+                  "size_bucket": 1,
+                  "comm_size": 2,
+                  "Value #A (sum)": 3,
+                  "Value #B (sum)": 4
+                },
+                "renameByName": {
+                  "datatype": "Type",
+                  "size_bucket": "Size",
+                  "comm_size": "Ranks",
+                  "Value #A (sum)": "Count",
+                  "Value #B (sum)": "Bytes"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "Count"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${source}"
+          },
+          "description": "AllGather collectives over the range, grouped by datatype, message size bucket, and exact communicator size (rank count). Columns: count, total logical bytes.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": true,
+                "inspect": false
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Bytes"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Size"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "regex",
+                        "options": {
+                          "pattern": "^inf$",
+                          "result": {
+                            "text": ">4G",
+                            "index": 0
+                          }
+                        }
+                      },
+                      {
+                        "type": "regex",
+                        "options": {
+                          "pattern": "(.+)",
+                          "result": {
+                            "text": "<=$1",
+                            "index": 1
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 24,
+            "x": 0,
+            "y": 93
+          },
+          "id": 263,
+          "interval": "$interval",
+          "options": {
+            "cellHeight": "sm",
+            "showHeader": true,
+            "footer": {
+              "reducers": []
+            }
+          },
+          "pluginVersion": "13.1.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (datatype, size_bucket, comm_size) (last_over_time(omnistat_rccl_collective_count{collective=\"AllGather\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${source}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (datatype, size_bucket, comm_size) (last_over_time(omnistat_rccl_collective_total_bytes{collective=\"AllGather\"}[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "B"
+            }
+          ],
+          "title": "AllGather Message Summary",
+          "transformations": [
+            {
+              "id": "groupBy",
+              "options": {
+                "fields": {
+                  "datatype": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "size_bucket": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "comm_size": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "Value #A": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  },
+                  "Value #B": {
+                    "aggregations": [
+                      "sum"
+                    ],
+                    "operation": "aggregate"
+                  }
+                }
+              }
+            },
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "includeByName": {},
+                "indexByName": {
+                  "datatype": 0,
+                  "size_bucket": 1,
+                  "comm_size": 2,
+                  "Value #A (sum)": 3,
+                  "Value #B (sum)": 4
+                },
+                "renameByName": {
+                  "datatype": "Type",
+                  "size_bucket": "Size",
+                  "comm_size": "Ranks",
+                  "Value #A (sum)": "Count",
+                  "Value #B (sum)": "Bytes"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "Count"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "table"
+        }
+      ],
+      "title": "RCCL Communication",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "id": 243,
       "panels": [
         {
           "datasource": {
@@ -8096,7 +9422,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 39
+            "y": 40
           },
           "id": 43,
           "interval": "$interval",
@@ -8211,7 +9537,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 39
+            "y": 40
           },
           "id": 48,
           "interval": "$interval",
@@ -8272,9 +9598,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 40
       },
-      "id": 207,
+      "id": 244,
       "panels": [
         {
           "datasource": {
@@ -8341,7 +9667,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 40
+            "y": 41
           },
           "id": 120,
           "options": {
@@ -8531,7 +9857,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 40
+            "y": 41
           },
           "id": 121,
           "options": {
@@ -8666,9 +9992,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 41
       },
-      "id": 208,
+      "id": 245,
       "panels": [
         {
           "datasource": {
@@ -8733,7 +10059,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 41
+            "y": 42
           },
           "id": 105,
           "interval": "$interval",
@@ -8842,7 +10168,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 41
+            "y": 42
           },
           "id": 106,
           "interval": "$interval",
@@ -8898,9 +10224,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 41
+        "y": 42
       },
-      "id": 209,
+      "id": 246,
       "panels": [
         {
           "datasource": {
@@ -8966,7 +10292,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 42
+            "y": 43
           },
           "id": 116,
           "interval": "$interval",
@@ -9082,7 +10408,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 42
+            "y": 43
           },
           "id": 117,
           "interval": "$interval",
@@ -9199,7 +10525,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 50
+            "y": 51
           },
           "id": 188,
           "options": {
@@ -9356,7 +10682,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 50
+            "y": 51
           },
           "id": 189,
           "options": {
@@ -9491,7 +10817,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 58
+            "y": 59
           },
           "id": 190,
           "options": {
@@ -9554,9 +10880,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 43
       },
-      "id": 210,
+      "id": 247,
       "panels": [
         {
           "datasource": {
@@ -9622,7 +10948,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 43
+            "y": 44
           },
           "id": 46,
           "interval": "$interval",
@@ -9732,7 +11058,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 43
+            "y": 44
           },
           "id": 45,
           "interval": "$interval",
@@ -9843,7 +11169,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 51
+            "y": 52
           },
           "id": 159,
           "interval": "$interval",
@@ -9954,7 +11280,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 51
+            "y": 52
           },
           "id": 160,
           "interval": "$interval",
@@ -10027,7 +11353,7 @@
             "h": 3,
             "w": 12,
             "x": 0,
-            "y": 59
+            "y": 60
           },
           "id": 161,
           "interval": "$interval",
@@ -10102,7 +11428,7 @@
             "h": 3,
             "w": 12,
             "x": 12,
-            "y": 59
+            "y": 60
           },
           "id": 162,
           "interval": "$interval",
@@ -10160,9 +11486,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 44
       },
-      "id": 211,
+      "id": 248,
       "panels": [
         {
           "datasource": {
@@ -10227,7 +11553,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 44
+            "y": 45
           },
           "id": 146,
           "interval": "$interval",
@@ -10335,7 +11661,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 52
+            "y": 53
           },
           "id": 149,
           "interval": "$interval",
@@ -10443,7 +11769,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 60
+            "y": 61
           },
           "id": 147,
           "interval": "$interval",
@@ -10551,7 +11877,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 68
+            "y": 69
           },
           "id": 148,
           "interval": "$interval",
@@ -10606,9 +11932,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 45
       },
-      "id": 212,
+      "id": 249,
       "panels": [
         {
           "datasource": {
@@ -10674,7 +12000,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 45
+            "y": 46
           },
           "id": 135,
           "interval": "$interval",
@@ -10731,9 +12057,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 46
       },
-      "id": 213,
+      "id": 250,
       "panels": [
         {
           "datasource": {
@@ -10838,7 +12164,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 46
+            "y": 47
           },
           "id": 56,
           "interval": "$interval",
@@ -10929,9 +12255,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 47
       },
-      "id": 214,
+      "id": 251,
       "panels": [
         {
           "datasource": {
@@ -11063,7 +12389,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 47
+            "y": 48
           },
           "id": 107,
           "interval": "$interval",
@@ -11247,7 +12573,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 47
+            "y": 48
           },
           "id": 112,
           "interval": "$interval",
@@ -11409,7 +12735,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 185
+            "y": 186
           },
           "id": 108,
           "interval": "$interval",
@@ -11625,7 +12951,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 185
+            "y": 186
           },
           "id": 113,
           "interval": "$interval",
@@ -11783,7 +13109,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 193
+            "y": 194
           },
           "id": 109,
           "interval": "$interval",
@@ -11999,7 +13325,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 193
+            "y": 194
           },
           "id": 115,
           "interval": "$interval",
@@ -12154,7 +13480,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 201
+            "y": 202
           },
           "id": 110,
           "interval": "$interval",
@@ -12374,7 +13700,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 201
+            "y": 202
           },
           "id": 114,
           "interval": "$interval",
@@ -12440,9 +13766,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 48
       },
-      "id": 215,
+      "id": 252,
       "panels": [
         {
           "datasource": {
@@ -12469,7 +13795,7 @@
             "h": 2,
             "w": 4,
             "x": 0,
-            "y": 48
+            "y": 49
           },
           "id": 178,
           "options": {
@@ -12535,7 +13861,7 @@
             "h": 2,
             "w": 4,
             "x": 4,
-            "y": 48
+            "y": 49
           },
           "id": 180,
           "options": {
@@ -12601,7 +13927,7 @@
             "h": 2,
             "w": 4,
             "x": 8,
-            "y": 48
+            "y": 49
           },
           "id": 179,
           "options": {
@@ -12668,7 +13994,7 @@
             "h": 2,
             "w": 4,
             "x": 12,
-            "y": 48
+            "y": 49
           },
           "id": 181,
           "options": {
@@ -12735,7 +14061,7 @@
             "h": 2,
             "w": 4,
             "x": 16,
-            "y": 48
+            "y": 49
           },
           "id": 182,
           "options": {
@@ -12801,7 +14127,7 @@
             "h": 2,
             "w": 4,
             "x": 20,
-            "y": 48
+            "y": 49
           },
           "id": 185,
           "options": {
@@ -12906,7 +14232,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 50
+            "y": 51
           },
           "id": 183,
           "interval": "$interval",
@@ -13041,7 +14367,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 50
+            "y": 51
           },
           "id": 184,
           "interval": "$interval",
