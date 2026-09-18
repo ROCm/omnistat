@@ -131,9 +131,10 @@ class Tracer {
 
     // Single POST path for both streams: times the request, classifies the
     // outcome and updates that stream's stats. The wrappers differ only in
-    // endpoint, stats object, and whether the kernel flush time is stamped.
-    bool post_batch(const std::string& path, std::string_view data, size_t num_records,
-                    Stats& stats);
+    // client, endpoint, stats object, and whether the kernel flush time is
+    // stamped.
+    bool post_batch(httplib::Client& client, const std::string& path, std::string_view data,
+                    size_t num_records, Stats& stats);
 
     void record_kernel_flush_time();
 
@@ -157,7 +158,8 @@ class Tracer {
     // HTTP client and endpoint paths for sending trace data. The same client
     // (127.0.0.1:port, keep-alive) serves both the kernel-dispatch stream and
     // the RCCL stream, which target different endpoint paths.
-    std::unique_ptr<httplib::Client> client_;
+    std::unique_ptr<httplib::Client> kernel_client_;
+    std::unique_ptr<httplib::Client> rccl_client_;
     const uint64_t endpoint_port_;
     const bool log_enabled_;
 
