@@ -1,11 +1,5 @@
 # Agent Support
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
-
 In addition to the [Grafana](./grafana.md) dashboards and command-line
 [report card](query_report_card) already available, Omnistat
 provides a set of *skills* that let an AI coding agent explore, summarize, and

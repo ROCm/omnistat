@@ -9,3 +9,8 @@ You can build a local copy of the documentation in this directory using
 The base python dependencies for documentation builds are housed in
 requirements-docs.txt. In addition, the Makefile relies on the
 sphinx-build binary which also needs to be available locally.
+
+Note: the documentation theme (rocm-docs-core) requires Python 3.10 or
+newer. On older interpreters (e.g. Python 3.9), pip will silently install
+an outdated rocm-docs-core release and the docs will render incorrectly,
+so build in a Python >= 3.10 environment.

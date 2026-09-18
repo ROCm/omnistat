@@ -1,7 +1,5 @@
 sphinx
-myst-parser
-recommonmark
+rocm-docs-core>=1.41.0
 pygments
 sphinxmark
-sphinx-rtd-theme
 #pillow==9.5.0

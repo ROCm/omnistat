@@ -1,14 +1,8 @@
 # Developer Guide
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
-
 The core telemetry collection facilities within Omnistat are oriented around GPU metrics. However, Omnistat is designed with extensibility in mind and adopts an object oriented approach using [abstract base classes](https://docs.python.org/3/library/abc.html) in Python to facilitate implementation of multiple data collectors. This functionality allows developers to extend Omnistat to add custom data collectors relatively easily by instantiating additional instances of the `Collector` class highlighted below.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: python
    :caption: Base class definition housed in omnistat/collector_base.py
 
@@ -61,7 +55,7 @@ We prefer to always embed the metric units directly into the name of the metric 
 
 First, let's implement the uptime data collection in a new source code file. Recall that we need to implement two methods leveraging the `Collector` base class provided by Omnistat and the code listing below shows a complete working example.  Note that Omnistat data collectors leverage the Python [prometheus client](https://github.com/prometheus/client_python) to define Gauge metrics. In this example, we include a `kernel` label for the `node_uptime_secs` metric that is determined from `/proc/version` during initialization. The node uptime is determined from `/proc/uptime` and is updated on every call to `updateMetrics()`.
 
-```eval_rst
+```{eval-rst}
 .. literalinclude:: collector_uptime.py
    :caption: Code example implementing an uptime collector: omnistat/collector_uptime.py
    :language: python
@@ -78,7 +72,7 @@ With our newly created collector housed in *omnistat/collector_uptime.py*, the n
         
 The code snippet below highlights changes applied to the JSON file to add a registration block for the new uptime collector (not enabled by default):
 
-```eval_rst
+```{eval-rst}
 .. code-block:: python
    :caption: Code modification for JSON in omnistat/collector_definitions.py to register new uptime collector
    :emphasize-lines: 7-12
@@ -107,7 +101,7 @@ The code snippet below highlights changes applied to the JSON file to add a regi
 
 Following the two steps above to implement a new uptime data collector, we should now be able to run the `omnistat-monitor` data collector interactively to confirm availability of the additional metric.  Since we configured this to be an optional collector that is not enabled by default, we need to first modify the runtime configuration file to enable the new option. To do this, add the highlighted line below to the local `omnistat/config/omnistat.default` file.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :emphasize-lines: 7
 
@@ -128,7 +122,7 @@ Now, launch data collector interactively:
 
 If all went well, we should see new log messages for the `node_uptime_secs` metric.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: shell-session
    :emphasize-lines: 21-22
 
@@ -159,7 +153,7 @@ If all went well, we should see new log messages for the `node_uptime_secs` metr
 As a final test while the `omnistat-monitor` client is still running interactively, use a *separate* command shell to query the prometheus endpoint.
 
 
-```eval_rst
+```{eval-rst}
 .. code-block:: shell-session
    :emphasize-lines: 12
 
