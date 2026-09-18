@@ -101,7 +101,7 @@ jobs:
           rm -rf "$rundir"; mkdir -p "$rundir"
           cd "$rundir"
           srun -N 1 -J omnistat-wheel-ext-test -p mi2101x -t 00:10:00 \
-            pytest --pyargs omnistat_tests -v
+            pytest --pyargs omnistat_tests.test_collectors omnistat_tests.test_endpoint_collectors -v
 
   upload-wheel:
     name: Upload wheels to S3

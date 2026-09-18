@@ -209,6 +209,34 @@ def _build_tool_libs(src, rocm_path, jobs, build_trace, build_count, build_dir, 
             shutil.rmtree(work, ignore_errors=True)
 
 
+def _build_workloads():
+    """Best-effort (re)build of the GPU test workloads shipped in omnistat_tests.
+
+    The counter and kernel-tracing tests launch real GPU workloads, so building
+    the extensions is not enough to exercise them. hipcc auto-selects the locally
+    detected GPU arch, so this rebuilds for whatever node/queue it runs on. It is
+    skipped when omnistat_tests is not installed, and a build failure is reported
+    but never aborts the extension build.
+    """
+    try:
+        import omnistat_tests.workloads as workloads
+    except ImportError:
+        print("==> omnistat_tests not installed; skipping test workload build")
+        return
+
+    workloads_dir = Path(workloads.__file__).resolve().parent
+    if not (workloads_dir / "Makefile").exists():
+        print(f"==> no workload Makefile under {workloads_dir}; skipping")
+        return
+
+    print(f"==> Building test workloads in {workloads_dir}")
+    try:
+        _run(["make", "-C", str(workloads_dir), "clean"])
+        _run(["make", "-C", str(workloads_dir)])
+    except subprocess.CalledProcessError:
+        print("WARNING: test workload build failed", file=sys.stderr)
+
+
 def _write_build_info(rocm_path, rocm_version):
     info = {
         "rocm_path": rocm_path,
@@ -257,6 +285,12 @@ def main():
     parser.add_argument("--jobs", "-j", type=int, default=os.cpu_count() or 1, help="Parallel build jobs")
     parser.add_argument("--rocm-path", help="Path to the ROCm installation (default: $ROCM_PATH or hipconfig)")
     parser.add_argument("--force", action="store_true", help="Force a clean rebuild")
+    parser.add_argument(
+        "--no-workloads",
+        dest="workloads",
+        action="store_false",
+        help="Skip (re)building the GPU test workloads from omnistat_tests",
+    )
     parser.add_argument("--print-trace-lib", action="store_true", help="Print the trace library path and exit")
     parser.add_argument("--print-count-lib", action="store_true", help="Print the count library path and exit")
     args = parser.parse_args()
@@ -306,6 +340,9 @@ def main():
         if build_tracing:
             hint = placed.get(TRACE_LIB, _default_lib_dir() / TRACE_LIB)
             print(f"\nTo enable kernel tracing, set:\n  export ROCP_TOOL_LIBRARIES={hint}")
+
+    if args.workloads:
+        _build_workloads()
 
     print("\nDone.")
 
