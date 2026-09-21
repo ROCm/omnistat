@@ -13,14 +13,17 @@
    <p> and gives it ~.25rem top/bottom margins via a high-specificity rule
    (ul li>p:first-child), so !important is needed to collapse it; a small
    per-item margin then provides controlled, compact spacing. */
+/* Compact list spacing: the theme wraps each item in a <p> and gives it
+   ~.25rem top/bottom margins, so !important is needed to collapse it; a small
+   per-item gap then gives a readable single-line separation. */
 .bd-article li > p {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
-    line-height: 1.4;
+    line-height: 1.2;
 }
 .bd-article ul li,
 .bd-article ol li {
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.1rem;
 }
 
 /* Keep code blocks (and their captions) left-aligned; some base rules
