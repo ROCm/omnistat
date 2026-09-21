@@ -117,6 +117,9 @@ html_theme = "rocm_docs_theme"
 # External table of contents (sphinx-external-toc, provided by rocm-docs-core).
 external_toc_path = "./sphinx/_toc.yml"
 
+# Don't pull intersphinx mappings for other ROCm projects
+external_projects = []
+
 # Local template overrides (e.g. footer copyright); searched before the theme's.
 templates_path = ["_templates"]
 
