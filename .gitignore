@@ -6,10 +6,11 @@ data_prom
 *.pdf
 *~
 build
+dist/
 docker/data/*
 docker/prometheus-data/
 !docker/data/README.md
-omnistat.egg-info/
+*.egg-info/
 omnistat/*.so
 test/slurm-job-user.sh
 grafana/json-models/user/
