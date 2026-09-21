@@ -12,6 +12,7 @@ docker/prometheus-data/
 !docker/data/README.md
 *.egg-info/
 omnistat/*.so
+omnistat/rocprofiler-sdk/lib/
 test/slurm-job-user.sh
 grafana/json-models/user/
 test/workloads/launch_kernels
