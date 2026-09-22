@@ -134,5 +134,5 @@ local filesystems like `/tmp`.
 
 After job completion, transfer the archived Omnistat data to your local machine
 for analysis using the Docker environment described in the [user-mode
-guide](installation/user-mode.md#exploring-results-locally).
+guide](user-mode/analysis.md#exploring-results-locally).
 

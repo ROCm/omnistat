@@ -41,6 +41,9 @@ release = repo_version
 # from the repo VERSION file (avoids Sphinx's default "... documentation").
 html_title = f"{project} {version}"
 
+# Minimum supported ROCm version, substituted into docs as {__ROCM_MIN_VERSION__}.
+rocm_min_version = "6.3.0"
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -172,4 +175,7 @@ def replaceString(app, docname, source):
     source[0] = result
 
 
-docstring_replacements = {"{__VERSION__}": version}
+docstring_replacements = {
+    "{__VERSION__}": version,
+    "{__ROCM_MIN_VERSION__}": rocm_min_version,
+}

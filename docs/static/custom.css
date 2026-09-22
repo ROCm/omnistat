@@ -9,6 +9,34 @@
     font-size: 0.85em;
 }
 
+/* Colored terminal output (e.g. pytest) that honors the light/dark theme:
+   background/foreground track the theme's code surface, and the accent
+   colors have a light- and dark-mode variant. Progress rows use flexbox so
+   the trailing [NN%] right-aligns like a real terminal. */
+.terminal-output {
+    background: var(--pst-color-surface);
+    color: var(--pst-color-text-base);
+    padding: 1rem 1.25rem;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+    line-height: 1.5;
+    font-family: var(--pst-font-family-monospace, monospace);
+    font-size: 0.8rem;
+}
+.terminal-output .t-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    white-space: nowrap;
+}
+.terminal-output .t-dim  { color: var(--pst-color-text-muted); }
+.terminal-output .t-pass { color: #1a7f37; }
+.terminal-output .t-skip { color: #9a6700; }
+.terminal-output .t-pct  { color: #0550ae; }
+html[data-theme="dark"] .terminal-output .t-pass { color: #3fb950; }
+html[data-theme="dark"] .terminal-output .t-skip { color: #d29922; }
+html[data-theme="dark"] .terminal-output .t-pct  { color: #39c5bb; }
+
 /* Tighten vertical spacing between list items. The theme wraps each item in a
    <p> and gives it ~.25rem top/bottom margins via a high-specificity rule
    (ul li>p:first-child), so !important is needed to collapse it; a small
@@ -52,17 +80,6 @@
 .bd-sidebar-primary {
     width: 15rem;
     flex: 0 0 15rem;
-}
-
-/* Developer Guide has a single page, so render it as one bold, top-level
-   section link aligned with the caption headers (a caption + lone child would
-   just duplicate the label). Matches the caption weight/color/indent. */
-.bd-links li.toctree-l1 > a[href*="developers.html"] {
-    font-weight: var(--pst-sidebar-header-font-weight);
-    color: var(--pst-color-text-base);
-    font-size: var(--pst-sidebar-font-size);
-    padding-left: 0;
-    margin-top: 0.65rem;
 }
 
 /* Tighten vertical spacing in the left (primary) sidebar navigation. */

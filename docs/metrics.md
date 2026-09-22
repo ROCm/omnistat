@@ -212,9 +212,9 @@ extension](./installation/extensions.md#hardware-counter-support).
 To ensure all performance counters are collected correctly, the collector needs
 performance monitoring privileges, with requirements depending on how Omnistat
 is executed:
-- [*System mode*](./installation/system-install.md): Run Omnistat with the
+- [*System mode*](./system-mode/system-install.md): Run Omnistat with the
   `CAP_PERFMON` capability enabled.
-- [*User mode*](./installation/user-mode.md):
+- [*User mode*](./user-mode/user-install.md):
   `/proc/sys/kernel/perf_event_paranoid` must be `2` or less (some
   distributions default to `4`), and the [counter enablement
   library](./installation/extensions.md#counter-enablement-library) must be

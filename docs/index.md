@@ -8,4 +8,4 @@ width: 950px
 ---
 ```
 
- Use the navigation links on the left-hand side of this page to access a more detailed [overview](introduction.md) for the project along with [installation](installation/index.md) details and [visualization](grafana.md)  capabilities. Collected telemetry can also be explored by an AI coding agent using [agent skills](agents.md). Details for how to extend Omnistat to include additional data collection mechanisms are provided in the [developer](developer/developers.md) guide.
+ Use the navigation links on the left-hand side of this page to access a more detailed [overview](introduction.md) for the project along with [installation](installation/index.md) details and [visualization](system-mode/grafana.md)  capabilities. Collected telemetry can also be explored by an AI coding agent using [agent skills](agents.md). Details for how to extend Omnistat to include additional data collection mechanisms are provided in the [developer](developer/developers.md) guide.

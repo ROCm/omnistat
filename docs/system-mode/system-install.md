@@ -5,8 +5,6 @@ operation and this section highlights installation of the **system-mode** varian
 for permanent installations across an entire cluster and is typically performed by a system
 administrator with access to elevated credentials. 
 
-<!-- This section highlights installation options for __system mode__ along with additional details on Prometheus integration.  -->
-
 There are different ways to deploy and configure Omnistat in a data center, and each system will
 generally require a certain level of customization. Here, we provide the basic steps to install the
 Omnistat data collector, Prometheus server, and provide an example of how to deploy Omnistat in a
