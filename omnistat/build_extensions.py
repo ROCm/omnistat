@@ -254,7 +254,7 @@ def _print_lib(lib_name, explicit_rocm):
     if not lib.exists():
         sys.exit(
             f"ERROR: {lib_name} not found at {lib}. Build it first with "
-            "`omnistat-build-extensions` (or pass the --build-dir/--output-dir you used)."
+            "`omnistat-build-extras` (or pass the --build-dir/--output-dir you used)."
         )
     info_file = _default_lib_dir() / BUILD_INFO
     if info_file.exists():
@@ -266,7 +266,7 @@ def _print_lib(lib_name, explicit_rocm):
         if built_version and active_version and built_version != active_version:
             print(
                 f"WARNING: {lib_name} was built against ROCm {built_version} but the active "
-                f"ROCm is {active_version}; rebuild with `omnistat-build-extensions`.",
+                f"ROCm is {active_version}; rebuild with `omnistat-build-extras`.",
                 file=sys.stderr,
             )
     print(lib)
@@ -274,7 +274,7 @@ def _print_lib(lib_name, explicit_rocm):
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="omnistat-build-extensions",
+        prog="omnistat-build-extras",
         description="Build Omnistat's optional ROCm extensions against the active ROCm.",
     )
     parser.add_argument("--counters", action="store_true", help="Build the hardware-counter components")

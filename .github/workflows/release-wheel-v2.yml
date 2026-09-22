@@ -91,12 +91,12 @@ jobs:
       - name: Build optional extensions from installed wheel
         run: |
           source "$(pwd)/test_venv/bin/activate"
-          omnistat-build-extensions
+          omnistat-build-extras
 
       - name: Test optional extensions (counters and kernel tracing)
         run: |
           source "$(pwd)/test_venv/bin/activate"
-          export ROCP_TOOL_LIBRARIES="$(omnistat-build-extensions --print-trace-lib):$(omnistat-build-extensions --print-count-lib):"
+          export ROCP_TOOL_LIBRARIES="$(omnistat-build-extras --print-trace-lib):$(omnistat-build-extras --print-count-lib):"
           rundir="${RUNNER_TEMP}/omnistat-wheel-test-extensions"
           rm -rf "$rundir"; mkdir -p "$rundir"
           cd "$rundir"
