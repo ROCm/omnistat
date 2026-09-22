@@ -31,7 +31,7 @@ can be used in local deployments are highlighted below.
 ## Grafana server
 
 To visualize Omnistat's monitoring data, Grafana needs to be installed and
-configured to use the Prometheus server described in the [system-wide
+configured to use the Prometheus server described in the [system-mode
 installation](system-install.md).
 
 ### Installation
