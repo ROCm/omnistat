@@ -310,6 +310,17 @@ class NETWORK(Collector):
             self.__hw_extra_metrics[name] = Gauge(metric, description, labelnames=labels)
             logging.info(f"--> [registered] {metric} -> {description} (gauge)")
 
+        # Regroup by interface to read each device's counters together: on AINIC
+        # (ionic), a read that misses the cache's lifespan costs a firmware round trip.
+        self.__hw_counters_by_interface = {}
+        for data_paths, metrics in (
+            (self.__hw_shared_data_paths, self.__hw_shared_metrics),
+            (self.__hw_extra_data_paths, self.__hw_extra_metrics),
+        ):
+            for name, interfaces in data_paths.items():
+                for nic, (dclass, paths) in interfaces.items():
+                    self.__hw_counters_by_interface.setdefault(nic, []).append((metrics[name], dclass, paths))
+
     def updateMetrics(self):
         """Update registered metrics of interest"""
 
@@ -369,22 +380,15 @@ class NETWORK(Collector):
         # (no scaling); each metric sums its per-device counter list. device_class
         # travels with each interface's paths. shared_counters write the shared
         # rx/tx gauges; extra_counters write their own gauge.
-        hw_metrics = [
-            (self.__hw_shared_data_paths, self.__hw_shared_metrics),
-            (self.__hw_extra_data_paths, self.__hw_extra_metrics),
-        ]
-
-        for data_paths, metrics in hw_metrics:
-            for name, interfaces in data_paths.items():
-                metric = metrics[name]
-                for nic, (dclass, paths) in interfaces.items():
-                    total = 0
-                    for path in paths:
-                        try:
-                            with open(path, "r") as f:
-                                total += int(f.read().strip())
-                        except:
-                            pass
-                    metric.labels(device_class=dclass, interface=nic).set(total)
+        for nic, counters in self.__hw_counters_by_interface.items():
+            for metric, dclass, paths in counters:
+                total = 0
+                for path in paths:
+                    try:
+                        with open(path, "r") as f:
+                            total += int(f.read().strip())
+                    except:
+                        pass
+                metric.labels(device_class=dclass, interface=nic).set(total)
 
         return
