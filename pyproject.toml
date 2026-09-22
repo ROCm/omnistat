@@ -12,7 +12,7 @@ omnistat-query = "omnistat.query:main"
 omnistat-rms-env = "omnistat.rms_env:main"
 omnistat-standalone = "omnistat.standalone:main"
 omnistat-inspect = "omnistat.inspect.cli:main"
-omnistat-build-extensions = "omnistat.build_extensions:main"
+omnistat-build-extras = "omnistat.build_extensions:main"
 
 [build-system]
 requires = ["setuptools>=61", "wheel", "setuptools-git-versioning>=2.0,<3", "cmake-build-extension", "cmake", "nanobind<3.0"]
