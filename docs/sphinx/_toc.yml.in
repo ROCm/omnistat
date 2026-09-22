@@ -7,20 +7,27 @@ subtrees:
     entries:
       - file: introduction
       - file: metrics
-  - caption: Installation
+  - caption: System-mode
     entries:
-      - file: installation/index
-      - file: installation/system-install
-      - file: installation/user-mode
-      - file: installation/extensions
-  - caption: Visualization & Analysis
+      - file: system-mode/system-install
+        title: Installation
+      - file: system-mode/grafana
+        title: Grafana Integration      
+  - caption: User-mode
     entries:
-      - file: grafana
+      - file: user-mode/user-install
+        title: Installation
+      - file: user-mode/jobs
+      - file: user-mode/analysis
+        title: Analysis
       - file: agents
+      - file: installation/extensions
   - caption: Site-Specific Instructions
     entries:
       - file: sites
       - file: site.frontier
       - file: site.tuo
-  - entries:
+  - caption: Miscellaneous
+    entries:
       - file: developer/developers
+      - file: license

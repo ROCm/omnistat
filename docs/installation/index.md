@@ -4,6 +4,6 @@ As mentioned in the project {ref}`overview <user-vs-system>`, Omnistat has two p
 
 The installation/usage process differs based on the desired usage mode and additional installation details are provided for each case:
 
-* {doc}`System-wide deployment </installation/system-install>`
-* {doc}`User-mode execution </installation/user-mode>`
+* {doc}`System-mode deployment </system-mode/system-install>`
+* {doc}`User-mode execution </user-mode/user-install>`
 * {doc}`Building optional components </installation/extensions>`

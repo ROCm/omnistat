@@ -98,7 +98,7 @@ local filesystems like `/tmp`. Data can't be stored directly under Frontier's
 
 After job completion, transfer the archived Omnistat data to your local machine
 for analysis using the Docker environment described in the [user-mode
-guide](installation/user-mode.md#exploring-results-locally).
+guide](user-mode/analysis.md#exploring-results-locally).
 
 ## Additional Features
 
