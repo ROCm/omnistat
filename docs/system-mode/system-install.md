@@ -129,64 +129,6 @@ Example output of a successful run (including a few skipped) tests is as follows
 </div>
 ```
 
-<!-- At this point, we can verify basic functionality of the data collector and launch the client by hand.
-
-3. Launch data collector (`omnistat-monitor`) interactively.
-   ```shell-session
-   [omnidc@login]$ ./omnistat-monitor
-   ``` -->
-
-<!-- Launching the data collector client as described above will use a set of default
-configuration options housed within an [omnistat/config/omnistat.default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default) file including use of port `8001` for the Prometheus client. If all went well, example output from running `omnistat-monitor` is highlighted below: -->
-
-```shell-session
-Reading configuration from /home1/omnidc/omnistat/omnistat/config/omnistat.default
-Allowed query IPs = ['127.0.0.1']
-Runtime library loaded from /opt/rocm-6.2.1/lib/librocm_smi64.so
-SMI library API initialized
-SMI version >= 6
-Number of GPU devices = 4
-GPU topology indexing: Scanning devices from /sys/class/kfd/kfd/topology/nodes
---> Mapping: {0: '3', 1: '2', 2: '1', 3: '0'}
---> Using primary temperature location at edge
---> Using HBM temperature location at hbm_0
---> [registered] rocm_temperature_celsius -> Temperature (C) (gauge)
---> [registered] rocm_temperature_hbm_celsius -> HBM Temperature (C) (gauge)
---> [registered] rocm_average_socket_power_watts -> Average Graphics Package Power (W) (gauge)
---> [registered] rocm_sclk_clock_mhz -> current sclk clock speed (Mhz) (gauge)
---> [registered] rocm_mclk_clock_mhz -> current mclk clock speed (Mhz) (gauge)
---> [registered] rocm_vram_total_bytes -> VRAM Total Memory (B) (gauge)
---> [registered] rocm_vram_used_percentage -> VRAM Memory in Use (%) (gauge)
---> [registered] rocm_vram_busy_percentage -> Memory controller activity (%) (gauge)
---> [registered] rocm_utilization_percentage -> GPU use (%) (gauge)
-[2024-07-09 13:19:33 -0500] [2995880] [INFO] Starting gunicorn 21.2.0
-[2024-07-09 13:19:33 -0500] [2995880] [INFO] Listening at: http://0.0.0.0:8001 (2995880)
-[2024-07-09 13:19:33 -0500] [2995880] [INFO] Using worker: sync
-[2024-07-09 13:19:33 -0500] [2995881] [INFO] Booting worker with pid: 2995881
-```
-
-<!-- ```{note}
-You can override the default runtime configuration file above by setting an `OMNISTAT_CONFIG` environment variable or by using the `./omnistat-monitor --configfile` option.
-``` -->
-
-<!-- While the client is running interactively, we can use a _separate_ command shell to query the client to further confirm functionality. The output below highlights an example query response on a system with four GPUs installed (note that the metrics include unique card labels to differentiate specific GPU measurements):
-
-```shell-session
-[omnidc@login]$ curl localhost:8001/metrics | grep rocm | grep -v "^#"
-rocm_num_gpus 4.0
-rocm_temperature_celsius{card="3",location="edge"} 38.0
-rocm_temperature_celsius{card="2",location="edge"} 43.0
-rocm_temperature_celsius{card="1",location="edge"} 40.0
-rocm_temperature_celsius{card="0",location="edge"} 54.0
-rocm_average_socket_power_watts{card="3"} 35.0
-rocm_average_socket_power_watts{card="2"} 33.0
-rocm_average_socket_power_watts{card="1"} 35.0
-rocm_average_socket_power_watts{card="0"} 35.0
-...
-```
-
-Once local functionality has been established, you can terminate the interactive test (ctrl-c) and proceed with an automated startup procedure. -->
-
 
 ### Enable systemd service
 
