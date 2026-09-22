@@ -166,6 +166,48 @@ Alternatively, you can specify a value of `allowed_ips = 0.0.0.0` to disable any
 
 ---
 
+(optional-components)=
+## Optional component(s)
+
+Beyond the standard data collector, Omnistat provides optional components that unlock
+additional telemetry, most notably a GPU hardware counter collector built on
+ROCProfiler-SDK. Unlike the standard install, these components are compiled from C++
+sources and therefore require a local build step. The examples below build and install
+the counter collector alongside the data collector. See the
+[hardware counter](../metrics.md#hardware-counters) metrics for more information.
+
+::::{tab-set}
+:::{tab-item} Install latest release using pip
+:sync: release
+
+After completing the standard release install, build the optional ROCProfiler-SDK
+counter extension using the bundled helper:
+
+```bash
+[omnidc]$ omnistat-build-extras --counters
+```
+:::
+
+:::{tab-item} Use latest development from git source
+:sync: git
+
+From within a cloned copy of the repository, build the counter extension in place:
+
+```bash
+[omnidc]$ pip install cmake-build-extension nanobind
+[omnidc]$ BUILD_ROCPROFILER_SDK_EXTENSION=1 python setup.py build_ext --inplace
+```
+:::
+::::
+
+```{note}
+The optional components rely on `cmake` and a C++ compiler. Confirm the
+{ref}`counter enablement requirements <counter-enablement-requirements>` are satisfied
+before building.
+```
+
+---
+
 ## Prometheus server
 
 Once the `omnistat-monitor` daemon is configured and running system-wide, we next install and configure a [Prometheus](https://prometheus.io/) server to enable automatic telemetry collection. This server typically runs on an administrative host and can be installed via OS package manager, by downloading a [precompiled binary](https://prometheus.io/download/), or using a [Docker image](https://hub.docker.com/u/prom). The install steps below highlight installation via package manager followed by a simple scrape configuration.
