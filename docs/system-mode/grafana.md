@@ -71,7 +71,7 @@ To add a data source to Grafana:
 1. Click **Connections** in the left-side menu.
 2. Enter "Prometheus" in the search dialog, and click the **Prometheus** button
    under the search box.
-3. Configure the new Prometehus data source following instructions and provide
+3. Configure the new Prometheus data source following instructions and provide
    the hostname and port where Omnistat's Prometheus server is running.
    ```{eval-rst}
    .. figure:: ../images/grafana-data-source.png

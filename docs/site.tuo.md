@@ -49,7 +49,7 @@ If all runs well, the `omnistat-query` command above will include a short summar
 ```{eval-rst}
 
 .. code-block:: none
-   :caption: Example telemetry summary report card in user-mode from Tuolomne.
+   :caption: Example telemetry summary report card in user-mode from Tuolumne.
 
    ----------------------------------------------------------------------
    Omnistat Report Card for Job Id: f2cZ3xxxxxx
