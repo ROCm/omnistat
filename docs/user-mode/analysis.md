@@ -14,7 +14,7 @@ other metrics. The following steps outline the general process to visualize user
    [user@login]$ REPO=https://github.com/ROCm/omnistat
    [user@login]$ curl -OLJ ${REPO}/archive/refs/tags/v{__VERSION__}.tar.gz
    [user@login]$ tar xfz omnistat-{__VERSION__}.tar.gz
-   [user@login]$ cd omnistat-v{__VERSION__}/docker
+   [user@login]$ cd omnistat-{__VERSION__}/docker
    ```
 2. Copy an Omnistat database collected in usermode to the local `./data` directory.
    Note that all the contents of the `victoria_datadir` configuration option (or
