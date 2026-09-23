@@ -131,7 +131,7 @@ For user-mode execution, Omnistat includes additional options in the `[omnistast
 
     [omnistat.collectors]
     port = 8001
-    enable_rocm_smi = True
+    enable_amd_smi = True
     enable_rms = True
 
     [omnistat.collectors.rms]

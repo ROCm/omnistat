@@ -364,7 +364,7 @@ An optional info metric capability exists within Omnistat to allow collected tel
 
    [omnistat.collectors]
    port = 8001
-   enable_rocm_smi = True
+   enable_amd_smi = True
    enable_rms = True
 
    [omnistat.collectors.rms]
