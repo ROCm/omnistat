@@ -348,7 +348,6 @@ Note that this recipe assumes existence of a dedicated non-root user to run the 
 
 ---
 
-(slurm-integration)=
 ## SLURM Integration
 
 An optional info metric capability exists within Omnistat to allow collected telemetry data to be mapped to individual jobs as they are scheduled by the resource manager.  Multiple options exist to implements this integration, but the recommended approach for large-scale production resources is to leverage prolog/epilog functionality within SLURM to expose relevant job information to the Omnistat data collector. This remaining portion of this section highlights basic steps for implementing this particular strategy.
