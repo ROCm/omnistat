@@ -169,12 +169,12 @@ Alternatively, you can specify a value of `allowed_ips = 0.0.0.0` to disable any
 (optional-components)=
 ## Optional component(s)
 
-Beyond the standard data collector, Omnistat provides optional components that unlock
+Beyond the standard data collector, Omnistat provides **optional** components that unlock
 additional telemetry, most notably a GPU hardware counter collector built on
-ROCProfiler-SDK. Unlike the standard install, these components are compiled from C++
-sources and therefore require a local build step. The examples below build and install
-the counter collector alongside the data collector. See the
-[hardware counter](../metrics.md#hardware-counters) metrics for more information.
+ROCProfiler-SDK. These steps are optional and only required to enable support for hardware
+counter collection — the standard install above already enables GPU and host-level
+monitoring. These components are compiled from C++ sources and require a local build step.
+The examples below build and install the counter collector alongside the data collector.
 
 ::::{tab-set}
 :::{tab-item} Install latest release using pip

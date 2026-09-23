@@ -47,6 +47,69 @@ pip install -r requirements.txt
 :::
 ::::
 
+(user-optional-components)=
+## Optional component(s)
+
+Beyond the standard data collector, Omnistat provides **optional** components that unlock
+additional telemetry: a GPU hardware counter collector and a kernel tracing library, both
+built on ROCProfiler-SDK. These steps are optional and only required to enable support for
+hardware counter or kernel tracing collection — the standard install above already enables
+GPU and host-level monitoring. These components are compiled from C++ sources and require a
+local build step.
+
+::::{tab-set}
+:::{tab-item} Install latest release using pip
+:sync: release
+
+After completing the standard release install, build all optional extensions using the
+bundled helper:
+
+```bash
+omnistat-build-extras
+```
+:::
+
+:::{tab-item} Use latest development from git source
+:sync: git
+
+From within a cloned copy of the repository, build the optional components in place.
+
+**Hardware counter support** consists of two pieces. First, build the collector
+extension that samples counters from the GPUs:
+
+```bash
+pip install cmake-build-extension nanobind
+BUILD_ROCPROFILER_SDK_EXTENSION=1 python setup.py build_ext --inplace
+```
+
+Then build the counter enablement library (`libomnistat_count.so`), a standalone C++
+shared library loaded into monitored applications to enable counter collection for their
+queues (required for user-mode collection):
+
+```bash
+cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+cmake --build build-count/
+```
+
+**Kernel tracing support** provides `libomnistat_trace.so`, a standalone C++ shared
+library that intercepts GPU kernel dispatches at runtime:
+
+```bash
+cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
+cmake --build build-trace/
+```
+:::
+::::
+
+```{note}
+The optional components rely on `cmake` and a HIP C++ compiler.
+```
+
+The resulting libraries are located at `build-count/libomnistat_count.so` and
+`build-trace/libomnistat_trace.so`. See
+[Hardware Counters metrics](../metrics.md#hardware-counters) and
+[Kernel Tracing metrics](../metrics.md#kernel-tracing) for usage instructions.
+
 ## Victoria Metrics Server
 
 Download a **single-node** VictoriaMetrics server. Assuming a `victoria-metrics` server is not
