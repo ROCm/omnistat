@@ -81,7 +81,7 @@ memory utilization statistics along with general I/O metrics.
 | `omnistat_host_cpu_aggregate_core_utilization` | Instantaneous number of busy CPU cores. Typical range varies from 0 (no load) to num_logical_cores (max load). |
 | `omnistat_host_cpu_load1` | 1-minute CPU load average. This is identical to 1-minute load reported by `uptime`. |
 | `omnistat_host_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
-| `omnistat_host_io_write_local_total_bytes` | Total bock-level data written to **local** physical disk (bytes). |
+| `omnistat_host_io_write_local_total_bytes` | Total block-level data written to **local** physical disk (bytes). |
 
 ### Process-based I/O
 
