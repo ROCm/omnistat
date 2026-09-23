@@ -108,8 +108,8 @@ Following the two steps above to implement a new uptime data collector, we shoul
    [omnistat.collectors]
 
    port = 8001
-   enable_rocm_smi = True
-   enable_amd_smi = False
+   enable_rocm_smi = False
+   enable_amd_smi = True
    enable_rms = False
    enable_uptime = True
 ```
