@@ -21,7 +21,6 @@ subtrees:
       - file: user-mode/analysis
         title: Analysis
       - file: agents
-      - file: installation/extensions
   - caption: Site-Specific Instructions
     entries:
       - file: sites
