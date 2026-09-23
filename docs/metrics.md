@@ -73,15 +73,15 @@ memory utilization statistics along with general I/O metrics.
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
 | `omnistat_host_boot_time_seconds` | Node boot time (seconds since epoch). |
-| `omnistat_mem_total_bytes`| Total host memory available (bytes). |
-| `omnistat_mem_available_bytes` | Currently available host memory (bytes). This is typically the amount of memory available for allocation to new processes.|
-| `omnistat_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it is generally smaller than `omnistat_mem_available_bytes` due to caching. |
+| `omnistat_host_mem_total_bytes`| Total host memory available (bytes). |
+| `omnistat_host_mem_available_bytes` | Currently available host memory (bytes). This is typically the amount of memory available for allocation to new processes.|
+| `omnistat_host_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it is generally smaller than `omnistat_host_mem_available_bytes` due to caching. |
 | `omnistat_host_cpu_num_physical_cores` | Number of physical CPU cores. |
 | `omnistat_host_cpu_num_logical_cores` | Number of logical CPU cores. |
 | `omnistat_host_cpu_aggregate_core_utilization` | Instantaneous number of busy CPU cores. Typical range varies from 0 (no load) to num_logical_cores (max load). |
 | `omnistat_host_cpu_load1` | 1-minute CPU load average. This is identical to 1-minute load reported by `uptime`. |
-| `omnistat_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
-| `omnistat_io_write_local_total_bytes` | Total bock-level data written to **local** physical disk (bytes). |
+| `omnistat_host_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
+| `omnistat_host_io_write_local_total_bytes` | Total bock-level data written to **local** physical disk (bytes). |
 
 ### Process-based I/O
 
@@ -100,8 +100,8 @@ execution where Omnistat is running under the same user ID as the application.
 
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
-| `omnistat_io_read_total_bytes` | Total data read by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
-| `omnistat_io_write_total_bytes` | Total data written by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
+| `omnistat_host_io_read_total_bytes` | Total data read by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
+| `omnistat_host_io_write_total_bytes` | Total data written by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
 
 <hr style="border: 1px solid black;">
 
