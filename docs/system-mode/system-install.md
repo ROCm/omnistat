@@ -191,20 +191,33 @@ counter extension using the bundled helper:
 :::{tab-item} Use latest development from git source
 :sync: git
 
-From within a cloned copy of the repository, build the counter extension in place:
+From within a cloned copy of the repository, build the two pieces of hardware
+counter support in place. First, build the **collector extension** that samples
+counters from the GPUs:
 
 ```bash
 [omnidc]$ pip install cmake-build-extension nanobind
 [omnidc]$ BUILD_ROCPROFILER_SDK_EXTENSION=1 python setup.py build_ext --inplace
 ```
+
+Then build the **counter enablement library** (`libomnistat_count.so`), a
+standalone C++ shared library loaded into monitored applications to enable
+counter collection for their queues:
+
+```bash
+[omnidc]$ cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+[omnidc]$ cmake --build build-count/
+```
 :::
 ::::
 
 ```{note}
-The optional components rely on `cmake` and a C++ compiler. Confirm the
-{ref}`counter enablement requirements <counter-enablement-requirements>` are satisfied
-before building.
+The optional components rely on `cmake` and HIP C++ compiler.
 ```
+
+The resulting library is located at `build-count/libomnistat_count.so`. See
+[Hardware Counters metrics](../metrics.md#hardware-counters) for usage
+instructions.
 
 ---
 
