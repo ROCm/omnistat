@@ -30,7 +30,7 @@ a dedicated Python virtual environment (e.g. using `venv` or `conda`).
 Install the latest released version of Omnistat from AMD's ROCm package repository:
 
 ```bash
-pip install --extra-index-url https://stable.repo.amd.com/rocm/extras/omnistat/whl-next/ omnistat
+$ pip install --extra-index-url https://stable.repo.amd.com/rocm/extras/omnistat/whl-next/ omnistat
 ```
 :::
 
@@ -40,9 +40,9 @@ pip install --extra-index-url https://stable.repo.amd.com/rocm/extras/omnistat/w
 Clone the repository (`dev` branch is default) and install python dependencies:
 
 ```bash
-git clone https://github.com/ROCm/omnistat.git
-cd omnistat
-pip install -r requirements.txt
+$ git clone https://github.com/ROCm/omnistat.git
+$ cd omnistat
+$ pip install -r requirements.txt
 ```
 :::
 ::::
@@ -65,7 +65,7 @@ After completing the standard release install, build all optional extensions usi
 bundled helper:
 
 ```bash
-omnistat-build-extras
+$ omnistat-build-extras
 ```
 :::
 
@@ -78,8 +78,8 @@ From within a cloned copy of the repository, build the optional components in pl
 extension that samples counters from the GPUs:
 
 ```bash
-pip install cmake-build-extension nanobind
-BUILD_ROCPROFILER_SDK_EXTENSION=1 python setup.py build_ext --inplace
+$ pip install cmake-build-extension nanobind
+$ BUILD_ROCPROFILER_SDK_EXTENSION=1 python setup.py build_ext --inplace
 ```
 
 Then build the counter enablement library (`libomnistat_count.so`), a standalone C++
@@ -87,16 +87,16 @@ shared library loaded into monitored applications to enable counter collection f
 queues (required for user-mode collection):
 
 ```bash
-cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
-cmake --build build-count/
+$ cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+$ cmake --build build-count/
 ```
 
 **Kernel tracing support** provides `libomnistat_trace.so`, a standalone C++ shared
 library that intercepts GPU kernel dispatches at runtime:
 
 ```bash
-cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
-cmake --build build-trace/
+$ cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
+$ cmake --build build-trace/
 ```
 :::
 ::::
