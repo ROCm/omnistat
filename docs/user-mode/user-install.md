@@ -122,7 +122,7 @@ VictoriaMetrics provides a larger number binary releases and we typically use th
 
 ## Configuring user-mode Omnistat
 
-For user-mode execution, Omnistat includes additional options in the `[omnistast.usermode]` section of the runtime configuration file. A portion of the [default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default) config file is highlighted below with the lines in yellow indicating settings to confirm or customize for your local environment.
+For user-mode execution, Omnistat includes additional options in the `[omnistat.usermode]` section of the runtime configuration file. A portion of the [default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default) config file is highlighted below with the lines in yellow indicating settings to confirm or customize for your local environment.
 
 ```{eval-rst}
 .. code-block:: ini
