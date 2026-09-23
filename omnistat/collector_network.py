@@ -34,6 +34,7 @@ import os
 import platform
 import re
 import sys
+import threading
 from pathlib import Path
 
 from prometheus_client import Gauge
@@ -73,6 +74,29 @@ class NETWORK(Collector):
         # get their own hw-only gauge named after the counter.
         self.__hw_shared_data_paths = {}
         self.__hw_extra_data_paths = {}
+
+        # hw_counter paths regrouped by interface in registerMetrics(). AINIC
+        # devices are read by the sampler thread, everything else inline.
+        self.__hw_counters_inline = {}
+        self.__hw_counters_sampled = {}
+        self.__sampler_cache = {}
+        self.__sampler_lock = threading.Lock()
+        self.__sampler_stop = threading.Event()
+        self.__sampler_thread = None
+        self.__sampler_samples = None
+
+        # Sampler period: half the collection interval, or 5s in system mode
+        # where Prometheus owns the scrape interval and does not report it. The
+        # 1s floor leaves room for a stalled pass, which can take ~0.5s.
+        self.__sampler_interval = 5.0
+        if config.get("omnistat.internal", "mode", fallback="system") == "user":
+            self.__sampler_interval = max(config.getfloat("omnistat.internal", "interval_secs") / 2, 1.0)
+
+        if config.has_option("omnistat.collectors.network", "ionic_sampling_interval"):
+            override = config.getfloat("omnistat.collectors.network", "ionic_sampling_interval")
+            if override > 0:
+                self.__sampler_interval = override
+                logging.debug("--> overriding default ionic_sampling_interval...")
 
     # RoCE NICs that appear under /sys/class/infiniband but report byte totals
     # via hw_counters (already in bytes, no IB octet/4 scaling) rather than
@@ -116,6 +140,33 @@ class NETWORK(Collector):
             },
         },
     }
+
+    def read_hw_counters(self, counters):
+        """Sum each hw_counter group of one interface, in one pass over the device."""
+        totals = []
+        for _, _, paths in counters:
+            total = 0
+            for path in paths:
+                try:
+                    with open(path, "r") as f:
+                        total += int(f.read().strip())
+                except:
+                    pass
+            totals.append(total)
+        return totals
+
+    def ionic_sampler(self, sample_interval: float):
+        """Background thread caching hw_counter data for ionic NICs, which are slow to read.
+
+        Args:
+            sample_interval (float): Time in seconds between samples.
+        """
+
+        while not self.__sampler_stop.wait(sample_interval):
+            data = {nic: self.read_hw_counters(counters) for nic, counters in self.__hw_counters_sampled.items()}
+            with self.__sampler_lock:
+                self.__sampler_cache = data
+            self.__sampler_samples.inc()
 
     def __hw_counter_spec(self, nic):
         """Return the _HW_COUNTER_NICS spec for an infiniband-class device, else None.
@@ -312,14 +363,37 @@ class NETWORK(Collector):
 
         # Regroup by interface to read each device's counters together: on AINIC
         # (ionic), a read that misses the cache's lifespan costs a firmware round trip.
-        self.__hw_counters_by_interface = {}
         for data_paths, metrics in (
             (self.__hw_shared_data_paths, self.__hw_shared_metrics),
             (self.__hw_extra_data_paths, self.__hw_extra_metrics),
         ):
             for name, interfaces in data_paths.items():
                 for nic, (dclass, paths) in interfaces.items():
-                    self.__hw_counters_by_interface.setdefault(nic, []).append((metrics[name], dclass, paths))
+                    # AINIC reads stall periodically, so keep them off the scrape path.
+                    dest = self.__hw_counters_sampled if dclass == "ionic" else self.__hw_counters_inline
+                    dest.setdefault(nic, []).append((metrics[name], dclass, paths))
+
+        # Sample slow-to-read NICs on a background thread so that a stalled read
+        # never lands on the scrape path. Prime the cache first so the very first
+        # scrape is served without waiting for the thread.
+        if self.__hw_counters_sampled:
+            self.__sampler_samples = Gauge(
+                self.__prefix + "ionic_samples_total",
+                "Total number of background sampling passes over ionic devices",
+            )
+            self.__sampler_cache = {nic: self.read_hw_counters(c) for nic, c in self.__hw_counters_sampled.items()}
+            self.__sampler_samples.set(1)
+            self.__sampler_thread = threading.Thread(
+                target=self.ionic_sampler,
+                args=(self.__sampler_interval,),
+                daemon=True,
+                name="ionic sampler",
+            )
+            self.__sampler_thread.start()
+            logging.info(
+                f"--> initiated ionic background sampling thread for {len(self.__hw_counters_sampled)} "
+                f"interface(s) (interval: {self.__sampler_interval} sec)"
+            )
 
     def updateMetrics(self):
         """Update registered metrics of interest"""
@@ -380,15 +454,18 @@ class NETWORK(Collector):
         # (no scaling); each metric sums its per-device counter list. device_class
         # travels with each interface's paths. shared_counters write the shared
         # rx/tx gauges; extra_counters write their own gauge.
-        for nic, counters in self.__hw_counters_by_interface.items():
-            for metric, dclass, paths in counters:
-                total = 0
-                for path in paths:
-                    try:
-                        with open(path, "r") as f:
-                            total += int(f.read().strip())
-                    except:
-                        pass
+        #
+        # Devices read inline:
+        for nic, counters in self.__hw_counters_inline.items():
+            for (metric, dclass, _), total in zip(counters, self.read_hw_counters(counters)):
                 metric.labels(device_class=dclass, interface=nic).set(total)
+
+        # Devices published from the sampler cache:
+        if self.__hw_counters_sampled:
+            with self.__sampler_lock:
+                data = self.__sampler_cache
+            for nic, counters in self.__hw_counters_sampled.items():
+                for (metric, dclass, _), total in zip(counters, data.get(nic, ())):
+                    metric.labels(device_class=dclass, interface=nic).set(total)
 
         return
