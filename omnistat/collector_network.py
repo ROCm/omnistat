@@ -55,6 +55,11 @@ class NETWORK(Collector):
 
         self.__prefix = "omnistat_network_"
 
+        # sysfs locations, kept as attributes so tests can point them elsewhere
+        self.__net_dir = "/sys/class/net"
+        self.__cxi_dir = "/sys/class/cxi"
+        self.__infiniband_dir = "/sys/class/infiniband"
+
         # Files to check for IP devices.
         self.__net_rx_data_paths = {}
         self.__net_tx_data_paths = {}
@@ -192,7 +197,7 @@ class NETWORK(Collector):
         #   __net_rx_data_paths = {
         #       "eth0": "/sys/class/net/eth0/statistics/rx_bytes"
         #   }
-        for nic in Path("/sys/class/net").iterdir():
+        for nic in Path(self.__net_dir).iterdir():
             if not nic.is_dir():
                 continue
 
@@ -221,7 +226,7 @@ class NETWORK(Collector):
         #           8192: "/sys/class/cxi/cx0/device/telemetry/hni_rx_ok_8192_to_max",
         #       }
         #   }
-        cxi_base_path = Path("/sys/class/cxi")
+        cxi_base_path = Path(self.__cxi_dir)
         cxi_glob_pattern = "device/telemetry/hni_*_ok*"
         cxi_re_pattern = r"hni_(tx|rx)_ok_(\d+)[_to]*(\d+)?"
         cxi_data_paths = {
@@ -273,7 +278,7 @@ class NETWORK(Collector):
         #           ]),
         #       }
         #   }
-        ib_base_path = Path("/sys/class/infiniband")
+        ib_base_path = Path(self.__infiniband_dir)
 
         ib_nics = []
         if ib_base_path.is_dir():
