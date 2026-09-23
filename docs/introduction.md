@@ -44,6 +44,7 @@ name: fig-system-mode
 width: 800px
 ---
 System-wide monitoring
+```
 
 ```{figure} images/architecture_user-mode.png
 ---
@@ -51,6 +52,7 @@ name: fig-user-mode
 width: 800px
 ---
 User-mode monitoring
+```
 
 In the __system-wide monitoring__ case, a system administrator enables data collectors permanently on all relevant hosts within the cluster and configures a Prometheus server to periodically poll these nodes (e.g. at 1 minute or 5 minute intervals). The Prometheus server typically runs on the cluster head node (or separate administrative host) and does not require GPU resources locally. For real-time and historical queries, the system administrator also enables a Grafana instance that queries the Prometheus datastore to provide a variety of visualizations with collected data. Example visualization panels using this approach are highlighted in the [Grafana](./system-mode/grafana.md) section.
 
