@@ -382,6 +382,12 @@ they report congestion in opposite traffic directions.
 | `omnistat_network_rx_ecn_marked_packets` | `ionic`, `bnxt_re` | Total packets received carrying the ECN congestion mark; a pre-loss indicator of congestion on **inbound** traffic. |
 | `omnistat_network_rx_cnp_packets` | `ionic`, `bnxt_re` | Total congestion notification packets (CNPs) received, each requesting a lower send rate; an indicator of congestion on **outbound** traffic. |
 
+Counters on `ionic` devices are slow to read, so they are sampled in the
+background and can be up to one sampling interval old. The `ionic` interval
+defaults to half the collection interval, but never below 1 second, and can be
+set in seconds with the `ionic_sampling_interval` option in the
+`[omnistat.collectors.network]` section.
+
 <hr style="border: 1px solid black;">
 
 ## External
