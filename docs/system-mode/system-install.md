@@ -216,7 +216,7 @@ The optional components rely on `cmake` and HIP C++ compiler.
 ```
 
 The resulting library is located at `build-count/libomnistat_count.so`. See
-[Hardware Counters metrics](../metrics.md#hardware-counters) for usage
+[Advanced Profiling](../advanced-profiling.md#hardware-counters) for usage
 instructions.
 
 ---

@@ -107,8 +107,9 @@ The optional components rely on `cmake` and a HIP C++ compiler.
 
 The resulting libraries are located at `build-count/libomnistat_count.so` and
 `build-trace/libomnistat_trace.so`. See
-[Hardware Counters metrics](../metrics.md#hardware-counters) and
-[Kernel Tracing metrics](../metrics.md#kernel-tracing) for usage instructions.
+[Advanced Profiling](../advanced-profiling.md) for usage instructions, covering
+both [hardware counters](../advanced-profiling.md#hardware-counters) and
+[kernel tracing](../advanced-profiling.md#kernel-tracing).
 
 ## Victoria Metrics Server
 

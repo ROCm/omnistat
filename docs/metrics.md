@@ -18,6 +18,11 @@ Note that Omnistat metrics generally fall into one of the two following types:
 In addition, an optional [External](#external) data collector is available to
 ingest additional site-specific metrics not included directly in Omnistat.
 
+Two of the collectors below, [Hardware Counters](#hardware-counters) and
+[Kernel Tracing](#kernel-tracing), require additional setup beyond a runtime
+configuration flag. That setup, along with their configuration options, is
+covered in [Advanced Profiling](./advanced-profiling.md).
+
 <hr style="border: 1px solid black;">
 
 ## ROCm
@@ -206,87 +211,14 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 The ROCprofiler data collector provides access to low-level GPU hardware
 counters for in-depth performance analysis. Counters are collected by sampling
 the GPUs at the device level with minimal impact on application performance.
-This collector requires [building the hardware counters
-extension](./installation/extensions.md#hardware-counter-support).
 
-To ensure all performance counters are collected correctly, the collector needs
-performance monitoring privileges, with requirements depending on how Omnistat
-is executed:
-- [*System mode*](./system-mode/system-install.md): Run Omnistat with the
-  `CAP_PERFMON` capability enabled.
-- [*User mode*](./user-mode/user-install.md):
-  `/proc/sys/kernel/perf_event_paranoid` must be `2` or less (some
-  distributions default to `4`), and the [counter enablement
-  library](./installation/extensions.md#counter-enablement-library) must be
-  loaded in the application's environment:
-  ```shell
-  export ROCP_TOOL_LIBRARIES=/path/to/build-count/libomnistat_count.so
-  ```
-
-  Counters are only collected for queues that have counting enabled, which the
-  library does for the process it is loaded into. The variable therefore needs
-  to be set in the environment of the application being monitored, and not in
-  the environment of Omnistat itself.
-
-```{note}
-Counter collection and [kernel tracing](#kernel-tracing) can be enabled at the
-same time by listing both libraries in `ROCP_TOOL_LIBRARIES`, like
-`libomnistat_count.so:libomnistat_trace.so:`. The trailing colon is required:
-ROCProfiler-SDK drops the last entry while parsing the variable, so without it
-the final library is not loaded and no error is reported.
-```
-
-```{note}
-In ROCm versions before 10, counters were enabled with the ROCProfiler v1 tool
-library instead of `libomnistat_count.so`:
-
-    export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
-    export HSA_TOOLS_ROCPROFILER_V1_TOOLS=1
-
-These variables have no effect in ROCm 10 or later, where `librocprofiler64.so`
-is no longer distributed.
-```
-
-The collection of hardware counters is configured through the `profile` option
-in the `[omnistat.collectors.rocprofiler]` section, which selects a matching
-`[omnistat.collectors.rocprofiler.<profile>]` section. Each profile defines a
-sampling mode and a set of counters to be collected:
-- `sampling_mode`: This option controls how counter sets are distributed
-  across the available GPUs:
-    - `constant`: Assigns one set of counters to all GPUs.
-    - `gpu-id`: Cyclically assigns sets of counters to GPU IDs in all nodes.
-       The number of sets of counters must not exceed the number of GPUs per
-       node.
-    - `periodic`: Rotates all GPUs through multiple counter sets, changing the
-      active counter set after every sample. When this mode is enabled, counter
-      values are reset at each sampling interval and not accumulated.
-- `counters`: This option accepts one or more sets of counters formatted as a
-  flat or nested JSON list. For a complete list of supported counters, see the
-  [ROCm documentation](https://rocm.docs.amd.com/en/latest/conceptual/gpu-arch/mi300-mi200-performance-counters.html).
-
-```{eval-rst}
-.. code-block:: ini
-   :caption: Example profile to collect free-running and active cycles on all GPUs
-
-    [omnistat.collectors.rocprofiler]
-    profile = cycles
-
-    [omnistat.collectors.rocprofiler.cycles]
-    sampling_mode = constant
-    counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
-  ```
-
-```{eval-rst}
-.. code-block:: ini
-   :caption: Example profile to collect HBM reads and writes from different GPU IDs
-
-    [omnistat.collectors.rocprofiler]
-    profile = hbm
-
-    [omnistat.collectors.rocprofiler.hbm]
-    sampling_mode = gpu-id
-    counters = [["FETCH_SIZE"], ["WRITE_SIZE"]]
-  ```
+This collector requires building the hardware counters extension, as described
+under Optional component(s) for {ref}`system-mode <optional-components>` or
+{ref}`user-mode <user-optional-components>`, along with performance monitoring
+privileges and a counter profile that selects which counters to collect. Which counters are available and how they are distributed across the
+GPUs of a node is controlled by the `profile` option. See [Advanced
+Profiling](./advanced-profiling.md#hardware-counters) for setup and
+configuration details.
 
 **Collector**: `enable_rocprofiler`
 <br/>
@@ -305,22 +237,11 @@ recording kernel names, execution durations, and GPU IDs. It produces
 per-kernel time series metrics that enable detailed analysis of GPU workload
 composition over time.
 
-The collector requires [building the kernel tracing
-library](./installation/extensions.md#kernel-tracing-support). To intercept kernel
-dispatches, the `ROCP_TOOL_LIBRARIES` environment variable must be set in the
-GPU application's runtime environment pointing to the built library:
-
-```shell
-export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
-```
-
-```{note}
-Kernel tracing and [hardware counter collection](#hardware-counters) can be
-enabled at the same time by listing both libraries in `ROCP_TOOL_LIBRARIES`, like
-`libomnistat_count.so:libomnistat_trace.so:`. The trailing colon is required:
-ROCProfiler-SDK drops the last entry while parsing the variable, so without it
-the final library is not loaded and no error is reported.
-```
+This collector requires building the kernel tracing library, as described under
+{ref}`Optional component(s) <user-optional-components>`, and loading it into the
+application being monitored, which is what intercepts the kernel dispatches. See [Advanced
+Profiling](./advanced-profiling.md#kernel-tracing) for setup and configuration
+details.
 
 **Collector**: `enable_kernel_trace`
 <br/>
