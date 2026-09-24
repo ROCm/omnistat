@@ -57,7 +57,8 @@ int Tracer::initialize() {
     }
 
     auto make_client = [this]() {
-        auto client = std::make_unique<httplib::Client>("127.0.0.1", static_cast<int>(endpoint_port_));
+        auto client =
+            std::make_unique<httplib::Client>(TRACE_ENDPOINT_HOST, static_cast<int>(endpoint_port_));
         if (!client) {
             return client;
         }
@@ -206,12 +207,8 @@ Tracer::~Tracer() {
             // Post from a new thread: this runs from tool_fini at process exit,
             // where httplib's thread_local status-line regex has already been
             // destroyed and silently fails to match, turning a 204 into an error.
-            bool success = false;
-            std::thread poster([&] { success = rccl_flush(rccl_data, rccl_records); });
+            std::thread poster([&] { rccl_flush(rccl_data, rccl_records); });
             poster.join();
-            if (!success) {
-                std::cerr << "Omnistat: failed to post final RCCL trace data" << std::endl;
-            }
         }
     }
 
@@ -233,18 +230,19 @@ bool Tracer::post_batch(httplib::Client& client, const std::string& path, std::s
     const auto start = std::chrono::steady_clock::now();
 
     bool success = false;
+    httplib::Result res;
     try {
-        auto res = client.Post(path, data.data(), data.size(), "application/json");
+        res = client.Post(path, data.data(), data.size(), "application/json");
         success = res && res->status < 400;
     } catch (...) {
-        if (log_enabled_) {
-            std::cout << "Omnistat: exception in post_batch; trace data lost" << std::endl;
-        }
     }
 
     stats.record_flush(num_records, success ? FlushStatus::Success : FlushStatus::Failure,
                        std::chrono::duration_cast<std::chrono::microseconds>(
                            std::chrono::steady_clock::now() - start));
+    if (!success) {
+        report_delivery_failure(path, stats, res);
+    }
     return success;
 }
 
@@ -285,8 +283,8 @@ void Tracer::flush_loop() {
             std::string rccl_data;
             size_t rccl_records = 0;
             rccl_drain(rccl_data, rccl_records);
-            if (rccl_records > 0 && !rccl_flush(rccl_data, rccl_records)) {
-                std::cerr << "Omnistat: failed to post RCCL trace data" << std::endl;
+            if (rccl_records > 0) {
+                rccl_flush(rccl_data, rccl_records);
             }
         }
     }
@@ -398,6 +396,32 @@ void Tracer::Stats::record_flush(size_t num_records, FlushStatus status,
         failed_flushes.fetch_add(1, std::memory_order_relaxed);
         failed_records.fetch_add(num_records, std::memory_order_relaxed);
     }
+}
+
+void Tracer::report_delivery_failure(std::string_view path, Stats& stats,
+                                     const httplib::Result& res) {
+    std::string_view reason = "collector error";
+    if (!res) {
+        reason = "no response";
+    } else if (res->status == 404) {
+        // 404 means the collector did not register the route, which is a
+        // disabled config option rather than a bad URL.
+        reason = "endpoint not enabled";
+    } else if (res->status == 400) {
+        // The only failure status the trace handlers return.
+        reason = "batch rejected";
+    }
+
+    if (!log_enabled_ && stats.warned.exchange(true, std::memory_order_relaxed)) {
+        return;
+    }
+
+    char hostname[256];
+    gethostname(hostname, sizeof(hostname));
+
+    std::cerr << "[" << hostname << "][" << getpid() << "][omnistat] POST to " << TRACE_ENDPOINT_HOST
+              << ":" << endpoint_port_ << path << " failed (" << reason << "); trace data discarded"
+              << std::endl;
 }
 
 void Tracer::log_stream_summary(const char* stream, const Stats& stats) const {
