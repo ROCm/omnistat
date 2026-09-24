@@ -215,8 +215,10 @@ Tracer::~Tracer() {
 
     // Summary last, so it accounts for the final drain above. One line per
     // stream: a combined rate would let kernel volume mask an RCCL outage.
-    if (log_enabled_) {
+    if (log_enabled_ || kernel_stats_.failed_flushes.load() > 0) {
         log_stream_summary("kernel", kernel_stats_);
+    }
+    if (log_enabled_ || rccl_stats_.failed_flushes.load() > 0) {
         log_stream_summary("rccl", rccl_stats_);
     }
 }
