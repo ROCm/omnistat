@@ -420,7 +420,7 @@ Epilog=/etc/slurm/slurm.epilog
 ```
 
 ```{note}
-To make sure the cached job data file is created immediately upon on allocation of a user job (instead of the first `srun` invocation), be sure to include the following setting in your local SLURM configuration:
+To make sure the cached job data file is created immediately upon allocation of a user job (instead of the first `srun` invocation), be sure to include the following setting in your local SLURM configuration:
 ```text
 PrologFlags=Alloc
 ```

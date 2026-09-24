@@ -305,7 +305,7 @@ The external data collector provides a mechanism to incorporate custom,
 site-specific metrics into Omnistat by executing a user-provided script at each
 collection interval. The script is expected to write metrics to stdout in
 [Prometheus text exposition
-format](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format)
+format](https://prometheus.io/docs/instrumenting/exposition_formats/#prometheus-text-format)
 (one metric per line). Metric names and labels are not fixed in advance --
 they are discovered dynamically from the script output at runtime.
 

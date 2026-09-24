@@ -64,7 +64,7 @@ First, let's implement the uptime data collection in a new source code file. Rec
 
 ### Register the new collector
 
-With our newly created collector housed in *omnistat/collector_uptime.py*, the next step to is  to register this new collector with Omnistat.  Collector definitions are defined in a JSON file for dynamic loading housed in the [collector_definitions.json](https://github.com/ROCm/omnistat/blob/main/omnistat/collector_definitions.json) file.  Four elements are required to define a new collector:
+With our newly created collector housed in *omnistat/collector_uptime.py*, the next step is to register this new collector with Omnistat.  Collector definitions are defined in a JSON file for dynamic loading housed in the [collector_definitions.json](https://github.com/ROCm/omnistat/blob/main/omnistat/collector_definitions.json) file.  Four elements are required to define a new collector:
 1. **runtime_option** - specifies the runtime configuration variable
 1. **enabled_by_default** - specifies whether to enable by default or not
 1. **file** - file path to the collector (omitting the .py extension)
