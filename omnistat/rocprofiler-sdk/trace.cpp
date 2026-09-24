@@ -415,6 +415,10 @@ std::string Tracer::log_prefix() {
 
 void Tracer::report_delivery_failure(std::string_view path, Stats& stats,
                                      const httplib::Result& res) {
+    if (!log_enabled_ && stats.warned.exchange(true, std::memory_order_relaxed)) {
+        return;
+    }
+
     std::string_view reason = "collector error";
     if (!res) {
         reason = "no response";
@@ -425,10 +429,6 @@ void Tracer::report_delivery_failure(std::string_view path, Stats& stats,
     } else if (res->status == 400) {
         // The only failure status the trace handlers return.
         reason = "batch rejected";
-    }
-
-    if (!log_enabled_ && stats.warned.exchange(true, std::memory_order_relaxed)) {
-        return;
     }
 
     std::cerr << log_prefix() << "POST to " << TRACE_ENDPOINT_HOST << ":" << endpoint_port_ << path
