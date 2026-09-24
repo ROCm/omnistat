@@ -33,6 +33,7 @@
 #endif
 
 #include <chrono>
+#include <climits>
 #include <memory>
 #include <stdexcept>
 #include <thread>
@@ -398,6 +399,16 @@ void Tracer::Stats::record_flush(size_t num_records, FlushStatus status,
     }
 }
 
+std::string Tracer::log_prefix() {
+    char host_buffer[HOST_NAME_MAX + 1] = {};
+    std::string_view host = "unknown";
+    if (gethostname(host_buffer, sizeof(host_buffer) - 1) == 0) {
+        host = host_buffer;
+    }
+
+    return "[" + std::string(host) + "][" + std::to_string(getpid()) + "][omnistat] ";
+}
+
 void Tracer::report_delivery_failure(std::string_view path, Stats& stats,
                                      const httplib::Result& res) {
     std::string_view reason = "collector error";
@@ -416,12 +427,8 @@ void Tracer::report_delivery_failure(std::string_view path, Stats& stats,
         return;
     }
 
-    char hostname[256];
-    gethostname(hostname, sizeof(hostname));
-
-    std::cerr << "[" << hostname << "][" << getpid() << "][omnistat] POST to " << TRACE_ENDPOINT_HOST
-              << ":" << endpoint_port_ << path << " failed (" << reason << "); trace data discarded"
-              << std::endl;
+    std::cerr << log_prefix() << "POST to " << TRACE_ENDPOINT_HOST << ":" << endpoint_port_ << path
+              << " failed (" << reason << "); trace data discarded" << std::endl;
 }
 
 void Tracer::log_stream_summary(const char* stream, const Stats& stats) const {
@@ -437,10 +444,7 @@ void Tracer::log_stream_summary(const char* stream, const Stats& stats) const {
     const uint64_t total_latency_us = stats.total_latency_us.load();
     const uint64_t max_latency_us = stats.max_latency_us.load();
 
-    char hostname[256];
-    gethostname(hostname, sizeof(hostname));
-
-    std::cout << "[" << hostname << "][" << getpid() << "][omnistat] Trace summary (" << stream
+    std::cout << log_prefix() << "Trace summary (" << stream
               << "): " << (total_records - failed_records) << "/" << total_records << " records, "
               << (total_flushes - failed_flushes) << "/" << total_flushes << " flushes, POST avg "
               << (total_latency_us / total_flushes) / 1000.0 << "ms max " << max_latency_us / 1000.0
