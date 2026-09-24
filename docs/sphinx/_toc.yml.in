@@ -22,13 +22,12 @@ subtrees:
       - file: user-mode/jobs
       - file: user-mode/analysis
         title: Analysis
-      - file: agents
-  - caption: Site-Specific Instructions
-    entries:
-      - file: sites
-      - file: site.frontier
-      - file: site.tuo
   - caption: Miscellaneous
     entries:
+      - file: agents
       - file: developer/developers
       - file: license
+  - caption: Site-Specific Instructions
+    entries:
+      - file: site.frontier
+      - file: site.tuo
