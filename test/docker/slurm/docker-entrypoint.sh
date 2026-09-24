@@ -57,7 +57,6 @@ if [[ "$1" =~ ^node ]]; then
         "source")
             echo "Executing Omnistat from uninstalled source"
             pip install -r requirements.txt
-            pip install -r requirements-query.txt
             ;;
         "package")
             echo "Executing Omnistat from installed package"

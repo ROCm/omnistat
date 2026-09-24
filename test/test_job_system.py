@@ -28,9 +28,10 @@ import time
 import pytest
 from prometheus_api_client import PrometheusConnect
 
-from test import config
+from . import config
 
 
+@pytest.mark.docker
 class TestJobSystem:
     @pytest.mark.parametrize("node", config.nodes)
     def test_job(self, node):

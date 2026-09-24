@@ -75,7 +75,7 @@ require a Python build step.
 #### Build
 
 ```bash
-cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+cmake -S omnistat/rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
 cmake --build build-count/
 ```
 
@@ -107,7 +107,7 @@ trace data over HTTP) via CMake's `FetchContent`, along with the
 `std::format`. For offline builds, download the source trees ahead of time and
 point CMake at them:
 
-    cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON \
+    cmake -S omnistat/rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON \
       -DFETCHCONTENT_SOURCE_DIR_HTTPLIB=/path/to/cpp-httplib \
       -DFETCHCONTENT_SOURCE_DIR_FMT=/path/to/fmt
 ```
@@ -116,7 +116,7 @@ point CMake at them:
 #### Build
 
 ```bash
-cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
+cmake -S omnistat/rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
 cmake --build build-trace/
 ```
 

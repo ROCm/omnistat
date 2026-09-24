@@ -30,7 +30,7 @@ import tempfile
 
 import pytest
 
-from test.test_collectors import OmnistatTestServer
+from .test_collectors import OmnistatTestServer
 
 
 def run_rms_env(output_file, env_overrides=None, extra_args=None):

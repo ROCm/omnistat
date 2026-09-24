@@ -1,0 +1,35 @@
+[project]
+name = "omnistat-tests"
+dynamic = ["version"]
+description = "Test suite for omnistat"
+requires-python = ">=3.8"
+dependencies = [
+    "omnistat",
+    "prometheus-api-client>=0.5.4",
+    "pytest",
+    "pytest-cov",
+]
+
+[build-system]
+requires = ["setuptools>=61", "wheel", "setuptools-git-versioning>=2.0,<3"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["omnistat_tests", "omnistat_tests.pm_counters", "omnistat_tests.workloads"]
+
+[tool.setuptools.package-dir]
+omnistat_tests = "."
+
+[tool.setuptools.package-data]
+"omnistat_tests" = [
+    "pm_counters/**/*",
+    "scripts/**/*",
+    "workloads/**/*",
+]
+
+[tool.setuptools-git-versioning]
+enabled = true
+version_file = "../VERSION"
+count_commits_from_version_file = true
+dev_template = "{tag}+git.{sha}"
+dirty_template = "{tag}+git.{sha}.uncommitted"
