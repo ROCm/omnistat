@@ -29,7 +29,7 @@
 #include "trace.hpp"
 
 #include <cxxabi.h>
-#include <iostream>
+#include <cstdlib>
 #include <iterator>
 #include <memory>
 #include <string>
@@ -129,9 +129,7 @@ void kernel_dispatch_callback(rocprofiler_context_id_t context [[maybe_unused]],
         // Replace trailing comma with closing bracket
         data.back() = ']';
 
-        if (!tracer->kernel_flush(data, num_records)) {
-            std::cerr << "Omnistat: failed to post kernel trace data" << std::endl;
-        }
+        tracer->kernel_flush(data, num_records);
     } catch (const std::exception& error) {
         tracer->report_callback_error("kernel_dispatch_callback", error);
     }

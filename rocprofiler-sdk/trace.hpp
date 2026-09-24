@@ -60,6 +60,9 @@ constexpr uint64_t DEFAULT_TRACE_ENDPOINT_PORT = 8001;
 // connection and the client read timeout to 300 seconds.
 constexpr time_t HTTP_TIMEOUT_SECONDS = 2;
 
+// The collector is always local to the traced process.
+constexpr const char* TRACE_ENDPOINT_HOST = "127.0.0.1";
+
 // PCI domain:bus:device packed into one key, so a rocprofiler agent can be
 // matched to a HIP device. Function bits are dropped: two GPUs differing only by
 // PCI function would collide, which does not happen for discrete GPUs.
@@ -119,11 +122,20 @@ class Tracer {
         std::atomic<uint64_t> total_latency_us{0};
         std::atomic<uint64_t> max_latency_us{0};
 
+        // Limits the delivery warning to one line at default verbosity.
+        std::atomic<bool> warned{false};
+
         void record_flush(size_t num_records, FlushStatus status,
                           std::chrono::microseconds latency);
     };
 
     void log_stream_summary(const char* stream, const Stats& stats) const;
+
+    // Report HTTP delivery failures on a stream. Once by default, every
+    // occurrence under OMNISTAT_TRACE_LOG.
+    // Classify a failed POST and report it. Once by default, every occurrence
+    // under OMNISTAT_TRACE_LOG.
+    void report_delivery_failure(std::string_view path, Stats& stats, const httplib::Result& res);
 
     // Background flush thread: wakes on the interval, on shutdown, or when the
     // RCCL accumulator asks to drain.
