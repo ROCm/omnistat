@@ -102,9 +102,9 @@ class Tracer {
     void rccl_add_collective(std::string_view element);
     void rccl_add_comm(std::string_view element);
 
-    // Reports an exception caught by a tracing callback; only visible under
-    // OMNISTAT_TRACE_LOG.
-    void report_callback_error(const char* where, const std::exception& error);
+    // Reports an exception caught by a tracing callback. Once by default,
+    // every occurrence under OMNISTAT_TRACE_LOG.
+    void report_callback_error(std::string_view where, const std::exception& error);
 
   private:
     // Outcome of one POST, so call sites read as their meaning rather than as a
@@ -176,6 +176,8 @@ class Tracer {
     std::unique_ptr<httplib::Client> rccl_client_;
     const uint64_t endpoint_port_;
     const bool log_enabled_;
+
+    std::atomic<bool> callback_warned_{false};
 
     std::string kernel_path_ = "/kernel_trace";
     std::string rccl_path_ = "/rccl_trace";
