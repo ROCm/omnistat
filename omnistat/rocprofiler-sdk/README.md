@@ -104,7 +104,7 @@ collection. This reproduces what ROCProfiler v1 provided through
 ### Building
 
 ```bash
-cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+cmake -S omnistat/rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
 cmake --build build-count/
 ```
 
