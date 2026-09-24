@@ -4,8 +4,8 @@ Omnistat supports two optional data collectors that instrument the GPU directly
 to provide more detailed performance data than the standard telemetry
 collectors:
 
-* **[Hardware counters](#hardware-counters)** sample low-level GPU performance
-  counters (cache traffic, cycles, memory requests) at the device level.
+* **[Hardware counters](#hardware-counters)** sample low-level GPU performance counters (e.g. cache
+  traffic, cycles, memory requests, floating-point instructions) at the device level.
 * **[Kernel tracing](#kernel-tracing)** records every GPU kernel dispatch, with
   its name and execution duration.
 
@@ -138,7 +138,7 @@ A profile section accepts two options:
   such as `["GRBM_COUNT", "GRBM_GUI_ACTIVE"]` is a single set; a nested list
   such as `[["FETCH_SIZE"], ["WRITE_SIZE"]]` is multiple sets. For the counters
   available on a given architecture, see the [ROCm
-  documentation](https://rocm.docs.amd.com/en/latest/conceptual/gpu-arch/mi300-mi200-performance-counters.html).
+  documentation](https://rocm.docs.amd.com/en/latest/reference/gpu-arch/mi300-mi200-performance-counters.html#mi300-and-mi200-series-performance-counters).
 
 Profile problems are fatal rather than degraded: a profile section that is
 missing or omits `counters`, a `counters` value that is not valid JSON, an
