@@ -118,7 +118,7 @@ already present on the system, download and extract a [precompiled
 binary](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/latest) from upstream. This
 binary can generally be stored in any directory accessible by the user, but the path to the binary
 will need to be known during the next section when configuring user-mode execution. Note that
-VictoriaMetrics provides a larger number binary releases and we typically use the
+VictoriaMetrics provides a larger number of binary releases and we typically use the
 `victoria-metrics-linux-amd64` variant on x86_64 clusters.
 
 ## Configuring user-mode Omnistat
