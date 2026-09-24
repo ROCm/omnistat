@@ -368,11 +368,13 @@ bool Tracer::rccl_flush(std::string_view data, size_t num_records) {
     return post_batch(*rccl_client_, rccl_path_, data, num_records, rccl_stats_);
 }
 
-void Tracer::report_callback_error(const char* where, const std::exception& error) {
-    if (log_enabled_) {
-        std::cerr << "Omnistat: exception in " << where << " (" << error.what()
-                  << "); trace data lost" << std::endl;
+void Tracer::report_callback_error(std::string_view where, const std::exception& error) {
+    if (!log_enabled_ && callback_warned_.exchange(true, std::memory_order_relaxed)) {
+        return;
     }
+
+    std::cerr << log_prefix() << "exception in " << where << " (" << error.what()
+              << "); trace data lost" << std::endl;
 }
 
 void Tracer::record_kernel_flush_time() {
@@ -428,7 +430,7 @@ void Tracer::report_delivery_failure(std::string_view path, Stats& stats,
     }
 
     std::cerr << log_prefix() << "POST to " << TRACE_ENDPOINT_HOST << ":" << endpoint_port_ << path
-              << " failed (" << reason << "); trace data discarded" << std::endl;
+              << " failed (" << reason << "); trace data lost" << std::endl;
 }
 
 void Tracer::log_stream_summary(const char* stream, const Stats& stats) const {
