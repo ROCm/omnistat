@@ -75,7 +75,7 @@ require a Python build step.
 #### Build
 
 ```bash
-cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+cmake -S omnistat/rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
 cmake --build build-count/
 ```
 
