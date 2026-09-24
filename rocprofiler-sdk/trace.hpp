@@ -129,6 +129,8 @@ class Tracer {
                           std::chrono::microseconds latency);
     };
 
+    static std::string log_prefix();
+
     void log_stream_summary(const char* stream, const Stats& stats) const;
 
     // Report HTTP delivery failures on a stream. Once by default, every
