@@ -1,143 +1,131 @@
-# System-wide installation
+# System-mode installation
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
+As mentioned in the project {ref}`overview <user-vs-system>`, Omnistat has two primary modes of
+operation and this section highlights installation of the **system-mode** variant that is intended
+for permanent installations across an entire cluster and is typically performed by a system
+administrator with access to elevated credentials. 
 
-There are different ways to deploy and install Omnistat in a data center, and
-each system will generally require a certain level of customization. Here, we
-provide the basic manual steps to install the Omnistat client
-and server, and then provide an example of how to deploy Omnistat in a data
-center using Ansible. Finally, an approach for integrating with the SLURM workload manager to track user jobs is discussed.
+There are different ways to deploy and configure Omnistat in a data center, and each system will
+generally require a certain level of customization. Here, we provide the basic steps to install the
+Omnistat data collector, Prometheus server, and provide an example of how to deploy Omnistat in a
+data center using Ansible. Finally, an approach for integrating with the SLURM workload manager to
+track user jobs is discussed.
 
-For system-wide installation, we recommend creation and usage of a dedicated Linux user that will be used to run the data collector daemon of Omnistat (`omnistat-monitor`).  In addition, per the architecture highlighted in {numref}`fig-system-mode`, a separate server (or VM/container) is needed to support installations of a Prometheus server and Grafana instance.  These services can be hosted on your cluster head-node, or via a separate administrative host. Note that if the host chosen to support the Prometheus server can route out externally, you can also leverage public Grafana cloud infrastructure and [forward](https://grafana.com/docs/agent/latest/flow/tasks/collect-prometheus-metrics/) system telemetry data to an external Grafana instance.
+For system-wide installation, we recommend creation and usage of a dedicated Linux user that will be
+used to run the data collector daemon of Omnistat (`omnistat-monitor`).  In addition, per the
+architecture highlighted in {numref}`fig-system-mode`, a separate server (or VM/container) is needed
+to support installations of a Prometheus server and Grafana instance.  These services can be hosted
+on your cluster head-node, or via a separate administrative host. Note that if the host chosen to
+support the Prometheus server can route out externally, you can also leverage public Grafana cloud
+infrastructure and
+[forward](https://grafana.com/docs/agent/latest/flow/tasks/collect-prometheus-metrics/) system
+telemetry data to an external Grafana instance.
 
-To reiterate, the following assumptions are made throughout the rest of this system-wide installation discussion:
+The following assumptions are made throughout the rest of this system-wide installation discussion:
 
 __Assumptions__:
 * Installer has `sudo` or elevated credentials to install software system-wide, enable systemd services, and optionally modify the local SLURM configuration
-* [ROCm](https://rocm.docs.amd.com/en/latest/) v6.1 or newer is pre-installed on all GPU hosts
+* [ROCm](https://rocm.docs.amd.com/en/latest/) v{__ROCM_MIN_VERSION__} or newer is pre-installed on all GPU hosts
 * Installer has provisioned a dedicated user (eg. `omnidc`) across all desired compute nodes of their system
 * Installer has identified a location to host a Prometheus server (if not present already) that has network access to all compute nodes.
 
-(system-install)=
-## Omnistat software installation
+Different installation options exist depending on whether you want to install Omnistat from a
+released wheel package (recommended), or prefer to use a development version using git.
+Both options are highlighted below for a basic installation that enables standard GPU and host-level
+telemetry.  Depending on your local environment, you may also wish to augment the examples that follow
+to install Omnistat within a dedicated Python virtual environment (e.g. using `venv` or `conda`). 
 
-To begin, we download the Omnistat software and install necessary Python dependencies. Per the assumptions above, we leverage a dedicated user to house the software install.
+(system-install)= 
+## Standard install
 
-1. Download and expand latest release version.
-   ```shell-session
-   [omnidc@login]$ REPO=https://github.com/ROCm/omnistat
-   [omnidc@login]$ curl -OLJ ${REPO}/archive/refs/tags/v{__VERSION__}.tar.gz
-   [omnidc@login]$ tar xfz omnistat-{__VERSION__}.tar.gz
-   ```
+::::{tab-set}
+:::{tab-item} Install latest release using pip
+:sync: release
 
-2. Install dependencies.
-   ```shell-session
-   [omnidc@login]$ cd omnistat-{__VERSION__}
-   [omnidc@login]$ pip install --user -r requirements.txt
-   ```
+Install the latest released version of Omnistat from AMD's ROCm package repository:
 
-<!-- ```{note}
-Omnistat can also be installed as a Python package. How cool is that? Add more snazzy text here to get folks pointed in the
-right direction.
-``` -->
-
-At this point, we can verify basic functionality of the data collector and launch the client by hand.
-
-3. Launch data collector (`omnistat-monitor`) interactively.
-   ```shell-session
-   [omnidc@login]$ ./omnistat-monitor
-   ```
-
-<!-- ### Option B. Install package
-
-1. Clone repository.
-   ```
-   $ git clone https://github.com/ROCm/omnistat.git
-   ```
-
-2. Create a virtual environment, with Python 3.8, 3.9, or 3.10.
-   ```
-   $ cd omnistat
-   $ python -m venv /opt/omnistat
-   ```
-
-3. Install omnistat in a virtual environment. The virtual environment can
-   also be used by sourcing the `./opt/omnistat/bin/activate` file, and that
-   way there is no need to keep using the complete `./venv/bin` path every
-   time. This guide uses the complete path for clarity. Needs to be
-   executed from the root directory of the Omnistat repository.
-   ```
-   $ /opt/omnistat/bin/python -m pip install .
-   ```
-   Alternatively, use the following line to install Omnistat with the
-   optional dependencies for the `omnistat-query` tool.
-   ```
-   $ /opt/omnistat/bin/python -m pip install .[query]
-   ```
-
-4. Launch the client with `gunicorn`. To make sure the installed version of
-   Omnistat is being used, this shouldn't be executed from the root directory
-   of the project.
-   ```
-   $ /opt/omnistat/bin/gunicorn -b 0.0.0.0:8000 "omnistat.node_monitoring:app"
-   ``` -->
-
-<!-- ### Configure client -->
-
-Launching the data collector client as described above will use a set of default
-configuration options housed within an [omnistat/config/omnistat.default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default) file including use of port `8001` for the Prometheus client. If all went well, example output from running `omnistat-monitor` is highlighted below:
-
-```shell-session
-Reading configuration from /home1/omnidc/omnistat/omnistat/config/omnistat.default
-Allowed query IPs = ['127.0.0.1']
-Runtime library loaded from /opt/rocm-6.2.1/lib/librocm_smi64.so
-SMI library API initialized
-SMI version >= 6
-Number of GPU devices = 4
-GPU topology indexing: Scanning devices from /sys/class/kfd/kfd/topology/nodes
---> Mapping: {0: '3', 1: '2', 2: '1', 3: '0'}
---> Using primary temperature location at edge
---> Using HBM temperature location at hbm_0
---> [registered] rocm_temperature_celsius -> Temperature (C) (gauge)
---> [registered] rocm_temperature_hbm_celsius -> HBM Temperature (C) (gauge)
---> [registered] rocm_average_socket_power_watts -> Average Graphics Package Power (W) (gauge)
---> [registered] rocm_sclk_clock_mhz -> current sclk clock speed (Mhz) (gauge)
---> [registered] rocm_mclk_clock_mhz -> current mclk clock speed (Mhz) (gauge)
---> [registered] rocm_vram_total_bytes -> VRAM Total Memory (B) (gauge)
---> [registered] rocm_vram_used_percentage -> VRAM Memory in Use (%) (gauge)
---> [registered] rocm_vram_busy_percentage -> Memory controller activity (%) (gauge)
---> [registered] rocm_utilization_percentage -> GPU use (%) (gauge)
-[2024-07-09 13:19:33 -0500] [2995880] [INFO] Starting gunicorn 21.2.0
-[2024-07-09 13:19:33 -0500] [2995880] [INFO] Listening at: http://0.0.0.0:8001 (2995880)
-[2024-07-09 13:19:33 -0500] [2995880] [INFO] Using worker: sync
-[2024-07-09 13:19:33 -0500] [2995881] [INFO] Booting worker with pid: 2995881
+```bash
+[omnidc]$ pip install --extra-index-url https://stable.repo.amd.com/rocm/extras/omnistat/whl-next/ omnistat
 ```
+:::
 
+:::{tab-item} Use latest development from git source
+:sync: git
+
+Clone the repository (`dev` branch is default) and install python dependencies:
+
+```bash
+[omnidc]$ git clone https://github.com/ROCm/omnistat.git
+[omnidc]$ cd omnistat
+[omnidc]$ pip install -r requirements.txt
+```
+:::
+::::
+
+### Runtime configuration
+
+
+The Omnistat data collector has a number of runtime configuration options housed within an
+[omnistat/config/omnistat.default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default)
+file including use of port `8001` for the Prometheus client. Assuming that port is available
+locally, the main additional option to confirm after installation is the location of your local ROCm
+install. The default configuration assumes a standard install path of `/opt/rocm` - if that matches
+your local setup, no additional change is necessary. If, however, your environment supports multiple
+ROCm installs in versioned paths, the version used by Omnistat data collection can be changed via
+the _rocm_path_ setting, e.g.
+
+```
+rocm_path = /opt/rocm-7.14.0
+```
 ```{note}
-You can override the default runtime configuration file above by setting an `OMNISTAT_CONFIG` environment variable or by using the `./omnistat-monitor --configfile` option.
+You can override the default runtime configuration file above by setting an `OMNISTAT_CONFIG` environment variable or by using the `omnistat-monitor --configfile` option.
 ```
 
-While the client is running interactively, we can use a _separate_ command shell to query the client to further confirm functionality. The output below highlights an example query response on a system with four GPUs installed (note that the metrics include unique card labels to differentiate specific GPU measurements):
+### Test the installation
+
+Omnistat includes a test suite you can exercise to confirm a locally functional installation. Test execution requires a host with valid ROCm installation and one or more GPUs present and will run a short set of tests. 
+
+::::{tab-set}
+:::{tab-item} Install latest release using pip
+:sync: release
+
+Install the companion `omnistat-tests` package and run the suite with `pytest`:
 
 ```shell-session
-[omnidc@login]$ curl localhost:8001/metrics | grep rocm | grep -v "^#"
-rocm_num_gpus 4.0
-rocm_temperature_celsius{card="3",location="edge"} 38.0
-rocm_temperature_celsius{card="2",location="edge"} 43.0
-rocm_temperature_celsius{card="1",location="edge"} 40.0
-rocm_temperature_celsius{card="0",location="edge"} 54.0
-rocm_average_socket_power_watts{card="3"} 35.0
-rocm_average_socket_power_watts{card="2"} 33.0
-rocm_average_socket_power_watts{card="1"} 35.0
-rocm_average_socket_power_watts{card="0"} 35.0
-...
+[omnidc]$ pip install --extra-index-url https://stable.repo.amd.com/rocm/extras/omnistat/whl-next/ omnistat-tests
+[omnidc]$ pytest --pyargs omnistat_tests
 ```
+:::
 
-Once local functionality has been established, you can terminate the interactive test (ctrl-c) and proceed with an automated startup procedure.
+:::{tab-item} Use latest development from git source
+:sync: git
+
+Install test dependencies and run the test suite directly from the cloned repository:
+
+```shell-session
+[omnidc]$ pip install -r test/requirements.txt
+[omnidc]$ pytest
+```
+:::
+::::
+
+Example output of a successful run (including a few skipped) tests is as follows:
+
+```{raw} html
+<div class="terminal-output">
+<div class="t-dim">=============================== test session starts ================================</div>
+<div>platform linux -- Python 3.12.12, pytest-9.1.1, pluggy-1.6.0</div>
+<div>collected 444 items / 2 skipped</div>
+<div>&nbsp;</div>
+<div class="t-row"><span>omnistat_tests/test_collectors.py <span class="t-pass">..............................</span></span><span class="t-pct">[&nbsp;&nbsp;8%]</span></div>
+<div class="t-row"><span><span class="t-pass">.......................</span><span class="t-skip">sss</span><span class="t-pass">......</span><span class="t-skip">ssssssss</span><span class="t-pass">.</span></span><span class="t-pct">[&nbsp;54%]</span></div>
+<div class="t-row"><span>omnistat_tests/test_rms.py <span class="t-pass">............</span></span><span class="t-pct">[&nbsp;62%]</span></div>
+<div class="t-row"><span>omnistat_tests/test_unit_kernel_trace.py <span class="t-pass">...............................</span></span><span class="t-pct">[&nbsp;98%]</span></div>
+<div class="t-row"><span><span class="t-pass">........</span></span><span class="t-pct">[100%]</span></div>
+<div>&nbsp;</div>
+<div><span class="t-pass" style="font-weight:bold">======================== 414 passed, 32 skipped in 40.08s =========================</span></div>
+</div>
+```
 
 
 ### Enable systemd service
@@ -150,7 +138,7 @@ Now that the software is installed under a dedicated user and basic functionalit
 * `CPUAffinity` set to the CPU core index where omnistat-monitor will be pinned -->
 
 
-```eval_rst
+```{eval-rst}
 .. literalinclude:: omnistat.service
    :language: ini
    :emphasize-lines: 8-11
@@ -162,7 +150,7 @@ Using elevated credentials, install the omnistat.service file across all desired
 
 By default, the omnistat data collector will only respond to queries initiated from the local host where the service is running.  This functionality is controlled by a runtime configuration and generally needs to be updated to include the IP address of a companion Prometheus server in order to gather system-wide metrics (see follow-on [discussion](#prometheus-server) for additional details on configuring a Prometheus server).  For example, if your locally configured Prometheus instance has an IP address of `10.0.0.42`, update the `omnistat/config/omnistat.default` runtime file (or equivalent if using a custom configfile) to include the following setting:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :emphasize-lines: 3
 
@@ -178,27 +166,84 @@ Alternatively, you can specify a value of `allowed_ips = 0.0.0.0` to disable any
 
 ---
 
+(optional-components)=
+## Optional component(s)
+
+Beyond the standard data collector, Omnistat provides **optional** components that unlock
+additional telemetry, most notably a GPU hardware counter collector built on
+ROCProfiler-SDK. These steps are optional and only required to enable support for hardware
+counter collection — the standard install above already enables GPU and host-level
+monitoring. These components are compiled from C++ sources and require a local build step.
+The examples below build and install the counter collector alongside the data collector.
+
+::::{tab-set}
+:::{tab-item} Install latest release using pip
+:sync: release
+
+After completing the standard release install, build the optional ROCProfiler-SDK
+counter extension using the bundled helper:
+
+```bash
+[omnidc]$ omnistat-build-extras --counters
+```
+:::
+
+:::{tab-item} Use latest development from git source
+:sync: git
+
+From within a cloned copy of the repository, build the two pieces of hardware
+counter support in place. First, build the **collector extension** that samples
+counters from the GPUs:
+
+```bash
+[omnidc]$ pip install cmake-build-extension nanobind
+[omnidc]$ BUILD_ROCPROFILER_SDK_EXTENSION=1 python setup.py build_ext --inplace
+```
+
+Then build the **counter enablement library** (`libomnistat_count.so`), a
+standalone C++ shared library loaded into monitored applications to enable
+counter collection for their queues:
+
+```bash
+[omnidc]$ cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+[omnidc]$ cmake --build build-count/
+```
+:::
+::::
+
+```{note}
+The optional components rely on `cmake` and HIP C++ compiler.
+```
+
+The resulting library is located at `build-count/libomnistat_count.so`. See
+[Advanced Profiling](../advanced-profiling.md#hardware-counters) for usage
+instructions.
+
+---
+
 ## Prometheus server
 
-Once the `omnistat-monitor` daemon is configured and running system-wide, we next install and configure a [Prometheus](https://prometheus.io/) server to enable automatic telemetry collection. This server typically runs on an administrative host and can be installed via package manager, by downloading a [precompiled binary](https://prometheus.io/download/), or using a [Docker image](https://hub.docker.com/u/prom). The install steps below highlight installation via package manager followed by a simple scrape configuration.
-
-<!-- On a separate server with access to compute nodes, install and configure
-[Prometheus](https://prometheus.io/). -->
+Once the `omnistat-monitor` daemon is configured and running system-wide, we next install and configure a [Prometheus](https://prometheus.io/) server to enable automatic telemetry collection. This server typically runs on an administrative host and can be installed via OS package manager, by downloading a [precompiled binary](https://prometheus.io/download/), or using a [Docker image](https://hub.docker.com/u/prom). The install steps below highlight installation via package manager followed by a simple scrape configuration.
 
 1. Install: Prometheus server (via package manager)
 
-   For Debian-based systems:
+   ::::{tab-set}
+   :::{tab-item} Debian-based
    ```shell-session
    # apt-get install prometheus
    ```
-   For RHEL:
+   :::
+   :::{tab-item} RHEL
    ```shell-session
    # dnf install golang-github-prometheus
    ```
-   For SUSE:
+   :::
+   :::{tab-item} SUSE
    ```shell-session
    #  zypper install golang-github-prometheus-prometheus
    ```
+   :::
+   ::::
 
 2. Configuration: add a scrape configuration to Prometheus to enable telemetry collection. This configuration stanza typically resides in the `/etc/prometheus/prometheus.yml` runtime config file and controls which nodes to poll and at what frequency. The example below highlights configuration of a Prometheus job to poll Omnistat data at 30 second intervals from four separate compute nodes. We recommend keeping the `scrape_interval` setting at 5 seconds or larger.
 
@@ -239,7 +284,7 @@ For production cluster or data center deployments, configuration management tool
 
 Note that this recipe assumes existence of a dedicated non-root user to run the Omnistat exporter, templated as `{{ omnistat_user }}`.  It also assumes that an Omnistat release has been downloaded into a local path, templated to be in the `{{ omnistat_dir }}`.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: yaml
    :caption: roles/omnistat/tasks/main.yml
 
@@ -256,11 +301,6 @@ Note that this recipe assumes existence of a dedicated non-root user to run the 
     - name: Install python package dependencies
       ansible.builtin.pip:
         requirements: "{{ omnistat_dir }}/requirements.txt"
-      become_user: "{{ omnistat_user }}"
-
-    - name: Install python package dependencies to support query tool
-      ansible.builtin.pip:
-        requirements: "{{ omnistat_dir }}/requirements-query.txt"
       become_user: "{{ omnistat_user }}"
 
     #--
@@ -280,7 +320,7 @@ Note that this recipe assumes existence of a dedicated non-root user to run the 
         state: started
 ```
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :caption: roles/omnistat/templates/omnistat.service.j2
 
@@ -308,7 +348,6 @@ Note that this recipe assumes existence of a dedicated non-root user to run the 
 
 ---
 
-(slurm-integration)=
 ## SLURM Integration
 
 An optional info metric capability exists within Omnistat to allow collected telemetry data to be mapped to individual jobs as they are scheduled by the resource manager.  Multiple options exist to implements this integration, but the recommended approach for large-scale production resources is to leverage prolog/epilog functionality within SLURM to expose relevant job information to the Omnistat data collector. This remaining portion of this section highlights basic steps for implementing this particular strategy.
@@ -317,14 +356,14 @@ An optional info metric capability exists within Omnistat to allow collected tel
 
 1. To enable resource manager tracking on the Omnistat client side, edit the chosen runtime config file and update the `[omnistat.collectors]` and `[omnistat.collectors.rms]` sections to have the following settings highlighted in yellow.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :caption: omnistat.default
    :emphasize-lines: 4,7-8
 
    [omnistat.collectors]
    port = 8001
-   enable_rocm_smi = True
+   enable_amd_smi = True
    enable_rms = True
 
    [omnistat.collectors.rms]
@@ -333,7 +372,7 @@ An optional info metric capability exists within Omnistat to allow collected tel
 ```
 The settings above enable the resource manager collector and configures Omnistat to query the `/tmp/omni_rmsjobinfo` file to derive dynamic job information.  This file can be generated using the `omnistat-rms-env` utility from within an actively running job, or during prolog execution.  The resulting file contains a simple JSON format as follows:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: json
    :caption: /tmp/omni_rmsjobinfo
 
@@ -358,7 +397,7 @@ Prolog=/etc/slurm/slurm.prolog
 Epilog=/etc/slurm/slurm.epilog
 ```
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: /etc/slurm/slurm.prolog snippet
 
@@ -370,7 +409,7 @@ Epilog=/etc/slurm/slurm.epilog
     fi
 ```
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: /etc/slurm/slurm.epilog snippet
 
@@ -381,7 +420,7 @@ Epilog=/etc/slurm/slurm.epilog
 ```
 
 ```{note}
-To make sure the cached job data file is created immediately upon on allocation of a user job (instead of the first `srun` invocation), be sure to include the following setting in your local SLURM configuration:
+To make sure the cached job data file is created immediately upon allocation of a user job (instead of the first `srun` invocation), be sure to include the following setting in your local SLURM configuration:
 ```text
 PrologFlags=Alloc
 ```

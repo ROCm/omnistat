@@ -1,11 +1,5 @@
 # LLNL
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
-
 This section provides instructions for running user-mode Omnistat on LLNL's
 Tuolumne supercomputer with pre-installed versions from AMD Research.
 
@@ -23,7 +17,7 @@ several commands to their Flux job scripts.  There are two primary options for s
 
 In the standard case, users load the `omnistat` module and include relevant commands in their job script to initiate data collection at job startup and then tear-down the process after application executions have completed.  A simple job example demonstrating this approach is as follows:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: Example Tuolumne Flux job using standard Omnistat module to sample at 1s intervals
    :emphasize-lines: 10-12,18-20
@@ -52,10 +46,10 @@ In the standard case, users load the `omnistat` module and include relevant comm
 
 If all runs well, the `omnistat-query` command above will include a short summary output directly within the Flux job output. Representative output from an example job is as follows:
 
-```eval_rst
+```{eval-rst}
 
 .. code-block:: none
-   :caption: Example telemetry summary report card in user-mode from Tuolomne.
+   :caption: Example telemetry summary report card in user-mode from Tuolumne.
 
    ----------------------------------------------------------------------
    Omnistat Report Card for Job Id: f2cZ3xxxxxx
@@ -97,7 +91,7 @@ The `omnistat` module used in the previous example relies on the system provided
 
  The following Flux job script example highlights use of the wrapper utility before and after executing a GPU application:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: Example Tuolumne Flux job using omnistat-wrapper, highlighting changes needed to run Omnistat
    :emphasize-lines: 10-12,18-20
@@ -140,5 +134,5 @@ local filesystems like `/tmp`.
 
 After job completion, transfer the archived Omnistat data to your local machine
 for analysis using the Docker environment described in the [user-mode
-guide](installation/user-mode.md#exploring-results-locally).
+guide](user-mode/analysis.md#exploring-results-locally).
 

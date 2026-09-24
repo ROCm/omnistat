@@ -1,11 +1,5 @@
 # Metrics Available
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
-
 Omnistat supports multiple embedded data collectors to aggregate a large
 collection of metrics from a variety of system sources.  Many of the available
 data collectors are optional and can be enabled via runtime configuration
@@ -23,6 +17,11 @@ Note that Omnistat metrics generally fall into one of the two following types:
 
 In addition, an optional [External](#external) data collector is available to
 ingest additional site-specific metrics not included directly in Omnistat.
+
+Two of the collectors below, [Hardware Counters](#hardware-counters) and
+[Kernel Tracing](#kernel-tracing), require additional setup beyond a runtime
+configuration flag. That setup, along with their configuration options, is
+covered in [Advanced Profiling](./advanced-profiling.md).
 
 <hr style="border: 1px solid black;">
 
@@ -79,15 +78,15 @@ memory utilization statistics along with general I/O metrics.
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
 | `omnistat_host_boot_time_seconds` | Node boot time (seconds since epoch). |
-| `omnistat_mem_total_bytes`| Total host memory available (bytes). |
-| `omnistat_mem_available_bytes` | Currently available host memory (bytes). This is typically the amount of memory available for allocation to new processes.|
-| `omnistat_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it is generally smaller than `omnistat_mem_available_bytes` due to caching. |
+| `omnistat_host_mem_total_bytes`| Total host memory available (bytes). |
+| `omnistat_host_mem_available_bytes` | Currently available host memory (bytes). This is typically the amount of memory available for allocation to new processes.|
+| `omnistat_host_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it is generally smaller than `omnistat_host_mem_available_bytes` due to caching. |
 | `omnistat_host_cpu_num_physical_cores` | Number of physical CPU cores. |
 | `omnistat_host_cpu_num_logical_cores` | Number of logical CPU cores. |
 | `omnistat_host_cpu_aggregate_core_utilization` | Instantaneous number of busy CPU cores. Typical range varies from 0 (no load) to num_logical_cores (max load). |
 | `omnistat_host_cpu_load1` | 1-minute CPU load average. This is identical to 1-minute load reported by `uptime`. |
-| `omnistat_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
-| `omnistat_io_write_local_total_bytes` | Total bock-level data written to **local** physical disk (bytes). |
+| `omnistat_host_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
+| `omnistat_host_io_write_local_total_bytes` | Total block-level data written to **local** physical disk (bytes). |
 
 ### Process-based I/O
 
@@ -106,8 +105,8 @@ execution where Omnistat is running under the same user ID as the application.
 
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
-| `omnistat_io_read_total_bytes` | Total data read by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
-| `omnistat_io_write_total_bytes` | Total data written by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
+| `omnistat_host_io_read_total_bytes` | Total data read by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
+| `omnistat_host_io_write_total_bytes` | Total data written by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
 
 <hr style="border: 1px solid black;">
 
@@ -212,87 +211,14 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 The ROCprofiler data collector provides access to low-level GPU hardware
 counters for in-depth performance analysis. Counters are collected by sampling
 the GPUs at the device level with minimal impact on application performance.
-This collector requires [building the hardware counters
-extension](./installation/extensions.md#hardware-counter-support).
 
-To ensure all performance counters are collected correctly, the collector needs
-performance monitoring privileges, with requirements depending on how Omnistat
-is executed:
-- [*System mode*](./installation/system-install.md): Run Omnistat with the
-  `CAP_PERFMON` capability enabled.
-- [*User mode*](./installation/user-mode.md):
-  `/proc/sys/kernel/perf_event_paranoid` must be `2` or less (some
-  distributions default to `4`), and the [counter enablement
-  library](./installation/extensions.md#counter-enablement-library) must be
-  loaded in the application's environment:
-  ```shell
-  export ROCP_TOOL_LIBRARIES=/path/to/build-count/libomnistat_count.so
-  ```
-
-  Counters are only collected for queues that have counting enabled, which the
-  library does for the process it is loaded into. The variable therefore needs
-  to be set in the environment of the application being monitored, and not in
-  the environment of Omnistat itself.
-
-```{note}
-Counter collection and [kernel tracing](#kernel-tracing) can be enabled at the
-same time by listing both libraries in `ROCP_TOOL_LIBRARIES`, like
-`libomnistat_count.so:libomnistat_trace.so:`. The trailing colon is required:
-ROCProfiler-SDK drops the last entry while parsing the variable, so without it
-the final library is not loaded and no error is reported.
-```
-
-```{note}
-In ROCm versions before 10, counters were enabled with the ROCProfiler v1 tool
-library instead of `libomnistat_count.so`:
-
-    export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
-    export HSA_TOOLS_ROCPROFILER_V1_TOOLS=1
-
-These variables have no effect in ROCm 10 or later, where `librocprofiler64.so`
-is no longer distributed.
-```
-
-The collection of hardware counters is configured through the `profile` option
-in the `[omnistat.collectors.rocprofiler]` section, which selects a matching
-`[omnistat.collectors.rocprofiler.<profile>]` section. Each profile defines a
-sampling mode and a set of counters to be collected:
-- `sampling_mode`: This option controls how counter sets are distributed
-  across the available GPUs:
-    - `constant`: Assigns one set of counters to all GPUs.
-    - `gpu-id`: Cyclically assigns sets of counters to GPU IDs in all nodes.
-       The number of sets of counters must not exceed the number of GPUs per
-       node.
-    - `periodic`: Rotates all GPUs through multiple counter sets, changing the
-      active counter set after every sample. When this mode is enabled, counter
-      values are reset at each sampling interval and not accumulated.
-- `counters`: This option accepts one or more sets of counters formatted as a
-  flat or nested JSON list. For a complete list of supported counters, see the
-  [ROCm documentation](https://rocm.docs.amd.com/en/latest/conceptual/gpu-arch/mi300-mi200-performance-counters.html).
-
-```eval_rst
-.. code-block:: ini
-   :caption: Example profile to collect free-running and active cycles on all GPUs
-
-    [omnistat.collectors.rocprofiler]
-    profile = cycles
-
-    [omnistat.collectors.rocprofiler.cycles]
-    sampling_mode = constant
-    counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
-  ```
-
-```eval_rst
-.. code-block:: ini
-   :caption: Example profile to collect HBM reads and writes from different GPU IDs
-
-    [omnistat.collectors.rocprofiler]
-    profile = hbm
-
-    [omnistat.collectors.rocprofiler.hbm]
-    sampling_mode = gpu-id
-    counters = [["FETCH_SIZE"], ["WRITE_SIZE"]]
-  ```
+This collector requires building the hardware counters extension, as described
+under Optional component(s) for {ref}`system-mode <optional-components>` or
+{ref}`user-mode <user-optional-components>`, along with performance monitoring
+privileges and a counter profile that selects which counters to collect. Which counters are available and how they are distributed across the
+GPUs of a node is controlled by the `profile` option. See [Advanced
+Profiling](./advanced-profiling.md#hardware-counters) for setup and
+configuration details.
 
 **Collector**: `enable_rocprofiler`
 <br/>
@@ -311,22 +237,11 @@ recording kernel names, execution durations, and GPU IDs. It produces
 per-kernel time series metrics that enable detailed analysis of GPU workload
 composition over time.
 
-The collector requires [building the kernel tracing
-library](./installation/extensions.md#kernel-tracing-support). To intercept kernel
-dispatches, the `ROCP_TOOL_LIBRARIES` environment variable must be set in the
-GPU application's runtime environment pointing to the built library:
-
-```shell
-export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
-```
-
-```{note}
-Kernel tracing and [hardware counter collection](#hardware-counters) can be
-enabled at the same time by listing both libraries in `ROCP_TOOL_LIBRARIES`, like
-`libomnistat_count.so:libomnistat_trace.so:`. The trailing colon is required:
-ROCProfiler-SDK drops the last entry while parsing the variable, so without it
-the final library is not loaded and no error is reported.
-```
+This collector requires building the kernel tracing library, as described under
+{ref}`Optional component(s) <user-optional-components>`, and loading it into the
+application being monitored, which is what intercepts the kernel dispatches. See [Advanced
+Profiling](./advanced-profiling.md#kernel-tracing) for setup and configuration
+details.
 
 **Collector**: `enable_kernel_trace`
 <br/>
@@ -396,7 +311,7 @@ The external data collector provides a mechanism to incorporate custom,
 site-specific metrics into Omnistat by executing a user-provided script at each
 collection interval. The script is expected to write metrics to stdout in
 [Prometheus text exposition
-format](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format)
+format](https://prometheus.io/docs/instrumenting/exposition_formats/#prometheus-text-format)
 (one metric per line). Metric names and labels are not fixed in advance --
 they are discovered dynamically from the script output at runtime.
 
@@ -418,7 +333,7 @@ the path to the executable and `timeout_secs` (default: 10 seconds) controls how
 long Omnistat will wait for the script to complete before discarding its
 output.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: ini
    :caption: Example configuration
 
@@ -446,7 +361,7 @@ Lines beginning with `#` and empty lines are ignored.
 The following example script emits free disk space metrics for multiple
 filesystems, using a label to distinguish between them.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: my_metrics.sh
 
@@ -460,7 +375,7 @@ filesystems, using a label to distinguish between them.
 
 Running the script produces output that Omnistat parses directly:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: console
 
     $ ./my_metrics.sh
@@ -485,7 +400,7 @@ To demonstrate creation of high-level markers from within a job script, the foll
 highlights annotation of repeated runs of an application with different command-line arguments (where
 the argument size is included as text for the annotation).
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: Example use of high-level annotations in a job script
 
@@ -519,7 +434,7 @@ To support this feature, Omnistat exposes a `/fom` REST endpoint that accepts a 
 user-supplied FOM name and value; the timestamp is encoded automatically at time of receipt.  The
 following highlights a CLI example using `curl` to report a GFLOPS measurement:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: Example FOM submission using curl
 
@@ -532,7 +447,7 @@ For C++ applications, a more efficient approach is to use a header-only HTTP
 client such as [cpp-httplib](https://github.com/yhirose/cpp-httplib) to issue
 the POST request directly from within the application code:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: cpp
    :caption: Example FOM submission from C++ using cpp-httplib
 
@@ -558,7 +473,7 @@ the POST request directly from within the application code:
 
 Python applications can use the `requests` library to report FOM values natively:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: python
    :caption: Example FOM submission from Python using requests
 
