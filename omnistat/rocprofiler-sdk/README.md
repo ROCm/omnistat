@@ -178,7 +178,7 @@ the corresponding trace collectors enabled.
 | `OMNISTAT_TRACE_MAX_INTERVAL` | `10` (seconds) | Max time between periodic flushes (both streams) |
 | `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | rocprofiler-sdk buffer size for kernel dispatch records |
 | `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001` | Port for the HTTP endpoint receiving trace data |
-| `OMNISTAT_TRACE_LOG` | `0` | Set to `1` to print a trace summary on exit, and to report exceptions caught inside a tracing callback |
+| `OMNISTAT_TRACE_LOG` | `0` | Set to `1` to print the trace summary even when nothing failed, and to report every delivery failure and callback exception |
 
 The two streams are independent, and each has to be enabled on the collector as
 well. RCCL tracing is off by default to match the collector, which registers
@@ -187,9 +187,10 @@ to an endpoint that does not exist.
 
 ### Exit Summary
 
-When `OMNISTAT_TRACE_LOG=1` is set, the library prints a summary line on
-application exit:
+The library prints one summary line per active trace stream on application
+exit, to stderr. By default it prints only for a stream that lost data; with
+`OMNISTAT_TRACE_LOG=1` it prints unconditionally.
 
 ```
-[hostname][12345][omnistat] Trace summary: 1234/1234 processed records (12/12 successful flushes)
+[hostname][12345][omnistat] Trace summary (kernel): 1234/1234 records, 12/12 flushes, POST avg 1.423ms max 8.31ms
 ```
