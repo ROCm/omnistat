@@ -48,7 +48,7 @@ Tracer::Tracer()
       endpoint_port_(parse_env_uint("OMNISTAT_TRACE_ENDPOINT_PORT", DEFAULT_TRACE_ENDPOINT_PORT)),
       log_enabled_(parse_env_uint("OMNISTAT_TRACE_LOG", 0) != 0) {
     kernel_enabled_ = parse_env_bool("OMNISTAT_KERNEL_TRACE", true);
-    rccl_enabled_ = parse_env_bool("OMNISTAT_RCCL_TRACE", kernel_enabled_);
+    rccl_enabled_ = parse_env_bool("OMNISTAT_RCCL_TRACE", false);
 }
 
 int Tracer::initialize() {
@@ -448,7 +448,7 @@ void Tracer::log_stream_summary(const char* stream, const Stats& stats) const {
     const uint64_t total_latency_us = stats.total_latency_us.load();
     const uint64_t max_latency_us = stats.max_latency_us.load();
 
-    std::cout << log_prefix() << "Trace summary (" << stream
+    std::cerr << log_prefix() << "Trace summary (" << stream
               << "): " << (total_records - failed_records) << "/" << total_records << " records, "
               << (total_flushes - failed_flushes) << "/" << total_flushes << " flushes, POST avg "
               << (total_latency_us / total_flushes) / 1000.0 << "ms max " << max_latency_us / 1000.0

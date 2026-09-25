@@ -262,13 +262,14 @@ details.
 The tracing library sends data to the Omnistat exporter, which must be running
 on the same node as the traced application.
 
-Loading the library activates both streams, since RCCL tracing follows kernel
-tracing by default. Each stream is controlled independently:
+Loading the library activates kernel tracing; RCCL tracing is opt-in. The two
+streams are controlled independently, and each also has to be enabled on the
+collector:
 
 - `OMNISTAT_KERNEL_TRACE`: enabled by default. Set to `0` to disable kernel
   dispatch tracing.
-- `OMNISTAT_RCCL_TRACE`: follows `OMNISTAT_KERNEL_TRACE` by default. Set to `1`
-  to enable RCCL tracing on its own, or `0` to disable it.
+- `OMNISTAT_RCCL_TRACE`: disabled by default. Set to `1` to enable RCCL
+  tracing, alongside `enable_rccl_trace` on the collector.
 
 To collect RCCL traces without the cost of per-dispatch tracing, disable kernel
 tracing and enable RCCL explicitly:
