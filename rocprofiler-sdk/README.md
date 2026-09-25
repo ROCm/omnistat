@@ -2,7 +2,7 @@
 
 - [Performance Counter Sampling (Python Extension)](#performance-counter-sampling-python-extension)
 - [Counter Enablement Library](#counter-enablement-library)
-- [Kernel Tracing Library](#kernel-tracing-library)
+- [Tracing Library](#tracing-library)
 
 ---
 

@@ -321,7 +321,7 @@ export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
 ```
 
 ```{note}
-Kernel tracing and [hardware counter collection](#hardware-counters) can be
+Tracing and [hardware counter collection](#hardware-counters) can be
 enabled at the same time by listing both libraries in `ROCP_TOOL_LIBRARIES`, like
 `libomnistat_count.so:libomnistat_trace.so:`. The trailing colon is required:
 ROCProfiler-SDK drops the last entry while parsing the variable, so without it
