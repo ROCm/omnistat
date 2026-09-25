@@ -9,7 +9,7 @@ Omnistat includes two optional components that can be built and installed to
 provide additional data collector capabilities.
 
 1. [Hardware counter support](#hardware-counter-support)
-2. [Kernel tracing support](#kernel-tracing-support)
+2. [Tracing support](#tracing-support)
 
 Both rely on C++ compilations via `cmake` and additional instructions for each optional component
 are outlined below.
@@ -83,16 +83,23 @@ The resulting library is located at `build-count/libomnistat_count.so`. See
 [Hardware Counters metrics](../metrics.md#hardware-counters) for usage
 instructions.
 
-## Kernel tracing support
+## Tracing support
 
-### Kernel tracing library
+### Tracing library
 
-`libomnistat_trace.so` is a standalone C++ shared library that intercepts GPU
-kernel dispatches at runtime to collect per-kernel timing and execution
-metrics. Like the counter enablement library, it does not require a Python
-build step.
+`libomnistat_trace.so` is a standalone C++ shared library that instruments a
+GPU application at runtime. It provides two independent trace streams:
 
-(kernel-tracing-requirements)=
+- **Kernel dispatches**: per-kernel timing and execution metrics.
+- **RCCL communication**: collective enumeration (operation, message size,
+  datatype) and communicator creation.
+
+Like the counter enablement library, it does not require a Python build step. A
+single build produces both streams; which ones are active at runtime is
+controlled by environment variables described in [Tracing
+metrics](../metrics.md#tracing).
+
+(tracing-requirements)=
 #### Requirements
 
 - ROCm 6.4+
@@ -112,7 +119,7 @@ point CMake at them:
       -DFETCHCONTENT_SOURCE_DIR_FMT=/path/to/fmt
 ```
 
-(kernel-tracing-build)=
+(tracing-build)=
 #### Build
 
 ```bash
@@ -121,4 +128,4 @@ cmake --build build-trace/
 ```
 
 The resulting library is located at `build-trace/libomnistat_trace.so`. See
-[Kernel Tracing metrics](../metrics.md#kernel-tracing) for usage instructions.
+[Tracing metrics](../metrics.md#tracing) for usage instructions.

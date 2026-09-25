@@ -49,6 +49,11 @@ if (BUILD_COUNT_LIB)
 endif()
 
 if (BUILD_KERNEL_TRACE_LIB)
+    # HIP is needed for hipGetDevice() in the RCCL enumeration path. The RCCL
+    # headers (ncclComm_t, api ids) come transitively via rocprofiler-sdk/rccl.h,
+    # and ncclCommCount is resolved at runtime via dlsym, so no librccl link dep.
+    find_package(hip REQUIRED)
+
     include(FetchContent)
     include(CheckCXXSourceCompiles)
 
@@ -57,14 +62,16 @@ if (BUILD_KERNEL_TRACE_LIB)
     #   -DFETCHCONTENT_SOURCE_DIR_HTTPLIB=/path/to/cpp-httplib
     FetchContent_Declare(
         httplib
-        URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.3.tar.gz
+        URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.53.1.tar.gz
         DOWNLOAD_EXTRACT_TIMESTAMP TRUE
     )
     FetchContent_MakeAvailable(httplib)
 
-    add_library(omnistat_trace SHARED kernel_tracer.cpp)
+    add_library(omnistat_trace SHARED trace.cpp trace_kernel_callbacks.cpp
+                                  trace_rccl_callbacks.cpp common.cpp)
     target_compile_features(omnistat_trace PRIVATE cxx_std_20)
-    target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk httplib::httplib)
+    target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk httplib::httplib
+                                                 hip::host)
 
     # Check if the compiler supports std::format
     set(CMAKE_REQUIRED_FLAGS "-std=c++20")
@@ -104,7 +111,7 @@ if (NOT BUILD_KERNEL_TRACE_LIB AND NOT BUILD_COUNT_LIB)
 
     find_package(rocprofiler-sdk REQUIRED)
 
-    nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp)
+    nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp common.cpp)
     target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk
                                                             hsa-runtime64::hsa-runtime64)
 
