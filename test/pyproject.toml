@@ -4,7 +4,7 @@ dynamic = ["version"]
 description = "Test suite for omnistat"
 requires-python = ">=3.8"
 dependencies = [
-    "omnistat",
+    "omnistat>=1.14.0",
     "prometheus-api-client>=0.5.4",
     "pytest",
     "pytest-cov",
