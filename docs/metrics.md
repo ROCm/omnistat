@@ -1,5 +1,21 @@
 # Metrics Available
 
+<style>
+/* Give every metric table on this page a shared fixed first-column width so
+   adjacent tables line up on the same boundary instead of each auto-sizing to
+   its own longest metric name. 24rem fits the longest name on the page
+   (omnistat_host_cpu_aggregate_core_utilization) without wrapping. Kept inline
+   here rather than in static/custom.css so the rule stays scoped to this page. */
+#metrics-available table.table {
+    table-layout: fixed;
+    width: 100%;
+}
+#metrics-available table.table th:first-child,
+#metrics-available table.table td:first-child {
+    width: 24rem;
+}
+</style>
+
 Omnistat supports multiple embedded data collectors to aggregate a large
 collection of metrics from a variety of system sources.  Many of the available
 data collectors are optional and can be enabled via runtime configuration
