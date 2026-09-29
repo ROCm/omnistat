@@ -15,15 +15,24 @@ __Assumptions__:
 * Installer has access to a distributed file-system; if no distributed
   file-system is present, installation steps need to be repeated across all nodes.
 
+<!-- if-release:start -->
 Installation steps depend on whether you want to install Omnistat from a released wheel package
 (recommended), or prefer to use a development version using git. Both options are highlighted below
 for a basic installation that enables standard GPU and host-level telemetry.  Depending on your
 local environment, you may also wish to augment the examples that follow to install Omnistat within
 a dedicated Python virtual environment (e.g. using `venv` or `conda`). 
+<!-- if-release:end -->
+<!-- if-norelease:start -->
+The steps below install a development version of Omnistat using git for a basic installation that
+enables standard GPU and host-level telemetry.  Depending on your local environment, you may also
+wish to augment the examples that follow to install Omnistat within a dedicated Python virtual
+environment (e.g. using `venv` or `conda`).
+<!-- if-norelease:end -->
 
 ## Standard Omnistat install
 
 ::::{tab-set}
+<!-- if-release:start -->
 :::{tab-item} Install latest release using pip
 :sync: release
 
@@ -34,6 +43,7 @@ $ pip install --extra-index-url https://stable.repo.amd.com/rocm/extras/omnistat
 ```
 :::
 
+<!-- if-release:end -->
 :::{tab-item} Use latest development from git source
 :sync: git
 
@@ -58,6 +68,7 @@ GPU and host-level monitoring. These components are compiled from C++ sources an
 local build step.
 
 ::::{tab-set}
+<!-- if-release:start -->
 :::{tab-item} Install latest release using pip
 :sync: release
 
@@ -69,6 +80,7 @@ $ omnistat-build-extras
 ```
 :::
 
+<!-- if-release:end -->
 :::{tab-item} Use latest development from git source
 :sync: git
 
