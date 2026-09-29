@@ -14,6 +14,7 @@
 #
 import datetime
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.abspath(".."))
@@ -123,6 +124,15 @@ external_toc_path = "./sphinx/_toc.yml"
 # Don't pull intersphinx mappings for other ROCm projects
 external_projects = []
 
+# Build offline: don't hit the GitHub API on every cold/config-changed build to
+# fetch the project mapping from ROCm/rocm-docs-core@develop.  Anonymous API
+# calls are capped at 60/hour per IP, and rocm-docs-core responds to the 403 by
+# sleeping in a long backoff, which looks like a hung build.  Leaving this unset
+# makes it fall back to the projects.yaml bundled with the installed rocm_docs
+# package -- and with external_projects empty above, those mappings are unused
+# anyway.  Set this back to "ROCm/rocm-docs-core" to restore remote fetching.
+external_projects_remote_repository = ""
+
 # Local template overrides (e.g. footer copyright); searched before the theme's.
 templates_path = ["_templates"]
 
@@ -159,10 +169,49 @@ html_theme_options = {
 html_css_files = ["custom.css"]
 
 
+# ---------------------------------------------------------------------------
+# Public wheel availability toggle.
+#
+# Sources mark the conditional content with HTML comments:
+#
+#   <!-- if-release:start -->      shown only when release_wheels_public = True
+#   <!-- if-release:end -->
+#
+#   <!-- if-norelease:start -->    shown only when release_wheels_public = False
+#   <!-- if-norelease:end -->
+#
+# The marker lines themselves are always stripped before parsing, so they never
+# reach sphinx-design.  This has to happen on the raw source rather than with
+# the `only` or `ifconfig` directives, because sphinx-design validates the
+# children of a `tab-set` at parse time and errors out on any other node type.
+# ---------------------------------------------------------------------------
+release_wheels_public = False
+
+_CONDITIONAL_BLOCK = re.compile(
+    r"^[ \t]*<!--[ \t]*if-(no)?release:start[ \t]*-->[ \t]*\n"
+    r"(.*?)"
+    r"^[ \t]*<!--[ \t]*if-(?:no)?release:end[ \t]*-->[ \t]*\n",
+    re.DOTALL | re.MULTILINE,
+)
+
+
+# function to show/hide released-wheel content based on release_wheels_public
+def toggleReleaseContent(app, docname, source):
+    public = app.config.release_wheels_public
+
+    def keepOrDrop(match):
+        negated = match.group(1) is not None
+        return match.group(2) if (public != negated) else ""
+
+    source[0] = _CONDITIONAL_BLOCK.sub(keepOrDrop, source[0])
+
+
 # app setup hook
 def setup(app):
     app.add_config_value("docstring_replacements", {}, True)
+    app.add_config_value("release_wheels_public", False, "env")
     app.connect("source-read", replaceString)
+    app.connect("source-read", toggleReleaseContent)
 
 
 # function to replace version string througout documentation

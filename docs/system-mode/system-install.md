@@ -29,16 +29,25 @@ __Assumptions__:
 * Installer has provisioned a dedicated user (eg. `omnidc`) across all desired compute nodes of their system
 * Installer has identified a location to host a Prometheus server (if not present already) that has network access to all compute nodes.
 
+<!-- if-release:start -->
 Different installation options exist depending on whether you want to install Omnistat from a
 released wheel package (recommended), or prefer to use a development version using git.
 Both options are highlighted below for a basic installation that enables standard GPU and host-level
 telemetry.  Depending on your local environment, you may also wish to augment the examples that follow
 to install Omnistat within a dedicated Python virtual environment (e.g. using `venv` or `conda`). 
+<!-- if-release:end -->
+<!-- if-norelease:start -->
+The steps below install a development version of Omnistat using git for a basic installation that
+enables standard GPU and host-level telemetry.  Depending on your local environment, you may also
+wish to augment the examples that follow to install Omnistat within a dedicated Python virtual
+environment (e.g. using `venv` or `conda`).
+<!-- if-norelease:end -->
 
 (system-install)= 
 ## Standard install
 
 ::::{tab-set}
+<!-- if-release:start -->
 :::{tab-item} Install latest release using pip
 :sync: release
 
@@ -49,6 +58,7 @@ Install the latest released version of Omnistat from AMD's ROCm package reposito
 ```
 :::
 
+<!-- if-release:end -->
 :::{tab-item} Use latest development from git source
 :sync: git
 
@@ -86,6 +96,7 @@ You can override the default runtime configuration file above by setting an `OMN
 Omnistat includes a test suite you can exercise to confirm a locally functional installation. Test execution requires a host with valid ROCm installation and one or more GPUs present and will run a short set of tests. 
 
 ::::{tab-set}
+<!-- if-release:start -->
 :::{tab-item} Install latest release using pip
 :sync: release
 
@@ -97,6 +108,7 @@ Install the companion `omnistat-tests` package and run the suite with `pytest`:
 ```
 :::
 
+<!-- if-release:end -->
 :::{tab-item} Use latest development from git source
 :sync: git
 
@@ -177,6 +189,7 @@ monitoring. These components are compiled from C++ sources and require a local b
 The examples below build and install the counter collector alongside the data collector.
 
 ::::{tab-set}
+<!-- if-release:start -->
 :::{tab-item} Install latest release using pip
 :sync: release
 
@@ -188,6 +201,7 @@ counter extension using the bundled helper:
 ```
 :::
 
+<!-- if-release:end -->
 :::{tab-item} Use latest development from git source
 :sync: git
 
