@@ -4,6 +4,9 @@ on:
     branches:  [ main, dev ]
   pull_request:
     branches: [ main, dev ]
+permissions:
+  contents: read
+
 jobs:
   test:
     name: System-level Omnistat
@@ -14,6 +17,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Comment out GPU devices (not available in GitHub)
         run: sed -i "/devices:/,+2 s/^/#/" test/docker/slurm/compose.yaml
       - name: Disable SMI collector (won't work in GitHub)
