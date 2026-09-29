@@ -81,7 +81,7 @@ jobs:
           echo "s3_bucket=${S3_BUCKET}" >> $GITHUB_OUTPUT
 
       - name: Checkout repository at tag
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.tag.outputs.tag }}
 
@@ -107,7 +107,7 @@ jobs:
 
       - name: Set up Python
         if: ${{ steps.check.outputs.skip == 'false' }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 
