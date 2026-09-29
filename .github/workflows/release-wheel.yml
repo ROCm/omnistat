@@ -48,8 +48,10 @@ jobs:
     steps:
       - name: Resolve release tag
         id: tag
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
-          echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
 
       - name: Resolve environment
         id: env
