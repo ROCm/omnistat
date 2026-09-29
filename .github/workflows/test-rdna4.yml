@@ -80,9 +80,10 @@ jobs:
           su - ubuntu -c "sleep 300 &"
           pytest -s -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py
 
+      # skip for dependabot (read-only token)
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v6
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && github.actor != 'dependabot[bot]' }}
         with:
           include_passed: 'true'
           report_paths: 'results.xml'

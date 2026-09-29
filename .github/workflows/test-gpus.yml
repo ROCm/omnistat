@@ -73,9 +73,10 @@ jobs:
 ##           reporter: jest-junit
 ##           path: results.xml
 
+      # skip for dependabot (read-only token)
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v6
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && github.actor != 'dependabot[bot]' }}
         with:
           include_passed: 'true'
           report_paths: 'results.xml'
@@ -92,9 +93,10 @@ jobs:
           echo "**Coverage (${{ matrix.hardware }}):** ${TOTAL}%" > coverage-summary.md
           coverage report --fail-under=75 > /dev/null
 
+      # skip for dependabot (read-only token)
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v3
-        if: github.event_name == 'pull_request' && !cancelled()
+        if: github.event_name == 'pull_request' && !cancelled() && github.actor != 'dependabot[bot]'
         with:
           header: "coverage-${{ matrix.hardware }}"
           path: coverage-summary.md
