@@ -508,7 +508,7 @@ class UserBasedMonitoring:
                             time.sleep(delay)
                     except Exception:
                         return False
-                return False
+            return False
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=min(self.max_concurrent, numHosts)) as executor:
             future_to_host = {executor.submit(check_exporter, host): host for host in self.__hosts}
