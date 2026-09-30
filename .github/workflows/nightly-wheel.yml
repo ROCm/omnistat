@@ -47,11 +47,12 @@ jobs:
       - name: Install dependencies
         run: |
           pip install build
-          pip install -r requirements.txt
 
-      - name: Build wheel
-        run: | 
-          python -m build --wheel --outdir dist/
+      # See release-wheel.yml: no --wheel, so the wheel is built from the sdist
+      # and both are published.
+      - name: Build wheel and sdist
+        run: |
+          python -m build --outdir dist/
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -59,9 +60,11 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Upload wheel to S3
+      - name: Upload wheel and sdist to S3
         if: ${{ steps.setup.outputs.deploy == 'true' }}
         run: |
           S3_SECONDARY_DIRECTORY=$(date +%Y_%m_%d)
-          aws s3 cp dist/*.whl s3://${{ secrets.AWS_S3_BUCKET }}/nightly/$S3_SECONDARY_DIRECTORY/ \
-            --no-progress
+          for dist in dist/*.whl dist/*.tar.gz; do
+            aws s3 cp "$dist" s3://${{ secrets.AWS_S3_BUCKET }}/nightly/$S3_SECONDARY_DIRECTORY/ \
+              --no-progress
+          done

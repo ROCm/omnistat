@@ -45,18 +45,23 @@ jobs:
       - name: Install dependencies
         run: |
           pip install build
-          pip install -r requirements.txt
 
-      - name: Build wheels
+      # Building without --wheel produces the sdist and then builds the wheel
+      # *from that sdist*, so a sdist missing files fails here rather than on a
+      # user's machine. The sdist is what makes the optional native builds
+      # (-C omnistat.counters=on / omnistat.tracing=on) available from the index.
+      - name: Build wheels and sdists
         run: |
-          python -m build --wheel --outdir dist/
-          python -m build --wheel --outdir dist/ test/
+          python -m build --outdir dist/
+          python -m build --outdir dist/ test/
 
-      - name: Upload wheels as artifact
+      - name: Upload distributions as artifact
         uses: actions/upload-artifact@v7
         with:
           name: wheels
-          path: dist/*.whl
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
 
   test-wheel:
     name: Test wheels
@@ -162,7 +167,10 @@ jobs:
         run: |
           TAG='${{ inputs.tag }}'
           VERSION="${TAG#v}"
-          COUNT=$(aws s3 ls s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} --no-paginate 2>/dev/null | grep -c "omnistat-${VERSION}-.*\.whl$" || true)
+          # Matches both the wheel (omnistat-<v>-<tags>.whl) and the sdist
+          # (omnistat-<v>.tar.gz). Counting only wheels would let a re-run
+          # silently republish sdist bytes, which are not reproducible.
+          COUNT=$(aws s3 ls s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} --no-paginate 2>/dev/null | grep -cE "omnistat-${VERSION}(-.*\.whl|\.tar\.gz)$" || true)
           if [ "${COUNT}" -gt 0 ]; then
             echo "Wheel already exists for version ${VERSION} — skipping upload."
             echo "skip=true" >> $GITHUB_OUTPUT
@@ -177,8 +185,10 @@ jobs:
           name: wheels
           path: dist/
 
-      - name: Upload wheels to S3
+      - name: Upload distributions to S3
         if: ${{ steps.check.outputs.skip == 'false' }}
         run: |
-          aws s3 cp dist/*.whl s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} \
-            --no-progress
+          for dist in dist/*.whl dist/*.tar.gz; do
+            aws s3 cp "$dist" s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} \
+              --no-progress
+          done

@@ -32,20 +32,68 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-# The kernel tracing and counter enablement libraries are meant to be built
-# separately from the Omnistat package and extensions. Enabling either option
-# below builds only the corresponding libraries; they are independent and can be
-# enabled together.
-option(BUILD_KERNEL_TRACE_LIB "Build the kernel tracing library" OFF)
+option(BUILD_PYTHON_EXTENSION "Build the rocprofiler_sdk_extension Python module" OFF)
 option(BUILD_COUNT_LIB "Build the counter enablement library" OFF)
+option(BUILD_KERNEL_TRACE_LIB "Build the kernel tracing library" OFF)
 
-if (BUILD_KERNEL_TRACE_LIB OR BUILD_COUNT_LIB)
+if (NOT BUILD_PYTHON_EXTENSION AND NOT BUILD_COUNT_LIB AND NOT BUILD_KERNEL_TRACE_LIB)
+    message(FATAL_ERROR
+        "No component selected. Enable at least one of:\n"
+        "  -DBUILD_PYTHON_EXTENSION=ON   rocprofiler_sdk_extension (importable Python module)\n"
+        "  -DBUILD_COUNT_LIB=ON          libomnistat_count.so\n"
+        "  -DBUILD_KERNEL_TRACE_LIB=ON   libomnistat_trace.so")
+endif()
+
+# ROCm discovery, so callers need not pass CMAKE_PREFIX_PATH by hand:
+# -DROCM_PATH= wins, then $ROCM_PATH (commonly set by environment modules), then
+# the conventional /opt/rocm. CMake does not search /opt/rocm on its own, so
+# without the last fallback a stock ROCm install fails to configure.
+if (NOT DEFINED ROCM_PATH)
+    if (DEFINED ENV{ROCM_PATH})
+        set(ROCM_PATH "$ENV{ROCM_PATH}")
+    elseif (EXISTS "/opt/rocm")
+        set(ROCM_PATH "/opt/rocm")
+    endif()
+endif()
+if (ROCM_PATH)
+    message(STATUS "Using ROCm at ${ROCM_PATH}")
+    list(APPEND CMAKE_PREFIX_PATH "${ROCM_PATH}")
+endif()
+
+if (BUILD_KERNEL_TRACE_LIB OR BUILD_COUNT_LIB OR BUILD_PYTHON_EXTENSION)
     find_package(rocprofiler-sdk REQUIRED)
+endif()
+
+# Where the tool libraries land inside the installed Python package. They are
+# not imported; this is the path to point ROCP_TOOL_LIBRARIES at.
+set(OMNISTAT_TOOL_LIB_DESTINATION "omnistat/rocprofiler-sdk/lib")
+
+if (BUILD_PYTHON_EXTENSION)
+    find_package(Python COMPONENTS Interpreter Development REQUIRED)
+
+    set(CMAKE_EXECUTE_PROCESS_COMMAND_ECHO STDOUT)
+    execute_process(
+        COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
+
+    find_package(nanobind CONFIG REQUIRED)
+
+    nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp)
+    target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk
+                                                            hsa-runtime64::hsa-runtime64)
+
+    # Install the module to location within the Python package
+    install(TARGETS rocprofiler_sdk_extension
+            COMPONENT omnistat
+            LIBRARY DESTINATION omnistat)
 endif()
 
 if (BUILD_COUNT_LIB)
     add_library(omnistat_count SHARED count_enable.cpp)
     target_link_libraries(omnistat_count PRIVATE rocprofiler-sdk::rocprofiler-sdk)
+    install(TARGETS omnistat_count
+            COMPONENT omnistat
+            LIBRARY DESTINATION ${OMNISTAT_TOOL_LIB_DESTINATION})
 endif()
 
 if (BUILD_KERNEL_TRACE_LIB)
@@ -60,6 +108,9 @@ if (BUILD_KERNEL_TRACE_LIB)
         URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.3.tar.gz
         DOWNLOAD_EXTRACT_TIMESTAMP TRUE
     )
+    # Suppress cpp-httplib's own install() rules, which MakeAvailable would
+    # otherwise add to ours, putting its headers and cmake files in our prefix.
+    set(HTTPLIB_INSTALL OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(httplib)
 
     add_library(omnistat_trace SHARED kernel_tracer.cpp)
@@ -86,28 +137,14 @@ if (BUILD_KERNEL_TRACE_LIB)
             URL https://github.com/fmtlib/fmt/archive/refs/tags/11.1.0.tar.gz
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
         )
+        # As with httplib above: keep fmt's install rules out of the wheel.
+        set(FMT_INSTALL OFF CACHE BOOL "" FORCE)
         FetchContent_MakeAvailable(fmt)
         target_compile_definitions(omnistat_trace PRIVATE FMT_HEADER_ONLY)
         target_include_directories(omnistat_trace PRIVATE ${fmt_SOURCE_DIR}/include)
     endif()
-endif()
 
-if (NOT BUILD_KERNEL_TRACE_LIB AND NOT BUILD_COUNT_LIB)
-    find_package(Python COMPONENTS Interpreter Development REQUIRED)
-
-    set(CMAKE_EXECUTE_PROCESS_COMMAND_ECHO STDOUT)
-    execute_process(
-        COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
-        OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
-
-    find_package(nanobind CONFIG REQUIRED)
-
-    find_package(rocprofiler-sdk REQUIRED)
-
-    nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp)
-    target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk
-                                                            hsa-runtime64::hsa-runtime64)
-
-    # Install the module to location within the Python package
-    install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
+    install(TARGETS omnistat_trace
+            COMPONENT omnistat
+            LIBRARY DESTINATION ${OMNISTAT_TOOL_LIB_DESTINATION})
 endif()
