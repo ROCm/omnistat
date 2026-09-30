@@ -6,16 +6,6 @@
    Anything shared must carry fallbacks for the --pst-* variables.
    ------------------------------------------------------------------------ */
 
-/* sphinx_rtd_theme only: style the version line re-added by the sidebartitle
-   override in _templates/rtd/layout.html. The theme carried this rule itself
-   until it dropped the static version display in 3.0. */
-.wy-side-nav-search > div.version {
-    color: hsla(0, 0%, 100%, 0.4);
-    margin-top: -0.4045em;
-    margin-bottom: 0.809em;
-    font-weight: 400;
-}
-
 /* Allow wide metric tables to wrap instead of forcing horizontal scroll.
    sphinx_rtd_theme sets nowrap via .wy-table-responsive, hence the second
    selector (which has to match that rule's specificity to win). */
