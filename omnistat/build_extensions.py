@@ -47,6 +47,7 @@ import atexit
 import json
 import os
 import shutil
+import site
 import subprocess
 import sys
 import tempfile
@@ -98,6 +99,47 @@ def _default_lib_dir():
     return _package_dir() / "rocprofiler-sdk" / "lib"
 
 
+def _writable(path):
+    """Whether we could create files under path (checks nearest existing ancestor).
+
+    An unsearchable ancestor or a dangling symlink counts as not writable.
+    """
+    p = Path(path)
+    while not os.path.lexists(p):
+        if p.parent == p:
+            return False
+        p = p.parent
+    return os.path.isdir(p) and os.access(p, os.W_OK | os.X_OK)
+
+
+def _check_destinations(build_counters, output_dir, build_dir):
+    """Fail early on a read-only install, rather than with a PermissionError
+    after a multi-minute C++ build."""
+    if build_counters and not _writable(_package_dir()):
+        sys.exit(
+            "ERROR: the Omnistat package directory is not writable:\n"
+            f"  {_package_dir()}\n\n"
+            "The hardware-counter module must be installed into the package itself;\n"
+            "no other location works. Reinstall Omnistat into a location you can\n"
+            "write, using the same wheel or index you originally installed from.\n\n"
+            "To build only the kernel-tracing library, which can live anywhere:\n"
+            "  omnistat-build-extras --tracing --output-dir <writable directory>"
+        )
+
+    dest = Path(output_dir) if output_dir else _default_lib_dir()
+    if not _writable(dest):
+        # Reinstalling cannot fix an explicitly named --output-dir.
+        remedy = (
+            "Pick a writable --output-dir."
+            if output_dir
+            else "Pass a writable location with --output-dir, or reinstall Omnistat\nsomewhere you can write."
+        )
+        sys.exit(f"ERROR: the tool library output directory is not writable:\n  {dest}\n\n{remedy}")
+
+    if build_dir and not _writable(build_dir):
+        sys.exit(f"ERROR: the build directory is not writable:\n  {build_dir}\n\nPick a writable --build-dir.")
+
+
 def _detect_rocm(explicit):
     """Return (rocm_path, rocm_version) for the active ROCm, or (None, None)."""
     rocm_path = explicit or os.environ.get("ROCM_PATH")
@@ -122,18 +164,51 @@ def _detect_rocm(explicit):
     return rocm_path, version
 
 
-def _ensure_build_deps():
-    """Install cmake/nanobind into the active environment if missing."""
+def _ensure_build_deps(need_nanobind):
+    """Install cmake/nanobind into the active environment if missing.
+
+    nanobind is only needed for the counter module, so --tracing is not blocked
+    by a dependency it never uses.
+    """
     needed = []
     if shutil.which("cmake") is None:
         needed.append("cmake")
+    if need_nanobind:
+        try:
+            import nanobind  # noqa: F401
+        except ImportError:
+            needed.append("nanobind<3.0")
+    if not needed:
+        return
+
+    print(f"==> Installing build dependencies: {' '.join(needed)}")
     try:
-        import nanobind  # noqa: F401
-    except ImportError:
-        needed.append("nanobind<3.0")
-    if needed:
-        print(f"==> Installing build dependencies: {' '.join(needed)}")
         subprocess.check_call([sys.executable, "-m", "pip", "install", *needed], cwd=_safe_cwd())
+    except subprocess.CalledProcessError:
+        quoted = " ".join(f'"{n}"' for n in needed)
+        sys.exit(
+            f"\nERROR: could not install the build dependencies ({', '.join(needed)}) into\n"
+            f"  {sys.executable}\n\n"
+            "Install them somewhere you can write and point this command at them:\n"
+            f"  {sys.executable} -m pip install --target <dir> {quoted}\n"
+            "  export PATH=<dir>/bin:$PATH PYTHONPATH=<dir>:$PYTHONPATH"
+        )
+
+    # pip exits 0 without guaranteeing its script dir is on PATH (unactivated
+    # venv, --user fallback), so look where we just installed before giving up.
+    searched = (Path(sys.executable).parent, Path(site.getuserbase()) / "bin")
+    if shutil.which("cmake") is None:
+        for candidate in searched:
+            if shutil.which("cmake", path=str(candidate)):
+                previous = os.environ.get("PATH", "")
+                os.environ["PATH"] = f"{candidate}{os.pathsep}{previous}" if previous else str(candidate)
+                break
+    if shutil.which("cmake") is None:
+        sys.exit(
+            "\nERROR: cmake was installed but not found on PATH or in:\n"
+            + "".join(f"  {c}\n" for c in searched)
+            + "Add its directory to PATH and re-run."
+        )
 
 
 def _cmake_prefix_args(rocm_path):
@@ -237,27 +312,29 @@ def _build_workloads():
         print("WARNING: test workload build failed", file=sys.stderr)
 
 
-def _write_build_info(rocm_path, rocm_version):
+def _write_build_info(rocm_path, rocm_version, output_dir=None):
     info = {
         "rocm_path": rocm_path,
         "rocm_version": rocm_version,
         "built_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
     }
-    lib_dir = _default_lib_dir()
+    # Follows the libraries it describes.
+    lib_dir = Path(output_dir) if output_dir else _default_lib_dir()
     lib_dir.mkdir(parents=True, exist_ok=True)
     (lib_dir / BUILD_INFO).write_text(json.dumps(info, indent=2))
 
 
-def _print_lib(lib_name, explicit_rocm):
-    """Print only the resolved default path for a tool library (for ROCP_TOOL_LIBRARIES)."""
-    lib = _default_lib_dir() / lib_name
-    if not lib.exists():
+def _print_lib(lib_name, explicit_rocm, output_dir=None):
+    """Print only the resolved path for a tool library (for ROCP_TOOL_LIBRARIES)."""
+    lib_dir = Path(output_dir) if output_dir else _default_lib_dir()
+    lib = lib_dir / lib_name
+    if not os.path.exists(lib):
         sys.exit(
             f"ERROR: {lib_name} not found at {lib}. Build it first with "
-            "`omnistat-build-extras` (or pass the --build-dir/--output-dir you used)."
+            "`omnistat-build-extras` (or pass the --output-dir you used)."
         )
-    info_file = _default_lib_dir() / BUILD_INFO
-    if info_file.exists():
+    info_file = lib_dir / BUILD_INFO
+    if os.path.exists(info_file):
         _, active_version = _detect_rocm(explicit_rocm)
         try:
             built_version = json.loads(info_file.read_text()).get("rocm_version")
@@ -295,17 +372,24 @@ def main():
     parser.add_argument("--print-count-lib", action="store_true", help="Print the count library path and exit")
     args = parser.parse_args()
 
-    # Resolve user paths against the real cwd now; subprocesses run elsewhere.
+    # Empty is falsy but not None, so it would slip past every guard below.
+    for opt in ("build_dir", "output_dir", "name", "rocm_path"):
+        if getattr(args, opt) == "":
+            parser.error(f"--{opt.replace('_', '-')} may not be empty")
+
+    # Anchor user paths to the real cwd now; subprocesses run elsewhere. Symlinks
+    # and ".." are left for the kernel to resolve at write time, so the path lands
+    # where the shell would put it.
     if args.build_dir:
-        args.build_dir = str(Path(args.build_dir).resolve())
+        args.build_dir = os.path.join(os.getcwd(), args.build_dir)
     if args.output_dir:
-        args.output_dir = str(Path(args.output_dir).resolve())
+        args.output_dir = os.path.join(os.getcwd(), args.output_dir)
 
     if args.print_trace_lib:
-        _print_lib(TRACE_LIB, args.rocm_path)
+        _print_lib(TRACE_LIB, args.rocm_path, args.output_dir)
         return
     if args.print_count_lib:
-        _print_lib(COUNT_LIB, args.rocm_path)
+        _print_lib(COUNT_LIB, args.rocm_path, args.output_dir)
         return
 
     # Default to building everything when no capability is selected.
@@ -313,12 +397,13 @@ def main():
     build_tracing = args.tracing or not (args.counters or args.tracing)
 
     src = _sources_dir()
+    _check_destinations(build_counters, args.output_dir, args.build_dir)
     rocm_path, rocm_version = _detect_rocm(args.rocm_path)
     if rocm_path is None:
         sys.exit("ERROR: could not locate a ROCm installation (set --rocm-path or $ROCM_PATH).")
     print(f"==> Using ROCm at {rocm_path}" + (f" (version {rocm_version})" if rocm_version else ""))
 
-    _ensure_build_deps()
+    _ensure_build_deps(need_nanobind=build_counters)
 
     if build_counters:
         _build_counter_module(src, rocm_path, args.jobs)
@@ -335,7 +420,7 @@ def main():
             name=args.name,
             force=args.force,
         )
-        _write_build_info(rocm_path, rocm_version)
+        _write_build_info(rocm_path, rocm_version, args.output_dir)
 
         if build_tracing:
             hint = placed.get(TRACE_LIB, _default_lib_dir() / TRACE_LIB)
