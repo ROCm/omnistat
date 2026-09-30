@@ -45,6 +45,9 @@ html_title = f"{project} {version}"
 # Minimum supported ROCm version, substituted into docs as {__ROCM_MIN_VERSION__}.
 rocm_min_version = "6.3.0"
 
+# Google Analytics property; wired into whichever theme is selected below.
+google_analytics_id = "G-8K5QQMVD1V"
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -113,10 +116,24 @@ latex_show_urls = "footnote"
 
 # -- Options for HTML output -------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Theme selector -- flip this one setting to switch the whole look:
+#
+#   "rtd"   stock sphinx_rtd_theme chrome (the classic Read the Docs look)
+#   "rocm"  the full ROCm theme (rocm_docs_theme, pydata-based)
+#
+# Either way the `rocm_docs` extension above stays enabled: it supplies
+# sphinx-design, myst-parser (incl. colon_fence), sphinx-external-toc and the
+# generated sphinx/_toc.yml that the navigation is built from.  Only the
+# rendering theme changes.  Everything downstream that differs per theme keys
+# off this value: html_theme, html_theme_options, and templates_path.
+# ---------------------------------------------------------------------------
+docs_theme = "rtd"
+
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "rocm_docs_theme"
+html_theme = "sphinx_rtd_theme" if docs_theme == "rtd" else "rocm_docs_theme"
 
 # External table of contents (sphinx-external-toc, provided by rocm-docs-core).
 external_toc_path = "./sphinx/_toc.yml"
@@ -134,7 +151,11 @@ external_projects = []
 external_projects_remote_repository = ""
 
 # Local template overrides (e.g. footer copyright); searched before the theme's.
+# The per-theme subdirectory is only added for the theme in use so an override
+# written against one theme's block structure can never leak into the other.
 templates_path = ["_templates"]
+if docs_theme == "rtd":
+    templates_path.append("_templates/rtd")
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -151,20 +172,31 @@ latex_elements = {
 # Output file base name for HTML help builder.
 # htmlhelp_basename = ""
 
-html_theme_options = {
-    "flavor": "generic",
-    "header_title": "Omnistat",
-    "header_link": "https://rocm.github.io/omnistat/",
-    "link_main_doc": False,
-    "analytics": {"google_analytics_id": "G-8K5QQMVD1V"},
-    # Pin the top-bar links explicitly (flavor defaults vary by version).
-    "nav_secondary_items": {
-        "GitHub": "https://github.com/ROCm/omnistat",
-        "Support": "https://github.com/ROCm/omnistat/issues/new/choose",
-    },
-    # Expand nav sub-items by default instead of hiding them behind a click.
-    "show_navbar_depth": 2,
-}
+# Theme options are theme-specific; applying one theme's keys to the other
+# only produces "unsupported theme option" warnings, so keep them separate.
+if docs_theme == "rtd":
+    html_theme_options = {
+        # Expand nav sub-items by default instead of hiding them behind a click.
+        "collapse_navigation": False,
+        "navigation_depth": 4,
+        "analytics_id": google_analytics_id,
+        "style_external_links": True,
+    }
+else:
+    html_theme_options = {
+        "flavor": "generic",
+        "header_title": "Omnistat",
+        "header_link": "https://rocm.github.io/omnistat/",
+        "link_main_doc": False,
+        "analytics": {"google_analytics_id": google_analytics_id},
+        # Pin the top-bar links explicitly (flavor defaults vary by version).
+        "nav_secondary_items": {
+            "GitHub": "https://github.com/ROCm/omnistat",
+            "Support": "https://github.com/ROCm/omnistat/issues/new/choose",
+        },
+        # Expand nav sub-items by default instead of hiding them behind a click.
+        "show_navbar_depth": 2,
+    }
 
 html_css_files = ["custom.css"]
 
