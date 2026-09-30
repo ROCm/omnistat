@@ -155,6 +155,7 @@ def _build_counter_module(src, rocm_path, jobs):
                 src,
                 "-B",
                 build_dir,
+                "-DBUILD_PYTHON_EXTENSION=ON",
                 f"-DPython_EXECUTABLE={sys.executable}",
                 *_cmake_prefix_args(rocm_path),
             ]

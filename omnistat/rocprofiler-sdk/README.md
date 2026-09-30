@@ -15,9 +15,8 @@ hardware counters from AMD GPUs directly in Python applications.
 ### Requirements
 
 - ROCm 6.4+ with ROCProfiler-SDK
-- Python 3.8+ with development headers
-- CMake
-- [cmake-build-extension](https://github.com/diegoferigo/cmake-build-extension)
+- Python 3.9+ with development headers
+- CMake 3.15+
 - [nanobind](https://github.com/wjakob/nanobind)
 
 ### Installation
@@ -31,7 +30,7 @@ For development and custom builds, the extension can be installed with CMake:
 pip install nanobind
 
 # Build and install in place
-cmake -S omnistat/rocprofiler-sdk/ -B build/
+cmake -S omnistat/rocprofiler-sdk/ -B build/ -DBUILD_PYTHON_EXTENSION=ON
 cmake --build build/
 cmake --install build/ --prefix .
 ```
@@ -40,7 +39,8 @@ With a **`venv`** virtual environment:
 ```bash
 python3 -m venv ~/venv/omnistat
 ~/venv/omnistat/bin/pip install nanobind
-cmake -S omnistat/rocprofiler-sdk/ -B build/ -DPython_EXECUTABLE=~/venv/omnistat/bin/python
+cmake -S omnistat/rocprofiler-sdk/ -B build/ -DBUILD_PYTHON_EXTENSION=ON \
+  -DPython_EXECUTABLE=~/venv/omnistat/bin/python
 cmake --build build/
 cmake --install build/ --prefix .
 ```
