@@ -17,7 +17,7 @@ Version 1.15 (30 September 2026)
     counter collection, along with accompanying documentation updates (#336, #341)
   * updates to Python wheel packaging to support optional extensions along with a
     separately installable test package (#342)
-  * port of documentation from standard read-the-docs theme to ROCm variant (#343)
+  * documentation reorganization and updates (#343)
   * performance refactoring for network collector to sample ionic (AINIC) hardware counters
     in a background thread (#344)
   * addition of standardized security scanning workflows and automated dependency
