@@ -34,7 +34,7 @@ When calling the Bash tool, phrase the `description` field to match the `allowed
 1. **Data source** — one of:
    - **VictoriaMetrics running** with the Omnistat database loaded (use the `open-database` skill if needed), OR
    - **CSV exports** from `omnistat-query --export`
-2. **Python virtual environment activated** with omnistat installed (`pip install ".[query]"` from the omnistat repo root). Confirm `which omnistat-inspect` resolves inside the venv.
+2. **Python virtual environment activated** with omnistat installed (`pip install .` from the omnistat repo root). Confirm `which omnistat-inspect` resolves inside the venv.
 3. **Job ID** to report on.
 
 ## One-Shot Data Collection

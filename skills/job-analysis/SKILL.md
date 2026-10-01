@@ -89,7 +89,7 @@ exactly what you want for full-resolution queries. Notes:
 1. **Data source** — one of:
    - **VictoriaMetrics running** with the Omnistat database loaded (use the `open-database` skill if needed), OR
    - **CSV exports** from `omnistat-query --export` (no TSDB required)
-2. **Python virtual environment activated** with omnistat installed (`pip install ".[query]"` from the omnistat repo root) — this provides `omnistat-inspect`. Confirm with `which omnistat-inspect`.
+2. **Python virtual environment activated** with omnistat installed (`pip install .` from the omnistat repo root) — this provides `omnistat-inspect`. Confirm with `which omnistat-inspect`.
 3. **Job ID(s)** to analyze (discover available jobs with `omnistat-inspect --tsdb-url $TSDB_URL db info` or `omnistat-inspect --csv-dir /path/to/exports db info`)
 
 ## Setup
