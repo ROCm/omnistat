@@ -219,7 +219,7 @@ standalone C++ shared library loaded into monitored applications to enable
 counter collection for their queues:
 
 ```bash
-[omnidc]$ cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+[omnidc]$ cmake -S omnistat/rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
 [omnidc]$ cmake --build build-count/
 ```
 :::

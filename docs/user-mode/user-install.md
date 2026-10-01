@@ -99,7 +99,7 @@ shared library loaded into monitored applications to enable counter collection f
 queues (required for user-mode collection):
 
 ```bash
-$ cmake -S rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
+$ cmake -S omnistat/rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
 $ cmake --build build-count/
 ```
 
@@ -107,7 +107,7 @@ $ cmake --build build-count/
 library that intercepts GPU kernel dispatches at runtime:
 
 ```bash
-$ cmake -S rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
+$ cmake -S omnistat/rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
 $ cmake --build build-trace/
 ```
 :::
