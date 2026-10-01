@@ -60,7 +60,7 @@ if [[ "$1" =~ ^node ]]; then
             ;;
         "package")
             echo "Executing Omnistat from installed package"
-            pip install .[query]
+            pip install .
             cd && rm -rf /source
             ;;
         *)
