@@ -110,3 +110,26 @@ html[data-theme="dark"] .terminal-output .t-pct  { color: #39c5bb; }
     padding-bottom: 0.12rem;
     line-height: 1.25;
 }
+
+/* sphinx_rtd_theme only: make the sidebar nav read as a hierarchy.
+
+   The theme indents section captions and their toctree-l1 links by the same
+   1.618em, so a section header sits flush with its own items. It also only
+   indents l2/l3 links when that branch is .current (2.427em / 4.045em); with
+   collapse_navigation = False every branch is expanded, so all the inactive
+   sub-items fall back to the flat 1.618em default.
+
+   Outdent the caption and apply the theme's own golden-ratio steps to every
+   level, current or not, so each depth is visibly nested under the one above. */
+.wy-menu-vertical p.caption {
+    padding-left: 0.25em;
+}
+.wy-menu-vertical li.toctree-l2 > a {
+    padding-left: 2.427em;
+}
+.wy-menu-vertical li.toctree-l3 > a {
+    padding-left: 4.045em;
+}
+.wy-menu-vertical li.toctree-l4 > a {
+    padding-left: 5.663em;
+}
