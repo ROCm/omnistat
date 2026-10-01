@@ -124,7 +124,9 @@ jobs:
       RC_S3_BUCKET: ${{ secrets.AWS_RC_EXTRAS_S3_BUCKET }}
       STABLE_STAGING_ROLE_ARN: ${{ secrets.AWS_STABLE_STAGING_EXTRAS_ROLE_ARN }}
       STABLE_STAGING_S3_BUCKET: ${{ secrets.AWS_STABLE_STAGING_EXTRAS_S3_BUCKET }}
+      # Each wheel requires its own upload directory
       S3_PATH: v5/rocm/extras/omnistat/whl-next/omnistat/
+      S3_PATH_TESTS: v5/rocm/extras/omnistat/whl-next/omnistat-tests/
     steps:
       - name: Resolve environment
         id: env
@@ -161,30 +163,50 @@ jobs:
           role-to-assume: ${{ steps.env.outputs.role_arn }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Check if release artifact already exists in S3
+      - name: Check if release artifacts already exist in S3
         id: check
         env:
           TAG: ${{ inputs.tag }}
+          S3_BUCKET: ${{ steps.env.outputs.s3_bucket }}
         run: |
           VERSION="${TAG#v}"
-          COUNT=$(aws s3 ls s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} --no-paginate 2>/dev/null | grep -c "omnistat-${VERSION}-.*\.whl$" || true)
-          if [ "${COUNT}" -gt 0 ]; then
-            echo "Wheel already exists for version ${VERSION} — skipping upload."
-            echo "skip=true" >> $GITHUB_OUTPUT
+          wheel_exists() {
+            aws s3 ls "s3://${S3_BUCKET}/$1" --no-paginate 2>/dev/null | grep -qE "$2"
+          }
+          if wheel_exists "${S3_PATH}" "omnistat-${VERSION}-.*\.whl$"; then
+            echo "omnistat wheel already exists for version ${VERSION} — skipping upload."
+            echo "skip_omnistat=true" >> $GITHUB_OUTPUT
           else
-            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "skip_omnistat=false" >> $GITHUB_OUTPUT
+          fi
+          if wheel_exists "${S3_PATH_TESTS}" "omnistat_tests-${VERSION}-.*\.whl$"; then
+            echo "omnistat-tests wheel already exists for version ${VERSION} — skipping upload."
+            echo "skip_tests=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip_tests=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Download wheels
-        if: ${{ steps.check.outputs.skip == 'false' }}
+        if: ${{ steps.check.outputs.skip_omnistat == 'false' || steps.check.outputs.skip_tests == 'false' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: wheels
           path: dist/
 
-      - name: Upload wheels to S3
-        if: ${{ steps.check.outputs.skip == 'false' }}
+      - name: Upload omnistat wheel to S3
+        if: ${{ steps.check.outputs.skip_omnistat == 'false' }}
+        env:
+          S3_BUCKET: ${{ steps.env.outputs.s3_bucket }}
         run: |
-          aws s3 cp dist/ s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} \
-            --recursive --exclude "*" --include "*.whl" \
+          aws s3 cp dist/ "s3://${S3_BUCKET}/${S3_PATH}" \
+            --recursive --exclude "*" --include "omnistat-*.whl" \
+            --no-progress
+
+      - name: Upload omnistat-tests wheel to S3
+        if: ${{ steps.check.outputs.skip_tests == 'false' }}
+        env:
+          S3_BUCKET: ${{ steps.env.outputs.s3_bucket }}
+        run: |
+          aws s3 cp dist/ "s3://${S3_BUCKET}/${S3_PATH_TESTS}" \
+            --recursive --exclude "*" --include "omnistat_tests-*.whl" \
             --no-progress
