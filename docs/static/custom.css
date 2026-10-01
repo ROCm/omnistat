@@ -133,9 +133,11 @@ html[data-theme="dark"] .terminal-output .t-pct  { color: #39c5bb; }
    sub-items fall back to the flat 1.618em default.
 
    Outdent the caption and apply the theme's own golden-ratio steps to every
-   level, current or not, so each depth is visibly nested under the one above. */
+   level, current or not, so each depth is visibly nested under the one above.
+   The caption sits well inside the l1 links it heads without crowding the
+   sidebar edge (the theme's own gutter, for reference, is 0.809em). */
 .wy-menu-vertical p.caption {
-    padding-left: 0.25em;
+    padding-left: 0.5em;
 }
 .wy-menu-vertical li.toctree-l2 > a {
     padding-left: 2.427em;
