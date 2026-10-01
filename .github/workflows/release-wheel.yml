@@ -185,5 +185,6 @@ jobs:
       - name: Upload wheels to S3
         if: ${{ steps.check.outputs.skip == 'false' }}
         run: |
-          aws s3 cp dist/*.whl s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} \
+          aws s3 cp dist/ s3://${{ steps.env.outputs.s3_bucket }}/${S3_PATH} \
+            --recursive --exclude "*" --include "*.whl" \
             --no-progress
