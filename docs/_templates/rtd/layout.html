@@ -1,0 +1,31 @@
+{#
+  sphinx_rtd_theme-only override (this directory is added to templates_path
+  in conf.py only when docs_theme == "rtd").
+
+  sphinx_rtd_theme renders only `project` as the sidebar home link, and 3.x
+  additionally dropped the separate version line that used to sit beneath it
+  (the `display_version` option was removed; the version now only appears in
+  the Read the Docs-hosted flyout, which these GitHub Pages builds don't have).
+
+  Render the version inline instead, so the header reads "Omnistat (v1.14.0)"
+  as it did before the theme port.  `project` itself is left alone because it
+  also feeds the page titles and the footer copyright.
+
+  This reproduces the theme's own sidebartitle block (layout.html) rather than
+  calling super(), since the change is inside that block.  Re-check against the
+  theme if sphinx_rtd_theme is upgraded.
+#}
+{% extends "!layout.html" %}
+
+{%- block sidebartitle %}
+  {%- set _logo_url = logo_url|default(pathto('_static/' + (logo or ""), 1)) %}
+  {%- set _root_doc = root_doc|default(master_doc) %}
+  <a href="{{ pathto(_root_doc) }}"{% if not theme_logo_only %} class="icon icon-home"{% endif %}>
+    {% if not theme_logo_only %}{{ project }}{% if version %} (v{{ version }}){% endif %}{% endif %}
+    {%- if logo or logo_url %}
+      <img src="{{ _logo_url }}" class="logo" alt="{{ _('Logo') }}"/>
+    {%- endif %}
+  </a>
+
+  {%- include "searchbox.html" %}
+{%- endblock %}

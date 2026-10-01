@@ -1,11 +1,5 @@
 # ORNL
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
-
 This section provides instructions for running user-mode Omnistat on ORNL's
 Frontier supercomputer with pre-installed versions from AMD Research.
 
@@ -33,7 +27,7 @@ for teams running their own Python stack who may wish to avoid any pollution
 with the application's Python environment. A SLURM job script example highlighting
 use of the wrapper utility before and after executing a GPU application is highlighted below:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: Example Frontier SLURM job using wrapper, highlighting changes needed to run Omnistat
    :emphasize-lines: 9-11,17-19
@@ -66,7 +60,7 @@ By default, Omnistat databases are stored in Lustre, under the
 directory. It's possible to override the default path using the
 `OMNISTAT_VICTORIA_DATADIR` environment variable as highlighted in the following example.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: Storing data under /tmp and copying it after running
    :emphasize-lines: 11,21
@@ -104,7 +98,7 @@ local filesystems like `/tmp`. Data can't be stored directly under Frontier's
 
 After job completion, transfer the archived Omnistat data to your local machine
 for analysis using the Docker environment described in the [user-mode
-guide](installation/user-mode.md#exploring-results-locally).
+guide](user-mode/analysis.md#exploring-results-locally).
 
 ## Additional Features
 
@@ -136,7 +130,7 @@ may differ from the ordering used by ROCm.
 
 ### Kernel Tracing
 
-[Kernel tracing](metrics.md#kernel-tracing) is available on Frontier starting
+[Kernel tracing](advanced-profiling.md#kernel-tracing) is available on Frontier starting
 with Omnistat **1.12.0**. It works by loading a tracing library
 (`libomnistat_trace.so`) into the application's runtime environment to
 intercept GPU kernel dispatches. Pre-built tracing libraries are currently
@@ -154,7 +148,7 @@ To enable kernel tracing:
    `${OMNISTAT_DIR}/build-trace-rocm-<version>/`.
    This variable must be set before launching the application.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: Example Frontier SLURM job with kernel tracing enabled
    :emphasize-lines: 14,18

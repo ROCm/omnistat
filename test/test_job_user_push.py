@@ -48,7 +48,7 @@ from string import Template
 import pytest
 from prometheus_api_client import PrometheusConnect
 
-from test import config
+from . import config
 
 slurm_job_template = """\
 #!/bin/bash
@@ -76,6 +76,7 @@ $OMNISTAT_DIR/omnistat-usermode --stop
 """
 
 
+@pytest.mark.docker
 class TestJobUser:
     job_file = "slurm-job-user.sh"
 

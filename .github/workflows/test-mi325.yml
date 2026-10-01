@@ -14,7 +14,7 @@ jobs:
     runs-on: [linux-gfx942-1gpu-ccs-csp-ossci-rocm]
     strategy:
       matrix:
-        rocm: [7.1, 7.2, 7.2.4]
+        rocm: [7.1, 7.2, 7.2.4, 10.0.0-full]
       fail-fast: false
     container:
       image: rocm/dev-ubuntu-24.04:${{ matrix.rocm }}
@@ -30,8 +30,11 @@ jobs:
         shell: bash
     steps:
 
-      - name: Host software
+      - name: Deal with missing sudo for (observed in 10.0.0 image)
         run: |
+          if ! command -v sudo &>/dev/null; then
+            apt-get update -y && apt-get install -y sudo
+          fi
           sudo apt-get update -y
           sudo apt install git cmake -y
           sudo apt install python3-venv -y
@@ -52,7 +55,9 @@ jobs:
           amd-smi metric -E
 
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Update git directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -64,14 +69,14 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r test/requirements.txt
-          pip install nanobind
-          cmake -S rocprofiler-sdk/ -B build/ -DCMAKE_PREFIX_PATH=/opt/rocm
+          pip install "nanobind<3.0"
+          cmake -S omnistat/rocprofiler-sdk/ -B build/ -DCMAKE_PREFIX_PATH=/opt/rocm
           cmake --build build/
           cmake --install build/ --prefix .
           
-      - name: Build kernel trace library
+      - name: Build kernel trace and counter libraries
         run: |
-          cmake -B build -S rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON -DCMAKE_PREFIX_PATH=/opt/rocm
+          cmake -B build -S omnistat/rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON -DBUILD_COUNT_LIB=ON -DCMAKE_PREFIX_PATH=/opt/rocm
           cmake --build build
 
       - name: Build test workloads
@@ -79,11 +84,11 @@ jobs:
 
       - name: Collector tests
         env:
-          ROCP_TOOL_LIBRARIES: ${{ github.workspace }}/build/libomnistat_trace.so
           LD_LIBRARY_PATH: /opt/rocm/lib
-          # Workaround to make sure counters work when tracing is also enabled
-          HSA_TOOLS_ROCPROFILER_V1_TOOLS: 1
         run: |
+          # Trailing colon is required: rocprofiler-sdk drops the last entry when
+          # parsing this variable, so the counter library would not be loaded.
+          export ROCP_TOOL_LIBRARIES="$GITHUB_WORKSPACE/build/libomnistat_trace.so:$GITHUB_WORKSPACE/build/libomnistat_count.so:"
           source omnistat_venv/bin/activate
           su - ubuntu -c "sleep 300 &"
           pytest -s -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py
@@ -96,9 +101,10 @@ jobs:
 ##           reporter: jest-junit
 ##           path: results.xml
 
+      # skip for dependabot (read-only token)
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v6
-        if: ${{ !cancelled() }}
+        uses: mikepenz/action-junit-report@a9170d5795813c01ab4901ffb045b52bab4ab09d # v6.5.0
+        if: ${{ !cancelled() && github.actor != 'dependabot[bot]' }}
         with:
           include_passed: 'true'
           report_paths: 'results.xml'

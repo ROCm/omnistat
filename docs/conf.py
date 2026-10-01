@@ -12,8 +12,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import datetime
 import os
-import subprocess as sp
+import re
 import sys
 
 sys.path.insert(0, os.path.abspath(".."))
@@ -25,14 +26,11 @@ if os.path.isfile("../VERSION"):
         repo_version = f.readline().strip()
 
 
-def install(package):
-    sp.call([sys.executable, "-m", "pip", "install", package])
-
-
 # -- Project information -----------------------------------------------------
 
 project = "Omnistat"
-copyright = "2023-2026, Advanced Micro Devices, Inc. All Rights Reserved"
+# End year tracks the build date so the footer copyright stays current.
+copyright = f"2023-{datetime.date.today().year}, Advanced Micro Devices, Inc."
 author = "AMD Research"
 
 # The short X.Y version
@@ -40,44 +38,37 @@ version = repo_version
 # The full version, including alpha/beta/rc tags
 release = repo_version
 
-# Include version in the project name for sidebar display (as newer
-# Sphinx did away with this convenient setting)
-project = f"{project} (v{version})"
+# Sidebar / left-nav title: "Omnistat <version>" with the version sourced
+# from the repo VERSION file (avoids Sphinx's default "... documentation").
+html_title = f"{project} {version}"
+
+# Minimum supported ROCm version, substituted into docs as {__ROCM_MIN_VERSION__}.
+rocm_min_version = "6.3.0"
+
+# Google Analytics property; wired into whichever theme is selected below.
+google_analytics_id = "G-8K5QQMVD1V"
 
 # -- General configuration ---------------------------------------------------
-
-install("sphinx_rtd_theme")
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
     "sphinx.ext.githubpages",
-    "myst_parser",
+    "rocm_docs",
     "sphinxmark",
 ]
 
 show_authors = True
 
 
+# rocm-docs-core already enables replacements, dollarmath, colon_fence,
+# substitution, etc.; only override the heading-anchor depth here.
 myst_heading_anchors = 4
-# enable replacement of (tm) & friends
-myst_enable_extensions = ["replacements", "dollarmath"]
 
 numfig = True
 numfig_format = {"figure": "Figure %s"}
 
-
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
-
-# The suffix(es) of source filenames.
-# You can specify multiple suffix as a list of string:
-source_suffix = {
-    ".rst": "restructuredtext",
-    ".txt": "markdown",
-    ".md": "markdown",
-}
 
 sphinxmark_enable = False
 sphinxmark_image = "text"
@@ -89,10 +80,6 @@ sphinxmark_text_rotation = 30
 sphinxmark_text_color = (128, 128, 128)
 sphinxmark_text_spacing = 800
 sphinxmark_text_opacity = 30
-
-from recommonmark.parser import CommonMarkParser
-
-source_parsers = {".md": CommonMarkParser}
 
 # The master toctree document.
 master_doc = "index"
@@ -107,7 +94,17 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "requirements-docs.txt"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "requirements-docs.txt",
+    # Local build virtualenvs living inside docs/ (don't scan site-packages).
+    "venv",
+    "venv/**",
+    ".venv",
+    ".venv/**",
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
@@ -119,16 +116,46 @@ latex_show_urls = "footnote"
 
 # -- Options for HTML output -------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Theme selector -- flip this one setting to switch the whole look:
+#
+#   "rtd"   stock sphinx_rtd_theme chrome (the classic Read the Docs look)
+#   "rocm"  the full ROCm theme (rocm_docs_theme, pydata-based)
+#
+# Either way the `rocm_docs` extension above stays enabled: it supplies
+# sphinx-design, myst-parser (incl. colon_fence), sphinx-external-toc and the
+# generated sphinx/_toc.yml that the navigation is built from.  Only the
+# rendering theme changes.  Everything downstream that differs per theme keys
+# off this value: html_theme, html_theme_options, and templates_path.
+# ---------------------------------------------------------------------------
+docs_theme = "rtd"
+
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "sphinx_rtd_theme" if docs_theme == "rtd" else "rocm_docs_theme"
 
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
-# html_theme_options = {}
+# External table of contents (sphinx-external-toc, provided by rocm-docs-core).
+external_toc_path = "./sphinx/_toc.yml"
+
+# Don't pull intersphinx mappings for other ROCm projects
+external_projects = []
+
+# Build offline: don't hit the GitHub API on every cold/config-changed build to
+# fetch the project mapping from ROCm/rocm-docs-core@develop.  Anonymous API
+# calls are capped at 60/hour per IP, and rocm-docs-core responds to the 403 by
+# sleeping in a long backoff, which looks like a hung build.  Leaving this unset
+# makes it fall back to the projects.yaml bundled with the installed rocm_docs
+# package -- and with external_projects empty above, those mappings are unused
+# anyway.  Set this back to "ROCm/rocm-docs-core" to restore remote fetching.
+external_projects_remote_repository = ""
+
+# Local template overrides (e.g. footer copyright); searched before the theme's.
+# The per-theme subdirectory is only added for the theme in use so an override
+# written against one theme's block structure can never leak into the other.
+templates_path = ["_templates"]
+if docs_theme == "rtd":
+    templates_path.append("_templates/rtd")
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -145,52 +172,78 @@ latex_elements = {
 # Output file base name for HTML help builder.
 # htmlhelp_basename = ""
 
-# html_logo = "images/amd-header-logo.svg"
-html_theme_options = {
-    "analytics_id": "G-8K5QQMVD1V",  #  Provided by Google in your dashboard
-    "analytics_anonymize_ip": False,
-    "logo_only": False,
-    "prev_next_buttons_location": "bottom",
-    "style_external_links": False,
-    "vcs_pageview_mode": "",
-    # 'style_nav_header_background': 'white',
-    # Toc options
-    "collapse_navigation": True,
-    "sticky_navigation": True,
-    "navigation_depth": 5,
-    "includehidden": True,
-    "titles_only": False,
-}
+# Theme options are theme-specific; applying one theme's keys to the other
+# only produces "unsupported theme option" warnings, so keep them separate.
+if docs_theme == "rtd":
+    html_theme_options = {
+        # Expand nav sub-items by default instead of hiding them behind a click.
+        "collapse_navigation": False,
+        "navigation_depth": 4,
+        "analytics_id": google_analytics_id,
+        "style_external_links": True,
+    }
+else:
+    html_theme_options = {
+        "flavor": "generic",
+        "header_title": "Omnistat",
+        "header_link": "https://rocm.github.io/omnistat/",
+        "link_main_doc": False,
+        "analytics": {"google_analytics_id": google_analytics_id},
+        # Pin the top-bar links explicitly (flavor defaults vary by version).
+        "nav_secondary_items": {
+            "GitHub": "https://github.com/ROCm/omnistat",
+            "Support": "https://github.com/ROCm/omnistat/issues/new/choose",
+        },
+        # Expand nav sub-items by default instead of hiding them behind a click.
+        "show_navbar_depth": 2,
+    }
 
 html_css_files = ["custom.css"]
 
-from pygments.styles import get_all_styles
 
-# The name of the Pygments (syntax highlighting) style to use.
-styles = list(get_all_styles())
-preferences = ("emacs", "pastie", "colorful")
-for pref in preferences:
-    if pref in styles:
-        pygments_style = pref
-        break
+# ---------------------------------------------------------------------------
+# Public wheel availability toggle.
+#
+# Sources mark the conditional content with HTML comments:
+#
+#   <!-- if-release:start -->      shown only when release_wheels_public = True
+#   <!-- if-release:end -->
+#
+#   <!-- if-norelease:start -->    shown only when release_wheels_public = False
+#   <!-- if-norelease:end -->
+#
+# The marker lines themselves are always stripped before parsing, so they never
+# reach sphinx-design.  This has to happen on the raw source rather than with
+# the `only` or `ifconfig` directives, because sphinx-design validates the
+# children of a `tab-set` at parse time and errors out on any other node type.
+# ---------------------------------------------------------------------------
+release_wheels_public = False
 
-from recommonmark.transform import AutoStructify
+_CONDITIONAL_BLOCK = re.compile(
+    r"^[ \t]*<!--[ \t]*if-(no)?release:start[ \t]*-->[ \t]*\n"
+    r"(.*?)"
+    r"^[ \t]*<!--[ \t]*if-(?:no)?release:end[ \t]*-->[ \t]*\n",
+    re.DOTALL | re.MULTILINE,
+)
+
+
+# function to show/hide released-wheel content based on release_wheels_public
+def toggleReleaseContent(app, docname, source):
+    public = app.config.release_wheels_public
+
+    def keepOrDrop(match):
+        negated = match.group(1) is not None
+        return match.group(2) if (public != negated) else ""
+
+    source[0] = _CONDITIONAL_BLOCK.sub(keepOrDrop, source[0])
 
 
 # app setup hook
 def setup(app):
-    app.add_config_value(
-        "recommonmark_config",
-        {
-            "auto_toc_tree_section": "Contents",
-            "enable_eval_rst": True,
-            "enable_auto_doc_ref": False,
-        },
-        True,
-    )
-    app.add_transform(AutoStructify)
     app.add_config_value("docstring_replacements", {}, True)
+    app.add_config_value("release_wheels_public", False, "env")
     app.connect("source-read", replaceString)
+    app.connect("source-read", toggleReleaseContent)
 
 
 # function to replace version string througout documentation
@@ -203,4 +256,7 @@ def replaceString(app, docname, source):
     source[0] = result
 
 
-docstring_replacements = {"{__VERSION__}": version}
+docstring_replacements = {
+    "{__VERSION__}": version,
+    "{__ROCM_MIN_VERSION__}": rocm_min_version,
+}

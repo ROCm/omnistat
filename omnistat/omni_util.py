@@ -401,7 +401,11 @@ class UserBasedMonitoring:
                     "%s" % detection_file,
                 ]
                 t_srun_start = time.perf_counter()
-                utils.runShellCommand(srun_cmd, timeout=35, exit_on_error=True)
+                result = utils.runShellCommand(srun_cmd, timeout=90, exit_on_error=False)
+                if result is None:
+                    logging.warning("[usermode]: rms-env srun timed out, retrying with extended timeout...")
+                    time.sleep(10)
+                    utils.runShellCommand(srun_cmd, timeout=200, exit_on_error=True)
                 logging.info(
                     "[usermode]: rms-env timing (%s hosts): %.2fs (srun, all hosts)"
                     % (numNodes, time.perf_counter() - t_srun_start)
@@ -504,7 +508,7 @@ class UserBasedMonitoring:
                             time.sleep(delay)
                     except Exception:
                         return False
-                return False
+            return False
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=min(self.max_concurrent, numHosts)) as executor:
             future_to_host = {executor.submit(check_exporter, host): host for host in self.__hosts}

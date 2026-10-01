@@ -1,18 +1,150 @@
-/* override table width restrictions */
-.wy-table-responsive table td, .wy-table-responsive table th {
+/* ------------------------------------------------------------------------
+   This file is loaded for both themes selected by docs_theme in conf.py.
+   Rules below are keyed off theme-specific containers -- .bd-article and the
+   --pst-* variables belong to rocm_docs_theme (pydata), .wy-* and .rst-content
+   to sphinx_rtd_theme -- so each set is simply inert under the other theme.
+   Anything shared must carry fallbacks for the --pst-* variables.
+   ------------------------------------------------------------------------ */
+
+/* sphinx_rtd_theme only: widen the content frame from the theme's 800px
+   default, matching the pre-port docs. Same specificity as the theme rule,
+   but this file is appended after theme.css, so it wins on load order. */
+.wy-nav-content {
+    max-width: 1000px;
+}
+
+/* Allow wide metric tables to wrap instead of forcing horizontal scroll.
+   sphinx_rtd_theme sets nowrap via .wy-table-responsive, hence the second
+   selector (which has to match that rule's specificity to win). */
+.bd-article table td,
+.bd-article table th,
+.wy-table-responsive table td,
+.wy-table-responsive table th {
     white-space: normal;
 }
+
+/* With the cells wrapping above, the table no longer needs its own scroll
+   region; the theme's overflow:auto would otherwise still clip wide content. */
 .wy-table-responsive {
-    margin-bottom: 24px;
-    max-width: 100%;
     overflow: visible;
 }
 
-.wy-table-responsive code {
+/* Denser inline code inside tables for long metric listings. */
+.bd-article table code,
+.rst-content table code {
     font-size: 0.85em;
 }
 
-.wy-nav-content {
-    /* max-width: none !important; */ /* For full width */
-    max-width: 1000px !important;
+/* Colored terminal output (e.g. pytest) that honors the light/dark theme:
+   background/foreground track the theme's code surface, and the accent
+   colors have a light- and dark-mode variant. Progress rows use flexbox so
+   the trailing [NN%] right-aligns like a real terminal. The --pst-* fallbacks
+   apply under sphinx_rtd_theme, which doesn't define those variables. */
+.terminal-output {
+    background: var(--pst-color-surface, #f8f8f8);
+    color: var(--pst-color-text-base, #404040);
+    padding: 1rem 1.25rem;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+    line-height: 1.5;
+    font-family: var(--pst-font-family-monospace, monospace);
+    font-size: 0.8rem;
+}
+.terminal-output .t-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    white-space: nowrap;
+}
+.terminal-output .t-dim  { color: var(--pst-color-text-muted, #808080); }
+.terminal-output .t-pass { color: #1a7f37; }
+.terminal-output .t-skip { color: #9a6700; }
+.terminal-output .t-pct  { color: #0550ae; }
+html[data-theme="dark"] .terminal-output .t-pass { color: #3fb950; }
+html[data-theme="dark"] .terminal-output .t-skip { color: #d29922; }
+html[data-theme="dark"] .terminal-output .t-pct  { color: #39c5bb; }
+
+/* Tighten vertical spacing between list items. The theme wraps each item in a
+   <p> and gives it ~.25rem top/bottom margins via a high-specificity rule
+   (ul li>p:first-child), so !important is needed to collapse it; a small
+   per-item margin then provides controlled, compact spacing. */
+/* Compact list spacing: the theme wraps each item in a <p> and gives it
+   ~.25rem top/bottom margins, so !important is needed to collapse it; a small
+   per-item gap then gives a readable single-line separation. */
+.bd-article li > p {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    line-height: 1.2;
+}
+.bd-article ul li,
+.bd-article ol li {
+    margin-bottom: 0.1rem;
+}
+
+/* Keep code blocks (and their captions) left-aligned; some base rules
+   otherwise center literal blocks, which garbles pre-formatted ASCII output. */
+.bd-article div.highlight pre,
+.bd-article .literal-block-wrapper,
+.bd-article .code-block-caption {
+    text-align: left;
+}
+
+/* Space around the header divider between the AMD logo and the site title.
+   The theme markup uses mx-40/my-25 utility classes that are undefined in
+   this rocm-docs-core version, so the divider renders flush without them. */
+.rocm-header .header-logo-title .vr {
+    margin-left: 1.25rem;
+    margin-right: 1.25rem;
+}
+
+/* Left-align the whole layout so the sidebar hugs the left edge instead of
+   the page being centered (which leaves empty margin left of the navbar). */
+.bd-container {
+    justify-content: flex-start;
+}
+
+/* Fixed-width left (primary) sidebar (theme default is a fluid 25%). */
+.bd-sidebar-primary {
+    width: 15rem;
+    flex: 0 0 15rem;
+}
+
+/* Tighten vertical spacing in the left (primary) sidebar navigation. */
+.bd-links p.caption {
+    margin-top: 0.65rem;
+    margin-bottom: 0.15rem;
+}
+.bd-links ul.bd-sidenav {
+    margin-bottom: 0.15rem;
+}
+.bd-links li.toctree-l1 > a,
+.bd-links li.toctree-l2 > a {
+    padding-top: 0.12rem;
+    padding-bottom: 0.12rem;
+    line-height: 1.25;
+}
+
+/* sphinx_rtd_theme only: make the sidebar nav read as a hierarchy.
+
+   The theme indents section captions and their toctree-l1 links by the same
+   1.618em, so a section header sits flush with its own items. It also only
+   indents l2/l3 links when that branch is .current (2.427em / 4.045em); with
+   collapse_navigation = False every branch is expanded, so all the inactive
+   sub-items fall back to the flat 1.618em default.
+
+   Outdent the caption and apply the theme's own golden-ratio steps to every
+   level, current or not, so each depth is visibly nested under the one above.
+   The caption sits well inside the l1 links it heads without crowding the
+   sidebar edge (the theme's own gutter, for reference, is 0.809em). */
+.wy-menu-vertical p.caption {
+    padding-left: 0.5em;
+}
+.wy-menu-vertical li.toctree-l2 > a {
+    padding-left: 2.427em;
+}
+.wy-menu-vertical li.toctree-l3 > a {
+    padding-left: 4.045em;
+}
+.wy-menu-vertical li.toctree-l4 > a {
+    padding-left: 5.663em;
 }

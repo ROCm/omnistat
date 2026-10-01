@@ -1,3 +1,28 @@
+Version 1.15 (30 September 2026)
+
+  * additional error handling and retry logic for failed `srun` launches during user-mode
+    startup at scale (#320)
+  * introduction of optional data collector in contrib section to track Lustre RPC latency and congestion
+    on a per-filesystem and per-pool basis (#323)
+  * preserve Grafana dashboard folder assignment on upload with Grafana 13+ (#326)
+  * fix for exporter startup failure on GPUs lacking an energy accumulator - observed on RDNA4 (#327, #330)
+  * fix for kernel tracing extension import failure under ROCm 10.0 resulting from missing
+    `hsa-runtime64` linkage (#331)
+  * expanded CI tests to include ROCm 10 container and RDNA4 hardware (#329, #330, #337)
+  * relax `rocm_sclk_clock_mhz` expectations on consumer GPUs where the metric is not
+    always present (#338)
+  * update `fmt` version used with rocprofiler-sdk to accommodate newer ROCm clang
+    versions (#340)
+  * addition of counter enablement library (`libomnistat_count.so`) to simplify hardware
+    counter collection, along with accompanying documentation updates (#336, #341)
+  * updates to Python wheel packaging to support optional extensions along with a
+    separately installable test package (#342)
+  * documentation reorganization and updates (#343)
+  * performance refactoring for network collector to sample ionic (AINIC) hardware counters
+    in a background thread (#344)
+  * addition of standardized security scanning workflows and automated dependency
+    updates (#345)
+
 Version 1.14 (13 August 2026)
 
   * extend network data collector to support Pensando and Broadcom RoCE NIC

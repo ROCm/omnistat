@@ -402,8 +402,9 @@ def runShellCommand(command, capture_output=True, text=True, exit_on_error=False
     except subprocess.TimeoutExpired:
         logging.error("ERROR: Process timed out, ran for more than %i sec(s)" % timeout)
         logging.error("       %s" % command)
-        if not exit_on_error:
-            return None
+        if exit_on_error:
+            sys.exit(1)
+        return None
 
     if exit_on_error and results.returncode != 0:
         logging.error("ERROR: Command failed")

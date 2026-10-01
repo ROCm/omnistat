@@ -1,11 +1,5 @@
 # Grafana Dashboards
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
-
 Dashboards allow cluster telemetry data to be visualized interactively in near
 real-time. Omnistat provides several sample [Grafana](https://grafana.com/)
 dashboards for cluster-wide deployments that vary depending on whether resource
@@ -37,8 +31,8 @@ can be used in local deployments are highlighted below.
 ## Grafana server
 
 To visualize Omnistat's monitoring data, Grafana needs to be installed and
-configured to use the Prometheus server described in the [system-wide
-installation](installation/system-install).
+configured to use the Prometheus server described in the [system-mode
+installation](system-install.md).
 
 ### Installation
 
@@ -70,17 +64,17 @@ docker run -e GF_AUTH_ANONYMOUS_ENABLED=true -e GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
 ### Data source
 
 The Prometheus server configured as part of the [Omnistat
-installation](installation/system-install) needs to be added to Grafana as a
+installation](system-install.md) needs to be added to Grafana as a
 new data source.
 
 To add a data source to Grafana:
 1. Click **Connections** in the left-side menu.
 2. Enter "Prometheus" in the search dialog, and click the **Prometheus** button
    under the search box.
-3. Configure the new Prometehus data source following instructions and provide
+3. Configure the new Prometheus data source following instructions and provide
    the hostname and port where Omnistat's Prometheus server is running.
-   ```eval_rst
-   .. figure:: images/grafana-data-source.png
+   ```{eval-rst}
+   .. figure:: ../images/grafana-data-source.png
 
       Adding a data source in Grafana
    ```
@@ -92,8 +86,8 @@ To import a dashboard to an existing Grafana server:
 2. Click **New** and select **New Dashboard** from the drop-down menu.
 3. On the dashboard, click **+ Add visualization**.
 4. Upload the dashboard JSON file.
-   ```eval_rst
-   .. figure:: images/grafana-import-dashboard.png
+   ```{eval-rst}
+   .. figure:: ../images/grafana-import-dashboard.png
 
       Importing a dashboard in Grafana
    ```
@@ -115,20 +109,20 @@ To configure a dashboard:
 (example-screenshots)=
 ## Example screenshots
 
-```eval_rst
-.. figure:: images/dashboard-global.png
+```{eval-rst}
+.. figure:: ../images/dashboard-global.png
 
    Global dashboard screenshot
 ```
 
-```eval_rst
-.. figure:: images/dashboard-node.png
+```{eval-rst}
+.. figure:: ../images/dashboard-node.png
 
    Node dashboard screenshot
 ```
 
-```eval_rst
-.. figure:: images/dashboard-job.png
+```{eval-rst}
+.. figure:: ../images/dashboard-job.png
 
    Job dashboard screenshot
 ```
@@ -198,9 +192,9 @@ python3 generate_cluster_dashboard.py example_cluster.yaml -o dashboard.json
 python3 generate_cluster_dashboard.py example_cluster.yaml -o dashboard.json --preview
 ```
 
-```eval_rst
+```{eval-rst}
 .. _fig-cluster-preview:
-.. figure:: images/cluster-rack-preview.svg
+.. figure:: ../images/cluster-rack-preview.svg
 
    Static SVG preview generated from the example cluster configuration
 ```
@@ -213,8 +207,8 @@ with GPUs in each server color-coded based on linked Omnistat telemetry data. Ho
 specific GPU to see exact values and link to the associated node dashboard.
 
 
-```eval_rst
-.. figure:: images/cluster-rack-view.png
+```{eval-rst}
+.. figure:: ../images/cluster-rack-view.png
 
    Live cluster rack example rendering in Grafana
 ```

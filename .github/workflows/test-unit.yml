@@ -4,13 +4,18 @@ on:
     branches: [ main, dev ]
   pull_request:
     branches: [ main, dev ]
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Unit testing
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Install dependencies
         run: pip3 install -r requirements.txt -r test/requirements.txt
       - name: Run unit tests

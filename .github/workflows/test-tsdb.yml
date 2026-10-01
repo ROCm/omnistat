@@ -4,13 +4,18 @@ on:
     branches: [ main, dev ]
   pull_request:
     branches: [ main, dev ]
+permissions:
+  contents: read
+
 jobs:
   test:
     name: TSDB Testing
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Start containerized environment
         run: docker compose -f test/docker/victoriametrics/compose.yaml up -d
       - name: Wait for Victoria Metrics
@@ -23,7 +28,7 @@ jobs:
       - name: Display node logs
         run: docker logs victoria-metrics
       - name: Install test dependencies
-        run: pip3 install -r requirements.txt -r requirements-query.txt -r test/requirements.txt
+        run: pip3 install -r requirements.txt -r test/requirements.txt
       - name: Run query tests
         run: pytest -v test/test_tsdb_query.py
       - name: Run kernel tracing tests
