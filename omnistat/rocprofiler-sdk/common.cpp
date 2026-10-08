@@ -24,56 +24,7 @@
 
 #include "common.hpp"
 
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-
 namespace omnistat {
-
-// Helper function to parse an unsigned integer from an environment variable
-// Returns the value, defaulting to default_value if invalid or not set
-uint64_t parse_env_uint(const char* env_var_name, uint64_t default_value) {
-    const char* env_value = std::getenv(env_var_name);
-
-    if (env_value == nullptr) {
-        return default_value;
-    }
-
-    try {
-        uint64_t value = std::stoull(env_value);
-        if (value > 0) {
-            return value;
-        }
-    } catch (const std::exception&) {
-    }
-
-    std::cerr << "Invalid " << env_var_name << " value (" << env_value << "), using default "
-              << default_value << std::endl;
-    return default_value;
-}
-
-// Helper function to parse a boolean ("0" or "1") from an environment variable
-// Returns the value, defaulting to default_value if invalid or not set
-bool parse_env_bool(const char* env_var_name, bool default_value) {
-    const char* env_value = std::getenv(env_var_name);
-    if (env_value == nullptr) {
-        return default_value;
-    }
-
-    std::string value{env_value};
-    if (value == "0") {
-        return false;
-    }
-    if (value == "1") {
-        return true;
-    }
-
-    std::cerr << "Invalid " << env_var_name << " value (" << env_value << "), using default "
-              << (default_value ? "1" : "0") << std::endl;
-    return default_value;
-}
 
 std::vector<rocprofiler_agent_v0_t> get_rocprofiler_agents() {
     std::vector<rocprofiler_agent_v0_t> agents;

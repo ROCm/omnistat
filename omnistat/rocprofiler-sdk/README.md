@@ -138,12 +138,12 @@ independent trace streams to omnistat-standalone via HTTP:
 
 - ROCm 6.4+ with ROCProfiler-SDK
 - HIP (used to resolve the GPU a communicator is bound to)
-- C++20 compiler (GCC 13+ or Clang 16+)
+- C++20 compiler with libstdc++ 11 or newer
 - CMake 3.15+
 
 CMake automatically fetches the header-only `cpp-httplib` library (used to send
-trace data over HTTP), and the `fmt` library if the compiler lacks
-`std::format`.
+trace data over HTTP), and the `fmt` library when libstdc++ is older than 13 and
+`std::format` is therefore unavailable.
 
 ### Building
 
@@ -178,19 +178,35 @@ the corresponding trace collectors enabled.
 | `OMNISTAT_TRACE_MAX_INTERVAL` | `10` (seconds) | Max time between periodic flushes (both streams) |
 | `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | rocprofiler-sdk buffer size for kernel dispatch records |
 | `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001` | Port for the HTTP endpoint receiving trace data |
-| `OMNISTAT_TRACE_LOG` | `0` | Set to `1` to print the trace summary even when nothing failed, and to report every delivery failure and callback exception |
+| `OMNISTAT_TRACE_LOG_LEVEL` | `warning` | `warning`, `info` or `debug`; see below |
+| `OMNISTAT_TRACE_LOG_OUTPUT` | `stderr` | `stderr`, `stdout`, or a path prefix |
 
 The two streams are independent, and each has to be enabled on the collector as
 well. RCCL tracing is off by default to match the collector, which registers
 `/rccl_trace` only when `enable_rccl_trace` is set; enabling it here alone posts
 to an endpoint that does not exist.
 
+### Logging
+
+Each level adds to the one before it:
+
+| Level | Reports |
+|---|---|
+| `warning` | problems that stop tracing, and delivery failures and callback exceptions reported once each |
+| `info` | the above, plus the exit summary even when nothing failed |
+| `debug` | the above, plus every occurrence of a repeating failure, not just the first |
+
+`OMNISTAT_TRACE_LOG_OUTPUT` selects where those messages go. `stderr` is the
+default; anything other than `stderr` or `stdout` is treated as a path
+*prefix*, with `.<hostname>.<pid>` appended so that the ranks sharing a node
+each write their own file rather than overwriting one another.
+
 ### Exit Summary
 
 The library prints one summary line per active trace stream on application
-exit, to stderr. By default it prints only for a stream that lost data; with
-`OMNISTAT_TRACE_LOG=1` it prints unconditionally.
+exit. At the default level it prints only for a stream that lost data; at
+`info` or above it prints unconditionally.
 
 ```
-[hostname][12345][omnistat] Trace summary (kernel): 1234/1234 records, 12/12 flushes, POST avg 1.423ms max 8.31ms
+[hostname][12345][omnistat] kernel trace summary: 1234/1234 records, 12/12 flushes, POST avg 1.423ms max 8.31ms
 ```
