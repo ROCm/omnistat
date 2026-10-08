@@ -41,8 +41,8 @@ namespace omnistat::log {
 // failed, debug adds every repeat of a failure.
 enum class Level { Warning = 0, Info, Debug };
 
-// Resolve the level and the destination from the environment. Call once from
-// the library entry point.
+// Reads the level and the destination from the environment, and builds the
+// prefix that every message carries. Call once from the library entry point.
 void init();
 
 // Returns the configured verbosity level.
