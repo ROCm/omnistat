@@ -49,14 +49,6 @@
 
 namespace omnistat {
 
-// Parses an unsigned integer from an environment variable
-// Returns the value, defaulting to default_value if invalid or not set
-uint64_t parse_env_uint(const char* env_var_name, uint64_t default_value);
-
-// Parses a boolean ("0" or "1") from an environment variable
-// Returns the value, defaulting to default_value if invalid or not set
-bool parse_env_bool(const char* env_var_name, bool default_value);
-
 // Every GPU agent rocprofiler can see, in enumeration order
 std::vector<rocprofiler_agent_v0_t> get_rocprofiler_agents();
 

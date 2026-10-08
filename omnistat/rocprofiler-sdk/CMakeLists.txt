@@ -68,7 +68,7 @@ if (BUILD_KERNEL_TRACE_LIB)
     FetchContent_MakeAvailable(httplib)
 
     add_library(omnistat_trace SHARED trace.cpp trace_kernel_callbacks.cpp
-                                  trace_rccl_callbacks.cpp common.cpp)
+                                  trace_rccl_callbacks.cpp common.cpp log.cpp)
     target_compile_features(omnistat_trace PRIVATE cxx_std_20)
     target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk httplib::httplib
                                                  hip::host)

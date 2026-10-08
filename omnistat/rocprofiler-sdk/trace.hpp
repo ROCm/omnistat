@@ -103,7 +103,7 @@ class Tracer {
     void rccl_add_comm(std::string_view element);
 
     // Reports an exception caught by a tracing callback. Once by default,
-    // every occurrence under OMNISTAT_TRACE_LOG.
+    // every occurrence at debug level.
     void report_callback_error(std::string_view where, const std::exception& error);
 
   private:
@@ -129,14 +129,10 @@ class Tracer {
                           std::chrono::microseconds latency);
     };
 
-    static std::string log_prefix();
-
     void log_stream_summary(const char* stream, const Stats& stats) const;
 
-    // Report HTTP delivery failures on a stream. Once by default, every
-    // occurrence under OMNISTAT_TRACE_LOG.
     // Classify a failed POST and report it. Once by default, every occurrence
-    // under OMNISTAT_TRACE_LOG.
+    // at debug level.
     void report_delivery_failure(std::string_view path, Stats& stats, const httplib::Result& res);
 
     // Background flush thread: wakes on the interval, on shutdown, or when the
@@ -175,7 +171,6 @@ class Tracer {
     std::unique_ptr<httplib::Client> kernel_client_;
     std::unique_ptr<httplib::Client> rccl_client_;
     const uint64_t endpoint_port_;
-    const bool log_enabled_;
 
     std::atomic<bool> callback_warned_{false};
 

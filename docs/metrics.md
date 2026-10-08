@@ -271,6 +271,10 @@ collector:
 - `OMNISTAT_RCCL_TRACE`: disabled by default. Set to `1` to enable RCCL
   tracing, alongside `enable_rccl_trace` on the collector.
 
+Diagnostics are controlled separately by `OMNISTAT_TRACE_LOG_LEVEL` (`warning`,
+`info`, `debug`) and `OMNISTAT_TRACE_LOG_OUTPUT` (`stderr`,
+`stdout`, or a path prefix).
+
 To collect RCCL traces without the cost of per-dispatch tracing, disable kernel
 tracing and enable RCCL explicitly:
 
