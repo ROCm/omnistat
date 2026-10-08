@@ -164,7 +164,7 @@ run any application and both streams are traced automatically.
 export ROCP_TOOL_LIBRARIES=/path/to/libomnistat_trace.so
 ```
 
-Records are JSON-encoded and sent via HTTP POST to `localhost:<port>`, on
+Records are JSON-encoded and sent via HTTP POST to `127.0.0.1:<port>`, on
 `/kernel_trace` and `/rccl_trace` respectively (default port 8001, configurable
 via `OMNISTAT_TRACE_ENDPOINT_PORT`). This requires Omnistat to be running with
 the corresponding trace collectors enabled.
@@ -176,7 +176,7 @@ the corresponding trace collectors enabled.
 | `OMNISTAT_KERNEL_TRACE` | `1` | Set to `0` to disable kernel dispatch tracing |
 | `OMNISTAT_RCCL_TRACE` | `0` | Set to `1` to enable RCCL communication tracing |
 | `OMNISTAT_TRACE_MAX_INTERVAL` | `10` (seconds) | Max time between periodic flushes (both streams) |
-| `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | rocprofiler-sdk buffer size for kernel dispatch records |
+| `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | Buffer size that triggers a flush (both streams) |
 | `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001` | Port for the HTTP endpoint receiving trace data |
 | `OMNISTAT_TRACE_LOG_LEVEL` | `warning` | `warning`, `info` or `debug`; see below |
 | `OMNISTAT_TRACE_LOG_OUTPUT` | `stderr` | `stderr`, `stdout`, or a path prefix |
@@ -193,7 +193,7 @@ Each level adds to the one before it:
 | Level | Reports |
 |---|---|
 | `warning` | problems that stop tracing, and delivery failures and callback exceptions reported once each |
-| `info` | the above, plus the exit summary even when nothing failed |
+| `info` | the above, plus the exit summary for a stream that delivered successfully |
 | `debug` | the above, plus every occurrence of a repeating failure, not just the first |
 
 `OMNISTAT_TRACE_LOG_OUTPUT` selects where those messages go. `stderr` is the
@@ -203,9 +203,9 @@ each write their own file rather than overwriting one another.
 
 ### Exit Summary
 
-The library prints one summary line per active trace stream on application
-exit. At the default level it prints only for a stream that lost data; at
-`info` or above it prints unconditionally.
+When the application exits, each trace stream writes a summary line. By default
+these only appear if data was lost; set `OMNISTAT_TRACE_LOG_LEVEL=info` to see
+them on every run.
 
 ```
 [hostname][12345][omnistat] kernel trace summary: 1234/1234 records, 12/12 flushes, POST avg 1.423ms max 8.31ms

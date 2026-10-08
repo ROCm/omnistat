@@ -178,7 +178,7 @@ class Tracer {
     std::string rccl_path_ = "/rccl_trace";
 
     bool kernel_enabled_ = true;
-    bool rccl_enabled_ = true;
+    bool rccl_enabled_ = false;
 
     // What was actually constructed. The flags above do not imply it:
     // initialize() can give up after deciding a stream is enabled.

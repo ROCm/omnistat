@@ -26,6 +26,7 @@
 
 #include <cctype>
 #include <climits>
+#include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -138,6 +139,5 @@ Level level() {
 void emit(std::string_view message) {
     std::osyncstream(*g_destination) << g_prefix << message << std::endl;
 }
-
 
 } // namespace omnistat::log
