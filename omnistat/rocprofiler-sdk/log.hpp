@@ -22,31 +22,42 @@
 // DEALINGS IN THE SOFTWARE.
 // ---------------------------------------------------------------------------
 
-#include "common.hpp"
+#pragma once
 
-namespace omnistat {
+#include <string_view>
+#include <utility>
 
-std::vector<rocprofiler_agent_v0_t> get_rocprofiler_agents() {
-    std::vector<rocprofiler_agent_v0_t> agents;
-    rocprofiler_query_available_agents_cb_t iterate_cb = [](rocprofiler_agent_version_t agents_ver,
-                                                            const void** agents_arr,
-                                                            size_t num_agents, void* udata) {
-        if (agents_ver != ROCPROFILER_AGENT_INFO_VERSION_0)
-            throw std::runtime_error{"unexpected rocprofiler agent version"};
-        auto* agents_v = static_cast<std::vector<rocprofiler_agent_v0_t>*>(udata);
-        for (size_t i = 0; i < num_agents; ++i) {
-            const auto* rocp_agent = static_cast<const rocprofiler_agent_v0_t*>(agents_arr[i]);
-            if (rocp_agent->type == ROCPROFILER_AGENT_TYPE_GPU)
-                agents_v->emplace_back(*rocp_agent);
-        }
-        return ROCPROFILER_STATUS_SUCCESS;
-    };
+#if defined(HAS_STD_FORMAT)
+#include <format>
+namespace fmt = std;
+#else
+#include <fmt/core.h>
+#endif
 
-    ROCPROFILER_CALL(rocprofiler_query_available_agents(
-                         ROCPROFILER_AGENT_INFO_VERSION_0, iterate_cb, sizeof(rocprofiler_agent_t),
-                         const_cast<void*>(static_cast<const void*>(&agents))),
-                     "query available agents");
-    return agents;
+namespace omnistat::log {
+
+// How much the library reports. Each level adds to the one before it: warning
+// reports failures once each, info adds the exit summary even when nothing
+// failed, debug adds every repeat of a failure.
+enum class Level { Warning = 0, Info, Debug };
+
+// Resolve the level and the destination from the environment. Call once from
+// the library entry point.
+void init();
+
+// Returns the configured verbosity level.
+Level level();
+
+// Stamps the prefix and writes the whole line in one step. Used by message();
+// call that instead.
+void emit(std::string_view message);
+
+// Format and write one line. Call sites decide whether to report at all, by
+// consulting level(); that keeps the condition visible where it applies, and
+// means an argument is only built when it is going to be used.
+template <typename... Args>
+void message(fmt::format_string<Args...> format, Args&&... args) {
+    emit(fmt::format(format, std::forward<Args>(args)...));
 }
 
-} // namespace omnistat
+} // namespace omnistat::log

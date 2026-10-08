@@ -24,6 +24,7 @@
 
 #include "trace.hpp"
 #include "common.hpp"
+#include "log.hpp"
 
 #include <rocprofiler-sdk/registration.h>
 #include <rocprofiler-sdk/version.h>
@@ -33,20 +34,65 @@
 #endif
 
 #include <chrono>
-#include <climits>
+#include <cstdlib>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <thread>
-#include <unistd.h>
 
 namespace omnistat {
+
+namespace {
+
+// Helper function to parse an unsigned integer from an environment variable
+// Returns the value, defaulting to default_value if invalid or not set.
+uint64_t parse_env_uint(const char* env_var_name, uint64_t default_value) {
+    const char* env_value = std::getenv(env_var_name);
+
+    if (env_value == nullptr) {
+        return default_value;
+    }
+
+    try {
+        uint64_t value = std::stoull(env_value);
+        if (value > 0) {
+            return value;
+        }
+    } catch (const std::exception&) {
+    }
+
+    log::message("invalid {} value ({}); using {}", env_var_name, env_value, default_value);
+    return default_value;
+}
+
+// Helper function to parse a boolean ("0" or "1") from an environment variable
+// Returns the value, defaulting to default_value if invalid or not set
+bool parse_env_bool(const char* env_var_name, bool default_value) {
+    const char* env_value = std::getenv(env_var_name);
+    if (env_value == nullptr) {
+        return default_value;
+    }
+
+    std::string value{env_value};
+    if (value == "0") {
+        return false;
+    }
+    if (value == "1") {
+        return true;
+    }
+
+    log::message("invalid {} value ({}); using {}", env_var_name, env_value,
+                 default_value ? "1" : "0");
+    return default_value;
+}
+
+} // namespace
 
 Tracer::Tracer()
     : periodic_flush_interval_(std::chrono::seconds(
           parse_env_uint("OMNISTAT_TRACE_MAX_INTERVAL", DEFAULT_FLUSH_INTERVAL_SECONDS))),
       buffer_size_bytes_(parse_env_uint("OMNISTAT_TRACE_BUFFER_SIZE", DEFAULT_BUFFER_SIZE_BYTES)),
-      endpoint_port_(parse_env_uint("OMNISTAT_TRACE_ENDPOINT_PORT", DEFAULT_TRACE_ENDPOINT_PORT)),
-      log_enabled_(parse_env_uint("OMNISTAT_TRACE_LOG", 0) != 0) {
+      endpoint_port_(parse_env_uint("OMNISTAT_TRACE_ENDPOINT_PORT", DEFAULT_TRACE_ENDPOINT_PORT)) {
     kernel_enabled_ = parse_env_bool("OMNISTAT_KERNEL_TRACE", true);
     rccl_enabled_ = parse_env_bool("OMNISTAT_RCCL_TRACE", false);
 }
@@ -79,7 +125,7 @@ int Tracer::initialize() {
     kernel_client_ = make_client();
     rccl_client_ = make_client();
     if (!kernel_client_ || !rccl_client_) {
-        std::cerr << "Omnistat: failed to initialize HTTP client" << std::endl;
+        log::message("failed to initialize HTTP client");
         return -1;
     }
 
@@ -144,8 +190,7 @@ int Tracer::initialize() {
             context_, ROCPROFILER_CALLBACK_TRACING_RCCL_API, rccl_ops.data(), rccl_ops.size(),
             rccl_api_callback, this);
         if (status != ROCPROFILER_STATUS_SUCCESS) {
-            std::cerr << "Omnistat: RCCL tracing disabled ("
-                      << rocprofiler_get_status_string(status) << ")" << std::endl;
+            log::message("RCCL tracing disabled ({})", rocprofiler_get_status_string(status));
             rccl_enabled_ = false;
         }
     }
@@ -215,10 +260,10 @@ Tracer::~Tracer() {
 
     // Summary last, so it accounts for the final drain above. One line per
     // stream: a combined rate would let kernel volume mask an RCCL outage.
-    if (log_enabled_ || kernel_stats_.failed_flushes.load() > 0) {
+    if (log::level() >= log::Level::Info || kernel_stats_.failed_flushes.load() > 0) {
         log_stream_summary("kernel", kernel_stats_);
     }
-    if (log_enabled_ || rccl_stats_.failed_flushes.load() > 0) {
+    if (log::level() >= log::Level::Info || rccl_stats_.failed_flushes.load() > 0) {
         log_stream_summary("rccl", rccl_stats_);
     }
 }
@@ -276,8 +321,8 @@ void Tracer::flush_loop() {
             // Ignore BUFFER_BUSY errors as the buffer might be in use
             if (flush_status != ROCPROFILER_STATUS_SUCCESS &&
                 flush_status != ROCPROFILER_STATUS_ERROR_BUFFER_BUSY) {
-                std::cerr << "Omnistat: kernel buffer flush failed with status "
-                          << flush_status << std::endl;
+                log::message("kernel buffer flush failed ({})",
+                             rocprofiler_get_status_string(flush_status));
             }
         }
 
@@ -371,12 +416,12 @@ bool Tracer::rccl_flush(std::string_view data, size_t num_records) {
 }
 
 void Tracer::report_callback_error(std::string_view where, const std::exception& error) {
-    if (!log_enabled_ && callback_warned_.exchange(true, std::memory_order_relaxed)) {
+    if (log::level() < log::Level::Debug &&
+        callback_warned_.exchange(true, std::memory_order_relaxed)) {
         return;
     }
 
-    std::cerr << log_prefix() << "exception in " << where << " (" << error.what()
-              << "); trace data lost" << std::endl;
+    log::message("exception in {} ({}); trace data lost", where, error.what());
 }
 
 void Tracer::record_kernel_flush_time() {
@@ -403,19 +448,10 @@ void Tracer::Stats::record_flush(size_t num_records, FlushStatus status,
     }
 }
 
-std::string Tracer::log_prefix() {
-    char host_buffer[HOST_NAME_MAX + 1] = {};
-    std::string_view host = "unknown";
-    if (gethostname(host_buffer, sizeof(host_buffer) - 1) == 0) {
-        host = host_buffer;
-    }
-
-    return "[" + std::string(host) + "][" + std::to_string(getpid()) + "][omnistat] ";
-}
-
 void Tracer::report_delivery_failure(std::string_view path, Stats& stats,
                                      const httplib::Result& res) {
-    if (!log_enabled_ && stats.warned.exchange(true, std::memory_order_relaxed)) {
+    if (log::level() < log::Level::Debug &&
+        stats.warned.exchange(true, std::memory_order_relaxed)) {
         return;
     }
 
@@ -431,8 +467,8 @@ void Tracer::report_delivery_failure(std::string_view path, Stats& stats,
         reason = "batch rejected";
     }
 
-    std::cerr << log_prefix() << "POST to " << TRACE_ENDPOINT_HOST << ":" << endpoint_port_ << path
-              << " failed (" << reason << "); trace data lost" << std::endl;
+    log::message("POST to {}:{}{} failed ({}); trace data lost", TRACE_ENDPOINT_HOST,
+                 endpoint_port_, path, reason);
 }
 
 void Tracer::log_stream_summary(const char* stream, const Stats& stats) const {
@@ -442,17 +478,19 @@ void Tracer::log_stream_summary(const char* stream, const Stats& stats) const {
     if (total_flushes == 0) {
         return;
     }
+
     const uint64_t total_records = stats.total_records.load();
     const uint64_t failed_flushes = stats.failed_flushes.load();
     const uint64_t failed_records = stats.failed_records.load();
     const uint64_t total_latency_us = stats.total_latency_us.load();
     const uint64_t max_latency_us = stats.max_latency_us.load();
 
-    std::cerr << log_prefix() << "Trace summary (" << stream
-              << "): " << (total_records - failed_records) << "/" << total_records << " records, "
-              << (total_flushes - failed_flushes) << "/" << total_flushes << " flushes, POST avg "
-              << (total_latency_us / total_flushes) / 1000.0 << "ms max " << max_latency_us / 1000.0
-              << "ms" << std::endl;
+    const double avg_ms = static_cast<double>(total_latency_us / total_flushes) / 1000.0;
+    const double max_ms = static_cast<double>(max_latency_us) / 1000.0;
+
+    log::message("{} trace summary: {}/{} records, {}/{} flushes, POST avg {}ms max {}ms", stream,
+                 total_records - failed_records, total_records, total_flushes - failed_flushes,
+                 total_flushes, avg_ms, max_ms);
 }
 
 } // namespace omnistat
@@ -466,7 +504,7 @@ int tool_init(rocprofiler_client_finalize_t fini_func [[maybe_unused]], void* to
         auto* tracer = static_cast<omnistat::Tracer*>(tool_data);
         return tracer->initialize();
     } catch (const std::exception& e) {
-        std::cerr << "Omnistat: tracing disabled (initialization failure)" << std::endl;
+        omnistat::log::message("tracing disabled (initialization failure)");
         return -1;
     }
 }
@@ -479,13 +517,15 @@ void tool_fini(void* tool_data) {
 extern "C" rocprofiler_tool_configure_result_t*
 rocprofiler_configure(uint32_t version, const char* runtime_version,
                       uint32_t priority [[maybe_unused]], rocprofiler_client_id_t* id) {
+    omnistat::log::init();
+
     constexpr uint32_t compiled_version = ROCPROFILER_SDK_VERSION;
 
     if (version / 10000 != compiled_version / 10000) {
-        std::cerr << "Omnistat: tracing disabled (version mismatch, compiled against "
-                  << compiled_version / 10000 << "." << (compiled_version % 10000) / 100 << "."
-                  << compiled_version % 100 << " but runtime is "
-                  << (runtime_version ? runtime_version : "unknown") << ")" << std::endl;
+        omnistat::log::message(
+            "tracing disabled (version mismatch, compiled against {}.{}.{} but runtime is {})",
+            compiled_version / 10000, (compiled_version % 10000) / 100, compiled_version % 100,
+            runtime_version ? runtime_version : "unknown");
         return nullptr;
     }
 
