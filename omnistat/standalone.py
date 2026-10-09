@@ -36,6 +36,7 @@ import os
 import platform
 import pwd
 import random
+import re
 import signal
 import sys
 import threading
@@ -535,10 +536,12 @@ def main():
     # Handle SIGTERM gracefully
     signal.signal(signal.SIGTERM, lambda signum, frame: terminateFlagEvent.set())
 
+    allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
+    allowed_ips = re.split(r",\s*", allowed_ips)
+
     # Enforce network restrictions
     @app.before_request
     def restrict_ips():
-        allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
         if "0.0.0.0" in allowed_ips:
             return
         elif request.remote_addr not in allowed_ips:
