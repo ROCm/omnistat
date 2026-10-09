@@ -472,7 +472,7 @@ def terminate():
     wait_interval = max(1, interval / 2.0)
     max_wait_secs = 120
     elapsed = 0.0
-    while not dataDeliveredEvent.isSet():
+    while not dataDeliveredEvent.is_set():
         logging.debug("waiting for data delivery event...(%.2f secs)" % wait_interval)
         time.sleep(wait_interval)
         elapsed += wait_interval
