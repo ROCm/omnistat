@@ -167,6 +167,7 @@ COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocm_smi", "power_cap"],
         "metrics": supported(SMI_METRICS + ENERGY_ROCMSMI_METRICS + POWER_CAP_METRICS),
+        "marks": [pytest.mark.rocmsmi],
     },
     {
         "collectors": ["amd_smi"],
@@ -176,6 +177,7 @@ COLLECTOR_CONFIGS = [
         "collectors": ["rocm_smi", "ras_ecc"],
         # RAS/ECC not supported on consumer GPUs
         "metrics": [] if consumer_gpu else supported(RAS_METRICS),
+        "marks": [pytest.mark.rocmsmi],
     },
     {
         "collectors": ["amd_smi", "ras_ecc"],
@@ -184,6 +186,7 @@ COLLECTOR_CONFIGS = [
     {
         "collectors": ["rocm_smi", "cu_occupancy"],
         "metrics": OCCUPANCY_METRICS,
+        "marks": [pytest.mark.rocmsmi],
     },
     {
         "collectors": ["amd_smi", "cu_occupancy"],
@@ -214,8 +217,9 @@ COLLECTOR_CONFIGS = [
         },
     },
     # general info metrics expected to be present regardless of collector config
+    # (uses amd_smi so the check still runs where ROCm SMI is unavailable)
     {
-        "collectors": ["rocm_smi"],
+        "collectors": ["amd_smi"],
         "metrics": [
             {"name": "omnistat_info", "validate": "==1.0", "labels": ["version", "mode", "schema"]},
             {"name": "omnistat_perf_runtime_seconds", "validate": ">0.0", "labels": ["collector"]},

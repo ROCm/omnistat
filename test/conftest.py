@@ -14,15 +14,26 @@ def pytest_addoption(parser):
         help="Fail (don't skip) if VictoriaMetrics/Prometheus TSDB is unavailable",
     )
     parser.addoption("--require-docker", action="store_true", help="Fail (don't skip) if Docker is unavailable")
+    parser.addoption("--require-rocmsmi", action="store_true", help="Fail (don't skip) if ROCm SMI is unavailable")
 
 
 def pytest_configure(config):
-    for marker in ("rocprofiler", "tsdb", "docker"):
+    for marker in ("rocprofiler", "tsdb", "docker", "rocmsmi"):
         config.addinivalue_line("markers", f"{marker}: requires {marker} infrastructure")
 
 
 def _rocm_available():
     return shutil.which("rocminfo") is not None
+
+
+def _rocm_smi_available():
+    """Check for the ROCm SMI runtime backing the rocm_smi collector."""
+    from pathlib import Path
+
+    rocm_path = Path(os.environ.get("ROCM_PATH", "/opt/rocm"))
+    return (rocm_path / "lib" / "librocm_smi64.so").is_file() and (
+        rocm_path / "libexec" / "rocm_smi" / "rsmiBindings.py"
+    ).is_file()
 
 
 def _rocprofiler_available():
@@ -64,6 +75,7 @@ def pytest_collection_modifyitems(config, items):
         "rocprofiler": (_rocprofiler_available, "rocprofiler SDK not available"),
         "tsdb": (_tsdb_available, "TSDB config not available"),
         "docker": (_docker_available, "Docker not available"),
+        "rocmsmi": (_rocm_smi_available, "ROCm SMI not available"),
     }
 
     for item in items:
