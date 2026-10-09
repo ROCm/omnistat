@@ -777,6 +777,28 @@ class TestRcclLateRecords:
         assert rccl_collector._late_records == 1
         assert rccl_collector._RcclTrace__comm_created == {}
 
+    def test_late_comm_create_still_labels_its_collectives(self, rccl_collector, mock_time, flask_app):
+        """Dropping a late create must not cost the comm its rank count.
+
+        The create is too old to be counted, but every later collective on that
+        communicator is still labelled with the size it carried.
+        """
+        set_time(mock_time, 60)
+        metric_lines(rccl_collector, flush=False)
+
+        comms = [[0, "ncclCommInitRank", 555, 8, s_to_ns(1), s_to_ns(1) + 100]]
+        post(rccl_collector, flask_app, payload(comms=comms))
+        rccl_collector._RcclTrace__process()
+        assert rccl_collector._late_records == 1
+
+        rows = [coll(0, "ncclAllReduce", 1024, DT_F32, 555, s_to_ns(60))]
+        post(rccl_collector, flask_app, collectives_payload(rows))
+        set_time(mock_time, 61)
+
+        lines = [l for l in metric_lines(rccl_collector) if "comm_size=" in l]
+        assert lines
+        assert all('comm_size="8"' in l for l in lines)
+
     def test_teardown_ops_are_not_late(self, rccl_collector, mock_time, flask_app):
         """Filtering non-creation comm ops is expected, not loss."""
         comms = [[0, "ncclCommDestroy", 111, 8, s_to_ns(1), s_to_ns(2)]]
