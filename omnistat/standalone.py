@@ -132,7 +132,7 @@ def push_to_victoria_metrics(dataVM, endpoint_streams, victoria_url, timer=None)
             return
 
         if response.status_code != 200:
-            logging.warning(f"[WARN] Unexpected return code from VM endpoint: {endpoint} = {response.status_code}")
+            logging.warning(f"[WARN] Unexpected return code from VM endpoint: {vm_endpoint} = {response.status_code}")
 
     duration = time.perf_counter() - start_time
 
