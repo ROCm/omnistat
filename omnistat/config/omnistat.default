@@ -10,6 +10,7 @@ enable_network = True
 enable_vendor_counters = False
 enable_host_metrics = True
 enable_kernel_trace = False
+enable_rccl_trace = False
 enable_external = False
 
 ## Path to local ROCM install to access SMI library

@@ -35,8 +35,8 @@ In addition, an optional [External](#external) data collector is available to
 ingest additional site-specific metrics not included directly in Omnistat.
 
 Two of the collectors below, [Hardware Counters](#hardware-counters) and
-[Kernel Tracing](#kernel-tracing), require additional setup beyond a runtime
-configuration flag. That setup, along with their configuration options, is
+[Tracing](#tracing), require additional setup beyond a runtime configuration
+flag. That setup, along with their configuration options, is
 covered in [Advanced Profiling](./advanced-profiling.md).
 
 <hr style="border: 1px solid black;">
@@ -246,18 +246,24 @@ configuration details.
 
 <hr style="border: 1px solid black;">
 
-## Kernel Tracing
+## Tracing
 
-The kernel tracing data collector traces individual GPU kernel dispatches,
-recording kernel names, execution durations, and GPU IDs. It produces
-per-kernel time series metrics that enable detailed analysis of GPU workload
+Omnistat provides two GPU tracing streams from a single library: kernel
+dispatches, recording kernel names and execution durations, and RCCL
+communication, recording the collective calls an application makes and the
+communicators it creates.
+
+The library must be built as described under {ref}`Optional component(s)
+<user-optional-components>` and loaded into the application being monitored.
+Kernel tracing is on by default once it is loaded; RCCL tracing is opt-in, and
+each stream must also be enabled on the collector.
+See [Advanced Profiling](./advanced-profiling.md#tracing) for setup and
+configuration details.
+
+### Kernel Dispatches
+
+Per-kernel time series that enable detailed analysis of GPU workload
 composition over time.
-
-This collector requires building the kernel tracing library, as described under
-{ref}`Optional component(s) <user-optional-components>`, and loading it into the
-application being monitored, which is what intercepts the kernel dispatches. See [Advanced
-Profiling](./advanced-profiling.md#kernel-tracing) for setup and configuration
-details.
 
 **Collector**: `enable_kernel_trace`
 <br/>
@@ -270,7 +276,45 @@ details.
 
 | Node Metric | Description |
 | :--- | :--- |
-| `omnistat_kernel_dropped_dispatches` | Cumulative number of dispatches excluded from metrics collection because their timestamps fell outside the valid time range. This is an Omnistat bookkeeping metric and does not affect GPU execution. |
+| `omnistat_kernel_dropped_dispatches` | Cumulative number of dispatch records that could not be recorded because their time bin was outside the range the collector still accepts. A rising value usually means records are arriving later than the collector's hold window allows. This is an Omnistat bookkeeping metric and does not affect GPU execution. |
+
+### RCCL Communication
+
+Communication activity from [RCCL](https://github.com/ROCm/rccl), the collective
+communication library used by distributed workloads. Only the calls themselves
+are recorded, not the GPU execution time of the resulting kernels. Communicator
+teardown is not tracked.
+
+**Collector**: `enable_rccl_trace`
+
+| GPU Metric | Description |
+| :--- | :--- |
+| `omnistat_rccl_collective_count` | Cumulative number of RCCL communication calls. Labels: `collective`, `datatype`, `size_bucket`, `comm_size`. |
+| `omnistat_rccl_collective_total_bytes` | Cumulative logical message bytes (element count multiplied by datatype size) passed to RCCL collective calls. Labels: `collective`, `datatype`, `size_bucket`, `comm_size`. |
+| `omnistat_rccl_comm_created_count` | Cumulative number of communicators created, sliced by communicator size. Labels: `nranks`. |
+| `omnistat_rccl_comm_init_total_duration_ns` | Cumulative wall-clock time spent inside communicator creation calls (ns). Because creation synchronizes across ranks, this is dominated by waiting for the last rank to arrive, so it reflects rank startup skew more than RCCL setup cost. |
+
+| Node Metric | Description |
+| :--- | :--- |
+| `omnistat_rccl_late_records` | Cumulative number of RCCL records that could not be recorded because their time bin was outside the range the collector still accepts. A rising value usually means records are arriving later than the collector's hold window allows. The count is reported per node rather than per `card`. |
+
+Label values are:
+
+- `collective`: RCCL operation without the `nccl` prefix, one of `AllReduce`,
+  `AllGather`, `Broadcast`, `Reduce`, `ReduceScatter`, `Send`, or `Recv`. These
+  are the only communication calls intercepted, along with communicator
+  creation. Other entry points, including `ncclAllToAll` and `ncclAllToAllv`,
+  are not traced. Frameworks that implement all-to-all as groups of `ncclSend`
+  and `ncclRecv` are captured, but appear as independent `Send` and `Recv`
+  records.
+- `datatype`: element type of the message, such as `float32` or `bfloat16`.
+  Unrecognized RCCL datatypes appear as `dtypeN` for the raw enum value `N`, and
+  are counted as zero bytes in the smallest size bucket.
+- `size_bucket`: upper bound of the message size, from `4K` through `4G`, or
+  `inf` for anything larger.
+- `comm_size` and `nranks`: number of ranks in the communicator, or `unknown`
+  when it cannot be determined. `comm_size` labels collectives, `nranks` labels
+  communicator creation.
 
 <hr style="border: 1px solid black;">
 

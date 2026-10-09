@@ -2,7 +2,7 @@
 
 - [Performance Counter Sampling (Python Extension)](#performance-counter-sampling-python-extension)
 - [Counter Enablement Library](#counter-enablement-library)
-- [Kernel Tracing Library](#kernel-tracing-library)
+- [Tracing Library](#tracing-library)
 
 ---
 
@@ -125,20 +125,25 @@ nothing, so these messages are the only confirmation that it is active.
 
 ---
 
-## Kernel Tracing Library
+## Tracing Library
 
-A standalone C++ shared library (`libomnistat_trace.so`) that traces GPU
-kernel dispatches and streams the data to omnistat-standalone via HTTP.
+A standalone C++ shared library (`libomnistat_trace.so`) that streams two
+independent trace streams to omnistat-standalone via HTTP:
+
+- **Kernel dispatches** -- name, duration, and GPU of every kernel dispatch.
+- **RCCL communication** -- collective enumeration (operation, message size,
+  datatype) and communicator creation.
 
 ### Requirements
 
 - ROCm 6.4+ with ROCProfiler-SDK
-- C++20 compiler (GCC 13+ or Clang 16+)
+- HIP (used to resolve the GPU a communicator is bound to)
+- C++20 compiler with libstdc++ 11 or newer
 - CMake 3.15+
 
 CMake automatically fetches the header-only `cpp-httplib` library (used to send
-trace data over HTTP), and the `fmt` library if the compiler lacks
-`std::format`.
+trace data over HTTP), and the `fmt` library when libstdc++ is older than 13 and
+`std::format` is therefore unavailable.
 
 ### Building
 
@@ -153,31 +158,55 @@ This produces `build-trace/libomnistat_trace.so`.
 
 The library is loaded via rocprofiler-sdk's tool loading mechanism. Point the
 `ROCP_TOOL_LIBRARIES` environment variable at the built shared library, then
-run any application and kernel dispatches are traced automatically.
+run any application and both streams are traced automatically.
 
 ```bash
 export ROCP_TOOL_LIBRARIES=/path/to/libomnistat_trace.so
 ```
 
-Dispatch records are JSON-encoded and sent via HTTP POST to
-`localhost:<port>/kernel_trace` (default port 8001, configurable via
-`OMNISTAT_TRACE_ENDPOINT_PORT`). This requires Omnistat to be running with the
-kernel tracing collector enabled.
+Records are JSON-encoded and sent via HTTP POST to `127.0.0.1:<port>`, on
+`/kernel_trace` and `/rccl_trace` respectively (default port 8001, configurable
+via `OMNISTAT_TRACE_ENDPOINT_PORT`). This requires Omnistat to be running with
+the corresponding trace collectors enabled.
 
 ### Environment Variables
 
 | Variable | Default | Description |
 |---|---|---|
-| `OMNISTAT_TRACE_MAX_INTERVAL` | `13` (seconds) | Max time between periodic buffer flushes |
-| `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | rocprofiler-sdk buffer size for dispatch records |
-| `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001` | Port for the HTTP endpoint receiving kernel trace data |
-| `OMNISTAT_TRACE_LOG` | `0` | Set to `1` to print a trace summary to stdout on exit |
+| `OMNISTAT_KERNEL_TRACE` | `1` | Set to `0` to disable kernel dispatch tracing |
+| `OMNISTAT_RCCL_TRACE` | `0` | Set to `1` to enable RCCL communication tracing |
+| `OMNISTAT_TRACE_MAX_INTERVAL` | `10` (seconds) | Max time between periodic flushes (both streams) |
+| `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | Buffer size that triggers a flush (both streams) |
+| `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001` | Port for the HTTP endpoint receiving trace data |
+| `OMNISTAT_TRACE_LOG_LEVEL` | `warning` | `warning`, `info` or `debug`; see below |
+| `OMNISTAT_TRACE_LOG_OUTPUT` | `stderr` | `stderr`, `stdout`, or a path prefix |
+
+The two streams are independent, and each has to be enabled on the collector as
+well. RCCL tracing is off by default to match the collector, which registers
+`/rccl_trace` only when `enable_rccl_trace` is set; enabling it here alone posts
+to an endpoint that does not exist.
+
+### Logging
+
+Each level adds to the one before it:
+
+| Level | Reports |
+|---|---|
+| `warning` | problems that stop tracing, and delivery failures and callback exceptions reported once each |
+| `info` | the above, plus the exit summary for a stream that delivered successfully |
+| `debug` | the above, plus every occurrence of a repeating failure, not just the first |
+
+`OMNISTAT_TRACE_LOG_OUTPUT` selects where those messages go. `stderr` is the
+default; anything other than `stderr` or `stdout` is treated as a path
+*prefix*, with `.<hostname>.<pid>` appended so that the ranks sharing a node
+each write their own file rather than overwriting one another.
 
 ### Exit Summary
 
-When `OMNISTAT_TRACE_LOG=1` is set, the library prints a summary line on
-application exit:
+When the application exits, each trace stream writes a summary line. By default
+these only appear if data was lost; set `OMNISTAT_TRACE_LOG_LEVEL=info` to see
+them on every run.
 
 ```
-[hostname][12345][omnistat] Trace summary: 1234/1234 processed records (12/12 successful flushes)
+[hostname][12345][omnistat] kernel trace summary: 1234/1234 records, 12/12 flushes, POST avg 1.423ms max 8.31ms
 ```
