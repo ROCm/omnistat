@@ -99,7 +99,7 @@ class Monitor:
         collectors = self.config["omnistat.collectors"]
 
         # verify only one SMI collector is enabled
-        self.__enable_rocm_smi = collectors.getboolean("enable_rocm_smi", True)
+        self.__enable_rocm_smi = collectors.getboolean("enable_rocm_smi", False)
         self.__enable_amd_smi = collectors.getboolean("enable_amd_smi", True)
         self.__enable_events = collectors.getboolean("enable_events", False)
         if self.__enable_rocm_smi and self.__enable_amd_smi:
