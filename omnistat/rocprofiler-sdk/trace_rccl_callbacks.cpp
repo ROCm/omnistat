@@ -126,6 +126,10 @@ static int gpu_id_for_ordinal(const Tracer* tracer, int hip_ordinal) {
 
         std::vector<uint32_t> gpu_ids(num_devices > 0 ? num_devices : 0, 0);
         for (int device = 0; device < num_devices; ++device) {
+            // Start from the ordinal, so a device that cannot be matched below
+            // falls back to it rather than to 0, which is a real gpu id.
+            gpu_ids[device] = static_cast<uint32_t>(device);
+
             hipDeviceProp_t prop{};
             (void) hipGetDeviceProperties(&prop, device);
             auto match = tracer->gpu_id_by_pci.find(
