@@ -36,6 +36,7 @@ import os
 import platform
 import pwd
 import random
+import re
 import signal
 import sys
 import threading
@@ -131,7 +132,7 @@ def push_to_victoria_metrics(dataVM, endpoint_streams, victoria_url, timer=None)
             return
 
         if response.status_code != 200:
-            logging.warning(f"[WARN] Unexpected return code from VM endpoint: {endpoint} = {response.status_code}")
+            logging.warning(f"[WARN] Unexpected return code from VM endpoint: {vm_endpoint} = {response.status_code}")
 
     duration = time.perf_counter() - start_time
 
@@ -471,7 +472,7 @@ def terminate():
     wait_interval = max(1, interval / 2.0)
     max_wait_secs = 120
     elapsed = 0.0
-    while not dataDeliveredEvent.isSet():
+    while not dataDeliveredEvent.is_set():
         logging.debug("waiting for data delivery event...(%.2f secs)" % wait_interval)
         time.sleep(wait_interval)
         elapsed += wait_interval
@@ -535,10 +536,12 @@ def main():
     # Handle SIGTERM gracefully
     signal.signal(signal.SIGTERM, lambda signum, frame: terminateFlagEvent.set())
 
+    allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
+    allowed_ips = re.split(r",\s*", allowed_ips)
+
     # Enforce network restrictions
     @app.before_request
     def restrict_ips():
-        allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
         if "0.0.0.0" in allowed_ips:
             return
         elif request.remote_addr not in allowed_ips:
