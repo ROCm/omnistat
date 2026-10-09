@@ -65,6 +65,15 @@ if (BUILD_KERNEL_TRACE_LIB)
         URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.53.1.tar.gz
         DOWNLOAD_EXTRACT_TIMESTAMP TRUE
     )
+
+    # The tracer POSTs plain JSON to a numeric address, so it needs none of
+    # these, and they all default on.
+    set(HTTPLIB_USE_NON_BLOCKING_GETADDRINFO OFF CACHE BOOL "" FORCE)
+    set(HTTPLIB_USE_ZSTD_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+    set(HTTPLIB_USE_ZLIB_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+    set(HTTPLIB_USE_BROTLI_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+    set(HTTPLIB_USE_OPENSSL_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+
     FetchContent_MakeAvailable(httplib)
 
     add_library(omnistat_trace SHARED trace.cpp trace_kernel_callbacks.cpp
