@@ -6,8 +6,9 @@ collectors:
 
 * **[Hardware counters](#hardware-counters)** sample low-level GPU performance counters (e.g. cache
   traffic, cycles, memory requests, floating-point instructions) at the device level.
-* **[Kernel tracing](#kernel-tracing)** records every GPU kernel dispatch, with
-  its name and execution duration.
+* **[Tracing](#tracing)** records individual GPU work as the application issues
+  it: every kernel dispatch, with its name and execution duration, and every
+  RCCL collective call.
 
 Both collectors are disabled by default and require additional setup beyond a
 runtime configuration setting: a local build step and, in most cases, an
@@ -15,12 +16,12 @@ environment variable defined for the application being monitored rather than
 for Omnistat. The sections that follow outline this setup along with the
 available runtime configuration options. A complete list of the resulting
 metric names is provided in the [Hardware
-Counters](metrics.md#hardware-counters) and [Kernel
-Tracing](metrics.md#kernel-tracing) sections of the metrics reference.
+Counters](metrics.md#hardware-counters) and [Tracing](metrics.md#tracing)
+sections of the metrics reference.
 
-|                                    | Hardware counters                                 | Kernel tracing                        |
+|                                    | Hardware counters                                 | Tracing                               |
 | :--------------------------------- | :------------------------------------------------ | :------------------------------------ |
-| Collector option                   | `enable_rocprofiler`                               | `enable_kernel_trace`                 |
+| Collector option                   | `enable_rocprofiler`                               | `enable_kernel_trace`, `enable_rccl_trace` |
 | Availability and build step        | {ref}`System-mode <optional-components>` and {ref}`user-mode <user-optional-components>` | {ref}`User-mode <user-optional-components>` only |
 | Library loaded into the application | `libomnistat_count.so` (user-mode only)           | `libomnistat_trace.so` (always)       |
 
@@ -235,32 +236,43 @@ activity across the device rather than one hardware instance.
 
 <hr style="border: 1px solid black;">
 
-## Kernel tracing
+## Tracing
 
-`libomnistat_trace.so` is loaded into the application and intercepts every GPU
-kernel dispatch, recording the kernel name, the GPU it ran on, and its start
-and end timestamps. Kernel names are demangled, so they appear as readable C++
-signatures.
+`libomnistat_trace.so` is loaded into the application and records two
+independent streams:
 
-Dispatch records are buffered in the application and sent over HTTP to the
-Omnistat collector running on the same node, which aggregates them into
-per-kernel time series. The result is a breakdown of how GPU time was actually
-spent over the course of a run, rather than an aggregate utilization figure.
+- **Kernel dispatches**: every GPU kernel dispatch, with the kernel name, the
+  GPU it ran on, and its start and end timestamps. Names are demangled, so they
+  appear as readable C++ signatures.
+- **RCCL communication**: the collective calls an application makes and the
+  communicators it creates, enumerated on the host. This is what was asked of
+  RCCL, not how long the GPU spent on it.
+
+Records are buffered in the application and sent over HTTP to the Omnistat
+collector running on the same node, which aggregates them into time series. For
+kernel dispatches the result is a breakdown of how GPU time was actually spent
+over the course of a run, rather than an aggregate utilization figure.
+
+Kernel tracing is on by default once the library is loaded; RCCL tracing is
+opt-in. Each stream must also be enabled on the collector.
 
 ```{note}
-Kernel tracing is **user-mode only**. Setting `enable_kernel_trace = True` in a
-system-mode configuration has no effect and produces no warning.
+Tracing is **user-mode only**. Setting `enable_kernel_trace = True` or
+`enable_rccl_trace = True` in a system-mode configuration has no effect and
+produces no warning.
 ```
 
 ### Prerequisites
 
-1. Build the kernel tracing library (`libomnistat_trace.so`), as described under
+1. Build the tracing library (`libomnistat_trace.so`), as described under
    {ref}`Optional component(s) <user-optional-components>`. No Omnistat build
    step is needed; the library is standalone.
-2. Enable the collector in the Omnistat configuration file used for the job:
+2. Enable the collectors you want in the Omnistat configuration file used for
+   the job:
    ```ini
    [omnistat.collectors]
    enable_kernel_trace = True
+   enable_rccl_trace = True
    ```
 3. Load the library into the application by setting `ROCP_TOOL_LIBRARIES` in
    its environment:
@@ -273,58 +285,80 @@ not for Omnistat. As with the counter enablement library, a build is needed for
 each ROCm installation in use: a library built against a different
 ROCProfiler-SDK major version reports a version mismatch and traces nothing.
 
-Records are sent to `http://localhost:<port>/kernel_trace`, where `<port>`
-defaults to `8001` and must match the `port` option in the
-`[omnistat.collectors]` section of the Omnistat configuration. If a batch
-cannot be delivered, the library writes `Omnistat: failed to post kernel trace
-data` to standard error and those records are lost, which is what a missing or
-not-yet-started Omnistat collector looks like from the application side.
+Records are sent to `http://127.0.0.1:<port>`, where `<port>` defaults to
+`8001` and must match the `port` option in the `[omnistat.collectors]` section
+of the Omnistat configuration. A batch that cannot be delivered is reported
+once per stream and those records are lost:
 
-(kernel-trace-tuning)=
+```text
+[node01][12345][omnistat] POST to 127.0.0.1:8001/kernel_trace failed (no response); trace data lost
+```
+
+`no response` is what a missing or not-yet-started collector looks like from the
+application side. `endpoint not enabled` means the collector is running but was
+not configured for that stream.
+
+(tracing-tuning)=
 ### Tuning
 
 The tracing library is configured entirely through environment variables set
 alongside `ROCP_TOOL_LIBRARIES`. The defaults are appropriate for most runs.
 
-| Variable                       | Default            | Description                                                      |
-| :----------------------------- | :----------------- | :--------------------------------------------------------------- |
-| `OMNISTAT_TRACE_MAX_INTERVAL`  | `13` (seconds)     | Maximum time between periodic buffer flushes.                     |
-| `OMNISTAT_TRACE_BUFFER_SIZE`   | `262144` (bytes)   | Size of the ROCProfiler-SDK buffer holding dispatch records.      |
-| `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001`             | Port of the Omnistat endpoint receiving trace data.               |
-| `OMNISTAT_TRACE_LOG`           | `0`                | Set to `1` to print a trace summary on application exit.          |
+| Variable                       | Default            | Description                                                       |
+| :----------------------------- | :----------------- | :---------------------------------------------------------------- |
+| `OMNISTAT_KERNEL_TRACE`        | `1`                | Set to `0` to disable kernel dispatch tracing.                     |
+| `OMNISTAT_RCCL_TRACE`          | `0`                | Set to `1` to enable RCCL communication tracing.                   |
+| `OMNISTAT_TRACE_MAX_INTERVAL`  | `10` (seconds)     | Maximum time between periodic flushes, for both streams.           |
+| `OMNISTAT_TRACE_BUFFER_SIZE`   | `262144` (bytes)   | Buffer size that triggers a flush, for both streams.               |
+| `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001`             | Port of the Omnistat endpoint receiving trace data.                |
+| `OMNISTAT_TRACE_LOG_LEVEL`     | `warning`          | How much the library reports: `warning`, `info` or `debug`.        |
+| `OMNISTAT_TRACE_LOG_OUTPUT`    | `stderr`           | Where it reports: `stderr`, `stdout`, or a path prefix.            |
 
-Each of these expects a positive integer. A value of `0`, or one that does not
-begin with a digit, is reported as invalid on standard error and the default is
-used instead, so setting `OMNISTAT_TRACE_MAX_INTERVAL` or
-`OMNISTAT_TRACE_BUFFER_SIZE` to `0` does not disable flushing or buffering.
-Parsing is otherwise lenient: trailing characters are ignored, so a value like
-`13s` is accepted as `13` without comment.
+To collect RCCL traces without the cost of per-dispatch tracing, disable the
+kernel stream and enable RCCL explicitly:
 
-With `OMNISTAT_TRACE_LOG=1`, the library prints a summary line per process when
-the application exits, which is the quickest way to confirm that tracing worked
-end to end:
-
-```text
-[node01][12345][omnistat] Trace summary: 1234/1234 processed records (12/12 successful flushes)
+```shell
+export OMNISTAT_KERNEL_TRACE=0
+export OMNISTAT_RCCL_TRACE=1
 ```
 
-Omnistat retains roughly the last 15 seconds of time bins, and a record whose
-kernel end timestamp falls outside that window, either older than the oldest
-retained bin or later than the newest, is counted in
-`omnistat_kernel_dropped_dispatches` rather than recorded. The default flush
-interval of 13 seconds therefore leaves only a couple of seconds of margin, and
-values of `OMNISTAT_TRACE_MAX_INTERVAL` at or above 15 drop the oldest records
-of every batch. Timestamps that land in the future instead point at clock skew.
-Dropping a record affects the recorded time series only, not the running
-application.
+The three numeric variables expect a positive integer. A value of `0`, or one
+that does not begin with a digit, is reported as invalid and the default is used
+instead, so setting `OMNISTAT_TRACE_MAX_INTERVAL` or
+`OMNISTAT_TRACE_BUFFER_SIZE` to `0` does not disable flushing or buffering.
+Parsing is otherwise lenient: trailing characters are ignored, so a value like
+`10s` is accepted as `10` without comment.
+
+On exit the library writes one summary line per trace stream, which is the
+quickest way to confirm that tracing worked end to end. By default these only
+appear if data was lost; set `OMNISTAT_TRACE_LOG_LEVEL=info` to see them on
+every run:
+
+```text
+[node01][12345][omnistat] kernel trace summary: 1234/1234 records, 12/12 flushes, POST avg 1.423ms max 8.31ms
+```
+
+`OMNISTAT_TRACE_LOG_OUTPUT` redirects these messages away from the
+application's own output. A value other than `stderr` or `stdout` is treated as
+a path prefix, with `.<hostname>.<pid>` appended so that the ranks sharing a
+node each write their own file.
+
+Omnistat retains roughly the last 15 seconds of time bins. A record whose
+timestamp falls outside that window, either older than the oldest retained bin
+or later than the newest, is counted in `omnistat_kernel_dropped_dispatches` or
+`omnistat_rccl_late_records` rather than recorded. The default flush interval of
+10 seconds leaves five seconds of margin, and values of
+`OMNISTAT_TRACE_MAX_INTERVAL` at or above 15 drop the oldest records of every
+batch. Timestamps that land in the future instead point at clock skew. Dropping
+a record affects the recorded time series only, not the running application.
 
 <hr style="border: 1px solid black;">
 
 (combining-counters-and-tracing)=
 ## Combining counters and tracing
 
-Hardware counters and kernel tracing can be collected in the same user-mode
-run. Enable both collectors in the configuration file, and list both libraries
+Hardware counters and tracing can be collected in the same user-mode run.
+Enable both collectors in the configuration file, and list both libraries
 in `ROCP_TOOL_LIBRARIES`, separated by colons:
 
 ```shell
