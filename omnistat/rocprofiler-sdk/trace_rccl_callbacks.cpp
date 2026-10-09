@@ -33,17 +33,12 @@
 
 #include <hip/hip_runtime.h>
 
+#include "log.hpp"
+
 #include <dlfcn.h>
 #include <iterator>
 #include <string>
 #include <string_view>
-
-#if defined(HAS_STD_FORMAT)
-#include <format>
-namespace fmt = std;
-#else
-#include <fmt/core.h>
-#endif
 
 namespace omnistat {
 
@@ -124,6 +119,7 @@ static int gpu_id_for_ordinal(const Tracer* tracer, int hip_ordinal) {
         int num_devices = 0;
         (void) hipGetDeviceCount(&num_devices);
 
+        int untranslated = 0;
         std::vector<uint32_t> gpu_ids(num_devices > 0 ? num_devices : 0, 0);
         for (int device = 0; device < num_devices; ++device) {
             // Start from the ordinal, so a device that cannot be matched below
@@ -138,8 +134,17 @@ static int gpu_id_for_ordinal(const Tracer* tracer, int hip_ordinal) {
                         static_cast<uint32_t>(prop.pciDeviceID)));
             if (match != tracer->gpu_id_by_pci.end()) {
                 gpu_ids[device] = match->second;
+            } else {
+                ++untranslated;
             }
         }
+
+        if (log::level() >= log::Level::Info && untranslated > 0) {
+            log::message("could not translate {} of {} hip devices to a gpu id; "
+                         "rccl records carry the ordinal instead",
+                         untranslated, num_devices);
+        }
+
         return gpu_ids;
     }();
 
