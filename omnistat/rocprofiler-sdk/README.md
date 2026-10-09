@@ -192,8 +192,8 @@ Each level adds to the one before it:
 
 | Level | Reports |
 |---|---|
-| `warning` | problems that stop tracing, and delivery failures and callback exceptions reported once each |
-| `info` | the above, plus the exit summary for a stream that delivered successfully |
+| `warning` | problems that stop tracing, delivery failures once per stream, and the first callback exception |
+| `info` | the above, plus notes that are not failures, such as the exit summary for a stream that delivered successfully |
 | `debug` | the above, plus every occurrence of a repeating failure, not just the first |
 
 `OMNISTAT_TRACE_LOG_OUTPUT` selects where those messages go. `stderr` is the

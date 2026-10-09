@@ -323,16 +323,16 @@ export OMNISTAT_RCCL_TRACE=1
 ```
 
 The three numeric variables expect a positive integer. A value of `0`, or one
-that does not begin with a digit, is reported as invalid and the default is used
-instead, so setting `OMNISTAT_TRACE_MAX_INTERVAL` or
-`OMNISTAT_TRACE_BUFFER_SIZE` to `0` does not disable flushing or buffering.
-Parsing is otherwise lenient: trailing characters are ignored, so a value like
-`10s` is accepted as `10` without comment.
+that is not a number, is reported as invalid and the default is used instead, so
+setting `OMNISTAT_TRACE_MAX_INTERVAL` or `OMNISTAT_TRACE_BUFFER_SIZE` to `0`
+does not disable flushing or buffering. Parsing is otherwise lenient: trailing
+characters are ignored, so a value like `10s` is accepted as `10` without
+comment.
 
-On exit the library writes one summary line per trace stream, which is the
-quickest way to confirm that tracing worked end to end. By default these only
-appear if data was lost; set `OMNISTAT_TRACE_LOG_LEVEL=info` to see them on
-every run:
+On exit the library writes a summary line for each trace stream that sent data,
+which is the quickest way to confirm that tracing worked end to end. By default
+these only appear if data was lost; set `OMNISTAT_TRACE_LOG_LEVEL=info` to see
+them on every run:
 
 ```text
 [node01][12345][omnistat] kernel trace summary: 1234/1234 records, 12/12 flushes, POST avg 1.423ms max 8.31ms
@@ -346,11 +346,9 @@ node each write their own file.
 Omnistat retains roughly the last 15 seconds of time bins. A record whose
 timestamp falls outside that window, either older than the oldest retained bin
 or later than the newest, is counted in `omnistat_kernel_dropped_dispatches` or
-`omnistat_rccl_late_records` rather than recorded. The default flush interval of
-10 seconds leaves five seconds of margin, and values of
-`OMNISTAT_TRACE_MAX_INTERVAL` at or above 15 drop the oldest records of every
-batch. Timestamps that land in the future instead point at clock skew. Dropping
-a record affects the recorded time series only, not the running application.
+`omnistat_rccl_late_records` rather than recorded. Timestamps that land in the
+future instead point at clock skew. Dropping a record affects the recorded time
+series only, not the running application.
 
 <hr style="border: 1px solid black;">
 

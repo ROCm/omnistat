@@ -37,8 +37,8 @@ namespace fmt = std;
 namespace omnistat::log {
 
 // How much the library reports. Each level adds to the one before it: warning
-// reports failures once each, info adds the exit summary even when nothing
-// failed, debug adds every repeat of a failure.
+// reports failures without repeating them, info adds notes that are not
+// failures, such as the exit summary on a clean run, debug adds every repeat.
 enum class Level { Warning = 0, Info, Debug };
 
 // Reads the level and the destination from the environment, and builds the
