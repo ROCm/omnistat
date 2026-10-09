@@ -35,8 +35,8 @@ In addition, an optional [External](#external) data collector is available to
 ingest additional site-specific metrics not included directly in Omnistat.
 
 Two of the collectors below, [Hardware Counters](#hardware-counters) and
-[Kernel Tracing](#kernel-tracing), require additional setup beyond a runtime
-configuration flag. That setup, along with their configuration options, is
+[Tracing](#tracing), require additional setup beyond a runtime configuration
+flag. That setup, along with their configuration options, is
 covered in [Advanced Profiling](./advanced-profiling.md).
 
 <hr style="border: 1px solid black;">
@@ -253,35 +253,12 @@ dispatches, recording kernel names and execution durations, and RCCL
 communication, recording the collective calls an application makes and the
 communicators it creates.
 
-This collector requires building the kernel tracing library, as described under
-{ref}`Optional component(s) <user-optional-components>`, and loading it into the
-application being monitored, which is what intercepts the kernel dispatches. See [Advanced
-Profiling](./advanced-profiling.md#kernel-tracing) for setup and configuration
-details.
-
-The tracing library sends data to the Omnistat exporter, which must be running
-on the same node as the traced application.
-
-Loading the library activates kernel tracing; RCCL tracing is opt-in. The two
-streams are controlled independently, and each also has to be enabled on the
-collector:
-
-- `OMNISTAT_KERNEL_TRACE`: enabled by default. Set to `0` to disable kernel
-  dispatch tracing.
-- `OMNISTAT_RCCL_TRACE`: disabled by default. Set to `1` to enable RCCL
-  tracing, alongside `enable_rccl_trace` on the collector.
-
-Diagnostics are controlled separately by `OMNISTAT_TRACE_LOG_LEVEL` (`warning`,
-`info`, `debug`) and `OMNISTAT_TRACE_LOG_OUTPUT` (`stderr`,
-`stdout`, or a path prefix).
-
-To collect RCCL traces without the cost of per-dispatch tracing, disable kernel
-tracing and enable RCCL explicitly:
-
-```shell
-export OMNISTAT_KERNEL_TRACE=0
-export OMNISTAT_RCCL_TRACE=1
-```
+The library must be built as described under {ref}`Optional component(s)
+<user-optional-components>` and loaded into the application being monitored.
+Kernel tracing is on by default once it is loaded; RCCL tracing is opt-in, and
+each stream must also be enabled on the collector.
+See [Advanced Profiling](./advanced-profiling.md#tracing) for setup and
+configuration details.
 
 ### Kernel Dispatches
 
