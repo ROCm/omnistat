@@ -91,7 +91,7 @@ jobs:
           export ROCP_TOOL_LIBRARIES="$GITHUB_WORKSPACE/build/libomnistat_trace.so:$GITHUB_WORKSPACE/build/libomnistat_count.so:"
           source omnistat_venv/bin/activate
           su - ubuntu -c "sleep 300 &"
-          pytest -s -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py
+          pytest -s -v --require-rocmsmi --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py
 
 ##       - name: Test Report
 ##         uses: dorny/test-reporter@v2
