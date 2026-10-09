@@ -200,12 +200,12 @@ class RcclTrace(BinnedTraceCollector):
         for gpu_id, op, comm, nranks, h_start, h_end in comms:
             if op not in COMM_CREATE_OPS:
                 continue
+            self.__comm_nranks[comm] = nranks
             end_bin = self._bin_for(h_end)
             if not self._in_window(end_bin, comm_first, comm_last):
                 self._late_records += 1
                 continue
             self.__comm_init_ns[gpu_id] += h_end - h_start
-            self.__comm_nranks[comm] = nranks
             self.__comm_created[gpu_id][self._intern(nranks_label(nranks))] += 1
             self.__snapshot_comm(gpu_id, end_bin)
 
