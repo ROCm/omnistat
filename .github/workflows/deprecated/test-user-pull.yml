@@ -18,7 +18,7 @@ jobs:
         run: sed -i "/devices:/,+2 s/^/#/" test/docker/slurm/compose.yaml
       - name: Disable SMI collector (won't work in GitHub)
         run: >
-          sed -i "s/enable_rocm_smi = True/enable_rocm_smi = False/" \
+          sed -i "s/enable_amd_smi = True/enable_amd_smi = False/" \
             test/docker/slurm/omnistat-user.config
       - name: Start containerized environment
         env:
