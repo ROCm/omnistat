@@ -46,5 +46,8 @@ gpu_type, gpu_arch = get_gpu_asic_info() if config.rocm_host else ("", "")
 
 # Consumer GPUs (RDNA) lack RAS/ECC counters, energy accumulators, and
 # hardware counters. Matching on "Radeon" rather than "Instinct" so that an
-# unrecognized datacenter GPU is tested instead of silently skipped.
-consumer_gpu = "Radeon" in gpu_type
+# unrecognized datacenter GPU is tested instead of silently skipped. MI450
+# reports a market name of "AMD Radeon Graphics", so exclude it by graphics
+# version.
+NON_CONSUMER_ARCHS = ("gfx1250",)
+consumer_gpu = "Radeon" in gpu_type and gpu_arch not in NON_CONSUMER_ARCHS
