@@ -23,7 +23,7 @@ hardware counters from AMD GPUs directly in Python applications.
 ### Installation
 
 For standard installations of the extension as part of Omnistat, refer to the
-documentation to [build the ROCprofiler extensions](https://rocm.github.io/omnistat/installation/extensions.html#collector-extension).
+documentation to [build the ROCprofiler extensions](https://rocm.github.io/omnistat/user-mode/user-install.html#optional-component-s).
 
 For development and custom builds, the extension can be installed with CMake:
 ```bash
