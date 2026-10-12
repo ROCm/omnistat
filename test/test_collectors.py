@@ -175,13 +175,12 @@ COLLECTOR_CONFIGS = [
     },
     {
         "collectors": ["rocm_smi", "ras_ecc"],
-        # RAS/ECC not supported on consumer GPUs
-        "metrics": [] if consumer_gpu else supported(RAS_METRICS),
+        "metrics": supported(RAS_METRICS) if hardware.ras_available else [],
         "marks": [pytest.mark.rocmsmi],
     },
     {
         "collectors": ["amd_smi", "ras_ecc"],
-        "metrics": [] if consumer_gpu else supported(RAS_METRICS + RAS_DEFERRED_METRICS),
+        "metrics": supported(RAS_METRICS + RAS_DEFERRED_METRICS) if hardware.ras_available else [],
     },
     {
         "collectors": ["rocm_smi", "cu_occupancy"],
