@@ -54,7 +54,7 @@ SMI_METRICS = [
     {"name":"rocm_average_socket_power_watts",              "validate":">=10",               "labels":["card"],         "hardware":["Instinct"]},
     {"name":"rocm_average_socket_power_watts",              "validate":">0",                 "labels":["card"],         "hardware":["Radeon"]},
     {"name":"rocm_sclk_clock_mhz",                          "validate":">=90" ,              "labels":["card"],         "hardware":["Instinct"]},
-    {"name":"rocm_mclk_clock_mhz",                          "validate":">=90",               "labels":["card"],         "hardware":["MI2","MI3"]},
+    {"name":"rocm_mclk_clock_mhz",                          "validate":">=90",               "labels":["card"],         "hardware":["Instinct"], "skip_hardware":["MI4"]},
     {"name":"rocm_mclk_clock_mhz",                          "validate":">=0",                "labels":["card"],         "hardware":["Radeon"]},
     {"name":"rocm_vram_total_bytes",                        "validate":">1073741824",        "labels":["card"]},
     {"name":"rocm_vram_used_percentage",                    "validate":">=0",                "labels":["card"]},
@@ -77,26 +77,26 @@ POWER_CAP_METRICS = [
 ]
 
 RAS_METRICS = [
-    {"name": "rocm_ras_umc_correctable_count",              "validate": ">=0",               "labels": ["card"],        "skip":["borg","frontier","tuolumne"]},
-    {"name": "rocm_ras_sdma_correctable_count",             "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_gfx_correctable_count",              "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_mmhub_correctable_count",            "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_umc_correctable_count",              "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"], "skip_host":["borg","frontier","tuolumne"]},
+    {"name": "rocm_ras_sdma_correctable_count",             "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_gfx_correctable_count",              "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_mmhub_correctable_count",            "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
     {"name": "rocm_ras_pcie_bif_correctable_count",         "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
     {"name": "rocm_ras_hdp_correctable_count",              "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
-    {"name": "rocm_ras_umc_uncorrectable_count",            "validate": ">=0",               "labels": ["card"],        "skip":["borg","frontier","tuolumne"]},
-    {"name": "rocm_ras_sdma_uncorrectable_count",           "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_gfx_uncorrectable_count",            "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_mmhub_uncorrectable_count",          "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_umc_uncorrectable_count",            "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"], "skip_host":["borg","frontier","tuolumne"]},
+    {"name": "rocm_ras_sdma_uncorrectable_count",           "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_gfx_uncorrectable_count",            "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_mmhub_uncorrectable_count",          "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
     {"name": "rocm_ras_pcie_bif_uncorrectable_count",       "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
     {"name": "rocm_ras_hdp_uncorrectable_count",            "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
 ]
 
 # Deferred counts are only reported by amd_smi.
 RAS_DEFERRED_METRICS = [
-    {"name": "rocm_ras_umc_deferred_count",                 "validate": ">=0",               "labels": ["card"],        "skip":["borg","frontier","tuolumne"]},
-    {"name": "rocm_ras_sdma_deferred_count",                "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_gfx_deferred_count",                 "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_mmhub_deferred_count",               "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_umc_deferred_count",                 "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"], "skip_host":["borg","frontier","tuolumne"]},
+    {"name": "rocm_ras_sdma_deferred_count",                "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_gfx_deferred_count",                 "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_mmhub_deferred_count",               "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
     {"name": "rocm_ras_pcie_bif_deferred_count",            "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
     {"name": "rocm_ras_hdp_deferred_count",                 "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
 ]
@@ -154,12 +154,14 @@ print(f"test execution hostname: {full_hostname}\n")
 
 
 def supported(metrics):
-    """Filter metrics by GPU model allowlist and hostname skip list."""
+    """Filter metrics by GPU model allowlist, GPU model skip list, and
+    hostname skip list."""
     return [
         x
         for x in metrics
         if ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))
-        and ("skip" not in x or not any(pattern in full_hostname for pattern in x["skip"]))
+        and ("skip_host" not in x or not any(pattern in full_hostname for pattern in x["skip_host"]))
+        and ("skip_hardware" not in x or not any(hw in gpu_type for hw in x["skip_hardware"]))
     ]
 
 
@@ -175,12 +177,13 @@ COLLECTOR_CONFIGS = [
     },
     {
         "collectors": ["rocm_smi", "ras_ecc"],
-        "metrics": supported(RAS_METRICS) if hardware.ras_available else [],
+        # RAS/ECC not supported on consumer GPUs
+        "metrics": [] if consumer_gpu else supported(RAS_METRICS),
         "marks": [pytest.mark.rocmsmi],
     },
     {
         "collectors": ["amd_smi", "ras_ecc"],
-        "metrics": supported(RAS_METRICS + RAS_DEFERRED_METRICS) if hardware.ras_available else [],
+        "metrics": [] if consumer_gpu else supported(RAS_METRICS + RAS_DEFERRED_METRICS),
     },
     {
         "collectors": ["rocm_smi", "cu_occupancy"],
