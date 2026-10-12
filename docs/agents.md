@@ -53,8 +53,8 @@ analysis CLI for agents.
 Before invoking a skill, ensure the following are in place:
 
 1. **A Python environment with omnistat installed**, providing the
-   `omnistat-inspect` command. See the [installation](installation/index.md)
-   guide.
+   `omnistat-inspect` command. See the [user-mode
+   installation](user-mode/user-install.md) guide.
 2. **A data source**, either a running VictoriaMetrics instance with the
    Omnistat database loaded (the **open-database** skill automates this), or
    CSV exports produced by `omnistat-query --export`.
