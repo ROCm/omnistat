@@ -110,6 +110,19 @@ library that intercepts GPU kernel dispatches at runtime:
 $ cmake -S omnistat/rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
 $ cmake --build build-trace/
 ```
+
+```{note}
+The kernel tracing build automatically fetches the header-only
+[cpp-httplib](https://github.com/yhirose/cpp-httplib) library (used to send trace data
+over HTTP) via CMake's `FetchContent`, along with the
+[fmt](https://github.com/fmtlib/fmt) library if the compiler does not support
+`std::format`. For offline builds, download the source trees ahead of time and point
+CMake at them:
+
+    cmake -S omnistat/rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON \
+      -DFETCHCONTENT_SOURCE_DIR_HTTPLIB=/path/to/cpp-httplib \
+      -DFETCHCONTENT_SOURCE_DIR_FMT=/path/to/fmt
+```
 :::
 ::::
 
