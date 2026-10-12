@@ -5,7 +5,7 @@
    adjacent tables line up on the same boundary instead of each auto-sizing to
    its own longest metric name. 24rem fits the longest name on the page
    (omnistat_host_cpu_aggregate_core_utilization) without wrapping. Kept inline
-   here rather than in static/custom.css so the rule stays scoped to this page. */
+   here rather than in static/omnistat.css so the rule stays scoped to this page. */
 #metrics-available table.table {
     table-layout: fixed;
     width: 100%;
