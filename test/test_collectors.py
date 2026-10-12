@@ -54,7 +54,7 @@ SMI_METRICS = [
     {"name":"rocm_average_socket_power_watts",              "validate":">=10",               "labels":["card"],         "hardware":["Instinct"]},
     {"name":"rocm_average_socket_power_watts",              "validate":">0",                 "labels":["card"],         "hardware":["Radeon"]},
     {"name":"rocm_sclk_clock_mhz",                          "validate":">=90" ,              "labels":["card"],         "hardware":["Instinct"]},
-    {"name":"rocm_mclk_clock_mhz",                          "validate":">=90",               "labels":["card"],         "hardware":["Instinct"]},
+    {"name":"rocm_mclk_clock_mhz",                          "validate":">=90",               "labels":["card"],         "hardware":["MI2","MI3"]},
     {"name":"rocm_mclk_clock_mhz",                          "validate":">=0",                "labels":["card"],         "hardware":["Radeon"]},
     {"name":"rocm_vram_total_bytes",                        "validate":">1073741824",        "labels":["card"]},
     {"name":"rocm_vram_used_percentage",                    "validate":">=0",                "labels":["card"]},
