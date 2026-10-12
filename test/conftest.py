@@ -3,6 +3,8 @@ import shutil
 
 import pytest
 
+from . import config
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -30,7 +32,7 @@ def _rocm_smi_available():
     """Check for the ROCm SMI runtime backing the rocm_smi collector."""
     from pathlib import Path
 
-    rocm_path = Path(os.environ.get("ROCM_PATH", "/opt/rocm"))
+    rocm_path = Path(config.rocm_path)
     return (rocm_path / "lib" / "librocm_smi64.so").is_file() and (
         rocm_path / "libexec" / "rocm_smi" / "rsmiBindings.py"
     ).is_file()
