@@ -1,0 +1,4 @@
+# Both images run as root by design; a USER line would break them.
+#   docker/Dockerfile            - entrypoint drops privileges via su-exec
+#   test/docker/slurm/Dockerfile - runs slurmctld, slurmd and sshd
+AVD-DS-0002
