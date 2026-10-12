@@ -128,7 +128,7 @@ latex_show_urls = "footnote"
 # rendering theme changes.  Everything downstream that differs per theme keys
 # off this value: html_theme, html_theme_options, and templates_path.
 # ---------------------------------------------------------------------------
-docs_theme = "rtd"
+docs_theme = "rocm"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -198,7 +198,10 @@ else:
         "show_navbar_depth": 2,
     }
 
-html_css_files = ["custom.css"]
+# Named omnistat.css rather than custom.css on purpose: html_static_path is
+# copied over the theme's own static files, and rocm_docs_theme ships a
+# static/custom.css of its own, which a same-named file here silently replaces.
+html_css_files = ["omnistat.css"]
 
 
 # ---------------------------------------------------------------------------
