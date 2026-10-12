@@ -53,8 +53,3 @@ gpu_type = ARCH_MARKET_NAMES.get(gpu_arch, gpu_type)
 # hardware counters. Matching on "Radeon" rather than "Instinct" so that an
 # unrecognized datacenter GPU is tested instead of silently skipped.
 consumer_gpu = "Radeon" in gpu_type
-
-# RAS/ECC error counts are unavailable on consumer GPUs, and on datacenter
-# architectures where amd-smi reports an error state but supports no counts.
-RAS_UNSUPPORTED_ARCHS = ("gfx1250",)
-ras_available = config.rocm_host and not consumer_gpu and gpu_arch not in RAS_UNSUPPORTED_ARCHS
