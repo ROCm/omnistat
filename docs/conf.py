@@ -220,7 +220,7 @@ html_css_files = ["omnistat.css"]
 # the `only` or `ifconfig` directives, because sphinx-design validates the
 # children of a `tab-set` at parse time and errors out on any other node type.
 # ---------------------------------------------------------------------------
-release_wheels_public = False
+release_wheels_public = True
 
 _CONDITIONAL_BLOCK = re.compile(
     r"^[ \t]*<!--[ \t]*if-(no)?release:start[ \t]*-->[ \t]*\n"
