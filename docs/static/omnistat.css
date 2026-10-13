@@ -89,6 +89,31 @@ html[data-theme="dark"] .terminal-output .t-pct  { color: #39c5bb; }
     text-align: left;
 }
 
+/* Flatten the two-tone top banner to a single black band. The theme already
+   paints the main navbar #000 but gives the second-level nav (GitHub/Support)
+   a lighter #1a1a1b; same selector as the theme's, and this file is loaded
+   after rocm_header.css, so no !important is needed. */
+header.common-header .navbar.second-level-nav {
+    background-color: #000;
+}
+
+/* Drop the upper banner row (AMD logo, divider, site title) and keep only the
+   GitHub/Support strip. Nothing is lost: the sidebar already heads itself with
+   "Omnistat <version>". */
+header.common-header .navbar:not(.second-level-nav) {
+    display: none;
+}
+
+/* The hidden row also carried the hamburger that toggles the GitHub/Support
+   collapse below 1200px, where the theme sets the second-level nav to
+   display:contents. Without a toggle those links would be unreachable, so
+   force the collapse open at those widths. */
+@media (max-width: 1199.98px) {
+    header.common-header #navbarSupportedContent.collapse {
+        display: block;
+    }
+}
+
 /* Space around the header divider between the AMD logo and the site title.
    The theme markup uses mx-40/my-25 utility classes that are undefined in
    this rocm-docs-core version, so the divider renders flush without them. */

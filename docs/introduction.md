@@ -1,7 +1,5 @@
 # Overview
 
-Welcome to the documentation area for the **Omnistat** project.  Use the navigation links on the left-hand side of this page to access more information on installation and capabilities.
-
 ## What is Omnistat?
 
 Omnistat provides a set of utilities to aid cluster administrators or individual application developers to aggregate scale-out system metrics via low-overhead sampling across all hosts in a cluster or, alternatively on a subset of hosts associated with a specific user job. At its core, Omnistat was designed to aid collection of key telemetry from AMD Instinct(tm) accelerators (on a per-GPU basis). Relevant target metrics include:
