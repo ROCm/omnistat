@@ -30,4 +30,5 @@ subtrees:
   - caption: Site-Specific Instructions
     entries:
       - file: site.frontier
+      - file: site.lux
       - file: site.tuo
