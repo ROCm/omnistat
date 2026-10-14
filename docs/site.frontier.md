@@ -1,7 +1,8 @@
-# ORNL
+# ORNL Frontier
 
 This section provides instructions for running user-mode Omnistat on ORNL's
-Frontier supercomputer with pre-installed versions from AMD Research.
+Frontier supercomputer with pre-installed versions from AMD Research. For
+ORNL's Lux, see the [Lux instructions](site.lux.md) instead.
 
 **Prerequisites**:
 - User account on Frontier
