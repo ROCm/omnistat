@@ -59,6 +59,7 @@ constexpr uint64_t DEFAULT_TRACE_ENDPOINT_PORT = 8001;
 // HTTP client timeouts. Set explicitly because httplib defaults both the
 // connection and the client read timeout to 300 seconds.
 constexpr time_t HTTP_TIMEOUT_SECONDS = 2;
+constexpr time_t HTTP_PROBE_TIMEOUT_MS = 500;
 
 // The collector is always local to the traced process.
 constexpr const char* TRACE_ENDPOINT_HOST = "127.0.0.1";
@@ -145,6 +146,10 @@ class Tracer {
     // stamped.
     bool post_batch(httplib::Client& client, const std::string& path, std::string_view data,
                     size_t num_records, Stats& stats);
+
+    // Endpoint is absent when the collector answers 404. No response counts as
+    // present, it may still be starting.
+    bool endpoint_absent(httplib::Client& client, const std::string& path, std::string_view body);
 
     void record_kernel_flush_time();
 

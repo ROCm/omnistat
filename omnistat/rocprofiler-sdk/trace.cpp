@@ -129,6 +129,24 @@ int Tracer::initialize() {
         return -1;
     }
 
+    if (kernel_enabled_ && endpoint_absent(*kernel_client_, kernel_path_, "[]")) {
+        kernel_enabled_ = false;
+        if (log::level() >= log::Level::Info) {
+            log::message("enable_kernel_trace is not set on the collector; kernel tracing disabled");
+        }
+    }
+
+    if (rccl_enabled_ && endpoint_absent(*rccl_client_, rccl_path_, "{}")) {
+        rccl_enabled_ = false;
+        if (log::level() >= log::Level::Info) {
+            log::message("enable_rccl_trace is not set on the collector; rccl tracing disabled");
+        }
+    }
+
+    if (!kernel_enabled_ && !rccl_enabled_) {
+        return 0;
+    }
+
     ROCPROFILER_CALL(rocprofiler_create_context(&context_), "create context");
     context_created_ = true;
 
@@ -292,6 +310,23 @@ bool Tracer::post_batch(httplib::Client& client, const std::string& path, std::s
         report_delivery_failure(path, stats, res);
     }
     return success;
+}
+
+bool Tracer::endpoint_absent(httplib::Client& client, const std::string& path,
+                             std::string_view body) {
+    client.set_connection_timeout(0, HTTP_PROBE_TIMEOUT_MS * 1000);
+    client.set_read_timeout(0, HTTP_PROBE_TIMEOUT_MS * 1000);
+
+    bool absent = false;
+    try {
+        auto res = client.Post(path, body.data(), body.size(), "application/json");
+        absent = res && res->status == 404;
+    } catch (...) {
+    }
+
+    client.set_connection_timeout(HTTP_TIMEOUT_SECONDS);
+    client.set_read_timeout(HTTP_TIMEOUT_SECONDS);
+    return absent;
 }
 
 void Tracer::flush_loop() {
