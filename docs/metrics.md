@@ -255,9 +255,8 @@ communicators it creates.
 
 The library must be built as described under {ref}`Optional component(s)
 <user-optional-components>` and loaded into the application being monitored.
-Kernel tracing is on by default once it is loaded; RCCL tracing is opt-in, and
-each stream must also be enabled on the collector.
-See [Advanced Profiling](./advanced-profiling.md#tracing) for setup and
+Each stream is traced only when its collector is enabled. See
+[Advanced Profiling](./advanced-profiling.md#tracing) for setup and
 configuration details.
 
 ### Kernel Dispatches
