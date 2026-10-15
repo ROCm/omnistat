@@ -248,13 +248,11 @@ independent streams:
   communicators it creates, enumerated on the host. This is what was asked of
   RCCL, not how long the GPU spent on it.
 
-Records are buffered in the application and sent over HTTP to the Omnistat
-collector running on the same node, which aggregates them into time series. For
-kernel dispatches the result is a breakdown of how GPU time was actually spent
-over the course of a run, rather than an aggregate utilization figure.
-
-Kernel tracing is on by default once the library is loaded; RCCL tracing is
-opt-in. Each stream must also be enabled on the collector.
+Each stream is traced only when its collector is enabled. Records are buffered
+in the application and sent over HTTP to the Omnistat collector running on the
+same node, which aggregates them into time series. For kernel dispatches the
+result is a breakdown of how GPU time was actually spent over the course of a
+run, rather than an aggregate utilization figure.
 
 ```{note}
 Tracing is **user-mode only**. Setting `enable_kernel_trace = True` or
@@ -306,21 +304,13 @@ alongside `ROCP_TOOL_LIBRARIES`. The defaults are appropriate for most runs.
 
 | Variable                       | Default            | Description                                                       |
 | :----------------------------- | :----------------- | :---------------------------------------------------------------- |
-| `OMNISTAT_KERNEL_TRACE`        | `1`                | Set to `0` to disable kernel dispatch tracing.                     |
-| `OMNISTAT_RCCL_TRACE`          | `0`                | Set to `1` to enable RCCL communication tracing.                   |
 | `OMNISTAT_TRACE_MAX_INTERVAL`  | `10` (seconds)     | Maximum time between periodic flushes, for both streams.           |
 | `OMNISTAT_TRACE_BUFFER_SIZE`   | `262144` (bytes)   | Buffer size that triggers a flush, for both streams.               |
 | `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001`             | Port of the Omnistat endpoint receiving trace data.                |
 | `OMNISTAT_TRACE_LOG_LEVEL`     | `warning`          | How much the library reports: `warning`, `info` or `debug`.        |
 | `OMNISTAT_TRACE_LOG_OUTPUT`    | `stderr`           | Where it reports: `stderr`, `stdout`, or a path prefix.            |
-
-To collect RCCL traces without the cost of per-dispatch tracing, disable the
-kernel stream and enable RCCL explicitly:
-
-```shell
-export OMNISTAT_KERNEL_TRACE=0
-export OMNISTAT_RCCL_TRACE=1
-```
+| `OMNISTAT_TRACE_DISABLE_KERNEL`| `0`                | Set to `1` to force kernel tracing off.                            |
+| `OMNISTAT_TRACE_DISABLE_RCCL`  | `0`                | Set to `1` to force RCCL tracing off.                              |
 
 The three numeric variables expect a positive integer. A value of `0`, or one
 that is not a number, is reported as invalid and the default is used instead, so

@@ -173,18 +173,17 @@ the corresponding trace collectors enabled.
 
 | Variable | Default | Description |
 |---|---|---|
-| `OMNISTAT_KERNEL_TRACE` | `1` | Set to `0` to disable kernel dispatch tracing |
-| `OMNISTAT_RCCL_TRACE` | `0` | Set to `1` to enable RCCL communication tracing |
 | `OMNISTAT_TRACE_MAX_INTERVAL` | `10` (seconds) | Max time between periodic flushes (both streams) |
 | `OMNISTAT_TRACE_BUFFER_SIZE` | `262144` (bytes) | Buffer size that triggers a flush (both streams) |
 | `OMNISTAT_TRACE_ENDPOINT_PORT` | `8001` | Port for the HTTP endpoint receiving trace data |
 | `OMNISTAT_TRACE_LOG_LEVEL` | `warning` | `warning`, `info` or `debug`; see below |
 | `OMNISTAT_TRACE_LOG_OUTPUT` | `stderr` | `stderr`, `stdout`, or a path prefix |
+| `OMNISTAT_TRACE_DISABLE_KERNEL` | `0` | Set to `1` to force kernel tracing off |
+| `OMNISTAT_TRACE_DISABLE_RCCL` | `0` | Set to `1` to force RCCL tracing off |
 
-The two streams are independent, and each has to be enabled on the collector as
-well. RCCL tracing is off by default to match the collector, which registers
-`/rccl_trace` only when `enable_rccl_trace` is set; enabling it here alone posts
-to an endpoint that does not exist.
+Each stream is traced only when its collector is enabled: the library asks
+before it starts, and a stream with no endpoint is never traced. A collector
+that is not running cannot answer, so tracing goes ahead.
 
 ### Logging
 

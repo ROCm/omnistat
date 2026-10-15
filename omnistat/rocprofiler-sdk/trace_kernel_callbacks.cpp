@@ -23,7 +23,7 @@
 // ---------------------------------------------------------------------------
 
 // Kernel-dispatch tracing callbacks. Registered by Tracer::initialize() when
-// OMNISTAT_KERNEL_TRACE is enabled: code-object loads populate the kernel-name
+// kernel tracing is enabled: code-object loads populate the kernel-name
 // map, and the LOSSLESS dispatch buffer is drained here and POSTed.
 
 #include "trace.hpp"

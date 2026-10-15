@@ -93,8 +93,8 @@ Tracer::Tracer()
           parse_env_uint("OMNISTAT_TRACE_MAX_INTERVAL", DEFAULT_FLUSH_INTERVAL_SECONDS))),
       buffer_size_bytes_(parse_env_uint("OMNISTAT_TRACE_BUFFER_SIZE", DEFAULT_BUFFER_SIZE_BYTES)),
       endpoint_port_(parse_env_uint("OMNISTAT_TRACE_ENDPOINT_PORT", DEFAULT_TRACE_ENDPOINT_PORT)) {
-    kernel_enabled_ = parse_env_bool("OMNISTAT_KERNEL_TRACE", true);
-    rccl_enabled_ = parse_env_bool("OMNISTAT_RCCL_TRACE", false);
+    kernel_enabled_ = !parse_env_bool("OMNISTAT_TRACE_DISABLE_KERNEL", false);
+    rccl_enabled_ = !parse_env_bool("OMNISTAT_TRACE_DISABLE_RCCL", false);
 }
 
 int Tracer::initialize() {

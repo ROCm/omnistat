@@ -23,7 +23,7 @@
 // ---------------------------------------------------------------------------
 
 // RCCL-API tracing callback. Registered by Tracer::initialize() when
-// OMNISTAT_RCCL_TRACE is enabled: enumerates collectives (count/datatype) and
+// RCCL tracing is enabled: enumerates collectives (count/datatype) and
 // communicator lifecycle (init duration, nranks) on the app's calling thread,
 // accumulating into the Tracer's RCCL streams for the flush thread to POST.
 
