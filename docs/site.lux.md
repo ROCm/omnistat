@@ -108,12 +108,42 @@ guide](user-mode/analysis.md#exploring-results-locally).
 
 ## Additional Features
 
+Beyond the metrics collected by default, Omnistat offers two [advanced
+profiling](advanced-profiling.md) capabilities on Lux: sampling of GPU [hardware
+counters](advanced-profiling.md#hardware-counters), and [kernel
+tracing](advanced-profiling.md#kernel-tracing). These advanced capabilities
+are disabled in the default runtime configuration but can be overridden using the `OMNISTAT_CONFIG`
+environment variable and a custom config file based on the default [Lux configuration
+file](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.lux).
+
+### Hardware Counters
+
+Hardware counters are sampled device-wide on each GPU at the Omnistat sampling interval. In
+user-mode, sampling requires a counter enablement library (`libomnistat_count.so`) loaded into the
+application's runtime environment, which registers the application's GPU queues with ROCProfiler-SDK
+so a separate Omnistat instance can read their counters. A pre-built counter enablement library is
+provided with the Omnistat installation.
+
+To enable hardware counters:
+1. Create a custom configuration file with `enable_rocprofiler = True`, using
+   the default
+   [Lux configuration file](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.lux)
+   as a starting point, and select a {ref}`counter profile <counter-profiles>`
+   under `[omnistat.collectors.rocprofiler]`.
+2. Set `OMNISTAT_CONFIG` to point to your custom file in the job script.
+3. Point `ROCP_TOOL_LIBRARIES` at the pre-built counter enablement library.
+   This must be set before launching the application:
+
+   ```bash
+   export ROCP_TOOL_LIBRARIES=${OMNISTAT_DIR}/build-count/libomnistat_count.so
+   ```
+
 ### Kernel Tracing
 
-[Kernel tracing](advanced-profiling.md#kernel-tracing) works by loading a
-tracing library (`libomnistat_trace.so`) into the application's runtime
-environment to intercept GPU kernel dispatches. Pre-built tracing libraries
-are provided for each ROCm release available on the system.
+Kernel tracing works by loading a tracing library (`libomnistat_trace.so`) into
+the application's runtime environment to intercept GPU kernel dispatches.
+Pre-built tracing libraries are provided for each ROCm release available on the
+system.
 
 To enable kernel tracing:
 1. Create a custom configuration file with `enable_kernel_trace = True`, using
@@ -164,4 +194,8 @@ if a matching `build-trace-rocm-<version>` directory exists. If Lux's default
 ROCm is updated ahead of the Omnistat installation, load a `rocm` module for
 which a tracing library is available and rebuild your application against it.
 ```
+
+Hardware counters and kernel tracing can also be enabled together by listing
+both libraries in `ROCP_TOOL_LIBRARIES`; see {ref}`combining counters and
+tracing <combining-counters-and-tracing>` for the required syntax.
 
