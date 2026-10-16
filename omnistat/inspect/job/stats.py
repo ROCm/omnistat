@@ -253,8 +253,9 @@ class Stats(Module):
         total_duration_ns = float(sum(per_kernel_dur.values()))
         total_dispatches = int(round(sum(per_kernel_cnt.values())))
 
-        dropped_results = ds.job_query(constants.KERNEL_DROPPED_METRIC, step)
-        dropped = int(round(sum(compute.counter_deltas(dropped_results))))
+        late = 0
+        for metric in constants.KERNEL_LATE_METRICS:
+            late += int(round(sum(compute.counter_deltas(ds.job_query(metric, step)))))
 
         rows: list[dict] = []
         for kernel, d in per_kernel_dur.items():
@@ -278,7 +279,7 @@ class Stats(Module):
             "num_kernels": len(per_kernel_dur),
             "total_dispatches": total_dispatches,
             "total_duration_ns": round(total_duration_ns, 4),
-            "dropped_dispatches": dropped,
+            "late_records": late,
             "top": top,
             "variance": variance,
         }

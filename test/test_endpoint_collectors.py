@@ -48,7 +48,7 @@ requires_tracing = pytest.mark.skipif(
 # the highest dispatch rate.
 KERNEL_COUNTS = [1, 100, 1000] if hardware.consumer_gpu else [1, 100, 1000, 10000]
 
-METRIC_KERNEL_DROPPED = "omnistat_kernel_dropped_dispatches"
+METRIC_KERNEL_DROPPED = "omnistat_kernel_late_records"
 METRIC_KERNEL_DISPATCH_COUNT = "omnistat_kernel_dispatch_count"
 METRIC_KERNEL_TOTAL_DURATION = "omnistat_kernel_total_duration_ns"
 

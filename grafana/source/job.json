@@ -7309,7 +7309,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum(increase(omnistat_kernel_dropped_dispatches[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"}))",
+              "expr": "(sum(increase(omnistat_kernel_late_records[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or vector(0)) + (sum(increase(omnistat_kernel_dropped_dispatches[$__range]) * on (instance) group_left() (rmsjob_info{jobid=\"$jobid\"})) or vector(0))",
               "instant": true,
               "legendFormat": "__auto",
               "range": false,

@@ -178,7 +178,7 @@ class TestInterning:
 
 COUNT_METRIC = "omnistat_kernel_dispatch_count"
 DURATION_METRIC = "omnistat_kernel_total_duration_ns"
-DROPPED_METRIC = "omnistat_kernel_dropped_dispatches"
+DROPPED_METRIC = "omnistat_kernel_late_records"
 
 
 def make_dispatch(gpu_id, kernel, end_ns, duration_ns):

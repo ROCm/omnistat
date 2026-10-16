@@ -137,5 +137,5 @@ class KernelTrace(BinnedTraceCollector):
                 yield b"\n"
                 yield f'omnistat_kernel_total_duration_ns{{{label_defaults},card="{gpu_id}",kernel="{name}"}} {value[1]} {interval_bin}'.encode()
                 yield b"\n"
-            yield f"omnistat_kernel_dropped_dispatches{{{label_defaults}}} {self._late_records} {interval_bin}".encode()
+            yield f"omnistat_kernel_late_records{{{label_defaults}}} {self._late_records} {interval_bin}".encode()
             yield b"\n"

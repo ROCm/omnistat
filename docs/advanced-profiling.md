@@ -335,7 +335,7 @@ node each write their own file.
 
 Omnistat retains roughly the last 15 seconds of time bins. A record whose
 timestamp falls outside that window, either older than the oldest retained bin
-or later than the newest, is counted in `omnistat_kernel_dropped_dispatches` or
+or later than the newest, is counted in `omnistat_kernel_late_records` or
 `omnistat_rccl_late_records` rather than recorded. Timestamps that land in the
 future instead point at clock skew. Dropping a record affects the recorded time
 series only, not the running application.
