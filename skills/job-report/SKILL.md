@@ -143,7 +143,7 @@ Each list entry has the same outer shape as a `stats.variance.by_*` entry (`sour
   "num_kernels": <int>,            // distinct kernels seen across the job
   "total_dispatches": <int>,       // summed over all kernels/GPUs
   "total_duration_ns": <float>,    // summed GPU time over all kernels (ns)
-  "dropped_dispatches": <int>,     // node-level dropped count (0 if none)
+  "late_records": <int>,           // node-level count of records dropped as late (0 if none)
   "top": [                         // top TOP_KERNELS_LIMIT (10) by default, or all num_kernels kernels under --verbose; ranked by total_duration_ns desc
     { "kernel": "<full mangled name>", "total_duration_ns": <float>,
       "dispatches": <int>, "mean_duration_ns": <float> }
@@ -268,7 +268,7 @@ xGMI read/write appears as additional rows in the combined gauge table (rates) a
 
 **Top kernels** (if `stats.kernels` is non-null) — rendered as a peer table within Metrics Stats, at the **same level as the hardware counters table** (a bold lead-in, not a `####` subsection heading). Omit entirely when `stats.kernels` is null.
 
-Lead with one summary line from the top-level fields: distinct kernels (`num_kernels`), total dispatches (`total_dispatches`), and — **only when `dropped_dispatches > 0`** — call out the dropped count. Then a table, one row per entry in `stats.kernels.top`:
+Lead with one summary line from the top-level fields: distinct kernels (`num_kernels`), total dispatches (`total_dispatches`), and — **only when `late_records > 0`** — call out the late-record count. Then a table, one row per entry in `stats.kernels.top`:
 
 | Kernel | Total time | Dispatches | Mean | % time |
 |--------|-----------:|-----------:|-----:|-------:|
