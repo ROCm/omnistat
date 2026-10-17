@@ -22,7 +22,7 @@ alt: Grafana dashboard showing per-GPU utilization gauges and utilization heatma
 :link-type: doc
 
 Project overview, supported [metrics](metrics.md), and [advanced
-profiling](advanced-profiling.md) with hardware counters and kernel tracing.
+profiling](advanced-profiling.md) with hardware counters and tracing.
 :::
 
 :::{grid-item-card} System-mode

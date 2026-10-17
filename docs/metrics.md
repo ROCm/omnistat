@@ -285,6 +285,8 @@ are recorded, not the GPU execution time of the resulting kernels. Communicator
 teardown is not tracked.
 
 **Collector**: `enable_rccl_trace`
+<br/>
+**Availability**: user-mode only
 
 | GPU Metric | Description |
 | :--- | :--- |

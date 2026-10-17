@@ -61,9 +61,9 @@ $ pip install -r requirements.txt
 ## Optional component(s)
 
 Beyond the standard data collector, Omnistat provides **optional** components that unlock
-additional telemetry: a GPU hardware counter collector and a kernel tracing library, both
+additional telemetry: a GPU hardware counter collector and a tracing library, both
 built on ROCProfiler-SDK. These steps are optional and only required to enable support for
-hardware counter or kernel tracing collection — the standard install above already enables
+hardware counter or tracing collection — the standard install above already enables
 GPU and host-level monitoring. These components are compiled from C++ sources and require a
 local build step.
 
@@ -103,8 +103,8 @@ $ cmake -S omnistat/rocprofiler-sdk/ -B build-count/ -DBUILD_COUNT_LIB=ON
 $ cmake --build build-count/
 ```
 
-**Kernel tracing support** provides `libomnistat_trace.so`, a standalone C++ shared
-library that intercepts GPU kernel dispatches at runtime:
+**Tracing support** provides `libomnistat_trace.so`, a standalone C++ shared
+library that intercepts GPU kernel dispatches and RCCL calls at runtime:
 
 ```bash
 $ cmake -S omnistat/rocprofiler-sdk/ -B build-trace/ -DBUILD_KERNEL_TRACE_LIB=ON
@@ -112,7 +112,7 @@ $ cmake --build build-trace/
 ```
 
 ```{note}
-The kernel tracing build automatically fetches the header-only
+The tracing build automatically fetches the header-only
 [cpp-httplib](https://github.com/yhirose/cpp-httplib) library (used to send trace data
 over HTTP) via CMake's `FetchContent`, along with the
 [fmt](https://github.com/fmtlib/fmt) library if the compiler does not support
