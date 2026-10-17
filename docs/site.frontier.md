@@ -129,16 +129,18 @@ may differ from the ordering used by ROCm.
 | `omnistat_vendor_accel_energy_joules`  | Cumulative accelerator (GPU) energy (J) for each device. Labels: `vendor`, `accel`. |
 | `omnistat_vendor_accel_power_watts`    | Instantaneous accelerator (GPU) power (W) for each device. Labels: `vendor`, `accel`. |
 
-### Kernel Tracing
+### Tracing
 
 [Kernel tracing](advanced-profiling.md#tracing) is available on Frontier starting
-with Omnistat **1.12.0**. It works by loading a tracing library
-(`libomnistat_trace.so`) into the application's runtime environment to
-intercept GPU kernel dispatches. Pre-built tracing libraries are currently
-provided for ROCm 6.4.0 through 7.2.0.
+with Omnistat **1.12.0**, and RCCL communication tracing starting with
+**1.16.0**. Both work by loading a tracing library (`libomnistat_trace.so`) into
+the application's runtime environment to intercept GPU kernel dispatches and
+RCCL calls. Pre-built tracing libraries are currently provided for ROCm 6.4.0
+through 7.2.0.
 
-To enable kernel tracing:
-1. Create a custom configuration file with `enable_kernel_trace = True`, using
+To enable tracing:
+1. Create a custom configuration file with `enable_kernel_trace = True`,
+   `enable_rccl_trace = True`, or both, using
    the default
    [Frontier configuration file](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.ornl)
    as a starting point.
@@ -151,7 +153,7 @@ To enable kernel tracing:
 
 ```{eval-rst}
 .. code-block:: bash
-   :caption: Example Frontier SLURM job with kernel tracing enabled
+   :caption: Example Frontier SLURM job with tracing enabled
    :emphasize-lines: 14,18
 
    #!/bin/bash
@@ -170,7 +172,7 @@ To enable kernel tracing:
    export OMNISTAT_CONFIG=/path/to/omnistat.config
    ${OMNISTAT_WRAPPER} usermode --start --interval 1.0
 
-   # Enable Omnistat kernel tracing
+   # Enable Omnistat tracing
    export ROCP_TOOL_LIBRARIES=${OMNISTAT_DIR}/build-trace-rocm-${CRAY_ROCM_VERSION}/libomnistat_trace.so
 
    # Your GPU application here
