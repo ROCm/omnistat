@@ -132,7 +132,7 @@ Example output of a successful run (including a few skipped) tests is as follows
 <div class="t-row"><span>omnistat_tests/test_collectors.py <span class="t-pass">..............................</span></span><span class="t-pct">[&nbsp;&nbsp;8%]</span></div>
 <div class="t-row"><span><span class="t-pass">.......................</span><span class="t-skip">sss</span><span class="t-pass">......</span><span class="t-skip">ssssssss</span><span class="t-pass">.</span></span><span class="t-pct">[&nbsp;54%]</span></div>
 <div class="t-row"><span>omnistat_tests/test_rms.py <span class="t-pass">............</span></span><span class="t-pct">[&nbsp;62%]</span></div>
-<div class="t-row"><span>omnistat_tests/test_unit_kernel_trace.py <span class="t-pass">...............................</span></span><span class="t-pct">[&nbsp;98%]</span></div>
+<div class="t-row"><span>omnistat_tests/test_unit_trace.py <span class="t-pass">...............................</span></span><span class="t-pct">[&nbsp;98%]</span></div>
 <div class="t-row"><span><span class="t-pass">........</span></span><span class="t-pct">[100%]</span></div>
 <div>&nbsp;</div>
 <div><span class="t-pass" style="font-weight:bold">======================== 414 passed, 32 skipped in 40.08s =========================</span></div>

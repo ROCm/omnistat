@@ -64,7 +64,8 @@ TOP_KERNELS_LIMIT = 10
 # they have no ``Metric`` rows in GAUGE_LIST / COUNTER_LIST.
 KERNEL_DURATION_METRIC = "omnistat_kernel_total_duration_ns"
 KERNEL_COUNT_METRIC = "omnistat_kernel_dispatch_count"
-KERNEL_DROPPED_METRIC = "omnistat_kernel_dropped_dispatches"
+# Records the collector could not place in a retained time bin.
+KERNEL_LATE_METRICS = ("omnistat_kernel_late_records", "omnistat_kernel_dropped_dispatches")
 
 
 class Metric(NamedTuple):
