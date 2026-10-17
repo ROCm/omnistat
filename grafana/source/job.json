@@ -56,7 +56,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 227,
+      "id": 264,
       "title": "Job Info",
       "type": "row"
     },
@@ -578,7 +578,7 @@
         "x": 0,
         "y": 4
       },
-      "id": 228,
+      "id": 265,
       "title": "Performance Overview",
       "type": "row"
     },
@@ -1739,7 +1739,7 @@
         "x": 0,
         "y": 25
       },
-      "id": 229,
+      "id": 266,
       "panels": [
         {
           "datasource": {
@@ -2445,7 +2445,7 @@
         "x": 0,
         "y": 26
       },
-      "id": 230,
+      "id": 267,
       "panels": [
         {
           "datasource": {
@@ -2904,7 +2904,7 @@
         "x": 0,
         "y": 27
       },
-      "id": 231,
+      "id": 268,
       "panels": [
         {
           "datasource": {
@@ -3887,7 +3887,7 @@
         "x": 0,
         "y": 28
       },
-      "id": 232,
+      "id": 269,
       "panels": [
         {
           "datasource": {
@@ -4549,7 +4549,7 @@
         "x": 0,
         "y": 29
       },
-      "id": 233,
+      "id": 270,
       "panels": [
         {
           "datasource": {
@@ -5157,7 +5157,7 @@
         "x": 0,
         "y": 30
       },
-      "id": 234,
+      "id": 271,
       "panels": [
         {
           "datasource": {
@@ -5819,7 +5819,7 @@
         "x": 0,
         "y": 31
       },
-      "id": 235,
+      "id": 272,
       "panels": [
         {
           "datasource": {
@@ -5942,7 +5942,7 @@
         "x": 0,
         "y": 32
       },
-      "id": 236,
+      "id": 273,
       "panels": [
         {
           "datasource": {
@@ -6174,7 +6174,7 @@
         "x": 0,
         "y": 33
       },
-      "id": 237,
+      "id": 274,
       "panels": [
         {
           "datasource": {
@@ -6301,7 +6301,7 @@
         "x": 0,
         "y": 34
       },
-      "id": 238,
+      "id": 275,
       "panels": [
         {
           "datasource": {
@@ -6429,7 +6429,7 @@
         "x": 0,
         "y": 35
       },
-      "id": 239,
+      "id": 276,
       "panels": [
         {
           "datasource": {
@@ -7104,7 +7104,7 @@
         "x": 0,
         "y": 36
       },
-      "id": 240,
+      "id": 277,
       "panels": [
         {
           "datasource": {
@@ -7158,7 +7158,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -7229,7 +7229,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -7300,7 +7300,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -7428,7 +7428,7 @@
             "cellHeight": "sm",
             "showHeader": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -7681,7 +7681,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -7710,7 +7710,7 @@
         "x": 0,
         "y": 37
       },
-      "id": 241,
+      "id": 278,
       "panels": [
         {
           "datasource": {
@@ -7799,7 +7799,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "repeat": "top_kernels",
           "repeatDirection": "v",
           "targets": [
@@ -7892,7 +7892,7 @@
             "cellHeight": "sm",
             "showHeader": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "repeat": "top_kernels",
           "repeatDirection": "v",
           "targets": [
@@ -8030,7 +8030,7 @@
         "x": 0,
         "y": 38
       },
-      "id": 253,
+      "id": 279,
       "panels": [
         {
           "datasource": {
@@ -8061,7 +8061,7 @@
           },
           "gridPos": {
             "h": 3,
-            "w": 8,
+            "w": 12,
             "x": 0,
             "y": 39
           },
@@ -8084,7 +8084,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -8133,8 +8133,8 @@
           },
           "gridPos": {
             "h": 3,
-            "w": 8,
-            "x": 8,
+            "w": 12,
+            "x": 12,
             "y": 39
           },
           "id": 255,
@@ -8156,7 +8156,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -8232,8 +8232,7 @@
                 ]
               },
               "unit": "cps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -8257,7 +8256,7 @@
               "sort": "desc"
             }
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -8331,8 +8330,7 @@
                 ]
               },
               "unit": "Bps"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -8356,7 +8354,7 @@
               "sort": "desc"
             }
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -8372,7 +8370,6 @@
             }
           ],
           "title": "Logical Bytes Moved [by size bucket]",
-          "type": "timeseries",
           "transformations": [
             {
               "id": "renameByRegex",
@@ -8381,7 +8378,8 @@
                 "renamePattern": ">4G"
               }
             }
-          ]
+          ],
+          "type": "timeseries"
         },
         {
           "datasource": {
@@ -8400,6 +8398,9 @@
                   "type": "auto"
                 },
                 "filterable": true,
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
               "thresholds": {
@@ -8438,12 +8439,9 @@
           "interval": "$interval",
           "options": {
             "cellHeight": "sm",
-            "showHeader": true,
-            "footer": {
-              "reducers": []
-            }
+            "showHeader": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -8480,10 +8478,6 @@
               "id": "groupBy",
               "options": {
                 "fields": {
-                  "collective": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
                   "Value #A": {
                     "aggregations": [
                       "sum"
@@ -8495,6 +8489,10 @@
                       "sum"
                     ],
                     "operation": "aggregate"
+                  },
+                  "collective": {
+                    "aggregations": [],
+                    "operation": "groupby"
                   }
                 }
               }
@@ -8509,14 +8507,14 @@
                 "excludeByName": {},
                 "includeByName": {},
                 "indexByName": {
-                  "collective": 0,
                   "Value #A (sum)": 1,
-                  "Value #B (sum)": 2
+                  "Value #B (sum)": 2,
+                  "collective": 0
                 },
                 "renameByName": {
-                  "collective": "Collective",
                   "Value #A (sum)": "Count",
-                  "Value #B (sum)": "Bytes"
+                  "Value #B (sum)": "Bytes",
+                  "collective": "Collective"
                 }
               }
             },
@@ -8591,8 +8589,7 @@
                 ]
               },
               "unit": "short"
-            },
-            "overrides": []
+            }
           },
           "gridPos": {
             "h": 8,
@@ -8616,7 +8613,7 @@
               "sort": "desc"
             }
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -8651,6 +8648,9 @@
                   "type": "auto"
                 },
                 "filterable": true,
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
               "thresholds": {
@@ -8689,12 +8689,9 @@
           "interval": "$interval",
           "options": {
             "cellHeight": "sm",
-            "showHeader": true,
-            "footer": {
-              "reducers": []
-            }
+            "showHeader": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -8731,14 +8728,6 @@
               "id": "groupBy",
               "options": {
                 "fields": {
-                  "instance": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "card": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
                   "Value #A": {
                     "aggregations": [
                       "sum"
@@ -8750,6 +8739,14 @@
                       "mean"
                     ],
                     "operation": "aggregate"
+                  },
+                  "card": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "instance": {
+                    "aggregations": [],
+                    "operation": "groupby"
                   }
                 }
               }
@@ -8764,16 +8761,16 @@
                 "excludeByName": {},
                 "includeByName": {},
                 "indexByName": {
-                  "instance": 0,
-                  "card": 1,
                   "Value #A (sum)": 2,
-                  "Value #B (mean)": 3
+                  "Value #B (mean)": 3,
+                  "card": 1,
+                  "instance": 0
                 },
                 "renameByName": {
-                  "instance": "Node",
-                  "card": "Card",
                   "Value #A (sum)": "Created",
-                  "Value #B (mean)": "Avg Init"
+                  "Value #B (mean)": "Avg Init",
+                  "card": "Card",
+                  "instance": "Node"
                 }
               }
             },
@@ -8809,6 +8806,9 @@
                   "type": "auto"
                 },
                 "filterable": true,
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
               "thresholds": {
@@ -8847,12 +8847,9 @@
           "interval": "$interval",
           "options": {
             "cellHeight": "sm",
-            "showHeader": true,
-            "footer": {
-              "reducers": []
-            }
+            "showHeader": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -8889,14 +8886,6 @@
               "id": "groupBy",
               "options": {
                 "fields": {
-                  "instance": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "card": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
                   "Value #A": {
                     "aggregations": [
                       "sum"
@@ -8908,6 +8897,14 @@
                       "sum"
                     ],
                     "operation": "aggregate"
+                  },
+                  "card": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "instance": {
+                    "aggregations": [],
+                    "operation": "groupby"
                   }
                 }
               }
@@ -8922,16 +8919,16 @@
                 "excludeByName": {},
                 "includeByName": {},
                 "indexByName": {
-                  "instance": 0,
-                  "card": 1,
                   "Value #A (sum)": 2,
-                  "Value #B (sum)": 3
+                  "Value #B (sum)": 3,
+                  "card": 1,
+                  "instance": 0
                 },
                 "renameByName": {
-                  "instance": "Node",
-                  "card": "Card",
                   "Value #A (sum)": "Collectives",
-                  "Value #B (sum)": "Bytes"
+                  "Value #B (sum)": "Bytes",
+                  "card": "Card",
+                  "instance": "Node"
                 }
               }
             },
@@ -8967,6 +8964,9 @@
                   "type": "auto"
                 },
                 "filterable": true,
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
               "thresholds": {
@@ -9003,24 +9003,24 @@
                     "id": "mappings",
                     "value": [
                       {
-                        "type": "regex",
                         "options": {
                           "pattern": "^inf$",
                           "result": {
-                            "text": ">4G",
-                            "index": 0
+                            "index": 0,
+                            "text": ">4G"
                           }
-                        }
+                        },
+                        "type": "regex"
                       },
                       {
-                        "type": "regex",
                         "options": {
                           "pattern": "(.+)",
                           "result": {
-                            "text": "<=$1",
-                            "index": 1
+                            "index": 1,
+                            "text": "<=$1"
                           }
-                        }
+                        },
+                        "type": "regex"
                       }
                     ]
                   }
@@ -9038,12 +9038,9 @@
           "interval": "$interval",
           "options": {
             "cellHeight": "sm",
-            "showHeader": true,
-            "footer": {
-              "reducers": []
-            }
+            "showHeader": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -9080,18 +9077,6 @@
               "id": "groupBy",
               "options": {
                 "fields": {
-                  "datatype": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "size_bucket": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "comm_size": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
                   "Value #A": {
                     "aggregations": [
                       "sum"
@@ -9103,6 +9088,18 @@
                       "sum"
                     ],
                     "operation": "aggregate"
+                  },
+                  "comm_size": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "datatype": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "size_bucket": {
+                    "aggregations": [],
+                    "operation": "groupby"
                   }
                 }
               }
@@ -9117,18 +9114,18 @@
                 "excludeByName": {},
                 "includeByName": {},
                 "indexByName": {
-                  "datatype": 0,
-                  "size_bucket": 1,
-                  "comm_size": 2,
                   "Value #A (sum)": 3,
-                  "Value #B (sum)": 4
+                  "Value #B (sum)": 4,
+                  "comm_size": 2,
+                  "datatype": 0,
+                  "size_bucket": 1
                 },
                 "renameByName": {
-                  "datatype": "Type",
-                  "size_bucket": "Size",
-                  "comm_size": "Ranks",
                   "Value #A (sum)": "Count",
-                  "Value #B (sum)": "Bytes"
+                  "Value #B (sum)": "Bytes",
+                  "comm_size": "Ranks",
+                  "datatype": "Type",
+                  "size_bucket": "Size"
                 }
               }
             },
@@ -9164,6 +9161,9 @@
                   "type": "auto"
                 },
                 "filterable": true,
+                "footer": {
+                  "reducers": []
+                },
                 "inspect": false
               },
               "thresholds": {
@@ -9200,24 +9200,24 @@
                     "id": "mappings",
                     "value": [
                       {
-                        "type": "regex",
                         "options": {
                           "pattern": "^inf$",
                           "result": {
-                            "text": ">4G",
-                            "index": 0
+                            "index": 0,
+                            "text": ">4G"
                           }
-                        }
+                        },
+                        "type": "regex"
                       },
                       {
-                        "type": "regex",
                         "options": {
                           "pattern": "(.+)",
                           "result": {
-                            "text": "<=$1",
-                            "index": 1
+                            "index": 1,
+                            "text": "<=$1"
                           }
-                        }
+                        },
+                        "type": "regex"
                       }
                     ]
                   }
@@ -9235,12 +9235,9 @@
           "interval": "$interval",
           "options": {
             "cellHeight": "sm",
-            "showHeader": true,
-            "footer": {
-              "reducers": []
-            }
+            "showHeader": true
           },
-          "pluginVersion": "13.1.1",
+          "pluginVersion": "13.2.1",
           "targets": [
             {
               "datasource": {
@@ -9277,18 +9274,6 @@
               "id": "groupBy",
               "options": {
                 "fields": {
-                  "datatype": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "size_bucket": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "comm_size": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
                   "Value #A": {
                     "aggregations": [
                       "sum"
@@ -9300,6 +9285,18 @@
                       "sum"
                     ],
                     "operation": "aggregate"
+                  },
+                  "comm_size": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "datatype": {
+                    "aggregations": [],
+                    "operation": "groupby"
+                  },
+                  "size_bucket": {
+                    "aggregations": [],
+                    "operation": "groupby"
                   }
                 }
               }
@@ -9314,18 +9311,18 @@
                 "excludeByName": {},
                 "includeByName": {},
                 "indexByName": {
-                  "datatype": 0,
-                  "size_bucket": 1,
-                  "comm_size": 2,
                   "Value #A (sum)": 3,
-                  "Value #B (sum)": 4
+                  "Value #B (sum)": 4,
+                  "comm_size": 2,
+                  "datatype": 0,
+                  "size_bucket": 1
                 },
                 "renameByName": {
-                  "datatype": "Type",
-                  "size_bucket": "Size",
-                  "comm_size": "Ranks",
                   "Value #A (sum)": "Count",
-                  "Value #B (sum)": "Bytes"
+                  "Value #B (sum)": "Bytes",
+                  "comm_size": "Ranks",
+                  "datatype": "Type",
+                  "size_bucket": "Size"
                 }
               }
             },
@@ -9356,7 +9353,7 @@
         "x": 0,
         "y": 39
       },
-      "id": 243,
+      "id": 280,
       "panels": [
         {
           "datasource": {
@@ -9600,7 +9597,7 @@
         "x": 0,
         "y": 40
       },
-      "id": 244,
+      "id": 281,
       "panels": [
         {
           "datasource": {
@@ -9994,7 +9991,7 @@
         "x": 0,
         "y": 41
       },
-      "id": 245,
+      "id": 282,
       "panels": [
         {
           "datasource": {
@@ -10226,7 +10223,7 @@
         "x": 0,
         "y": 42
       },
-      "id": 246,
+      "id": 283,
       "panels": [
         {
           "datasource": {
@@ -10882,7 +10879,7 @@
         "x": 0,
         "y": 43
       },
-      "id": 247,
+      "id": 284,
       "panels": [
         {
           "datasource": {
@@ -11488,7 +11485,7 @@
         "x": 0,
         "y": 44
       },
-      "id": 248,
+      "id": 285,
       "panels": [
         {
           "datasource": {
@@ -11934,7 +11931,7 @@
         "x": 0,
         "y": 45
       },
-      "id": 249,
+      "id": 286,
       "panels": [
         {
           "datasource": {
@@ -12059,7 +12056,7 @@
         "x": 0,
         "y": 46
       },
-      "id": 250,
+      "id": 287,
       "panels": [
         {
           "datasource": {
@@ -12257,7 +12254,7 @@
         "x": 0,
         "y": 47
       },
-      "id": 251,
+      "id": 288,
       "panels": [
         {
           "datasource": {
@@ -13768,7 +13765,7 @@
         "x": 0,
         "y": 48
       },
-      "id": 252,
+      "id": 289,
       "panels": [
         {
           "datasource": {
