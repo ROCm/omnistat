@@ -248,7 +248,7 @@ independent streams:
   communicators it creates, enumerated on the host. This is what was asked of
   RCCL, not how long the GPU spent on it.
 
-Each stream is traced only when its collector is enabled. Records are buffered
+Each stream is traced when its collector is enabled. Records are buffered
 in the application and sent over HTTP to the Omnistat collector running on the
 same node, which aggregates them into time series. For kernel dispatches the
 result is a breakdown of how GPU time was actually spent over the course of a
@@ -279,22 +279,14 @@ produces no warning.
    ```
 
 As with counter enablement, this variable must be set for the GPU application,
-not for Omnistat. As with the counter enablement library, a build is needed for
-each ROCm installation in use: a library built against a different
-ROCProfiler-SDK major version reports a version mismatch and traces nothing.
+not for Omnistat, and a build is needed for each ROCm installation in use: a
+library built against a different ROCProfiler-SDK major version reports a
+version mismatch and traces nothing.
 
 Records are sent to `http://127.0.0.1:<port>`, where `<port>` defaults to
 `8001` and must match the `port` option in the `[omnistat.collectors]` section
-of the Omnistat configuration. A batch that cannot be delivered is reported
-once per stream and those records are lost:
-
-```text
-[node01][12345][omnistat] POST to 127.0.0.1:8001/kernel_trace failed (no response); trace data lost
-```
-
-`no response` is what a missing or not-yet-started collector looks like from the
-application side. `endpoint not enabled` means the collector is running but was
-not configured for that stream.
+of the Omnistat configuration. If no collector answers, tracing still runs and
+its records are discarded.
 
 (tracing-tuning)=
 ### Tuning

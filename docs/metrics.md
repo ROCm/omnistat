@@ -255,7 +255,7 @@ communicators it creates.
 
 The library must be built as described under {ref}`Optional component(s)
 <user-optional-components>` and loaded into the application being monitored.
-Each stream is traced only when its collector is enabled. See
+Each stream is traced when its collector is enabled. See
 [Advanced Profiling](./advanced-profiling.md#tracing) for setup and
 configuration details.
 
