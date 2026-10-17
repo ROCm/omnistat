@@ -13,6 +13,7 @@ enable_rocprofiler = False
 enable_network = True
 enable_vendor_counters = False
 enable_kernel_trace = False
+enable_rccl_trace = False
 
 enable_perf_collector_subtimers = True
 
