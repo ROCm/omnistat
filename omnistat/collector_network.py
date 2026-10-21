@@ -25,7 +25,8 @@
 """Network monitoring
 
 Implements a prometheus info metric to track network traffic data for interfaces
-exposed under /sys/class/{net,cxi,infiniband}.
+exposed under /sys/class/{net,cxi,infiniband}, plus driver counters read over
+SIOCETHTOOL for NICs whose sysfs statistics are known to be unreliable.
 """
 
 import configparser
@@ -41,6 +42,7 @@ from prometheus_client import Gauge
 
 import omnistat.utils as utils
 from omnistat.collector_base import Collector
+from omnistat.ethtool import Ethtool
 
 
 class NETWORK(Collector):
@@ -63,6 +65,10 @@ class NETWORK(Collector):
         # Files to check for IP devices.
         self.__net_rx_data_paths = {}
         self.__net_tx_data_paths = {}
+
+        # Devices to read over SIOCETHTOOL.
+        self.__net_port_counters = {}
+        self.__ethtool = Ethtool()
 
         # Files to check for for slingshot (CXI) devices.
         self.__cxi_rx_data_paths = {}
@@ -102,6 +108,25 @@ class NETWORK(Collector):
             if override > 0:
                 self.__sampler_interval = override
                 logging.debug("--> overriding default ionic_sampling_interval...")
+
+        self.__enable_port_counters = config.getboolean(
+            "omnistat.collectors.network", "enable_port_counters", fallback=False
+        )
+
+    # IP NICs whose sysfs byte counters are known to be wrong, read over
+    # SIOCETHTOOL instead. Keyed by uevent DRIVER and PCI_ID, because these
+    # defects belong to a specific part.
+    _PORT_COUNTER_NICS = {
+        # Broadcom BCM57608 "Thor2" 400G. The per-ring counters summed by
+        # foreign 16-bit field in bits 48-63, so netdev byte and packet totals
+        # are wrong and non-monotonic once that field wraps. The port-level
+        # ETHTOOL_GSTATS counters are unaffected.
+        ("bnxt_en", "14E4:1760"): {
+            "model": "Broadcom BCM57608 (Thor2)",
+            "rx_bytes": "rx_bytes",
+            "tx_bytes": "tx_bytes",
+        },
+    }
 
     # RoCE NICs that appear under /sys/class/infiniband but report byte totals
     # via hw_counters (already in bytes, no IB octet/4 scaling) rather than
@@ -188,6 +213,15 @@ class NETWORK(Collector):
                 return self._HW_COUNTER_NICS.get(line[len("DRIVER=") :])
         return None
 
+    def __port_counter_spec(self, nic):
+        """Return the _PORT_COUNTER_NICS spec for an IP device, else None."""
+        try:
+            uevent = (nic / "device" / "uevent").read_text()
+        except OSError:
+            return None
+        fields = dict(line.split("=", 1) for line in uevent.splitlines() if "=" in line)
+        return self._PORT_COUNTER_NICS.get((fields.get("DRIVER"), fields.get("PCI_ID", "").upper()))
+
     def registerMetrics(self):
         """Register metrics of interest"""
 
@@ -203,6 +237,25 @@ class NETWORK(Collector):
 
             nic_name = nic.name
             if nic_name == "lo":
+                continue
+
+            # Identify NICs known to report faulty sysfs byte counters, and
+            # read them over SIOCETHTOOL instead. If the driver counters
+            # cannot be read either, publish nothing for the interface rather
+            # than fall back to the faulty values.
+            spec = self.__port_counter_spec(nic) if self.__enable_port_counters else None
+            if spec is not None:
+                indices = None
+                try:
+                    indices = self.__ethtool.indices(nic_name, (spec["rx_bytes"], spec["tx_bytes"]))
+                except OSError as e:
+                    logging.warning(f"--> [network] ethtool query failed for {nic_name}: {e}")
+                if indices is not None:
+                    self.__net_port_counters[nic_name] = indices
+                    logging.info(
+                        f"--> [network] {nic_name} is a {spec['model']}: sysfs byte counters are unreliable, "
+                        f"using driver counters {spec['rx_bytes']}/{spec['tx_bytes']} instead"
+                    )
                 continue
 
             rx_path = nic / "statistics/rx_bytes"
@@ -326,13 +379,17 @@ class NETWORK(Collector):
         #   network_rx_bytes{device_class="net",interface="eth0"}
         labels = ["device_class", "interface"]
 
-        rx_data_paths = [
+        # Every source is keyed by interface, so counting them gives the number
+        # of devices a gauge would report. __net_port_counters appears in both
+        # lists because an entry exists only once Rx and Tx have both resolved.
+        rx_sources = [
             self.__net_rx_data_paths,
+            self.__net_port_counters,
             self.__cxi_rx_data_paths,
             self.__ib_rx_data_paths,
             self.__hw_shared_data_paths.get("rx_bytes", {}),
         ]
-        num_rx = sum([len(x) for x in rx_data_paths])
+        num_rx = sum([len(x) for x in rx_sources])
         if num_rx > 0:
             logging.debug(self.__net_rx_data_paths)
             metric = self.__prefix + "rx_bytes"
@@ -340,13 +397,14 @@ class NETWORK(Collector):
             self.__rx_metric = Gauge(metric, description, labelnames=labels)
             logging.info(f"--> [registered] {metric} -> {description} (gauge)")
 
-        tx_data_paths = [
+        tx_sources = [
             self.__net_tx_data_paths,
+            self.__net_port_counters,
             self.__cxi_tx_data_paths,
             self.__ib_tx_data_paths,
             self.__hw_shared_data_paths.get("tx_bytes", {}),
         ]
-        num_tx = sum([len(x) for x in tx_data_paths])
+        num_tx = sum([len(x) for x in tx_sources])
         if num_tx > 0:
             logging.debug(self.__net_tx_data_paths)
             metric = self.__prefix + "tx_bytes"
@@ -416,6 +474,14 @@ class NETWORK(Collector):
                         metric.labels(device_class="net", interface=nic).set(data)
                 except:
                     pass
+
+        for nic, (rx_index, tx_index) in self.__net_port_counters.items():
+            try:
+                data = self.__ethtool.values(nic)
+                self.__rx_metric.labels(device_class="net", interface=nic).set(data[rx_index])
+                self.__tx_metric.labels(device_class="net", interface=nic).set(data[tx_index])
+            except (OSError, IndexError):
+                pass
 
         cxi_data = [
             (self.__cxi_rx_data_paths, self.__rx_metric),
