@@ -109,6 +109,10 @@ class NETWORK(Collector):
                 self.__sampler_interval = override
                 logging.debug("--> overriding default ionic_sampling_interval...")
 
+        self.__enable_port_counters = config.getboolean(
+            "omnistat.collectors.network", "enable_port_counters", fallback=False
+        )
+
     # IP NICs whose sysfs byte counters are known to be wrong, read over
     # SIOCETHTOOL instead. Keyed by uevent DRIVER and PCI_ID, because these
     # defects belong to a specific part.
@@ -239,7 +243,7 @@ class NETWORK(Collector):
             # read them over SIOCETHTOOL instead. If the driver counters
             # cannot be read either, publish nothing for the interface rather
             # than fall back to the faulty values.
-            spec = self.__port_counter_spec(nic)
+            spec = self.__port_counter_spec(nic) if self.__enable_port_counters else None
             if spec is not None:
                 indices = None
                 try:
