@@ -20,3 +20,10 @@ exclude_dirs:
   - dist
   - node_modules
   - __pycache__
+
+# B101: assert is pytest's assertion API. Two patterns because CI scans a
+# .scan-target/ prefixed copy and local runs do not.
+assert_used:
+  skips:
+    - '*/test/*'
+    - 'test/*'
