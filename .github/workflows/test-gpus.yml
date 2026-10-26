@@ -11,8 +11,15 @@ on:
   push:
     branches: [main, dev]
 
+permissions:
+  contents: read
+
 jobs:
   gpu-collectors:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     defaults:
       run:
         shell: bash --login {0}
@@ -111,6 +118,8 @@ jobs:
           path: coverage-total.txt
 
   coverage-badge:
+    permissions:
+      contents: write
     needs: gpu-collectors
     runs-on: ubuntu-latest
     if: always() && !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main'
