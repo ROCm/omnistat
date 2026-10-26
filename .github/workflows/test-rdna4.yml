@@ -8,8 +8,15 @@ on:
   pull_request:
     branches: [ main, dev ]
 
+permissions:
+  contents: read
+
 jobs:
   gpu-collectors-rdna4:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     runs-on: [linux-gfx120X-gpu-rocm, gfx_gfx1201]
     strategy:
       matrix:

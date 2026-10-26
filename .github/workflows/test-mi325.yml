@@ -9,8 +9,15 @@ on:
   pull_request:
     branches: [ main, dev ]
 
+permissions:
+  contents: read
+
 jobs:
   gpu-collectors-325:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     runs-on: [linux-gfx942-1gpu-ccs-csp-ossci-rocm]
     strategy:
       matrix:
