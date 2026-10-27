@@ -129,12 +129,8 @@ class RcclTrace(BinnedTraceCollector):
         #     key:   (gpu_id, collective, datatype, size_bucket, comm_size)
         #     value: [count, bytes]
         #   comm creation:
-        #     key:   (gpu_id, nranks label or None)
+        #     key:   (gpu_id, nranks label)
         #     value: [count, init_ns]
-        #   The None key carries the card-level total the duration metric needs,
-        #   because that metric is labelled by card alone while the count also
-        #   carries nranks. Do NOT re-derive it by summing the nranks keys in a
-        #   bin: a bin only holds the keys that changed in it.
         self.__collective_ts = self._new_series()
         self.__comm_ts = self._new_series()
 
@@ -213,12 +209,9 @@ class RcclTrace(BinnedTraceCollector):
             if not self._in_window(end_bin, comm_first, comm_last):
                 self._late_records += 1
                 continue
-            values = self.__comm_ts.bins[end_bin]
-            duration_ns = h_end - h_start
-            for key in ((gpu_id, None), (gpu_id, self._intern(nranks_label(nranks)))):
-                delta = values[key]
-                delta[0] += 1
-                delta[1] += duration_ns
+            delta = self.__comm_ts.bins[end_bin][(gpu_id, self._intern(nranks_label(nranks)))]
+            delta[0] += 1
+            delta[1] += h_end - h_start
 
         # 2) Collectives: record EXACT semantics (count, bytes). Enumeration
         # only — no GPU duration, which would require the kernel join.
@@ -268,8 +261,8 @@ class RcclTrace(BinnedTraceCollector):
                 total = comm_running[key]
                 total[0] += delta[0]
                 total[1] += delta[1]
-                if nranks is None:
-                    yield f'omnistat_rccl_comm_init_total_duration_ns{{{label_defaults},card="{gpu_id}"}} {total[1]} {interval_bin}'.encode()
-                else:
-                    yield f'omnistat_rccl_comm_created_count{{{label_defaults},card="{gpu_id}",nranks="{nranks}"}} {total[0]} {interval_bin}'.encode()
+                labels = f'{label_defaults},card="{gpu_id}",nranks="{nranks}"'
+                yield f"omnistat_rccl_comm_created_count{{{labels}}} {total[0]} {interval_bin}".encode()
+                yield b"\n"
+                yield f"omnistat_rccl_comm_init_total_duration_ns{{{labels}}} {total[1]} {interval_bin}".encode()
                 yield b"\n"

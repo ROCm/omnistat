@@ -904,6 +904,25 @@ class TestRcclCommCreation:
         # teardown contributes nothing, and creates no phantom "unknown" bucket
         assert (0, "unknown") not in comm_totals(rccl_collector)
 
+    def test_comm_lines_carry_nranks(self, rccl_collector, mock_time, flask_app):
+        """Both comm metrics share one label set, so both carry nranks.
+
+        Asserted on the emitted bytes: the label is the whole point of keying
+        the series by (card, nranks), and nothing else pins it.
+        """
+        comms = [[0, "ncclCommInitRank", 111, 8, s_to_ns(2), s_to_ns(2) + 100]]
+        post(rccl_collector, flask_app, payload(comms=comms))
+        set_time(mock_time, 3)
+
+        lines = metric_lines(rccl_collector)
+        assert any(
+            l.startswith('omnistat_rccl_comm_created_count{') and 'card="0",nranks="8"}' in l for l in lines
+        )
+        assert any(
+            l.startswith('omnistat_rccl_comm_init_total_duration_ns{') and 'card="0",nranks="8"}' in l
+            for l in lines
+        )
+
     def test_init_total_duration_sums_creates(self, rccl_collector, mock_time, flask_app):
         comms = [
             [0, "ncclCommInitRank", 555, 8, s_to_ns(1), s_to_ns(1) + 100],
