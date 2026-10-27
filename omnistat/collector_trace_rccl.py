@@ -41,13 +41,11 @@
 # per-dispatch overhead of kernel-dispatch tracing.
 #
 # Time-series binning, boot->unix offset, string interning, and the hold-window
-# release mirror collector_trace_kernel.py.
+# closing mirror collector_trace_kernel.py.
 
 import configparser
 import logging
 import threading
-import time
-from collections import OrderedDict, defaultdict
 
 import orjson
 from flask import Flask, request
@@ -126,17 +124,17 @@ class RcclTrace(BinnedTraceCollector):
         self.__comms = []
         self.__lock = threading.Lock()
 
-        # Global cumulative accumulators.
+        # Bin series; each owns its per-bin deltas and running totals.
         #   collective semantics (EXACT, no duration):
         #     key:   (gpu_id, collective, datatype, size_bucket, comm_size)
         #     value: [count, bytes]
-        self.__collective_values = defaultdict(lambda: [0, 0])
-        #   comm init duration: gpu_id -> cumulative ns spent creating communicators
-        self.__comm_init_ns = defaultdict(int)
-        #   communicators created: gpu_id -> nranks label -> cumulative count
-        self.__comm_created = defaultdict(lambda: defaultdict(int))
-
-        # Time-series snapshot buffers (bin -> {key: snapshot}). One per family.
+        #   comm creation:
+        #     key:   (gpu_id, nranks label or None)
+        #     value: [count, init_ns]
+        #   The None key carries the card-level total the duration metric needs,
+        #   because that metric is labelled by card alone while the count also
+        #   carries nranks. Do NOT re-derive it by summing the nranks keys in a
+        #   bin: a bin only holds the keys that changed in it.
         self.__collective_ts = self._new_series()
         self.__comm_ts = self._new_series()
 
@@ -176,17 +174,21 @@ class RcclTrace(BinnedTraceCollector):
     def formatMetrics(self, label_defaults, flush=False):
         last_bin = self.__process()
         cutoff = self._cutoff(last_bin, flush)
-        collective_bins = self._pop_bins(self.__collective_ts, cutoff)
-        comm_bins = self._pop_bins(self.__comm_ts, cutoff)
-        return self.__format(collective_bins, comm_bins, label_defaults)
+        self.__collective_ts.freeze(cutoff)
+        self.__comm_ts.freeze(cutoff)
+        collective_bins, collective_frozen = self.__collective_ts.pop_frozen()
+        comm_bins, comm_frozen = self.__comm_ts.pop_frozen()
+        return self.__format(collective_bins, collective_frozen, comm_bins, comm_frozen, label_defaults)
 
     def __process(self):
-        """Drain staged records, update accumulators, snapshot into bins.
+        """Drain staged records and accumulate them into per-bin deltas.
 
         Returns the most recent collective bin (ms).
         """
-        first_bin, last_bin = self._extend_bins(self.__collective_ts)
-        comm_first, comm_last = self._extend_bins(self.__comm_ts)
+        # One clock read for both series, so their bins stay aligned.
+        current_bin = self._current_bin()
+        first_bin, last_bin = self._extend_bins(self.__collective_ts, current_bin)
+        comm_first, comm_last = self._extend_bins(self.__comm_ts, current_bin)
 
         collectives = comms = []
         if self.__collectives or self.__comms:
@@ -195,8 +197,10 @@ class RcclTrace(BinnedTraceCollector):
                 comms, self.__comms = self.__comms, []
 
         # 1) Comm CREATES: register comm -> nranks so collectives in this same
-        # cycle can resolve their comm_size. Teardown ops are not collected --
-        # see the module docstring.
+        # cycle can resolve their comm_size. Teardown ops are not collected;
+        # see the module docstring. A late create still registers its nranks
+        # above, so collectives keep resolving comm_size even when its own
+        # count is dropped.
         for gpu_id, op, comm, nranks, h_start, h_end in comms:
             if op not in COMM_CREATE_OPS:
                 continue
@@ -205,9 +209,12 @@ class RcclTrace(BinnedTraceCollector):
             if not self._in_window(end_bin, comm_first, comm_last):
                 self._late_records += 1
                 continue
-            self.__comm_init_ns[gpu_id] += h_end - h_start
-            self.__comm_created[gpu_id][self._intern(nranks_label(nranks))] += 1
-            self.__snapshot_comm(gpu_id, end_bin)
+            values = self.__comm_ts.bins[end_bin]
+            duration_ns = h_end - h_start
+            for key in ((gpu_id, None), (gpu_id, self._intern(nranks_label(nranks)))):
+                delta = values[key]
+                delta[0] += 1
+                delta[1] += duration_ns
 
         # 2) Collectives: record EXACT semantics (count, bytes). Enumeration
         # only — no GPU duration, which would require the kernel join.
@@ -226,32 +233,39 @@ class RcclTrace(BinnedTraceCollector):
                 sbucket,
                 self._intern(nranks_label(self.__comm_nranks.get(comm))),
             )
-            val = self.__collective_values[key]
-            val[0] += 1
-            val[1] += count * dsize
-            self.__collective_ts[end_bin][key] = val[:]
+            delta = self.__collective_ts.bins[end_bin][key]
+            delta[0] += 1
+            delta[1] += count * dsize
 
         return last_bin
 
-    def __snapshot_comm(self, gpu_id, end_bin):
-        self.__comm_ts[end_bin][gpu_id] = (self.__comm_init_ns[gpu_id], dict(self.__comm_created[gpu_id]))
-
-    def __format(self, collective_bins, comm_bins, label_defaults):
-        # Collective semantics — EXACT (count, bytes). No duration here.
+    def __format(self, collective_bins, collective_running, comm_bins, comm_running, label_defaults):
+        # Bins hold per-interval counts; cumulative values are formed here, from
+        # where the last push left off.
         for interval_bin, keys in collective_bins:
-            for (gpu_id, collective, dtype, sbucket, comm_size), value in keys.items():
+            for key, delta in keys.items():
+                gpu_id, collective, dtype, sbucket, comm_size = key
+                total = collective_running[key]
+                total[0] += delta[0]
+                total[1] += delta[1]
                 labels = f'{label_defaults},card="{gpu_id}",collective="{collective}",datatype="{dtype}",size_bucket="{sbucket}",comm_size="{comm_size}"'
-                yield f"omnistat_rccl_collective_count{{{labels}}} {value[0]} {interval_bin}".encode()
+                yield f"omnistat_rccl_collective_count{{{labels}}} {total[0]} {interval_bin}".encode()
                 yield b"\n"
-                yield f"omnistat_rccl_collective_total_bytes{{{labels}}} {value[1]} {interval_bin}".encode()
+                yield f"omnistat_rccl_collective_total_bytes{{{labels}}} {total[1]} {interval_bin}".encode()
                 yield b"\n"
+            # The collective series always has bins, so a drop on either stream
+            # is reported even in a cycle with no comm records.
             yield f"omnistat_rccl_late_records{{{label_defaults}}} {self._late_records} {interval_bin}".encode()
             yield b"\n"
 
-        for interval_bin, gpus in comm_bins:
-            for gpu_id, (init_ns, created) in gpus.items():
-                yield f'omnistat_rccl_comm_init_total_duration_ns{{{label_defaults},card="{gpu_id}"}} {init_ns} {interval_bin}'.encode()
+        for interval_bin, keys in comm_bins:
+            for key, delta in keys.items():
+                gpu_id, nranks = key
+                total = comm_running[key]
+                total[0] += delta[0]
+                total[1] += delta[1]
+                if nranks is None:
+                    yield f'omnistat_rccl_comm_init_total_duration_ns{{{label_defaults},card="{gpu_id}"}} {total[1]} {interval_bin}'.encode()
+                else:
+                    yield f'omnistat_rccl_comm_created_count{{{label_defaults},card="{gpu_id}",nranks="{nranks}"}} {total[0]} {interval_bin}'.encode()
                 yield b"\n"
-                for nranks, count in created.items():
-                    yield f'omnistat_rccl_comm_created_count{{{label_defaults},card="{gpu_id}",nranks="{nranks}"}} {count} {interval_bin}'.encode()
-                    yield b"\n"
