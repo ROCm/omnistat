@@ -78,8 +78,9 @@ class BinSeries:
     def freeze(self, cutoff_bin):
         """Freeze every bin at or below cutoff_bin.
 
-        Freezing is not publishing; called on every poll, so each call takes the
-        bin or two that just aged out rather than the whole backlog.
+        Freezing is not publishing; called by collectors on every poll, so each
+        call takes the bin or two that just aged out rather than the whole
+        backlog.
         """
         num_pop = 0
         for interval_bin in self.bins:

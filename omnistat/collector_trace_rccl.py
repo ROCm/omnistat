@@ -168,17 +168,21 @@ class RcclTrace(BinnedTraceCollector):
             return str(e), 400
 
     def updateMetrics(self):
-        self.__process()
-        return
+        last_bin = self.__process()
+        self.__freeze(last_bin, flush=False)
 
     def formatMetrics(self, label_defaults, flush=False):
         last_bin = self.__process()
-        cutoff = self._cutoff(last_bin, flush)
-        self.__collective_ts.freeze(cutoff)
-        self.__comm_ts.freeze(cutoff)
+        self.__freeze(last_bin, flush)
         collective_bins, collective_frozen = self.__collective_ts.pop_frozen()
         comm_bins, comm_frozen = self.__comm_ts.pop_frozen()
         return self.__format(collective_bins, collective_frozen, comm_bins, comm_frozen, label_defaults)
+
+    def __freeze(self, last_bin, flush):
+        """Freeze both series on the same cutoff."""
+        cutoff = self._cutoff(last_bin, flush)
+        self.__collective_ts.freeze(cutoff)
+        self.__comm_ts.freeze(cutoff)
 
     def __process(self):
         """Drain staged records and accumulate them into per-bin deltas.
