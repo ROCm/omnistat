@@ -915,12 +915,9 @@ class TestRcclCommCreation:
         set_time(mock_time, 3)
 
         lines = metric_lines(rccl_collector)
+        assert any(l.startswith("omnistat_rccl_comm_created_count{") and 'card="0",nranks="8"}' in l for l in lines)
         assert any(
-            l.startswith('omnistat_rccl_comm_created_count{') and 'card="0",nranks="8"}' in l for l in lines
-        )
-        assert any(
-            l.startswith('omnistat_rccl_comm_init_total_duration_ns{') and 'card="0",nranks="8"}' in l
-            for l in lines
+            l.startswith("omnistat_rccl_comm_init_total_duration_ns{") and 'card="0",nranks="8"}' in l for l in lines
         )
 
     def test_init_total_duration_sums_creates(self, rccl_collector, mock_time, flask_app):
@@ -1025,6 +1022,7 @@ class TestRcclLateRecords:
 
         lines = metric_lines(rccl_collector)
         assert any(l.startswith("omnistat_rccl_late_records{") for l in lines)
+
 
 class TestRcclFormatMetrics:
     def test_metric_names_present(self, rccl_collector, mock_time, flask_app):
