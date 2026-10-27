@@ -681,12 +681,14 @@ def rccl_collector(mock_time):
 
 
 class TestOutOfOrderRecords:
-    """Records do not arrive in end-timestamp order.
+    """Published counters must not depend on arrival order.
 
-    rocprofiler-sdk delivers kernel dispatches in completion-handler order,
-    and the RCCL callbacks run on the app's own threads and stage under a lock
-    long after they timestamp. Published counters must not depend on that
-    order, and in particular must never decrease.
+    For kernels the exposure is structural: rocprofiler-sdk delivers dispatches
+    in completion-handler order, which is not end-timestamp order.
+
+    For RCCL it is narrower and has not been observed. These tests pin the
+    collector's order independence, not any claim about how RCCL records
+    actually arrive.
     """
 
     EARLY = 2.1  # -> bin 3000
@@ -737,6 +739,45 @@ class TestOutOfOrderRecords:
         order = [self.EARLY] * 3 + [self.LATE] * 2
         random.Random(seed).shuffle(order)
         assert self._kernel_counts(kernel_collector, order) == [3, 5]
+
+    # RCCL stages records the same way and had the same defect. Both of its
+    # series are covered: they accumulate independently.
+
+    def _rccl_counts(self, collector, flask_app, order, metric):
+        rows = [coll(0, "ncclAllReduce", 1024, DT_F32, 111, s_to_ns(t)) for t in order]
+        post(collector, flask_app, collectives_payload(rows))
+        return self._counts(collector.formatMetrics(LABEL_DEFAULTS, flush=True), metric)
+
+    def _comm_durations(self, collector, flask_app, order):
+        comms = [[0, "ncclCommInitRank", 500 + i, 8, s_to_ns(t), s_to_ns(t) + 100] for i, t in enumerate(order)]
+        post(collector, flask_app, payload(comms=comms))
+        return self._counts(
+            collector.formatMetrics(LABEL_DEFAULTS, flush=True),
+            "omnistat_rccl_comm_init_total_duration_ns",
+        )
+
+    def test_rccl_collective_in_order_baseline(self, rccl_collector, mock_time, flask_app):
+        set_time(mock_time, 4)
+        order = [self.EARLY] * 3 + [self.LATE] * 2
+        assert self._rccl_counts(rccl_collector, flask_app, order, "omnistat_rccl_collective_count") == [3, 5]
+
+    def test_rccl_collective_inverted_within_batch(self, rccl_collector, mock_time, flask_app):
+        set_time(mock_time, 4)
+        order = [self.LATE, self.LATE, self.EARLY, self.EARLY, self.EARLY]
+        assert self._rccl_counts(rccl_collector, flask_app, order, "omnistat_rccl_collective_count") == [3, 5]
+
+    @pytest.mark.parametrize("seed", [0, 1, 2, 3, 4])
+    def test_rccl_collective_permutation_invariant(self, rccl_collector, mock_time, flask_app, seed):
+        set_time(mock_time, 4)
+        order = [self.EARLY] * 3 + [self.LATE] * 2
+        random.Random(seed).shuffle(order)
+        assert self._rccl_counts(rccl_collector, flask_app, order, "omnistat_rccl_collective_count") == [3, 5]
+
+    def test_rccl_comm_inverted_within_batch(self, rccl_collector, mock_time, flask_app):
+        """The comm series accumulates duration, so inversion showed up there too."""
+        set_time(mock_time, 4)
+        order = [self.LATE, self.EARLY, self.EARLY]
+        assert self._comm_durations(rccl_collector, flask_app, order) == [200, 300]
 
 
 class TestRcclBucketing:
