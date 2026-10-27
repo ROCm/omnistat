@@ -47,9 +47,10 @@ except KeyError:
 
 METRIC_COUNT = "omnistat_kernel_dispatch_count"
 METRIC_DURATION = "omnistat_kernel_total_duration_ns"
+METRIC_LATE = "omnistat_kernel_late_records"
 
 
-def run_kernel_trace_pipeline(trace, advance_ms=None):
+def run_kernel_trace_pipeline(trace, advance_ms=None, deliver_ms=0):
     """Simulate a complete kernel-trace collection cycle and push results.
 
     Creates a KernelTrace collector, feeds it every batch of dispatch records
@@ -58,8 +59,13 @@ def run_kernel_trace_pipeline(trace, advance_ms=None):
 
     Args:
         trace: A KernelGenerator with dispatches already added.
-        advance_ms: Milliseconds to advance the simulated clock.
-                    Defaults to 1s beyond the collector's buffer window.
+        advance_ms: Milliseconds to advance the simulated clock before the
+                    final format, which is what ages bins past the hold
+                    window so they are published. Defaults to 1s beyond the
+                    collector's buffer window.
+        deliver_ms: Milliseconds after a bin ends to deliver that bin's
+                    records. Must stay under the hold window; past it the
+                    collector correctly rejects them as late.
     """
     interval_s = trace.interval_ms / 1000.0
     init_time_ns = trace.base_bin_ms * 1_000_000
@@ -72,9 +78,12 @@ def run_kernel_trace_pipeline(trace, advance_ms=None):
         advance_ms = collector._window_ms + 1000
 
     # Inject each batch via a Flask request context, then process dispatches
-    # at the batch's simulated wall-clock time.
+    # at the batch's simulated wall-clock time. Delivery time is independent
+    # of advance_ms: bins are closed on every poll, so a batch delivered more
+    # than the hold window after its bin ended is rejected as late. Ageing the
+    # bins out is the job of the final format below, not of delivery.
     flask_app = Flask(__name__)
-    for i, process_time_ns, records in trace.generate_batches(advance_ms=advance_ms):
+    for i, process_time_ns, records in trace.generate_batches(advance_ms=deliver_ms):
         json_data = orjson.dumps(records)
         with flask_app.test_request_context(data=json_data, content_type="application/json"):
             collector.handleRequest()
@@ -135,6 +144,45 @@ class TestKernelTrace:
         timestamp = trace.bin_timestamp_ms(interval_index=0)
         assert query_at(METRIC_COUNT, labels, timestamp) == 1
         assert query_at(METRIC_DURATION, labels, timestamp) == 1
+
+    def test_late_delivery_within_the_window_is_counted(self):
+        """Records are held for the window, so a slow tracer flush still lands.
+
+        The window exists to cover the tracer's flush interval plus its HTTP
+        timeout, so delivery several seconds after the bin ended is normal.
+        """
+        trace = KernelGenerator(duration_s=1, interval_s=1.0)
+        trace.add_dispatch(0, "kernel_a", 0, 1)
+
+        run_kernel_trace_pipeline(trace, deliver_ms=12_000)
+
+        labels = trace.query_labels(0, "kernel_a")
+        timestamp = trace.bin_timestamp_ms(interval_index=0)
+        assert query_at(METRIC_COUNT, labels, timestamp) == 1
+        assert query_at(METRIC_DURATION, labels, timestamp) == 1
+        assert query_at(METRIC_LATE, trace.label_defaults, timestamp) == 0
+
+    def test_delivery_past_the_window_is_rejected_as_late(self):
+        """Past the window the bin has closed, so the record cannot be counted.
+
+        Bins close on every poll, which fixes the tolerated lateness at the
+        hold window. Dropping is deliberate: counting it would raise a bin
+        already published, which is the counter reset this change exists to
+        prevent. The loss is reported, not silent.
+
+        Needs two intervals: a record is always placed before bins close
+        within the same poll, so the bin has to have been closed by an
+        earlier poll for the rejection to happen at all.
+        """
+        trace = KernelGenerator(duration_s=2, interval_s=1.0)
+        trace.add_dispatch(0, "kernel_a", 999_000_000, 1_000_000)  # ends in interval 1
+
+        run_kernel_trace_pipeline(trace, deliver_ms=16_000)
+
+        labels = trace.query_labels(0, "kernel_a")
+        timestamp = trace.bin_timestamp_ms(interval_index=1)
+        assert query_at(METRIC_COUNT, labels, timestamp) is None
+        assert query_at(METRIC_LATE, trace.label_defaults, timestamp) == 1
 
     @pytest.mark.parametrize(
         "dispatch_start_ns, dispatch_duration_ns, expected_bin",
