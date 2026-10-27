@@ -1,5 +1,7 @@
 import configparser
+import random
 import threading
+from collections import defaultdict
 from unittest.mock import Mock, patch
 
 import orjson
@@ -13,6 +15,33 @@ from omnistat.collector_trace_rccl import RcclTrace, nranks_label, size_bucket
 # ==============================================================================
 # Shared helpers and fixtures
 # ==============================================================================
+
+
+def _totals(series):
+    """Sum per-bin deltas across every live bin.
+
+    Reproduces what the old global accumulators held, so assertions can stay
+    value-based now that bins carry deltas rather than cumulative snapshots.
+    """
+    out = defaultdict(lambda: [0, 0])
+    for values in series.bins.values():
+        for key, delta in values.items():
+            out[key][0] += delta[0]
+            out[key][1] += delta[1]
+    return out
+
+
+def kernel_totals(collector):
+    return _totals(collector._KernelTrace__ts)
+
+
+def collective_totals(collector):
+    return _totals(collector._RcclTrace__collective_ts)
+
+
+def comm_totals(collector):
+    """(gpu_id, nranks) -> [creates, init_ns]."""
+    return _totals(collector._RcclTrace__comm_ts)
 
 
 def s_to_ns(s):
@@ -64,7 +93,7 @@ def flask_app():
 
 
 # ==============================================================================
-# 1. Time binning -- BinnedTraceCollector
+# 1. Time binning (BinnedTraceCollector)
 # ==============================================================================
 #
 # Both trace collectors inherit this behaviour, so it is tested once here rather
@@ -105,7 +134,7 @@ class TestBinInit:
         assert StubBinned(0.0)._interval_ms == 1
 
     def test_new_series_seeds_the_current_bin(self, binned):
-        assert list(binned._new_series().keys()) == [FIRST_BIN_MS]
+        assert list(binned._new_series().bins.keys()) == [FIRST_BIN_MS]
 
 
 class TestBinAssignment:
@@ -121,17 +150,17 @@ class TestBinAssignment:
         assert StubBinned(INTERVAL_S)._bin_for(s_to_ns(1)) == 9000  # +7s offset
 
     def test_extend_bins_grows_to_now(self, binned, mock_time):
-        ts = binned._new_series()
+        series = binned._new_series()
         set_time(mock_time, 4)
-        first, last = binned._extend_bins(ts)
+        first, last = binned._extend_bins(series, binned._current_bin())
         assert (first, last) == (FIRST_BIN_MS, 5000)
-        assert list(ts.keys()) == [2000, 3000, 4000, 5000]
+        assert list(series.bins.keys()) == [2000, 3000, 4000, 5000]
 
     def test_extend_bins_reseeds_when_empty(self, binned):
         """A series emptied by a flush=True release is re-seeded, not left bare."""
-        ts = binned._new_series()
-        ts.clear()
-        assert binned._extend_bins(ts) == (FIRST_BIN_MS, FIRST_BIN_MS)
+        series = binned._new_series()
+        series.bins.clear()
+        assert binned._extend_bins(series, binned._current_bin()) == (FIRST_BIN_MS, FIRST_BIN_MS)
 
     def test_in_window_is_inclusive_at_both_ends(self, binned):
         assert binned._in_window(2000, 2000, 4000)
@@ -140,22 +169,85 @@ class TestBinAssignment:
         assert not binned._in_window(4001, 2000, 4000)
 
 
-class TestBinRelease:
+class TestBinFreezing:
     def test_cutoff_holds_a_window_unless_flushing(self, binned):
         assert binned._cutoff(20_000, flush=False) == 20_000 - binned._window_ms
         assert binned._cutoff(20_000, flush=True) == 20_000
 
-    def test_pop_bins_releases_up_to_and_including_cutoff(self, binned):
-        ts = binned._new_series()
-        ts.clear()
-        ts[1000], ts[2000], ts[3000] = {}, {}, {}
+    def test_freezing_moves_bins_up_to_and_including_cutoff(self, binned):
+        series = binned._new_series()
+        series.bins.clear()
+        series.bins[1000], series.bins[2000], series.bins[3000] = {}, {}, {}
 
-        assert binned._pop_bins(ts, 1000 - 1) == []  # cutoff below all: nothing
-        assert binned._pop_bins(ts, 2000) == [(1000, {}), (2000, {})]  # inclusive
-        assert list(ts.keys()) == [3000]
+        series.freeze(1000 - 1)  # cutoff below all: nothing moves
+        assert series.pop_frozen() == ([], {})
 
-        ts.clear()
-        assert binned._pop_bins(ts, 9999) == []  # empty series is not an error
+        series.freeze(2000)  # inclusive at the cutoff
+        bins, _ = series.pop_frozen()
+        assert bins == [(1000, {}), (2000, {})]
+        assert list(series.bins.keys()) == [3000]
+
+        series.bins.clear()
+        series.freeze(9999)  # empty series is not an error
+        assert series.pop_frozen() == ([], {})
+
+    def test_freezing_keeps_deltas_and_advances_totals(self, binned):
+        """Frozen bins still hold deltas; only the series total moves."""
+        series = binned._new_series()
+        series.bins.clear()
+        series.bins[1000] = {"k": [3, 30]}
+        series.bins[2000] = {"k": [2, 20]}
+
+        series.freeze(2000)
+        bins, frozen_totals = series.pop_frozen()
+
+        assert bins == [(1000, {"k": [3, 30]}), (2000, {"k": [2, 20]})]  # deltas
+        assert series.totals["k"] == [5, 50]  # total advances as bins close
+        assert frozen_totals == {}  # nothing had been published before these bins
+
+    def test_frozen_totals_carries_the_starting_point_across_pops(self, binned):
+        """A later publish resumes from where the previous one ended.
+
+        Totals advance when a bin freezes, so an abandoned publish cannot lose
+        them; frozen_totals is what lets the next publish emit cumulative values
+        without the bins ever storing one.
+        """
+        series = binned._new_series()
+        series.bins.clear()
+
+        series.bins[1000] = {"k": [3, 30]}
+        series.freeze(1000)
+        bins, frozen_totals = series.pop_frozen()
+        assert (bins, frozen_totals) == ([(1000, {"k": [3, 30]})], {})
+
+        series.bins[2000] = {"k": [2, 20]}
+        series.freeze(2000)
+        bins, frozen_totals = series.pop_frozen()
+        assert bins == [(2000, {"k": [2, 20]})]
+        assert frozen_totals == {"k": [3, 30]}  # resumes from the first publish
+
+    def test_frozen_totals_is_detached_from_the_series_total(self, binned):
+        """The publish-time accumulator must not alias series.totals.
+
+        __format mutates the totals copy as it emits, on the push thread, while
+        the polling thread keeps advancing totals.
+        """
+        series = binned._new_series()
+        series.bins.clear()
+        series.bins[1000] = {"k": [1, 10]}
+        series.freeze(1000)
+        series.pop_frozen()
+
+        series.bins[2000] = {"k": [1, 10]}
+        series.freeze(2000)
+        _, frozen_totals = series.pop_frozen()
+
+        frozen_totals["k"][0] += 99  # as __format would, while emitting
+        assert series.totals["k"] == [2, 20]  # untouched
+
+    def test_pop_frozen_is_empty_until_something_is_frozen(self, binned):
+        series = binned._new_series()
+        assert series.pop_frozen() == ([], {})
 
 
 class TestInterning:
@@ -216,13 +308,13 @@ class TestKernelProcess:
             last_bin = kernel_collector._KernelTrace__process()
 
             assert last_bin == (i * INTERVAL_MS) + INTERVAL_MS
-            assert len(kernel_collector._KernelTrace__values) == 0
+            assert len(kernel_totals(kernel_collector)) == 0
 
-            bins = kernel_collector._KernelTrace__ts
+            bins = kernel_collector._KernelTrace__ts.bins
             assert last_bin in bins
             assert len(bins[last_bin]) == 0
 
-        assert len(kernel_collector._KernelTrace__ts) == duration_s + 1
+        assert len(kernel_collector._KernelTrace__ts.bins) == duration_s + 1
 
     def test_single_dispatch(self, kernel_collector, mock_time):
         """A single dispatch is accumulated and snapshotted into the correct bin."""
@@ -233,8 +325,8 @@ class TestKernelProcess:
         set_time(mock_time, 3)
         last_bin = kernel_collector._KernelTrace__process()
 
-        values = kernel_collector._KernelTrace__values
-        ts = kernel_collector._KernelTrace__ts
+        values = kernel_totals(kernel_collector)
+        ts = kernel_collector._KernelTrace__ts.bins
 
         key = ("0", "kernel_a")
         assert key in values
@@ -256,36 +348,38 @@ class TestKernelProcess:
         set_time(mock_time, 3)
         kernel_collector._KernelTrace__process()
 
-        values = kernel_collector._KernelTrace__values
-        ts = kernel_collector._KernelTrace__ts
+        values = kernel_totals(kernel_collector)
+        ts = kernel_collector._KernelTrace__ts.bins
         key = ("0", "kernel_a")
 
         assert values[key] == [2, 80]
         assert ts[3000][key] == [2, 80]
 
-    def test_same_kernel_cumulative_snapshot(self, kernel_collector, mock_time):
-        """Snapshots in __ts are cumulative totals, not per-bin deltas."""
+    def test_published_values_are_cumulative(self, kernel_collector, mock_time):
+        """Bins hold per-bin deltas; published values are cumulative totals."""
         key = ("0", "kernel_a")
+        series = kernel_collector._KernelTrace__ts
 
-        # First dispatch: end at t=2.5s -> end_bin=3000
-        d1 = make_dispatch("0", "kernel_a", end_ns=s_to_ns(2.5), duration_ns=40)
-        kernel_collector._KernelTrace__dispatches.append(d1)
-        set_time(mock_time, 3)
-        kernel_collector._KernelTrace__process()
+        for end_s, dur in ((2.5, 40), (3.5, 25)):
+            kernel_collector._KernelTrace__dispatches.append(
+                make_dispatch("0", "kernel_a", end_ns=s_to_ns(end_s), duration_ns=dur)
+            )
+            set_time(mock_time, int(end_s) + 1)
+            kernel_collector._KernelTrace__process()
 
-        ts = kernel_collector._KernelTrace__ts
-        assert ts[3000][key] == [1, 40]
+        # Each bin counts only the dispatches that ended within it...
+        assert series.bins[3000][key] == [1, 40]
+        assert series.bins[4000][key] == [1, 25]
 
-        # Second dispatch: end at t=3.5s -> end_bin=4000
-        d2 = make_dispatch("0", "kernel_a", end_ns=s_to_ns(3.5), duration_ns=25)
-        kernel_collector._KernelTrace__dispatches.append(d2)
-        set_time(mock_time, 4)
-        kernel_collector._KernelTrace__process()
-
-        # ts[4000] snapshot includes both dispatches
-        assert ts[4000][key] == [2, 65]
-        # ts[3000] is unchanged
-        assert ts[3000][key] == [1, 40]
+        # ...and stays that way once released; the cumulative view is built
+        # only when the metrics are published.
+        set_time(mock_time, 30)
+        counts = [
+            int(float(line.split("}")[1].split()[0]))
+            for line in collect_metrics(kernel_collector)["kernel"]
+            if line.startswith(COUNT_METRIC)
+        ]
+        assert counts == [1, 2]
 
     def test_multiple_kernels_multiple_gpus(self, kernel_collector, mock_time):
         """4 dispatches across 2 GPUs and 2 kernels all go into the same bin."""
@@ -300,8 +394,8 @@ class TestKernelProcess:
         set_time(mock_time, 3)
         kernel_collector._KernelTrace__process()
 
-        values = kernel_collector._KernelTrace__values
-        ts = kernel_collector._KernelTrace__ts
+        values = kernel_totals(kernel_collector)
+        ts = kernel_collector._KernelTrace__ts.bins
 
         assert len(values) == 4
         assert len(ts[3000]) == 4
@@ -317,7 +411,7 @@ class TestKernelProcess:
         set_time(mock_time, 4)
         kernel_collector._KernelTrace__process()
 
-        ts = kernel_collector._KernelTrace__ts
+        ts = kernel_collector._KernelTrace__ts.bins
         key = ("0", "kernel_a")
 
         assert key in ts[2000]
@@ -334,12 +428,12 @@ class TestKernelProcess:
         set_time(mock_time, 3)
         kernel_collector._KernelTrace__process()
 
-        assert kernel_collector._KernelTrace__values == {}
+        assert kernel_totals(kernel_collector) == {}
         assert kernel_collector._late_records == 2
 
 
 class TestKernelFormatMetrics:
-    def test_flush_releases_what_no_flush_holds(self, kernel_collector, mock_time):
+    def test_flush_publishes_what_no_flush_holds(self, kernel_collector, mock_time):
         """The same recent bin is held with flush=False and released with flush=True."""
         kernel_collector._KernelTrace__dispatches.append(
             make_dispatch("0", "kernel_a", end_ns=s_to_ns(2.5), duration_ns=50)
@@ -350,9 +444,9 @@ class TestKernelFormatMetrics:
 
         metrics = collect_metrics(kernel_collector, flush=True)
         assert len(metrics["kernel"]) == 2
-        assert len(kernel_collector._KernelTrace__ts) == 0
+        assert len(kernel_collector._KernelTrace__ts.bins) == 0
 
-    def test_no_flush_releases(self, kernel_collector, mock_time):
+    def test_no_flush_publishes(self, kernel_collector, mock_time):
         """Bins older than the hold window are released with flush=False."""
         dispatch = make_dispatch("0", "kernel_a", end_ns=s_to_ns(2.5), duration_ns=50)
         kernel_collector._KernelTrace__dispatches.append(dispatch)
@@ -522,7 +616,7 @@ class TestKernelThreadSafety:
         kernel_collector._KernelTrace__process()
 
         # 3 first batch + 2 second batch = 5 total
-        assert kernel_collector._KernelTrace__values[(0, "kernel_a")][0] == 5
+        assert kernel_totals(kernel_collector)[(0, "kernel_a")][0] == 5
 
 
 class TestKernelUpdateMetrics:
@@ -533,7 +627,7 @@ class TestKernelUpdateMetrics:
         kernel_collector.updateMetrics()
 
         assert kernel_collector._KernelTrace__dispatches == []
-        assert kernel_collector._KernelTrace__values[(0, "kernel_a")][0] == 1
+        assert kernel_totals(kernel_collector)[(0, "kernel_a")][0] == 1
 
 
 class TestKernelNameInterning:
@@ -584,6 +678,65 @@ def payload(collectives=None, comms=None):
 @pytest.fixture
 def rccl_collector(mock_time):
     return RcclTrace(configparser.ConfigParser(), Mock(), INTERVAL_S)
+
+
+class TestOutOfOrderRecords:
+    """Records do not arrive in end-timestamp order.
+
+    rocprofiler-sdk delivers kernel dispatches in completion-handler order,
+    and the RCCL callbacks run on the app's own threads and stage under a lock
+    long after they timestamp. Published counters must not depend on that
+    order, and in particular must never decrease.
+    """
+
+    EARLY = 2.1  # -> bin 3000
+    LATE = 3.1  # -> bin 4000
+
+    @staticmethod
+    def _counts(lines, metric):
+        out = []
+        for line in lines:
+            text = line.decode() if isinstance(line, bytes) else line
+            if text.startswith(metric):
+                out.append(int(float(text.split("}")[1].split()[0])))
+        return out
+
+    def _kernel_counts(self, collector, order):
+        for end_s in order:
+            collector._KernelTrace__dispatches.append(
+                make_dispatch("0", "kernel_a", end_ns=s_to_ns(end_s), duration_ns=10)
+            )
+        return self._counts(
+            collector.formatMetrics(LABEL_DEFAULTS, flush=True),
+            "omnistat_kernel_dispatch_count",
+        )
+
+    def test_kernel_in_order_baseline(self, kernel_collector, mock_time):
+        set_time(mock_time, 4)
+        assert self._kernel_counts(kernel_collector, [self.EARLY] * 3 + [self.LATE] * 2) == [3, 5]
+
+    def test_kernel_inverted_within_batch(self, kernel_collector, mock_time):
+        """Batch ends on a record belonging to the EARLIER bin."""
+        set_time(mock_time, 4)
+        order = [self.LATE, self.LATE, self.EARLY, self.EARLY, self.EARLY]
+        assert self._kernel_counts(kernel_collector, order) == [3, 5]
+
+    def test_kernel_inverted_across_batches(self, kernel_collector, mock_time):
+        """A later batch carrying earlier timestamps; sorting cannot fix this."""
+        set_time(mock_time, 4)
+        for end_s in [self.LATE, self.LATE]:
+            kernel_collector._KernelTrace__dispatches.append(
+                make_dispatch("0", "kernel_a", end_ns=s_to_ns(end_s), duration_ns=10)
+            )
+        kernel_collector._KernelTrace__process()
+        assert self._kernel_counts(kernel_collector, [self.EARLY] * 3) == [3, 5]
+
+    @pytest.mark.parametrize("seed", [0, 1, 2, 3, 4])
+    def test_kernel_permutation_invariant(self, kernel_collector, mock_time, seed):
+        set_time(mock_time, 4)
+        order = [self.EARLY] * 3 + [self.LATE] * 2
+        random.Random(seed).shuffle(order)
+        assert self._kernel_counts(kernel_collector, order) == [3, 5]
 
 
 class TestRcclBucketing:
@@ -641,7 +794,7 @@ class TestRcclCollectiveAccounting:
         rccl_collector._RcclTrace__process()
 
         key = (0, "AllReduce", "float32", "64M", "unknown")  # card=0
-        val = rccl_collector._RcclTrace__collective_values[key]
+        val = collective_totals(rccl_collector)[key]
         assert val == [1, 8388608 * 4]  # [count, bytes] — enumeration only
 
     def test_count_accumulates(self, rccl_collector, mock_time, flask_app):
@@ -654,11 +807,11 @@ class TestRcclCollectiveAccounting:
         set_time(mock_time, 3)
         rccl_collector._RcclTrace__process()
 
-        assert rccl_collector._RcclTrace__collective_values[(0, "AllReduce", "float32", "4K", "unknown")] == [
+        assert collective_totals(rccl_collector)[(0, "AllReduce", "float32", "4K", "unknown")] == [
             2,
             2 * 4096,
         ]
-        assert rccl_collector._RcclTrace__collective_values[(1, "AllReduce", "float32", "4K", "unknown")] == [1, 4096]
+        assert collective_totals(rccl_collector)[(1, "AllReduce", "float32", "4K", "unknown")] == [1, 4096]
 
     def test_comm_size_bucket_from_comm(self, rccl_collector, mock_time, flask_app):
         # init an 8-rank comm (handle 555), then a collective on it
@@ -669,7 +822,7 @@ class TestRcclCollectiveAccounting:
         rccl_collector._RcclTrace__process()
 
         key = (0, "AllReduce", "float32", "4K", "8")
-        assert rccl_collector._RcclTrace__collective_values[key][0] == 1
+        assert collective_totals(rccl_collector)[key][0] == 1
 
     def test_comm_size_resolves_for_trailing_collectives(self, rccl_collector, mock_time, flask_app):
         # Teardown is not traced, so a comm handle is never retired: collectives
@@ -681,8 +834,8 @@ class TestRcclCollectiveAccounting:
         set_time(mock_time, 3)
         rccl_collector._RcclTrace__process()
 
-        assert rccl_collector._RcclTrace__collective_values[(0, "AllReduce", "float32", "4K", "8")][0] == 1
-        assert (0, "AllReduce", "float32", "4K", "unknown") not in rccl_collector._RcclTrace__collective_values
+        assert collective_totals(rccl_collector)[(0, "AllReduce", "float32", "4K", "8")][0] == 1
+        assert (0, "AllReduce", "float32", "4K", "unknown") not in collective_totals(rccl_collector)
 
 
 class TestRcclCommCreation:
@@ -692,8 +845,7 @@ class TestRcclCommCreation:
         set_time(mock_time, 3)
         rccl_collector._RcclTrace__process()
 
-        assert rccl_collector._RcclTrace__comm_created[0]["2"] == 1
-        assert rccl_collector._RcclTrace__comm_init_ns[0] == 200
+        assert comm_totals(rccl_collector)[(0, "2")] == [1, 200]
 
     def test_teardown_ops_ignored(self, rccl_collector, mock_time, flask_app):
         # The tracer no longer emits teardown rows, but the rccl_collector must ignore
@@ -707,10 +859,9 @@ class TestRcclCommCreation:
         set_time(mock_time, 3)
         rccl_collector._RcclTrace__process()
 
-        assert rccl_collector._RcclTrace__comm_created[0]["8"] == 1
+        assert comm_totals(rccl_collector)[(0, "8")] == [1, 100]
         # teardown contributes nothing, and creates no phantom "unknown" bucket
-        assert rccl_collector._RcclTrace__comm_created[0].get("unknown", 0) == 0
-        assert rccl_collector._RcclTrace__comm_init_ns[0] == 100
+        assert (0, "unknown") not in comm_totals(rccl_collector)
 
     def test_init_total_duration_sums_creates(self, rccl_collector, mock_time, flask_app):
         comms = [
@@ -721,8 +872,7 @@ class TestRcclCommCreation:
         set_time(mock_time, 3)
         rccl_collector._RcclTrace__process()
 
-        assert rccl_collector._RcclTrace__comm_created[0]["8"] == 2
-        assert rccl_collector._RcclTrace__comm_init_ns[0] == 400  # 100 + 300
+        assert comm_totals(rccl_collector)[(0, "8")] == [2, 400]  # 100 + 300
 
     def test_split_derived_nranks_exact(self, rccl_collector, mock_time, flask_app):
         # After the tracer's ncclCommCount fix, a split arrives with a real
@@ -733,7 +883,7 @@ class TestRcclCommCreation:
         set_time(mock_time, 3)
         rccl_collector._RcclTrace__process()
 
-        assert rccl_collector._RcclTrace__comm_created[0]["4"] == 1
+        assert comm_totals(rccl_collector)[(0, "4")][0] == 1
 
 
 class TestRcclLateRecords:
@@ -755,7 +905,7 @@ class TestRcclLateRecords:
         rccl_collector._RcclTrace__process()
 
         assert rccl_collector._late_records == 1
-        assert rccl_collector._RcclTrace__collective_values == {}
+        assert collective_totals(rccl_collector) == {}
 
     def test_in_window_collective_not_counted(self, rccl_collector, mock_time, flask_app):
         rows = [coll(0, "ncclAllReduce", 1024, DT_F32, 111, s_to_ns(2))]
@@ -775,7 +925,7 @@ class TestRcclLateRecords:
         rccl_collector._RcclTrace__process()
 
         assert rccl_collector._late_records == 1
-        assert rccl_collector._RcclTrace__comm_created == {}
+        assert comm_totals(rccl_collector) == {}
 
     def test_late_comm_create_still_labels_its_collectives(self, rccl_collector, mock_time, flask_app):
         """Dropping a late create must not cost the comm its rank count.
@@ -815,7 +965,6 @@ class TestRcclLateRecords:
 
         lines = metric_lines(rccl_collector)
         assert any(l.startswith("omnistat_rccl_late_records{") for l in lines)
-
 
 class TestRcclFormatMetrics:
     def test_metric_names_present(self, rccl_collector, mock_time, flask_app):
@@ -890,11 +1039,11 @@ class TestRcclThreadSafety:
             rccl_collector._RcclTrace__process()
 
         key = (0, "AllReduce", "float32", "4K", "unknown")
-        assert rccl_collector._RcclTrace__collective_values[key][0] == 5
+        assert collective_totals(rccl_collector)[key][0] == 5
 
 
 class TestRcclHoldWindow:
-    def test_flush_releases_what_no_flush_holds(self, rccl_collector, mock_time, flask_app):
+    def test_flush_publishes_what_no_flush_holds(self, rccl_collector, mock_time, flask_app):
         """The same recent bin is held with flush=False and released with flush=True."""
         rows = [coll(0, "ncclAllReduce", 1024, DT_F32, 111, s_to_ns(2.5))]
         post(rccl_collector, flask_app, collectives_payload(rows))
@@ -904,7 +1053,7 @@ class TestRcclHoldWindow:
         released = metric_lines(rccl_collector, flush=True)
         assert any(l.startswith("omnistat_rccl_collective_count{") for l in released)
 
-    def test_no_flush_releases_once_past_the_window(self, rccl_collector, mock_time, flask_app):
+    def test_no_flush_publishes_once_past_the_window(self, rccl_collector, mock_time, flask_app):
         """Bins older than the hold window are released without a flush.
 
         The window is read from the collector rather than hardcoded: it is
@@ -930,4 +1079,23 @@ class TestRcclUpdateMetrics:
         rccl_collector.updateMetrics()
 
         assert rccl_collector._RcclTrace__collectives == []
-        assert rccl_collector._RcclTrace__collective_values[(0, "AllReduce", "float32", "4K", "unknown")][0] == 1
+        assert collective_totals(rccl_collector)[(0, "AllReduce", "float32", "4K", "unknown")][0] == 1
+
+    def test_both_series_extend_from_one_clock_read(self, rccl_collector, mock_time):
+        """Both series must share a last bin, so one cutoff fits both.
+
+        formatMetrics derives its cutoff from the collective series alone, so
+        the two must not drift apart. Reading the clock once per series would
+        let them land an interval apart whenever the second read crossed a
+        boundary. Simulating that here: _current_bin is rigged so a second
+        call would report the next interval, which only changes the outcome if
+        __process actually makes one.
+        """
+        set_time(mock_time, 10)
+        first = rccl_collector._current_bin()
+        with patch.object(rccl_collector, "_current_bin", side_effect=[first, first + INTERVAL_MS]):
+            rccl_collector.updateMetrics()
+
+        collective = rccl_collector._RcclTrace__collective_ts.bins
+        comm = rccl_collector._RcclTrace__comm_ts.bins
+        assert next(reversed(collective)) == next(reversed(comm))
