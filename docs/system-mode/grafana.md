@@ -1,4 +1,4 @@
-# Grafana Dashboards
+# Grafana dashboards
 
 Dashboards allow cluster telemetry data to be visualized interactively in near
 real-time. Omnistat provides several sample [Grafana](https://grafana.com/)
@@ -8,7 +8,7 @@ resource manager integration enabled are highlighted in [Example
 Screenshots](#example-screenshots)). JSON sources for example dashboards that
 can be used in local deployments are highlighted below.
 
-- *RMS* dashboards provide integration with *Resource Managers* like
+- *Resource Manager System (RMS)* dashboards provide integration with *Resource Managers* like
   SLURM.
   - [Global Dashboard](https://github.com/ROCm/omnistat/blob/main/grafana/json-models/system/rms-global.json):
     provides an overview of the system, cluster-level telemetry for allocated
@@ -42,16 +42,15 @@ including using packages for major operating systems.
 
 Connectivity between Grafana server and Prometheus server is required to
 display Omnistat data, so Grafana is typically installed and runs on an
-administrative host.  If the host chosen to support the Prometheus server can
-route out externally, you can also leverage public Grafana Cloud infrastructure
+administrative host. If the host chosen to support the Prometheus server can
+route out externally, you can also use public Grafana Cloud infrastructure
 and
 [forward](https://grafana.com/docs/agent/latest/flow/tasks/collect-prometheus-metrics/)
 system telemetry data to an external Grafana instance.
 
 
 ```{note}
-We recommend the official documentation for production systems. However, if you
-are only interested in testing the dashboards, you can use the [Grafana Docker
+For production systems, see the official documentation. To test the dashboards, use the [Grafana Docker
 image](https://grafana.com/docs/grafana/latest/setup-grafana/installation/docker/).
 For example, run a temporary Grafana container with the following command, load
 [localhost:3000](http://localhost:3000/) in a browser, and then follow the
@@ -93,11 +92,11 @@ To import a dashboard to an existing Grafana server:
    ```
 
 Sample dashboards are configured using standard default values for settings
-such as network ports, but may require changes depending on the environment.
-The following variable is the most relevant dashboard setting that may require
+such as network ports, but might require changes depending on the environment.
+The following variable is the most relevant dashboard setting that might require
 changes:
 - `source`: Name of the Prometheus data source where the data is stored.
-   Defaults to `prometheus`, and may require filtering if the Grafana instance
+   Defaults to `prometheus`, and might require filtering if the Grafana instance
    has several Prometheus data sources.
 
 To configure a dashboard:
@@ -112,24 +111,24 @@ To configure a dashboard:
 ```{eval-rst}
 .. figure:: ../images/dashboard-global.png
 
-   Global dashboard screenshot
+   Omnistat global dashboard showing cluster-wide GPU utilization and job allocation
 ```
 
 ```{eval-rst}
 .. figure:: ../images/dashboard-node.png
 
-   Node dashboard screenshot
+   Omnistat node dashboard showing per-GPU metrics and job timeline for a single node
 ```
 
 ```{eval-rst}
 .. figure:: ../images/dashboard-job.png
 
-   Job dashboard screenshot
+   Omnistat job dashboard showing time-series GPU metrics for a single job
 ```
 
 <hr style="border: 1px solid black;">
 
-## Cluster Rack View
+## Cluster rack view
 
 In addition to the pre-configured Grafana panels highlighted above, additional utilities are
 provided to generate a custom Grafana dashboard that renders a physical rack-layout
@@ -138,7 +137,7 @@ compute servers color-coded by metric value (e.g., temperature, utilization, pow
 specify rack sizes, locations, and include additional switch locations to match their local installation.
 
 
-### YAML Configuration
+### YAML configuration
 
 The desired cluster layout is defined in a YAML configuration file, and a companion Python
 generator script produces the Grafana dashboard JSON for import. To illustrate the configuration options, a simple two-rack example with different server types is provided in
@@ -168,16 +167,16 @@ Each entry in `racks` contains:
 
 Each entry in `servers` supports the following types:
 
-- **`compute`** — GPU-equipped server. Requires `hostname` and `gpu_count`,
+- **`compute`**: GPU-equipped server. Requires `hostname` and `gpu_count`,
   or a `vms` list for servers with individually-addressable GPUs. Each GPU
   is rendered as a color-coded box bound to the corresponding Prometheus
   metric field.
-- **`storage`** — Rendered as a solid block with a text label; no GPU metrics.
-- **`network`** — Rendered as a solid block with a text label; no GPU metrics.
+- **`storage`**: Rendered as a solid block with a text label; no GPU metrics.
+- **`network`**: Rendered as a solid block with a text label; no GPU metrics.
 
 Unoccupied rack unit slots are automatically filled with blank panels.
 
-### Generating the Dashboard
+### Generating the dashboard
 
 The cluster dashboard generator utility is located at [misc/cluster_dashboard/generate_cluster_dashboard.py](https://github.com/ROCm/omnistat/blob/main/misc/cluster_dashboard/generate_cluster_dashboard.py)
 within the Omnistat repository. The generator script requires Python 3 and additional dependencies outlined in [misc/cluster_dashboard/requirements.txt](https://github.com/ROCm/omnistat/blob/main/misc/cluster_dashboard/requirements.txt).

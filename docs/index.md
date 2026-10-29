@@ -1,7 +1,7 @@
-# Omnistat Documentation
+# Omnistat documentation
 
 Welcome to the documentation area for **Omnistat**, a set of Python utilities and data
-collectors to support scale-out cluster telemetry targeting AMD Instinct(tm) MI accelerators.
+collectors to support scale-out cluster telemetry targeting AMD Instinct™ MI accelerators.
 Omnistat operates in two primary modes: permanent, cluster-wide collection managed by a
 system administrator, and temporary collection scoped to a single user's batch job.
 Collected telemetry can be visualized in Grafana, exported for custom analysis, or explored

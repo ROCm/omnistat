@@ -1,22 +1,22 @@
 # System-mode installation
 
 As mentioned in the project {ref}`overview <user-vs-system>`, Omnistat has two primary modes of
-operation and this section highlights installation of the **system-mode** variant that is intended
+operation and this section highlights installation of the **system-mode** variant that's intended
 for permanent installations across an entire cluster and is typically performed by a system
 administrator with access to elevated credentials. 
 
 There are different ways to deploy and configure Omnistat in a data center, and each system will
-generally require a certain level of customization. Here, we provide the basic steps to install the
-Omnistat data collector, Prometheus server, and provide an example of how to deploy Omnistat in a
+generally require a certain level of customization. This section covers the basic steps to install the
+Omnistat data collector, Prometheus server, and provides an example of how to deploy Omnistat in a
 data center using Ansible. Finally, an approach for integrating with the SLURM workload manager to
 track user jobs is discussed.
 
-For system-wide installation, we recommend creation and usage of a dedicated Linux user that will be
-used to run the data collector daemon of Omnistat (`omnistat-monitor`).  In addition, per the
+For system-wide installation, create a dedicated Linux user to
+run the data collector daemon of Omnistat (`omnistat-monitor`). In addition, per the
 architecture highlighted in {numref}`fig-system-mode`, a separate server (or VM/container) is needed
-to support installations of a Prometheus server and Grafana instance.  These services can be hosted
+to support installations of a Prometheus server and Grafana instance. These services can be hosted
 on your cluster head-node, or via a separate administrative host. Note that if the host chosen to
-support the Prometheus server can route out externally, you can also leverage public Grafana cloud
+support the Prometheus server can route out externally, you can also use public Grafana cloud
 infrastructure and
 [forward](https://grafana.com/docs/agent/latest/flow/tasks/collect-prometheus-metrics/) system
 telemetry data to an external Grafana instance.
@@ -33,13 +33,13 @@ __Assumptions__:
 Different installation options exist depending on whether you want to install Omnistat from a
 released wheel package (recommended), or prefer to use a development version using git.
 Both options are highlighted below for a basic installation that enables standard GPU and host-level
-telemetry.  Depending on your local environment, you may also wish to augment the examples that follow
+telemetry. Depending on your local environment, you might also want to augment the examples that follow
 to install Omnistat within a dedicated Python virtual environment (e.g. using `venv` or `conda`). 
 <!-- if-release:end -->
 <!-- if-norelease:start -->
 The steps below install a development version of Omnistat using git for a basic installation that
-enables standard GPU and host-level telemetry.  Depending on your local environment, you may also
-wish to augment the examples that follow to install Omnistat within a dedicated Python virtual
+enables standard GPU and host-level telemetry. Depending on your local environment, you might also
+want to augment the examples that follow to install Omnistat within a dedicated Python virtual
 environment (e.g. using `venv` or `conda`).
 <!-- if-norelease:end -->
 
@@ -51,7 +51,7 @@ environment (e.g. using `venv` or `conda`).
 :::{tab-item} Install latest release using pip
 :sync: release
 
-Install the latest released version of Omnistat from AMD's ROCm package repository:
+Install the latest released version of Omnistat from the AMD ROCm package repository:
 
 ```bash
 [omnidc]$ pip install --extra-index-url https://stable.repo.amd.com/rocm/extras/omnistat/whl-next/ omnistat
@@ -142,7 +142,7 @@ Example output of a successful run (including a few skipped) tests is as follows
 
 ### Enable systemd service
 
-Now that the software is installed under a dedicated user and basic functionality has been confirmed, the data collector can be enabled for permanent service. The recommended approach for this is to leverage `systemd` and an example service file named [omnistat.service](https://github.com/ROCm/omnistat/blob/main/omnistat.service) is included in the distribution. The contents of the file are shown below with four lines highlighted in yellow that are most likely to require local customization.
+Now that the software is installed under a dedicated user and basic functionality has been confirmed, the data collector can be enabled for permanent service. The recommended approach for this is to use `systemd` and an example service file named [omnistat.service](https://github.com/ROCm/omnistat/blob/main/omnistat.service) is included in the distribution. The contents of the file are shown below with four lines highlighted in yellow that are most likely to require local customization.
 
 <!-- * `User` set to the local Linux user created to run Omnistat
 * `OMNISTAT_DIR` set to the local path where you downloaded the source tree
@@ -160,7 +160,7 @@ Using elevated credentials, install the omnistat.service file across all desired
 
 ### Access restriction configuration
 
-By default, the omnistat data collector will only respond to queries initiated from the local host where the service is running.  This functionality is controlled by a runtime configuration and generally needs to be updated to include the IP address of a companion Prometheus server in order to gather system-wide metrics (see follow-on [discussion](#prometheus-server) for additional details on configuring a Prometheus server).  For example, if your locally configured Prometheus instance has an IP address of `10.0.0.42`, update the `omnistat/config/omnistat.default` runtime file (or equivalent if using a custom configfile) to include the following setting:
+By default, the omnistat data collector will only respond to queries initiated from the local host where the service is running. This functionality is controlled by a runtime configuration and generally needs to be updated to include the IP address of a companion Prometheus server to gather system-wide metrics (see follow-on [discussion](#prometheus-server) for additional details on configuring a Prometheus server). For example, if your locally configured Prometheus instance has an IP address of `10.0.0.42`, update the `omnistat/config/omnistat.default` runtime file (or equivalent if using a custom configfile) to include the following setting:
 
 ```{eval-rst}
 .. code-block:: ini
@@ -184,7 +184,7 @@ Alternatively, you can specify a value of `allowed_ips = 0.0.0.0` to disable any
 Beyond the standard data collector, Omnistat provides **optional** components that unlock
 additional telemetry, most notably a GPU hardware counter collector built on
 ROCProfiler-SDK. These steps are optional and only required to enable support for hardware
-counter collection — the standard install above already enables GPU and host-level
+counter collection: the standard install above already enables GPU and host-level
 monitoring. These components are compiled from C++ sources and require a local build step.
 The examples below build and install the counter collector alongside the data collector.
 
@@ -237,7 +237,7 @@ instructions.
 
 ## Prometheus server
 
-Once the `omnistat-monitor` daemon is configured and running system-wide, we next install and configure a [Prometheus](https://prometheus.io/) server to enable automatic telemetry collection. This server typically runs on an administrative host and can be installed via OS package manager, by downloading a [precompiled binary](https://prometheus.io/download/), or using a [Docker image](https://hub.docker.com/u/prom). The install steps below highlight installation via package manager followed by a simple scrape configuration.
+Once the `omnistat-monitor` daemon is configured and running system-wide, install and configure a [Prometheus](https://prometheus.io/) server to enable automatic telemetry collection. This server typically runs on an administrative host and can be installed via OS package manager, by downloading a [precompiled binary](https://prometheus.io/download/), or using a [Docker image](https://hub.docker.com/u/prom). The install steps below highlight installation via package manager followed by a simple scrape configuration.
 
 1. Install: Prometheus server (via package manager)
 
@@ -259,7 +259,7 @@ Once the `omnistat-monitor` daemon is configured and running system-wide, we nex
    :::
    ::::
 
-2. Configuration: add a scrape configuration to Prometheus to enable telemetry collection. This configuration stanza typically resides in the `/etc/prometheus/prometheus.yml` runtime config file and controls which nodes to poll and at what frequency. The example below highlights configuration of a Prometheus job to poll Omnistat data at 30 second intervals from four separate compute nodes. We recommend keeping the `scrape_interval` setting at 5 seconds or larger.
+2. Configuration: add a scrape configuration to Prometheus to enable telemetry collection. This configuration stanza typically resides in the `/etc/prometheus/prometheus.yml` runtime config file and controls which nodes to poll and at what frequency. The example below highlights configuration of a Prometheus job to poll Omnistat data at 30 second intervals from four separate compute nodes. Keep the `scrape_interval` setting at 5 seconds or larger.
 
    ```yaml
    scrape_configs:
@@ -274,7 +274,7 @@ Once the `omnistat-monitor` daemon is configured and running system-wide, we nex
            - compute-03:8001
    ```
 
-Edit your server's prometheus.yml file using the snippet above as a guide and restart the Prometheus server to enable automatic data collection. Please also ensure that the target hosts configured for the Omnistat data collection allow queries initiated from this Prometheus server as discussed in the [access restriction](#access-restriction-configuration) section.
+Edit your server's prometheus.yml file using the snippet above as a guide and restart the Prometheus server to enable automatic data collection. Also ensure that the target hosts configured for the Omnistat data collection allow queries initiated from this Prometheus server as discussed in the [access restriction](#access-restriction-configuration) section.
 
 ```{note}
 You may want to adjust the Prometheus server default storage retention policy in order to retain telemetry data longer than the default (which is typically 15 days). Assuming you are using a distro-provided version of Prometheus, you can modify the systemd launch process to include a `--storage.tsdb.retention.time` option as shown in the snippet below:
@@ -294,9 +294,9 @@ SendSIGKILL=no
 
 ## Ansible example
 
-For production cluster or data center deployments, configuration management tools like [Ansible](https://github.com/ansible/ansible) may be useful to automate installation of Omnistat. To aid in this process, the following example highlights key elements of an Ansible role to install necessary Python dependencies and configure the Omnistat Prometheus client. These RHEL9-based example files are provided as a starting reference for system administrators and can be adjusted to suit per local conventions.
+For production cluster or data center deployments, configuration management tools like [Ansible](https://github.com/ansible/ansible) can be useful to automate installation of Omnistat. To aid in this process, the following example highlights key elements of an Ansible role to install necessary Python dependencies and configure the Omnistat Prometheus client. These RHEL9-based example files are provided as a starting reference for system administrators and can be adjusted to suit per local conventions.
 
-Note that this recipe assumes existence of a dedicated non-root user to run the Omnistat exporter, templated as `{{ omnistat_user }}`.  It also assumes that an Omnistat release has been downloaded into a local path, templated to be in the `{{ omnistat_dir }}`.
+Note that this recipe assumes existence of a dedicated non-root user to run the Omnistat exporter, templated as `{{ omnistat_user }}`. It also assumes that an Omnistat release has been downloaded into a local path, templated to be in the `{{ omnistat_dir }}`.
 
 ```{eval-rst}
 .. code-block:: yaml
@@ -362,11 +362,11 @@ Note that this recipe assumes existence of a dedicated non-root user to run the 
 
 ---
 
-## SLURM Integration
+## SLURM integration
 
-An optional info metric capability exists within Omnistat to allow collected telemetry data to be mapped to individual jobs as they are scheduled by the resource manager.  Multiple options exist to implements this integration, but the recommended approach for large-scale production resources is to leverage prolog/epilog functionality within SLURM to expose relevant job information to the Omnistat data collector. This remaining portion of this section highlights basic steps for implementing this particular strategy.
+An optional info metric capability exists within Omnistat to allow collected telemetry data to be mapped to individual jobs as they're scheduled by the resource manager. Multiple options exist to implements this integration, but the recommended approach for large-scale production resources is to use prolog/epilog functionality within SLURM to expose relevant job information to the Omnistat data collector. This remaining portion of this section highlights basic steps for implementing this particular strategy.
 
-<u>Note/Assumption</u>: the architecture of the resource manager integration assumes that compute nodes on the cluster are allocated **exclusively** (ie, multiple SLURM jobs do not share the same host).
+<u>Note/Assumption</u>: the architecture of the resource manager integration assumes that compute nodes on the cluster are allocated **exclusively** (ie, multiple SLURM jobs don't share the same host).
 
 1. To enable resource manager tracking on the Omnistat client side, edit the chosen runtime config file and update the `[omnistat.collectors]` and `[omnistat.collectors.rms]` sections to have the following settings highlighted in yellow.
 
@@ -384,7 +384,7 @@ An optional info metric capability exists within Omnistat to allow collected tel
    job_detection_mode = file-based
    job_detection_file = /tmp/omni_rmsjobinfo
 ```
-The settings above enable the resource manager collector and configures Omnistat to query the `/tmp/omni_rmsjobinfo` file to derive dynamic job information.  This file can be generated using the `omnistat-rms-env` utility from within an actively running job, or during prolog execution.  The resulting file contains a simple JSON format as follows:
+The settings above enable the resource manager collector and configures Omnistat to query the `/tmp/omni_rmsjobinfo` file to derive dynamic job information. This file can be generated using the `omnistat-rms-env` utility from within an actively running job, or during prolog execution. The resulting file contains a simple JSON format as follows:
 
 ```{eval-rst}
 .. code-block:: json
@@ -403,7 +403,7 @@ The settings above enable the resource manager collector and configures Omnistat
 
 2. SLURM configuration update(s)
 
-The second step to enable resource manager integration is to augment the prolog/epilog scripts configured for your local SLURM environment to create and tear-down the `/tmp/omni_rmsjobinfo` file. Below are example snippets that can be added to the scripts. Note that in these examples, we assume a local `slurm.conf` configuration where Prolog and Epilog are enabled as follows:
+The second step to enable resource manager integration is to augment the prolog/epilog scripts configured for your local SLURM environment to create and tear-down the `/tmp/omni_rmsjobinfo` file. Below are example snippets that can be added to the scripts. Note that in these examples, the assumption is a local `slurm.conf` configuration where Prolog and Epilog are enabled as follows:
 
 
 ```

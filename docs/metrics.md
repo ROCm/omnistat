@@ -1,4 +1,4 @@
-# Metrics Available
+# Metrics available
 
 <style>
 /* Give every metric table on this page a shared fixed first-column width so
@@ -17,9 +17,9 @@
 </style>
 
 Omnistat supports multiple embedded data collectors to aggregate a large
-collection of metrics from a variety of system sources.  Many of the available
+collection of metrics from a variety of system sources. Many of the available
 data collectors are optional and can be enabled via runtime configuration
-settings (e.g. via [omnistat.default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default)).  The sections and tables that follow serve to outline major data
+settings (e.g. via [omnistat.default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default)). The sections and tables that follow serve to outline major data
 collector variants, their associated runtime configuration control options, and
 a comprehensive list of specific metric names defined for each collector.
 
@@ -32,7 +32,7 @@ Note that Omnistat metrics generally fall into one of the two following types:
   with a *GPU Metric* heading.
 
 In addition, an optional [External](#external) data collector is available to
-ingest additional site-specific metrics not included directly in Omnistat.
+load additional site-specific metrics not included directly in Omnistat.
 
 Two of the collectors below, [Hardware Counters](#hardware-counters) and
 [Tracing](#tracing), require additional setup beyond a runtime configuration
@@ -43,8 +43,8 @@ covered in [Advanced Profiling](./advanced-profiling.md).
 
 ## ROCm
 
-This core data collector provides essential metrics for monitoring AMD Instinct(tm) GPUs covering utilization, memory usage,
-power consumption, frequencies, and temperature.  These metrics can be
+This core data collector provides essential metrics for monitoring AMD Instinct™ GPUs covering utilization, memory usage,
+power consumption, frequencies, and temperature. These metrics can be
 collected using the ROCm System Management Interface (ROCm SMI) or the AMD
 System Management Interface (AMD SMI) and are fundamental for assessing GPU
 health and performance.
@@ -53,11 +53,11 @@ health and performance.
 
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
-| `rocm_num_gpus`         | Number of GPUs in the node.          |
+| `rocm_num_gpus`         | Number of GPUs in the node.         |
 
 | GPU Metric                        | Description                          |
 | :-------------------------------- | :----------------------------------- |
-| `rocm_version_info`               | GPU model and versioning information for GPU driver and VBIOS. Labels: `driver_ver`, `vbios`, `type`, `serial`. |
+| `rocm_version_info`               | GPU model and versioning information for GPU driver and Video BIOS (VBIOS). Labels: `driver_ver`, `vbios`, `type`, `serial`. |
 | `rocm_utilization_percentage`     | GPU utilization (%). |
 | `rocm_vram_used_percentage`       | Memory utilization (%). |
 | `rocm_vram_total_bytes`           | Total GPU memory (bytes). |
@@ -70,7 +70,7 @@ health and performance.
 
 <hr style="border: 1px solid black;">
 
-## Resource Manager
+## Resource manager
 
 The resource manager data collector links system-level monitoring data with specific
 jobs running on the system. This is essential for attributing resource usage
@@ -96,7 +96,7 @@ memory utilization statistics along with general I/O metrics.
 | `omnistat_host_boot_time_seconds` | Node boot time (seconds since epoch). |
 | `omnistat_host_mem_total_bytes`| Total host memory available (bytes). |
 | `omnistat_host_mem_available_bytes` | Currently available host memory (bytes). This is typically the amount of memory available for allocation to new processes.|
-| `omnistat_host_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it is generally smaller than `omnistat_host_mem_available_bytes` due to caching. |
+| `omnistat_host_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it's generally smaller than `omnistat_host_mem_available_bytes` due to caching. |
 | `omnistat_host_cpu_num_physical_cores` | Number of physical CPU cores. |
 | `omnistat_host_cpu_num_logical_cores` | Number of logical CPU cores. |
 | `omnistat_host_cpu_aggregate_core_utilization` | Instantaneous number of busy CPU cores. Typical range varies from 0 (no load) to num_logical_cores (max load). |
@@ -111,11 +111,11 @@ memory utilization statistics along with general I/O metrics.
 **Collector options**: `enable_proc_io_stats`
 
 The default I/O tracking mechanism above tracks node-local I/O to physical
-disks. Consequently, it does not have visibility to I/O directed at
+disks. Consequently, it doesn't have visibility to I/O directed at
 network-based file systems (e.g NFS, Lustre, Vast) that are
-common in large production clusters.  To enable tracking of all I/O (**including
+common in large production clusters. To enable tracking of all I/O (**including
 network-based**), the host collector includes an optional mechanism to track I/O
-of individual processes at the syscall level.  This requires access to scan
+of individual processes at the syscall level. This requires access to scan
 relevant files in `/proc` and is generally appropriate for use in {ref}`User-mode <user-vs-system>`
 execution where Omnistat is running under the same user ID as the application.
 
@@ -133,10 +133,10 @@ optional capability of the ROCm data collectors and provides information
 about ECC errors in different GPU blocks. There are three types of ECC errors
 available for tracking:
 - Correctable: Single-bit errors that are automatically corrected by the
-  hardware. These do not cause data corruption or affect functionality.
-- Uncorrectable: Multi-bit errors that cannot be corrected by the hardware.
+  hardware. These don't cause data corruption or affect functionality.
+- Uncorrectable: Multi-bit errors that can't be corrected by the hardware.
   These can lead to data corruption and system instability.
-- Deferred: Multi-bit errors that cannot be corrected by the hardware but can
+- Deferred: Multi-bit errors that can't be corrected by the hardware but can
   be flagged or isolated. These need to be handled to ensure data integrity
   and system stability.
 
@@ -159,7 +159,7 @@ available for tracking:
 | `rocm_ras_hdp_uncorrectable_count`       | Uncorrectable errors in the Host Data Path block. |
 | `rocm_ras_xgmi_wafl_uncorrectable_count` | Uncorrectable errors in the External Global Memory Interconnect block. |
 | `rocm_ras_umc_deferred_count`            | Deferred[^deferred] errors in the Unified Memory Controller block. |
-| `rocm_ras_sdma_deferred_count`           | Deferred[^deferred] errors in the System Direct Memory Access block.  |
+| `rocm_ras_sdma_deferred_count`           | Deferred[^deferred] errors in the System Direct Memory Access block. |
 | `rocm_ras_gfx_deferred_count`            | Deferred[^deferred] errors in the Graphics Processing Unit block. |
 | `rocm_ras_mmhub_deferred_count`          | Deferred[^deferred] errors in the Multi Media Hub block. |
 | `rocm_ras_pcie_bif_deferred_count`       | Deferred[^deferred] errors in the PCIe Bifurcation block. |
@@ -197,8 +197,8 @@ load.
 
 | GPU Metric                            | Description                           |
 | :------------------------------------ | :------------------------------------ |
-| `rocm_xgmi_total_read_kilobytes`      | Total data read from all xGMI links (KB).   |
-| `rocm_xgmi_total_write_kilobytes`     | Total data written to all xGMI links (KB).  |
+| `rocm_xgmi_total_read_kilobytes`      | Total data read from all xGMI links (KB).  |
+| `rocm_xgmi_total_write_kilobytes`     | Total data written to all xGMI links (KB). |
 
 <hr style="border: 1px solid black;">
 
@@ -206,7 +206,7 @@ load.
 
 The VCN (Video Core Next) collection mechanism is an optional capability of
 the AMD SMI data collector that provides metrics for monitoring video decoding
-operations on AMD GPUs. GPUs may contain multiple VCN engines to handle
+operations on AMD GPUs. GPUs can contain multiple VCN engines to handle
 parallel video decoding workloads.
 
 ```{note}
@@ -222,7 +222,7 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 
 <hr style="border: 1px solid black;">
 
-## Hardware Counters
+## Hardware counters
 
 The ROCprofiler data collector provides access to low-level GPU hardware
 counters for in-depth performance analysis. Counters are collected by sampling
@@ -231,7 +231,7 @@ the GPUs at the device level with minimal impact on application performance.
 This collector requires building the hardware counters extension, as described
 under Optional component(s) for {ref}`system-mode <optional-components>` or
 {ref}`user-mode <user-optional-components>`, along with performance monitoring
-privileges and a counter profile that selects which counters to collect. Which counters are available and how they are distributed across the
+privileges and a counter profile that selects which counters to collect. Which counters are available and how they're distributed across the
 GPUs of a node is controlled by the `profile` option. See [Advanced
 Profiling](./advanced-profiling.md#hardware-counters) for setup and
 configuration details.
@@ -259,7 +259,7 @@ Each stream is traced when its collector is enabled. See
 [Advanced Profiling](./advanced-profiling.md#tracing) for setup and
 configuration details.
 
-### Kernel Dispatches
+### Kernel dispatches
 
 Per-kernel time series that enable detailed analysis of GPU workload
 composition over time.
@@ -275,14 +275,14 @@ composition over time.
 
 | Node Metric | Description |
 | :--- | :--- |
-| `omnistat_kernel_late_records` | Cumulative number of dispatch records that could not be recorded because their time bin was outside the range the collector still accepts. A rising value usually means records are arriving later than the collector's hold window allows. This is an Omnistat bookkeeping metric and does not affect GPU execution. |
+| `omnistat_kernel_late_records` | Cumulative number of dispatch records that couldn't be recorded because their time bin was outside the range the collector still accepts. A rising value usually means records are arriving later than the collector's hold window allows. This is an Omnistat bookkeeping metric and doesn't affect GPU execution. |
 
-### RCCL Communication
+### RCCL communication
 
 Communication activity from [RCCL](https://github.com/ROCm/rccl), the collective
 communication library used by distributed workloads. Only the calls themselves
 are recorded, not the GPU execution time of the resulting kernels. Communicator
-teardown is not tracked.
+teardown isn't tracked.
 
 **Collector**: `enable_rccl_trace`
 <br/>
@@ -297,7 +297,7 @@ teardown is not tracked.
 
 | Node Metric | Description |
 | :--- | :--- |
-| `omnistat_rccl_late_records` | Cumulative number of RCCL records that could not be recorded because their time bin was outside the range the collector still accepts. A rising value usually means records are arriving later than the collector's hold window allows. The count is reported per node rather than per `card`. |
+| `omnistat_rccl_late_records` | Cumulative number of RCCL records that couldn't be recorded because their time bin was outside the range the collector still accepts. A rising value usually means records are arriving later than the collector's hold window allows. The count is reported per node rather than per `card`. |
 
 Label values are:
 
@@ -305,7 +305,7 @@ Label values are:
   `AllGather`, `Broadcast`, `Reduce`, `ReduceScatter`, `Send`, or `Recv`. These
   are the only communication calls intercepted, along with communicator
   creation. Other entry points, including `ncclAllToAll` and `ncclAllToAllv`,
-  are not traced. Frameworks that implement all-to-all as groups of `ncclSend`
+  aren't traced. Frameworks that implement all-to-all as groups of `ncclSend`
   and `ncclRecv` are captured, but appear as independent `Send` and `Recv`
   records.
 - `datatype`: element type of the message, such as `float32` or `bfloat16`.
@@ -314,7 +314,7 @@ Label values are:
 - `size_bucket`: upper bound of the message size, from `4K` through `4G`, or
   `inf` for anything larger.
 - `comm_size` and `nranks`: number of ranks in the communicator, or `unknown`
-  when it cannot be determined. `comm_size` labels collectives, `nranks` labels
+  when it can't be determined. `comm_size` labels collectives, `nranks` labels
   communicator creation.
 
 <hr style="border: 1px solid black;">
@@ -327,7 +327,7 @@ interface carries a `device_class` label naming the type it was detected as:
 
 - `net`: Ethernet and other standard IP interfaces.
 - `infiniband`: InfiniBand.
-- `cxi`: HPE Slingshot.
+- `cxi`: HPE (Hewlett Packard Enterprise) Slingshot.
 - `ionic`: AMD Pensando AI NICs (e.g. Pollara).
 - `bnxt_re`: Broadcom RoCE NICs (e.g. Thor).
 
@@ -342,7 +342,7 @@ RoCE NICs that report via sysfs `hw_counters` (`ionic`, `bnxt_re`) expose
 additional throughput and fabric-health metrics. Availability depends on the
 counters the driver publishes.
 
-The ECN and CNP metrics are the two ends of the same DCQCN feedback loop: a
+The ECN (Explicit Congestion Notification) and CNP (Congestion Notification Packet) metrics are the two ends of the same DCQCN (Data Center Quantized Congestion Notification) feedback loop: a
 receiver counts ECN-marked packets and answers with a CNP, which the sender
 counts as a request to lower its send rate. Both count packets *received*, but
 they report congestion in opposite traffic directions.
@@ -358,7 +358,7 @@ they report congestion in opposite traffic directions.
 | `omnistat_network_rx_ecn_marked_packets` | `ionic`, `bnxt_re` | Total packets received carrying the ECN congestion mark; a pre-loss indicator of congestion on **inbound** traffic. |
 | `omnistat_network_rx_cnp_packets` | `ionic`, `bnxt_re` | Total congestion notification packets (CNPs) received, each requesting a lower send rate; an indicator of congestion on **outbound** traffic. |
 
-Counters on `ionic` devices are slow to read, so they are sampled in the
+Counters on `ionic` devices are slow to read, so they're sampled in the
 background and can be up to one sampling interval old. The `ionic` interval
 defaults to half the collection interval, but never below 1 second, and can be
 set in seconds with the `ionic_sampling_interval` option in the
@@ -373,13 +373,13 @@ site-specific metrics into Omnistat by executing a user-provided script at each
 collection interval. The script is expected to write metrics to stdout in
 [Prometheus text exposition
 format](https://prometheus.io/docs/instrumenting/exposition_formats/#prometheus-text-format)
-(one metric per line). Metric names and labels are not fixed in advance --
-they are discovered dynamically from the script output at runtime.
+(one metric per line). Metric names and labels aren't fixed in advance --
+they're discovered dynamically from the script output at runtime.
 
 All metrics produced by the external script are automatically tagged with an
 `omnistat_external="1"` label to distinguish them from native Omnistat metrics.
 Any metric that is **not** present in the script output on a given invocation
-will be automatically removed from Omnistat tracking so metrics can be dynamically added/deleted via this method.
+will be automatically removed from Omnistat tracking so metrics can be dynamically added or deleted via this method.
 
 **Collector**: `enable_external`
 <br/>
@@ -448,7 +448,7 @@ Running the script produces output that Omnistat parses directly:
 ## User-supplied
 
 In addition to the collection mechanisms highlighted above, Omnistat has several options for
-incorporating user-supplied data for overlay with existing telemetry data.  The following
+incorporating user-supplied data for overlay with existing telemetry data. The following
 subsections highlight available options including *annotations* and *figures of merit*.
 
 ### Annotations
@@ -481,18 +481,18 @@ the argument size is included as text for the annotation).
 | :---------------------- | :----------------------------------- |
 | `rmsjob_annotations`    | User-provided annotations. Labels: `jobid`, `marker`. |
 
-### Figure of Merit
+### Figure of merit
 
 Many iterative applications have a natural notion of progress (e.g., time per iteration, GFLOPS
 achieved, number of samples processed, number of epochs completed) that can be used to quantify
 application performance. Omnistat user-mode supports collection of these figures of merit (FOM)
 allowing users to inject custom application performance metrics into the telemetry data stream while
-an application is running.  By correlating FOM values with system telemetry, users can gain insights
+an application is running. By correlating FOM values with system telemetry, users can gain insights
 into how specific application performance relates to observed hardware behavior, including power and
 energy consumption.
 
 To support this feature, Omnistat exposes a `/fom` REST endpoint that accepts a JSON payload with a
-user-supplied FOM name and value; the timestamp is encoded automatically at time of receipt.  The
+user-supplied FOM name and value; the timestamp is encoded automatically at time of receipt. The
 following highlights a CLI example using `curl` to report a GFLOPS measurement:
 
 ```{eval-rst}

@@ -1,4 +1,4 @@
-# Developer Guide
+# Developer guide
 
 The core telemetry collection facilities within Omnistat are oriented around GPU metrics. However, Omnistat is designed with extensibility in mind and adopts an object oriented approach using [abstract base classes](https://docs.python.org/3/library/abc.html) in Python to facilitate implementation of multiple data collectors. This functionality allows developers to extend Omnistat to add custom data collectors relatively easily by instantiating additional instances of the `Collector` class highlighted below.
 
@@ -38,22 +38,22 @@ As shown above, the base `Collector` class requires developers to implement a mi
 1. `registerMetrics()`: this method is called once during Omnistat startup process and defines one or more Prometheus metrics to be monitored by the new collector.
 1. `updateMetrics()`: this method is called during every sampling request and is tasked with updating all defined metrics with the latest measured values.
 
-In addition, developers may also override the default `__init__` method shown above. When overriding the default implementation, note the `configparser.ConfigParser` argument which provides a cached copy of the Omnistat runtime configuration that can be used to further control collector behavior.
+In addition, developers can also override the default `__init__` method shown above. When overriding the default implementation, note the `configparser.ConfigParser` argument which provides a cached copy of the Omnistat runtime configuration that can be used to further control collector behavior.
 
 Note: developers are free to implement other supporting routines to assist in their data collection needs, but are required to implement the two named methods above.
 
 ## Example collector addition
-To demonstrate the high-level steps for this process, this section walks thru the steps needed to create an additional collection mechanism within Omnistat to track a node-level metric.  For this example, we assume a developer has already cloned the Omnistat repository locally and has all necessary Python dependencies installed per the {ref}`Installation <system-install>`  discussion.
+To demonstrate the high-level steps for this process, this section walks thru the steps needed to create an additional collection mechanism within Omnistat to track a node-level metric. For this example, assume the developer has already cloned the Omnistat repository locally and has all necessary Python dependencies installed per the {ref}`Installation <system-install>`  discussion.
 
-The specific goal of this example is to extend Omnistat with a new collector that provides a gauge metric called `node_uptime_secs`. This metric will derive information from the `/proc/uptime` file to track node uptime in seconds.  In addition, since it is common to include [labels](https://prometheus.io/docs/practices/naming/#labels) with Prometheus metrics, we will include a label on the `node_uptime_secs` metric that tracks the local running Linux kernel version.
+The specific goal of this example is to extend Omnistat with a new collector that provides a gauge metric called `node_uptime_secs`. This metric will derive information from the `/proc/uptime` file to track node uptime in seconds. In addition, since it's common to include [labels](https://prometheus.io/docs/practices/naming/#labels) with Prometheus metrics, a label is included on the `node_uptime_secs` metric that tracks the local running Linux kernel version.
 
 ```{note}
-We prefer to always embed the metric units directly into the name of the metric to avoid ambiguity.
+Embed metric units directly into the metric name to avoid ambiguity.
 ```
 
 ### Implement the uptime data collector
 
-First, let's implement the uptime data collection in a new source code file. Recall that we need to implement two methods leveraging the `Collector` base class provided by Omnistat and the code listing below shows a complete working example.  Note that Omnistat data collectors leverage the Python [prometheus client](https://github.com/prometheus/client_python) to define Gauge metrics. In this example, we include a `kernel` label for the `node_uptime_secs` metric that is determined from `/proc/version` during initialization. The node uptime is determined from `/proc/uptime` and is updated on every call to `updateMetrics()`.
+First, let's implement the uptime data collection in a new source code file. Recall that two methods must be implemented using the `Collector` base class provided by Omnistat and the code listing below shows a complete working example. Note that Omnistat data collectors use the Python [prometheus client](https://github.com/prometheus/client_python) to define Gauge metrics. A `kernel` label is included for the `node_uptime_secs` metric, determined from `/proc/version` during initialization. The node uptime is determined from `/proc/uptime` and is updated on every call to `updateMetrics()`.
 
 ```{eval-rst}
 .. literalinclude:: collector_uptime.py
@@ -64,10 +64,10 @@ First, let's implement the uptime data collection in a new source code file. Rec
 
 ### Register the new collector
 
-With our newly created collector housed in *omnistat/collector_uptime.py*, the next step is to register this new collector with Omnistat.  Collector definitions are defined in a JSON file for dynamic loading housed in the [collector_definitions.json](https://github.com/ROCm/omnistat/blob/main/omnistat/collector_definitions.json) file.  Four elements are required to define a new collector:
+With the newly created collector housed in *omnistat/collector_uptime.py*, the next step is to register this new collector with Omnistat. Collector definitions are defined in a JSON file for dynamic loading housed in the [collector_definitions.json](https://github.com/ROCm/omnistat/blob/main/omnistat/collector_definitions.json) file. Four elements are required to define a new collector:
 1. **runtime_option** - specifies the runtime configuration variable
 1. **enabled_by_default** - specifies whether to enable by default or not
-1. **file** - file path to the collector (omitting the .py extension)
+1. **file** - path to the collector (omitting the .py extension)
 1. **class_name** - name of defined collector class
         
 The code snippet below highlights changes applied to the JSON file to add a registration block for the new uptime collector (not enabled by default):
@@ -99,7 +99,7 @@ The code snippet below highlights changes applied to the JSON file to add a regi
 
 ### Putting it all together
 
-Following the two steps above to implement a new uptime data collector, we should now be able to run the `omnistat-monitor` data collector interactively to confirm availability of the additional metric.  Since we configured this to be an optional collector that is not enabled by default, we need to first modify the runtime configuration file to enable the new option. To do this, add the highlighted line below to the local `omnistat/config/omnistat.default` file.
+Following the two steps above to implement a new uptime data collector, it should now be possible to run the `omnistat-monitor` data collector interactively to confirm availability of the additional metric. Since the collector is configured as optional and not enabled by default, first modify the runtime configuration file to enable the new option. To do this, add the highlighted line below to the local `omnistat/config/omnistat.default` file.
 
 ```{eval-rst}
 .. code-block:: ini
@@ -120,7 +120,7 @@ Now, launch data collector interactively:
 [omnidc@login]$ ./omnistat-monitor
 ```
 
-If all went well, we should see new log messages for the `node_uptime_secs` metric.
+If all went well, new log messages for the `node_uptime_secs` metric should appear.
 
 ```{eval-rst}
 .. code-block:: shell-session
@@ -171,4 +171,4 @@ As a final test while the `omnistat-monitor` client is still running interactive
    node_uptime_secs{kernel="5.14.0-503.38.1.el9_5.x86_64"} 948415.84
 ```
 
-Here we see the new metric reporting the latest node uptime along with the locally running kernel version embedded as a label.  Wahoo, we did a thing.
+The new metric reports the latest node uptime along with the locally running kernel version embedded as a label. Wahoo, we did a thing.

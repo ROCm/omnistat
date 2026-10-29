@@ -1,4 +1,4 @@
-# Agent Support
+# Agent support
 
 In addition to the [Grafana](./system-mode/grafana.md) dashboards and command-line
 [report card](query_report_card) already available, Omnistat
@@ -30,11 +30,11 @@ available:
 - **job-report**: produce a one-shot *report card* describing what a
   job did: global statistics, energy, health findings, and data quality. It can
   also flag statistically significant differences between GPUs or nodes (spatial
-  outliers), but each metric is reduced over the whole run, so the report does
-  not examine behavior along the time axis. This is a snapshot, not an
+  outliers), but each metric is reduced over the whole run, so the report doesn't
+  examine behavior along the time axis. This is a snapshot, not an
   investigation.
 - **job-analysis**: run a hypothesis-driven investigation into *why* a job
-  behaved as it did: performance bottlenecks, stragglers, hardware/health
+  behaved as it did: performance bottlenecks, stragglers, hardware and health
   issues, or comparing a degraded job against a healthy baseline. Unlike the
   report, it also works along the time axis, describing what happened over the
   course of the run and using those temporal patterns as evidence.
@@ -66,7 +66,7 @@ Before invoking a skill, ensure the following are in place:
 
 The skills live in the Omnistat [source
 repository](https://github.com/ROCm/omnistat) under the `skills/` directory.
-They are not part of the installed Python package, so you need a checkout of
+They're not part of the installed Python package, so you need a checkout of
 the repository to use them. The `SKILL.md` format is agent-agnostic, and the
 same directories work with any agent that can read the playbooks and run shell
 commands. To enable them, symlink (or copy) each skill directory into the
@@ -88,7 +88,7 @@ support a *project* scope (a directory in the working tree, shared with the
 project) and a *personal* scope (a directory under your home, available across
 all sessions). Once the skills are discovered, the agent selects one implicitly
 by matching your request against its `description`, or you can invoke one explicitly with
-`/skills`. Restart the agent if a newly added skill does not appear.
+`/skills`. Restart the agent if a newly added skill doesn't appear.
 
 - **[Claude Code](https://www.claude.com/product/claude-code)**: scans
   `.claude/skills/` (project) or `~/.claude/skills/` (personal).
@@ -182,7 +182,7 @@ Most likely cause
 ```
 
 Unlike the one-shot report, an analysis tends to be more **conversational**.
-It may take a few back-and-forth turns rather than a single reply, and you can
+It might take a few back-and-forth turns rather than a single reply, and you can
 steer it as you go:
 
 - **Control the length.** The default write-up can be detailed; ask for a
