@@ -1,3 +1,21 @@
+Version 1.16 (30 October 2026)
+
+  * introduction of optional RCCL communication tracing with accompanying job dashboard
+    panels (#312)
+  * fix for stale extension build paths and lingering references to the removed `query`
+    install extra (#353)
+  * update production wheel staging workflow (#356)
+  * adapt collector tests to amd-smi-only hardware (#358)
+  * fix for `allowed_ips` substring matching in the standalone collector, along with two
+    latent bugs in the same file (#359)
+  * addition of documentation page and companion runtime configuration for Lux (#365)
+  * addition of citation information for the project (#366)
+  * add option to network collector to read port counters directly from the driver on
+    NICs with unreliable sysfs totals (#368)
+  * expanded security scanning, workflow token scoping, and automated dependency
+    updates (#357, #360, #364, #370, #371, #373)
+  * fix for non-functional docs search field with ROCm documentation theme (#374)
+
 Version 1.15 (30 September 2026)
 
   * additional error handling and retry logic for failed `srun` launches during user-mode
