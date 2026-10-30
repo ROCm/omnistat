@@ -13,6 +13,7 @@ enable_rocprofiler = False
 enable_network = True
 enable_vendor_counters = False
 enable_kernel_trace = False
+enable_rccl_trace = False
 
 enable_perf_collector_subtimers = True
 
@@ -34,6 +35,12 @@ job_detection_file = /tmp/omni_rmsjobinfo
 [omnistat.collectors.host]
 enable_proc_io_stats = True
 cpu_load_sampling_interval = 0.05
+
+[omnistat.collectors.network]
+
+## Work around corrupt sysfs byte counters on Lux's Thor2 NICs by reading
+## port-level counters over SIOCETHTOOL instead.
+enable_port_counters = True
 
 [omnistat.collectors.rocprofiler]
 profile = default

@@ -44,6 +44,11 @@ def get_gpu_asic_info(device=0):
 
 gpu_type, gpu_arch = get_gpu_asic_info() if config.rocm_host else ("", "")
 
+# Some GPUs report a generic market name (e.g. "AMD Radeon Graphics" on
+# MI455X). Map those back to the real name so test filters behave.
+ARCH_MARKET_NAMES = {"gfx1250": "AMD Instinct MI455X"}
+gpu_type = ARCH_MARKET_NAMES.get(gpu_arch, gpu_type)
+
 # Consumer GPUs (RDNA) lack RAS/ECC counters, energy accumulators, and
 # hardware counters. Matching on "Radeon" rather than "Instinct" so that an
 # unrecognized datacenter GPU is tested instead of silently skipped.
