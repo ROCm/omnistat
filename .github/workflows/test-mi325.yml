@@ -9,8 +9,15 @@ on:
   pull_request:
     branches: [ main, dev ]
 
+permissions:
+  contents: read
+
 jobs:
   gpu-collectors-325:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     runs-on: [linux-gfx942-1gpu-ccs-csp-ossci-rocm]
     strategy:
       matrix:
@@ -91,7 +98,7 @@ jobs:
           export ROCP_TOOL_LIBRARIES="$GITHUB_WORKSPACE/build/libomnistat_trace.so:$GITHUB_WORKSPACE/build/libomnistat_count.so:"
           source omnistat_venv/bin/activate
           su - ubuntu -c "sleep 300 &"
-          pytest -s -v --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py
+          pytest -s -v --require-rocmsmi --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py
 
 ##       - name: Test Report
 ##         uses: dorny/test-reporter@v2
@@ -103,7 +110,7 @@ jobs:
 
       # skip for dependabot (read-only token)
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@a9170d5795813c01ab4901ffb045b52bab4ab09d # v6.5.0
+        uses: mikepenz/action-junit-report@6ef3fdcfcd5f0b5d14df3e659ef19b8c6820f93d # v6.6.1
         if: ${{ !cancelled() && github.actor != 'dependabot[bot]' }}
         with:
           include_passed: 'true'

@@ -49,6 +49,7 @@ markers = [
     "rocprofiler: requires rocprofiler SDK libraries (ROCP_TOOL_LIBRARIES)",
     "tsdb: requires VictoriaMetrics or Prometheus TSDB",
     "docker: requires Docker and containerized SLURM cluster",
+    "rocmsmi: requires the ROCm SMI runtime (unavailable on MI450 and later)",
 ]
 
 [tool.black]
