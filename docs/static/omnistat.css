@@ -173,3 +173,53 @@ header.common-header .navbar:not(.second-level-nav) {
 .wy-menu-vertical li.toctree-l4 > a {
     padding-left: 5.663em;
 }
+
+/* rocm_docs_theme only: restore the search modal. rocm-docs-core's custom.css
+   hides it with `display: none !important` for the RTD Addons modal, which
+   GitHub Pages builds never load, so the navbar field does nothing. The .show
+   rules are restated because pydata-sphinx-theme.css is never linked (book
+   theme's theme.conf replaces the stylesheet entry); values from pydata 0.15.4. */
+.search-button__wrapper {
+    display: block !important;
+}
+
+.search-button__overlay,
+.search-button__search-container {
+    display: none;
+}
+
+.search-button__wrapper.show .search-button__search-container {
+    display: flex;
+    left: 50%;
+    margin-top: 0.5rem;
+    max-width: 800px;
+    position: fixed;
+    right: 1rem;
+    top: 30%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    z-index: 1055;
+}
+
+.search-button__wrapper.show .search-button__overlay {
+    background-color: #000;
+    display: flex;
+    height: 100%;
+    left: 0;
+    opacity: 0.5;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1050;
+}
+
+.search-button__wrapper.show form.bd-search {
+    flex-grow: 1;
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+.search-button__wrapper.show input,
+.search-button__wrapper.show svg {
+    font-size: var(--pst-font-size-icon);
+}
