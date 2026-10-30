@@ -27,18 +27,96 @@
 Trace records carry their own timestamps and arrive late: the tracer batches
 them and POSTs on a flush, so a record describing t=0 may not arrive until
 several seconds later. Each collector therefore keeps a series of time bins
-keyed by record timestamp and releases a bin only once it is older than a hold
+keyed by record timestamp and freezes a bin only once it is older than a hold
 window, giving stragglers time to land.
 
-The hold window must exceed the tracer's flush interval plus its HTTP timeout
-(10s + 2s, both in rocprofiler-sdk/trace.hpp). Above ~120 dispatches/s the
+The hold window must exceed the tracer's flush interval plus its HTTP timeout,
+which default to 10s and 2s (rocprofiler-sdk/trace.hpp). The flush interval is
+site-configurable via OMNISTAT_TRACE_MAX_INTERVAL, and this window is not, so
+raising it beyond the window drops every record. Above ~120 dispatches/s the
 kernel buffer watermark fires first and the lag is far smaller.
 """
 
 import time
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 from omnistat.collector_endpoint_base import EndpointCollector
+
+
+def _new_pair():
+    return [0, 0]
+
+
+def _counters():
+    """A {key: [count, value]} mapping that zero-fills on first touch."""
+    return defaultdict(_new_pair)
+
+
+class BinSeries:
+    """One time-binned metric family.
+
+    Each bin holds the counts for its own interval, so records arriving out of
+    end-timestamp order commute. Freezing a bin folds it into the running
+    totals and stages it; pop_frozen hands the frozen work to one push, which
+    rebuilds cumulative values from frozen_totals.
+    """
+
+    def __init__(self):
+        # Open bins, {bin: {key: [count, value]}}.
+        self.bins = OrderedDict()
+
+        # Running cumulative, {key: [count, value]}. Only moves forward, which
+        # is what keeps the published counters monotonic.
+        self.totals = _counters()
+
+        # Staged for the next push; pop_frozen() hands both over and resets them.
+        # - Bins frozen since the last push, [(bin, {key: [count, value]})].
+        # - Totals as they stood before those bins froze, {key: [count, value]}.
+        self.frozen_bins = []
+        self.frozen_totals = _counters()
+
+    def freeze(self, cutoff_bin):
+        """Freeze every bin at or below cutoff_bin.
+
+        Freezing is not publishing; called by collectors on every poll, so each
+        call takes the bin or two that just aged out rather than the whole
+        backlog.
+        """
+        num_pop = 0
+        for interval_bin in self.bins:
+            if interval_bin > cutoff_bin:
+                break
+            num_pop += 1
+
+        if num_pop and not self.frozen_bins:
+            # First freeze since the last push: capture totals before these bins move them.
+            self.frozen_totals = _counters()
+            self.frozen_totals.update((key, total[:]) for key, total in self.totals.items())
+
+        for _ in range(num_pop):
+            # Popping advances the first bin, so a record arriving late for it
+            # is rejected rather than landing in a bin already counted.
+            interval_bin, values = self.bins.popitem(last=False)
+
+            # Totals move now, not at push time: a failed push then costs the
+            # samples but not the count.
+            for key, delta in values.items():
+                total = self.totals[key]
+                total[0] += delta[0]
+                total[1] += delta[1]
+
+            self.frozen_bins.append((interval_bin, values))
+
+    def pop_frozen(self):
+        """Hand one push the frozen work, as (frozen_bins, frozen_totals).
+
+        Frozen here, running at the caller: the push-thread generator advances
+        its copy as it emits. Both are swapped for fresh empties rather than
+        cleared, so the series keeps no reference to what it handed over.
+        """
+        frozen_bins, self.frozen_bins = self.frozen_bins, []
+        frozen_totals, self.frozen_totals = self.frozen_totals, _counters()
+        return frozen_bins, frozen_totals
 
 
 class BinnedTraceCollector(EndpointCollector):
@@ -68,9 +146,9 @@ class BinnedTraceCollector(EndpointCollector):
 
     def _new_series(self):
         """An empty bin series, seeded with the current bin."""
-        ts = OrderedDict()
-        ts[self._current_bin()] = {}
-        return ts
+        series = BinSeries()
+        series.bins[self._current_bin()] = _counters()
+        return series
 
     def _current_bin(self):
         time_ms = time.time_ns() // 1_000_000
@@ -81,34 +159,29 @@ class BinnedTraceCollector(EndpointCollector):
         ms = (timestamp_ns + self._offset_ns) // 1_000_000
         return ((ms // self._interval_ms) * self._interval_ms) + self._interval_ms
 
-    def _extend_bins(self, ts):
-        """Grow the series up to the current bin. Returns (first_bin, last_bin).
+    def _extend_bins(self, series, current_bin):
+        """Grow the series up to current_bin. Returns (first_bin, last_bin).
+
+        The caller supplies current_bin so a collector with more than one
+        series extends them all from a single clock read, keeping their bins
+        aligned by construction.
 
         Re-seeds when the series is empty, which happens after a flush=True
         formatMetrics call has popped everything.
         """
-        current_bin = self._current_bin()
-        if not ts:
-            ts[current_bin] = {}
-        last_bin = next(reversed(ts))
+        bins = series.bins
+        if not bins:
+            bins[current_bin] = _counters()
+        last_bin = next(reversed(bins))
         for interval_bin in range(last_bin + self._interval_ms, current_bin + 1, self._interval_ms):
-            ts[interval_bin] = {}
+            bins[interval_bin] = _counters()
             last_bin = interval_bin
-        return next(iter(ts)), last_bin
+        return next(iter(bins)), last_bin
 
     def _in_window(self, bin_ms, first_bin, last_bin):
         """True when a record's bin can still be placed in the series."""
         return first_bin <= bin_ms <= last_bin
 
     def _cutoff(self, last_bin, flush):
-        """Newest bin eligible for release. flush=True releases everything."""
+        """Newest bin eligible for freezing. flush=True closes everything."""
         return last_bin if flush else last_bin - self._window_ms
-
-    def _pop_bins(self, ts, cutoff_bin):
-        """Remove and return [(bin, values)] for every bin at or below cutoff."""
-        num_pop = 0
-        for interval_bin in ts:
-            if interval_bin > cutoff_bin:
-                break
-            num_pop += 1
-        return [ts.popitem(last=False) for _ in range(num_pop)]
