@@ -15,6 +15,7 @@ Version 1.16 (30 October 2026)
   * expanded security scanning, workflow token scoping, and automated dependency
     updates (#357, #360, #364, #370, #371, #373)
   * fix for non-functional docs search field with ROCm documentation theme (#374)
+  * cap `reportlab` on Python 3.9 to avoid import failure with 5.1 release (#378)
 
 Version 1.15 (30 September 2026)
 
