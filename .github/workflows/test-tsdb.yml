@@ -9,13 +9,21 @@ permissions:
 
 jobs:
   test:
-    name: TSDB Testing
+    name: TSDB Testing (python ${{ matrix.python-version }})
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.13']
+      fail-fast: false
     steps:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Start containerized environment
         run: docker compose -f test/docker/victoriametrics/compose.yaml up -d
       - name: Wait for Victoria Metrics
@@ -28,7 +36,7 @@ jobs:
       - name: Display node logs
         run: docker logs victoria-metrics
       - name: Install test dependencies
-        run: pip3 install -r requirements.txt -r test/requirements.txt
+        run: python -m pip install -r requirements.txt -r test/requirements.txt
       - name: Run query tests
         run: pytest -v test/test_tsdb_query.py
       - name: Run kernel tracing tests
