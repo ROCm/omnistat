@@ -44,22 +44,6 @@ import pandas
 from matplotlib.ticker import EngFormatter
 from prometheus_api_client import MetricRangeDataFrame, PrometheusConnect
 from prometheus_api_client.utils import parse_datetime
-from reportlab.lib import colors
-from reportlab.lib.enums import TA_JUSTIFY
-from reportlab.lib.pagesizes import landscape, letter
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.units import inch
-from reportlab.pdfgen import canvas
-from reportlab.platypus import (
-    HRFlowable,
-    Image,
-    PageBreak,
-    Paragraph,
-    SimpleDocTemplate,
-    Spacer,
-    Table,
-    TableStyle,
-)
 
 from omnistat import utils
 
@@ -1094,6 +1078,24 @@ class QueryMetrics:
     #     return stats
 
     def generate_pdf(self, outputFile):
+        # Imported lazily so reportlab is only needed for --pdf.
+        try:
+            from reportlab.lib import colors
+            from reportlab.lib.pagesizes import letter
+            from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+            from reportlab.lib.units import inch
+            from reportlab.platypus import (
+                HRFlowable,
+                Image,
+                Paragraph,
+                SimpleDocTemplate,
+                Spacer,
+                Table,
+                TableStyle,
+            )
+        except ImportError as e:
+            utils.error(f"PDF generation requires the reportlab package: {e}")
+
         doc = SimpleDocTemplate(
             outputFile,
             pagesize=letter,
