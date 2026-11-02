@@ -118,7 +118,7 @@ class KernelTrace(BinnedTraceCollector):
             end_bin = self._bin_for(end_ns)
 
             if not self._in_window(end_bin, first_bin, last_bin):
-                logging.info(f"Ignore out of range dispatch of kernel {name} = {end_bin}")
+                logging.debug(f"Ignore out of range dispatch of kernel {name} = {end_bin}")
                 self._late_records += 1
                 continue
 
