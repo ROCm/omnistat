@@ -15,7 +15,7 @@ build_rocprofiler_sdk = os.environ.get("BUILD_ROCPROFILER_SDK_EXTENSION", "0")
 if build_rocprofiler_sdk == "1":
     rocprofiler_sdk = CMakeExtension(
         name="rocprofiler_sdk_extension",
-        source_dir="rocprofiler-sdk",
+        source_dir="omnistat/rocprofiler-sdk",
         cmake_configure_options=[
             # Point CMake to the right Python interpreter
             f"-DPython_ROOT_DIR={Path(sys.prefix)}",

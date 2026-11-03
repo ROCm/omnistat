@@ -1,3 +1,88 @@
+Version 1.16 (30 October 2026)
+
+  * introduction of optional RCCL communication tracing with accompanying job dashboard
+    panels (#312)
+  * fix for stale extension build paths and lingering references to the removed `query`
+    install extra (#353)
+  * update production wheel staging workflow (#356)
+  * adapt collector tests to amd-smi-only hardware (#358)
+  * fix for `allowed_ips` substring matching in the standalone collector, along with two
+    latent bugs in the same file (#359)
+  * addition of documentation page and companion runtime configuration for Lux (#365)
+  * addition of citation information for the project (#366)
+  * add option to network collector to read port counters directly from the driver on
+    NICs with unreliable sysfs totals (#368)
+  * expanded security scanning, workflow token scoping, and automated dependency
+    updates (#357, #360, #364, #370, #371, #373)
+  * fix for non-functional docs search field with ROCm documentation theme (#374)
+  * cap `reportlab` on Python 3.9 to avoid import failure with 5.1 release (#378)
+
+Version 1.15 (30 September 2026)
+
+  * additional error handling and retry logic for failed `srun` launches during user-mode
+    startup at scale (#320)
+  * introduction of optional data collector in contrib section to track Lustre RPC latency and congestion
+    on a per-filesystem and per-pool basis (#323)
+  * preserve Grafana dashboard folder assignment on upload with Grafana 13+ (#326)
+  * fix for exporter startup failure on GPUs lacking an energy accumulator - observed on RDNA4 (#327, #330)
+  * fix for kernel tracing extension import failure under ROCm 10.0 resulting from missing
+    `hsa-runtime64` linkage (#331)
+  * expanded CI tests to include ROCm 10 container and RDNA4 hardware (#329, #330, #337)
+  * relax `rocm_sclk_clock_mhz` expectations on consumer GPUs where the metric is not
+    always present (#338)
+  * update `fmt` version used with rocprofiler-sdk to accommodate newer ROCm clang
+    versions (#340)
+  * addition of counter enablement library (`libomnistat_count.so`) to simplify hardware
+    counter collection, along with accompanying documentation updates (#336, #341)
+  * updates to Python wheel packaging to support optional extensions along with a
+    separately installable test package (#342)
+  * documentation reorganization and updates (#343)
+  * performance refactoring for network collector to sample ionic (AINIC) hardware counters
+    in a background thread (#344)
+  * addition of standardized security scanning workflows and automated dependency
+    updates (#345)
+
+Version 1.14 (13 August 2026)
+
+  * extend network data collector to support Pensando and Broadcom RoCE NIC
+    families with throughput and fabric-health metrics (#307)
+  * switch kernel tracing library from libcurl to header-only cpp-httplib (#308)
+  * enable automatic code coverage reporting for data collectors (#309)
+  * add warning when `perf_event_paranoid` setting is insufficient for hardware counter
+    collection (#313)
+  * improve `omnistat-query --export` performance for jobs with large numbers of short
+    processes; adds separate process inventory CSV with per-process byte counts and
+    timing (#314)
+  * add GPU serial number as a label to `rocm_version_info` metric for inventory tracking (#315)
+
+Version 1.13 (13 July 2026)
+
+  * add skills support for agentic analysis to analyze Omnistat databases or exported CSV files (#271)
+  * fix GPU kernel panels showing incorrect values for kernels with a single data point (#290)
+  * improve process-based I/O monitoring in user-mode to avoid duplication (#291)
+  * add ability to export host metrics (#292)
+  * introduction of new optional data collector to support external (3rd party) metrics (#296)
+  * add figure-of-merit discussion to documentation (#297, #298)
+  * update rocmsmi-based collector to dynamically derive necessary C struct bindings from
+    ROCm bindings file (#299)
+  * add `rocm_energy_joules` metric for GPU energy accumulation tracking (#300)
+  * add additional internal performance metric for user-mode data collection (#302)
+  * update default SMI collector to use amd-smi variant (#303)
+  * introduction of rack-level cluster dashboard generator for physical rack-layout
+    visualization in Grafana (#304)
+
+Version 1.12 (26 April 2026)
+
+  * simplify kernel trace library finalization/flushing to avoid race condition (#276)
+  * fix missing import in hardware counter collector (#277)
+  * add CI coverage for hardware counter collection (#278)
+  * update user-mode SSH startup to use pre-specified shell (#281)
+  * add ROCm runtime version checks for kernel tracing compatibility (#282)
+  * add `--localjob name` option to omnistat-usermode for single-node execution without a
+    resource manager (#285)
+  * add timing measurements for user-mode startup and teardown phases (#286)
+  * add cache hit-rate counter definitions to runtime configuration and panels (#284, #288)
+
 Version 1.11 (26 March 2026)
 
   * introduction of new optional data collector to support application-level kernel traces (#241)

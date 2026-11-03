@@ -1,0 +1,129 @@
+# ----------------------------------------------------------------------------
+# MIT License
+#
+# Copyright (c) 2023 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+# ----------------------------------------------------------------------------
+
+cmake_minimum_required(VERSION 3.15)
+project(omnistat_rocprofiler_sdk_extension LANGUAGES CXX)
+
+# Default to an optimized build. The kernel tracer's flush() path (including the
+# header-only HTTP client compiled into this library) is performance-sensitive,
+# so an unoptimized default would ship a needlessly slow library.
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
+# The kernel tracing and counter enablement libraries are meant to be built
+# separately from the Omnistat package and extensions. Enabling either option
+# below builds only the corresponding libraries; they are independent and can be
+# enabled together.
+option(BUILD_KERNEL_TRACE_LIB "Build the kernel tracing library" OFF)
+option(BUILD_COUNT_LIB "Build the counter enablement library" OFF)
+
+if (BUILD_KERNEL_TRACE_LIB OR BUILD_COUNT_LIB)
+    find_package(rocprofiler-sdk REQUIRED)
+endif()
+
+if (BUILD_COUNT_LIB)
+    add_library(omnistat_count SHARED count_enable.cpp)
+    target_link_libraries(omnistat_count PRIVATE rocprofiler-sdk::rocprofiler-sdk)
+endif()
+
+if (BUILD_KERNEL_TRACE_LIB)
+    # HIP is needed for hipGetDevice() in the RCCL enumeration path. The RCCL
+    # headers (ncclComm_t, api ids) come transitively via rocprofiler-sdk/rccl.h,
+    # and ncclCommCount is resolved at runtime via dlsym, so no librccl link dep.
+    find_package(hip REQUIRED)
+
+    include(FetchContent)
+    include(CheckCXXSourceCompiles)
+
+    # Header-only HTTP client. Fetched at configure time; for offline builds,
+    # download the source tree and point CMake at it:
+    #   -DFETCHCONTENT_SOURCE_DIR_HTTPLIB=/path/to/cpp-httplib
+    FetchContent_Declare(
+        httplib
+        URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.53.1.tar.gz
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+
+    # The tracer POSTs plain JSON to a numeric address, so it needs none of
+    # these, and they all default on.
+    set(HTTPLIB_USE_NON_BLOCKING_GETADDRINFO OFF CACHE BOOL "" FORCE)
+    set(HTTPLIB_USE_ZSTD_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+    set(HTTPLIB_USE_ZLIB_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+    set(HTTPLIB_USE_BROTLI_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+    set(HTTPLIB_USE_OPENSSL_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+
+    FetchContent_MakeAvailable(httplib)
+
+    add_library(omnistat_trace SHARED trace.cpp trace_kernel_callbacks.cpp
+                                  trace_rccl_callbacks.cpp common.cpp log.cpp)
+    target_compile_features(omnistat_trace PRIVATE cxx_std_20)
+    target_link_libraries(omnistat_trace PRIVATE rocprofiler-sdk::rocprofiler-sdk httplib::httplib
+                                                 hip::host)
+
+    # Check if the compiler supports std::format
+    set(CMAKE_REQUIRED_FLAGS "-std=c++20")
+    check_cxx_source_compiles("
+        #include <format>
+        #include <string>
+        int main() {
+            std::string s = std::format(\"{}\", 42);
+            return 0;
+        }
+    " HAS_STD_FORMAT)
+
+    if (HAS_STD_FORMAT)
+        target_compile_definitions(omnistat_trace PRIVATE HAS_STD_FORMAT)
+    else()
+        message(STATUS "std::format not available, using fmt library")
+        FetchContent_Declare(
+            fmt
+            URL https://github.com/fmtlib/fmt/archive/refs/tags/11.1.0.tar.gz
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        )
+        FetchContent_MakeAvailable(fmt)
+        target_compile_definitions(omnistat_trace PRIVATE FMT_HEADER_ONLY)
+        target_include_directories(omnistat_trace PRIVATE ${fmt_SOURCE_DIR}/include)
+    endif()
+endif()
+
+if (NOT BUILD_KERNEL_TRACE_LIB AND NOT BUILD_COUNT_LIB)
+    find_package(Python COMPONENTS Interpreter Development REQUIRED)
+
+    set(CMAKE_EXECUTE_PROCESS_COMMAND_ECHO STDOUT)
+    execute_process(
+        COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
+
+    find_package(nanobind CONFIG REQUIRED)
+
+    find_package(rocprofiler-sdk REQUIRED)
+
+    nanobind_add_module(rocprofiler_sdk_extension device.cpp binding.cpp common.cpp)
+    target_link_libraries(rocprofiler_sdk_extension PRIVATE rocprofiler-sdk::rocprofiler-sdk
+                                                            hsa-runtime64::hsa-runtime64)
+
+    # Install the module to location within the Python package
+    install(TARGETS rocprofiler_sdk_extension LIBRARY DESTINATION omnistat)
+endif()

@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use Omnistat on your systems or as part of your research, please consider citing the paper below."
+title: Omnistat
+abstract: Scale-out system monitoring and telemetry for AMD Instinct accelerators.
+authors:
+  - family-names: Polo
+    given-names: Jordà
+  - family-names: Schulz
+    given-names: Karl W.
+repository-code: "https://github.com/ROCm/omnistat"
+url: "https://rocm.github.io/omnistat/"
+license: MIT
+preferred-citation:
+  type: conference-paper
+  title: "Omnistat: Low-overhead Application Scale-out Telemetry and Performance Analysis"
+  authors:
+    - family-names: Polo
+      given-names: Jordà
+    - family-names: Schulz
+      given-names: Karl W.
+  collection-title: "Proceedings of the Cray User Group (CUG 2026)"
+  year: 2026
+  month: 4
+  start: 199
+  end: 210
+  publisher:
+    name: "Association for Computing Machinery"
+  doi: 10.1145/3837730.3837748

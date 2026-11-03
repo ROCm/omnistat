@@ -19,6 +19,7 @@ json-models/system/rms-%.json: source/%.json
 			omnistat_host_io_read_total_bytes omnistat_host_io_write_total_bytes \
 			omnistat_vendor_ \
 			omnistat_kernel_ \
+			omnistat_rccl_ \
 		--replace-name Source:RMS > $@
 
 json-models/system/standalone-%.json: json-models/system/rms-%.json

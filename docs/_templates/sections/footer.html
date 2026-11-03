@@ -1,0 +1,22 @@
+{#
+  Override of rocm-docs-core's sections/footer.html.
+  Changes vs. upstream:
+    - copyright line renders Sphinx's {{ copyright }} (set in conf.py)
+      instead of a hardcoded year
+    - the AMD corporate link list (Terms/Privacy/Trademarks/...) is removed
+  If rocm-docs-core is upgraded, re-check this file against the theme's
+  sections/footer.html.
+#}
+<footer class="rocm-footer">
+    <div class="container-lg">
+        <section class="bottom-menu menu py-45">
+            <div class="row d-flex align-items-center">
+                <div class="col-12 text-center">
+                    <div>
+                        <span class="copyright">© {{ copyright }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</footer>

@@ -1,4 +1,4 @@
-FROM victoriametrics/victoria-metrics
+FROM victoriametrics/victoria-metrics:v1.154.0
 
 RUN apk --update --no-cache add curl su-exec python3 py3-pip py3-aiohttp
 

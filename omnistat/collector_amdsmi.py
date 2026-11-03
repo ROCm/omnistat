@@ -37,6 +37,7 @@ rocm_utilization_percentage{card="0"} 0.0
 rocm_vram_used_percentage{card="0"} 0.0
 rocm_vram_busy_percentage{card="0"} 22.0
 rocm_average_socket_power_watts{card="0"} 35.0
+rocm_energy_joules{card="0"} 2.6181130255356e+07
 rocm_mlck_clock_mhz{card="0"} 1200.0
 rocm_slck_clock_mhz{card="0"} 300.0
 """
@@ -179,7 +180,7 @@ class AMDSMI(Collector):
         version_metric = Gauge(
             self.__prefix + "version_info",
             "GPU versioning information",
-            labelnames=["card", "driver_ver", "vbios", "type"],
+            labelnames=["card", "driver_ver", "vbios", "type", "serial"],
         )
 
         for idx, device in enumerate(self.__devices):
@@ -188,11 +189,18 @@ class AMDSMI(Collector):
             vbios = vbios_info["part_number"]
             asic_info = smi.amdsmi_get_gpu_asic_info(device)
             devtype = asic_info["market_name"]
+            try:
+                board_info = smi.amdsmi_get_gpu_board_info(device)
+                serial = board_info.get("product_serial", "")
+            except Exception:
+                serial = ""
 
             driver_info = smi.amdsmi_get_gpu_driver_info(device)
             gpuDriverVer = driver_info["driver_version"]
 
-            version_metric.labels(card=gpuLabel, driver_ver=gpuDriverVer, vbios=vbios, type=devtype).set(1)
+            version_metric.labels(card=gpuLabel, driver_ver=gpuDriverVer, vbios=vbios, type=devtype, serial=serial).set(
+                1
+            )
 
         # Register memory related metrics
         self.__GPUMetrics["vram_total_bytes"] = Gauge(
@@ -317,9 +325,7 @@ class AMDSMI(Collector):
                     found = source_metric
                     break
             if not found:
-                logging.error("--> Unable to determine valid data for %s" % desired_metric)
-                logging.error("")
-                sys.exit(4)
+                logging.warning("--> Skipping %s metric - not available on this architecture" % desired_metric)
             else:
                 logging.info("--> Using mapping %s -> %s " % (desired_metric, found))
                 self.__GPUMetrics[self.__prefix + desired_metric] = Gauge(
@@ -392,6 +398,20 @@ class AMDSMI(Collector):
             self.__GPUMetrics["power_cap_watts"] = Gauge(
                 self.__prefix + "power_cap_watts", "Max power cap of device (W)", labelnames=["card"]
             )
+
+        # Register energy metric if available
+        self.__energy_monitoring = False
+        try:
+            smi.amdsmi_get_energy_count(self.__devices[0])
+            self.__energy_monitoring = True
+            self.__GPUMetrics["energy_joules"] = Gauge(
+                self.__prefix + "energy_joules",
+                "Cumulative energy consumption (J)",
+                labelnames=["card"],
+            )
+            logging.info("--> Energy accumulator available")
+        except smi.AmdSmiLibraryException:
+            logging.warning("--> Energy accumulator not supported on this hardware, skipping energy_joules metric")
 
         if self.__cu_occupancy_monitoring:
             # Measure the number CUs in each GPU node ID (KFD internal GPU index),
@@ -488,6 +508,12 @@ class AMDSMI(Collector):
             if self.__power_cap_monitoring:
                 power_info = smi.amdsmi_get_power_cap_info(device)
                 self.__GPUMetrics["power_cap_watts"].labels(card=cardId).set(power_info["power_cap"] / 1000000)
+
+            # cumulative energy [micro Joules, converted to Joules]
+            if self.__energy_monitoring:
+                energy_info = smi.amdsmi_get_energy_count(device)
+                energy_uJ = energy_info["energy_accumulator"] * energy_info["counter_resolution"]
+                self.__GPUMetrics["energy_joules"].labels(card=cardId).set(energy_uJ / 1000000.0)
 
             # CU occupancy
             if self.__cu_occupancy_monitoring:

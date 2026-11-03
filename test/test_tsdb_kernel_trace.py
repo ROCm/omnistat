@@ -31,16 +31,19 @@ import pytest
 import requests
 from flask import Flask
 
-from omnistat.collector_kernel_trace import KernelTrace
+from .generate_kernels import KernelGenerator
+from omnistat.collector_trace_kernel import KernelTrace
 from omnistat.standalone import push_to_victoria_metrics
 from omnistat.utils import readConfig
-from test.generate_kernels import KernelGenerator
 
 test_path = Path(__file__).resolve().parent
 CONFIG_FILE = f"{test_path}/docker/victoriametrics/omnistat-query.config"
 
 config = readConfig(CONFIG_FILE)
-URL = config["omnistat.query"]["prometheus_url"]
+try:
+    URL = config["omnistat.query"]["prometheus_url"]
+except KeyError:
+    pytest.skip("TSDB config not available", allow_module_level=True)
 
 METRIC_COUNT = "omnistat_kernel_dispatch_count"
 METRIC_DURATION = "omnistat_kernel_total_duration_ns"
@@ -66,7 +69,7 @@ def run_kernel_trace_pipeline(trace, advance_ms=None):
         collector = KernelTrace(configparser.ConfigParser(), Mock(), interval_s)
 
     if advance_ms is None:
-        advance_ms = collector._KernelTrace__window_ms + 1000
+        advance_ms = collector._window_ms + 1000
 
     # Inject each batch via a Flask request context, then process dispatches
     # at the batch's simulated wall-clock time.
@@ -76,7 +79,7 @@ def run_kernel_trace_pipeline(trace, advance_ms=None):
         with flask_app.test_request_context(data=json_data, content_type="application/json"):
             collector.handleRequest()
         with patch("time.time_ns", return_value=process_time_ns):
-            collector._KernelTrace__process_dispatches()
+            collector.updateMetrics()
 
     # Format remaining bins at advance_ms past the last bin (no flush=True).
     flush_time_ns = (trace.base_bin_ms + (trace.num_intervals * trace.interval_ms) + advance_ms) * 1_000_000
@@ -102,6 +105,7 @@ def query_at(metric, labels_str, timestamp_ms):
     return int(float(results[0]["value"][1])) if results else None
 
 
+@pytest.mark.tsdb
 class TestKernelTrace:
     def test_buffer_hold(self):
         trace = KernelGenerator(duration_s=1, interval_s=1.0)

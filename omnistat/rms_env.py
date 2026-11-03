@@ -43,6 +43,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--nostep", help="do not cache job step information", action="store_true")
     parser.add_argument(
+        "--localjob",
+        type=str,
+        metavar="name",
+        help="log run with specified job name on localhost (without RMS running)",
+        default=None,
+    )
+    parser.add_argument(
         "output_file",
         type=str,
         nargs="?",
@@ -54,7 +61,16 @@ def main():
     jobFile = args.output_file
     jobData = {}
 
-    if "SLURM_JOB_ID" in os.environ:
+    if args.localjob is not None:
+        jobData["RMS_TYPE"] = "local"
+        jobData["RMS_JOB_ID"] = "%s" % args.localjob
+        jobData["RMS_JOB_USER"] = os.getenv("USER", "unknown")
+        jobData["RMS_JOB_PARTITION"] = "N/A"
+        jobData["RMS_JOB_NUM_NODES"] = 1
+        jobData["RMS_JOB_BATCHMODE"] = 0
+        jobData["RMS_STEP_ID"] = -1
+
+    elif "SLURM_JOB_ID" in os.environ:
         jobData["RMS_TYPE"] = "slurm"
         jobData["RMS_JOB_ID"] = os.getenv("SLURM_JOB_ID")
         jobData["RMS_JOB_USER"] = os.getenv("SLURM_JOB_USER")

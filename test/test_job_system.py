@@ -22,15 +22,16 @@
 # SOFTWARE.
 # -------------------------------------------------------------------------------
 
-import os
+import subprocess
 import time
 
 import pytest
 from prometheus_api_client import PrometheusConnect
 
-from test import config
+from . import config
 
 
+@pytest.mark.docker
 class TestJobSystem:
     @pytest.mark.parametrize("node", config.nodes)
     def test_job(self, node):
@@ -87,5 +88,5 @@ class TestJobSystem:
     def run_job(self, nodes, seconds):
         nodelist = ",".join(nodes)
         sbatch_cmd = f'sbatch --nodes={len(nodes)} --nodelist={nodelist} --wrap="srun sleep {seconds}"'
-        exec_cmd = f"docker exec slurm-controller bash -c 'cd /jobs; {sbatch_cmd}'"
-        os.system(exec_cmd)
+        exec_cmd = ["docker", "exec", "slurm-controller", "bash", "-c", f"cd /jobs; {sbatch_cmd}"]
+        subprocess.run(exec_cmd)

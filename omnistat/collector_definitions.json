@@ -4,13 +4,13 @@
     "collectors": [
         {
             "runtime_option": "enable_rocm_smi",
-            "enabled_by_default": true,
+            "enabled_by_default": false,
             "file": "omnistat.collector_rocmsmi",
             "class_name": "ROCMSMI"
         },
         {
             "runtime_option": "enable_amd_smi",
-            "enabled_by_default": false,
+            "enabled_by_default": true,
             "file": "omnistat.collector_amdsmi",
             "class_name": "AMDSMI"
         },
@@ -69,18 +69,36 @@
             "class_name": "HOST"
         },
         {
+            "runtime_option": "enable_external",
+            "enabled_by_default": false,
+            "file": "omnistat.collector_external",
+            "class_name": "ExternalScript"
+        },
+        {
             "runtime_option": null,
             "enabled_by_default": true,
             "file": "omnistat.collector_info",
             "class_name": "INFO"
+        },
+        {
+            "runtime_option": "enable_lustre",
+            "enabled_by_default": false,
+            "file": "omnistat.contrib.collector_lustre",
+            "class_name": "Lustre"
         }
     ],
     "endpoints": [
         {
             "runtime_option": "enable_kernel_trace",
             "enabled_by_default": false,
-            "file": "omnistat.collector_kernel_trace",
+            "file": "omnistat.collector_trace_kernel",
             "class_name": "KernelTrace"
+        },
+        {
+            "runtime_option": "enable_rccl_trace",
+            "enabled_by_default": false,
+            "file": "omnistat.collector_trace_rccl",
+            "class_name": "RcclTrace"
         }
     ]
 }

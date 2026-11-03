@@ -23,7 +23,6 @@
 # -------------------------------------------------------------------------------
 
 import configparser
-import logging
 import multiprocessing
 import operator
 import os
@@ -36,50 +35,79 @@ import requests
 from flask import Flask
 from prometheus_client.parser import text_string_to_metric_families
 
-import test.config
+from . import config as test_config
+from . import hardware, workloads
 from omnistat.monitor import Monitor
 from omnistat.node_monitoring import OmnistatServer
-from omnistat.utils import runShellCommand
+
+requires_counters = pytest.mark.skipif(
+    not test_config.rocm_host or "ROCP_TOOL_LIBRARIES" not in os.environ,
+    reason="requires ROCm and ROCP_TOOL_LIBRARIES",
+)
 
 # fmt: off
 SMI_METRICS = [
     {"name":"rocm_num_gpus",                                "validate":">=1",                "labels":None},
-    {"name":"rocm_version_info",                            "validate":"==1.0",              "labels":["card","driver_ver","type"]},
+    {"name":"rocm_version_info",                            "validate":"==1.0",              "labels":["card","driver_ver","serial","type"]},
     {"name":"rocm_temperature_celsius",                     "validate":">=10",               "labels":["card","location"]},
     {"name":"rocm_temperature_memory_celsius",              "validate":">=10",               "labels":["card","location"]},
-    {"name":"rocm_average_socket_power_watts",              "validate":">=10",               "labels":["card"]},
-    {"name":"rocm_sclk_clock_mhz",                          "validate":">=90" ,              "labels":["card"]},
-    {"name":"rocm_mclk_clock_mhz",                          "validate":">=100",              "labels":["card"]},
+    {"name":"rocm_average_socket_power_watts",              "validate":">=10",               "labels":["card"],         "hardware":["Instinct"]},
+    {"name":"rocm_average_socket_power_watts",              "validate":">0",                 "labels":["card"],         "hardware":["Radeon"]},
+    {"name":"rocm_sclk_clock_mhz",                          "validate":">=90" ,              "labels":["card"],         "hardware":["Instinct"]},
+    {"name":"rocm_mclk_clock_mhz",                          "validate":">=90",               "labels":["card"],         "hardware":["Instinct"], "skip_hardware":["MI4"]},
+    {"name":"rocm_mclk_clock_mhz",                          "validate":">=0",                "labels":["card"],         "hardware":["Radeon"]},
     {"name":"rocm_vram_total_bytes",                        "validate":">1073741824",        "labels":["card"]},
     {"name":"rocm_vram_used_percentage",                    "validate":">=0",                "labels":["card"]},
     {"name":"rocm_vram_busy_percentage",                    "validate":">=0.0",              "labels":["card"]},
     {"name":"rocm_utilization_percentage",                  "validate":">=0.0",              "labels":["card"]},
 ]
 
+# Optional energy accumulator, unsupported on MI3XX and RDNA with rocm_smi.
+ENERGY_ROCMSMI_METRICS = [
+    {"name":"rocm_energy_joules",                           "validate":">10",                "labels":["card"],         "hardware":["MI2"]},
+]
+
+# Optional energy accumulator, unsupported on RDNA with amd_smi.
+ENERGY_AMDSMI_METRICS = [
+    {"name":"rocm_energy_joules",                           "validate":">10",                "labels":["card"],         "hardware":["Instinct"]},
+]
+
+POWER_CAP_METRICS = [
+    {"name":"rocm_power_cap_watts",                         "validate":">0",                 "labels":["card"]},
+]
+
 RAS_METRICS = [
-    {"name": "rocm_ras_umc_correctable_count",              "validate": ">=0",               "labels": ["card"],        "skip":["borg","frontier","tuolumne"]},
-    {"name": "rocm_ras_sdma_correctable_count",             "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_gfx_correctable_count",              "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_mmhub_correctable_count",            "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_umc_correctable_count",              "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"], "skip_host":["borg","frontier","tuolumne"]},
+    {"name": "rocm_ras_sdma_correctable_count",             "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_gfx_correctable_count",              "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_mmhub_correctable_count",            "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
     {"name": "rocm_ras_pcie_bif_correctable_count",         "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
     {"name": "rocm_ras_hdp_correctable_count",              "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
-    {"name": "rocm_ras_umc_uncorrectable_count",            "validate": ">=0",               "labels": ["card"],        "skip":["borg","frontier","tuolumne"]},
-    {"name": "rocm_ras_sdma_uncorrectable_count",           "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_gfx_uncorrectable_count",            "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_mmhub_uncorrectable_count",          "validate": ">=0",               "labels": ["card"]},
+    {"name": "rocm_ras_umc_uncorrectable_count",            "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"], "skip_host":["borg","frontier","tuolumne"]},
+    {"name": "rocm_ras_sdma_uncorrectable_count",           "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_gfx_uncorrectable_count",            "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_mmhub_uncorrectable_count",          "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
     {"name": "rocm_ras_pcie_bif_uncorrectable_count",       "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
     {"name": "rocm_ras_hdp_uncorrectable_count",            "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
-    {"name": "rocm_ras_umc_deferred_count",                 "validate": ">=0",               "labels": ["card"],        "skip":["borg","frontier","tuolumne"]},
-    {"name": "rocm_ras_sdma_deferred_count",                "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_gfx_deferred_count",                 "validate": ">=0",               "labels": ["card"]},
-    {"name": "rocm_ras_mmhub_deferred_count",               "validate": ">=0",               "labels": ["card"]},
+]
+
+# Deferred counts are only reported by amd_smi.
+RAS_DEFERRED_METRICS = [
+    {"name": "rocm_ras_umc_deferred_count",                 "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"], "skip_host":["borg","frontier","tuolumne"]},
+    {"name": "rocm_ras_sdma_deferred_count",                "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_gfx_deferred_count",                 "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
+    {"name": "rocm_ras_mmhub_deferred_count",               "validate": ">=0",               "labels": ["card"],        "skip_hardware":["MI4"]},
     {"name": "rocm_ras_pcie_bif_deferred_count",            "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
     {"name": "rocm_ras_hdp_deferred_count",                 "validate": ">=0",               "labels": ["card"],        "hardware":["MI210"]},
 ]
 
 OCCUPANCY_METRICS = [
-    {"name": "rocm_num_compute_units",                      "validate": ">=100",             "labels": ["card"]},
+    {"name": "rocm_num_compute_units",                      "validate": ">=48",              "labels": ["card"]},
     {"name": "rocm_compute_unit_occupancy",                 "validate": ">=0",               "labels": ["card"]},
+]
+
+EVENTS_METRICS = [
+    {"name": "rocm_throttle_events",                        "validate": ">=0",               "labels": ["card"]},
 ]
 
 cores = os.cpu_count()
@@ -99,77 +127,101 @@ HOST_METRICS = [
     {"name": "omnistat_host_boot_time_seconds",              "validate": ">1000",             "labels": None},
 ]
 
+ROCPROFILER_METRICS = [
+    {"name": "omnistat_hardware_counter",                    "validate": ">=0",               "labels": ["source", "card", "name"]},
+]
+
+# Network metrics are hardware-dependent (specific device classes such as
+# "cxi" or "ionic" only appear on matching NICs), so assertions stay generic:
+# any host with a non-loopback interface exposes rx/tx byte totals.
+NETWORK_METRICS = [
+    {"name": "omnistat_network_rx_bytes",                    "validate": ">=0",               "labels": ["device_class", "interface"]},
+    {"name": "omnistat_network_tx_bytes",                    "validate": ">=0",               "labels": ["device_class", "interface"]},
+]
+
 # fmt: on
 
 
-def get_gpu_type(device=0):
-    """Return GPU Card Series by running `rocm-smi --showproductname -d <device>`."""
-    cmd = ["rocm-smi", "--showproductname", "-d", str(device)]
-    result = runShellCommand(cmd, capture_output=True, text=True, timeout=5)
-    if not result or result.returncode != 0:
-        logging.error(f"Failed to run rocm-smi for device {device}")
-        return ""
-    for line in result.stdout.splitlines():
-        if "Card Series:" in line:
-            parts = line.split("Card Series:")
-            if len(parts) == 2:
-                return parts[1].strip()
-    logging.warning("Card Series not found in rocm-smi output")
-    return ""
-
-
-gpu_type = get_gpu_type()
+gpu_type = hardware.gpu_type
+consumer_gpu = hardware.consumer_gpu
 
 # Cache hostname for skip checks
 try:
     full_hostname = socket.getfqdn()
-except:
+except Exception:
     full_hostname = "unknown"
 print(f"test execution hostname: {full_hostname}\n")
 
+
+def supported(metrics):
+    """Filter metrics by GPU model allowlist, GPU model skip list, and
+    hostname skip list."""
+    return [
+        x
+        for x in metrics
+        if ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))
+        and ("skip_host" not in x or not any(pattern in full_hostname for pattern in x["skip_host"]))
+        and ("skip_hardware" not in x or not any(hw in gpu_type for hw in x["skip_hardware"]))
+    ]
+
+
 COLLECTOR_CONFIGS = [
     {
-        "collectors": ["rocm_smi"],
-        "metrics": SMI_METRICS,
+        "collectors": ["rocm_smi", "power_cap"],
+        "metrics": supported(SMI_METRICS + ENERGY_ROCMSMI_METRICS + POWER_CAP_METRICS),
+        "marks": [pytest.mark.rocmsmi],
     },
     {
         "collectors": ["amd_smi"],
-        "metrics": SMI_METRICS,
+        "metrics": supported(SMI_METRICS + ENERGY_AMDSMI_METRICS),
     },
     {
         "collectors": ["rocm_smi", "ras_ecc"],
-        "metrics": [
-            x
-            for x in RAS_METRICS
-            if "_deferred_count" not in x["name"]
-            and ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))
-            and ("skip" not in x or not any(pattern in full_hostname for pattern in x["skip"]))
-        ],
+        # RAS/ECC not supported on consumer GPUs
+        "metrics": [] if consumer_gpu else supported(RAS_METRICS),
+        "marks": [pytest.mark.rocmsmi],
     },
     {
         "collectors": ["amd_smi", "ras_ecc"],
-        "metrics": [
-            x
-            for x in RAS_METRICS
-            if ("hardware" not in x or any(hw in gpu_type for hw in x["hardware"]))
-            and ("skip" not in x or not any(pattern in full_hostname for pattern in x["skip"]))
-        ],
+        "metrics": [] if consumer_gpu else supported(RAS_METRICS + RAS_DEFERRED_METRICS),
     },
     {
         "collectors": ["rocm_smi", "cu_occupancy"],
         "metrics": OCCUPANCY_METRICS,
+        "marks": [pytest.mark.rocmsmi],
     },
     {
         "collectors": ["amd_smi", "cu_occupancy"],
         "metrics": OCCUPANCY_METRICS,
     },
     {
+        "collectors": ["events"],
+        "metrics": EVENTS_METRICS,
+    },
+    {
         "collectors": ["host_metrics", "omnistat.collectors.host::enable_proc_io_stats"],
         "metrics": HOST_METRICS,
     },
-    # general info metrics expected to be present regardless of collector config
     {
-        "collectors": ["rocm_smi"],
+        "collectors": ["network"],
+        "metrics": NETWORK_METRICS,
+    },
+    {
+        "collectors": ["rocprofiler"],
+        "metrics": ROCPROFILER_METRICS,
+        "marks": [pytest.mark.rocprofiler],
+        "config_sections": {
+            "omnistat.collectors.rocprofiler": {"profile": "default"},
+            "omnistat.collectors.rocprofiler.default": {
+                "sampling_mode": "constant",
+                "counters": '["GRBM_COUNT", "GRBM_GUI_ACTIVE"]',
+            },
+        },
+    },
+    # general info metrics expected to be present regardless of collector config
+    # (uses amd_smi so the check still runs where ROCm SMI is unavailable)
+    {
+        "collectors": ["amd_smi"],
         "metrics": [
             {"name": "omnistat_info", "validate": "==1.0", "labels": ["version", "mode", "schema"]},
             {"name": "omnistat_perf_runtime_seconds", "validate": ">0.0", "labels": ["collector"]},
@@ -194,13 +246,13 @@ ops = {
 
 
 class OmnistatTestServer:
-    def __init__(self, collectors):
-        self.address = f"localhost:{test.config.port}"
+    def __init__(self, collectors, config_sections=None):
+        self.address = f"localhost:{test_config.port}"
         self.url = f"http://{self.address}/metrics"
         self.timeout = 5.0
         self.collectors = collectors
 
-        config = self.generate_config(self.collectors)
+        config = self.generate_config(self.collectors, config_sections=config_sections)
         monitor = Monitor(config)
 
         def post_fork(server, worker):
@@ -228,9 +280,9 @@ class OmnistatTestServer:
                 self._process.join(timeout=1)
         time.sleep(1.0)
 
-    def generate_config(self, enabled_collectors):
+    def generate_config(self, enabled_collectors, config_sections=None):
         config = configparser.ConfigParser()
-        collectors = {"rocm_path": test.config.rocm_path}
+        collectors = {"rocm_path": test_config.rocm_path}
 
         for collector in SUPPORTED_COLLECTORS:
             collectors[f"enable_{collector}"] = False
@@ -243,6 +295,11 @@ class OmnistatTestServer:
                 collectors[f"enable_{collector}"] = True
 
         config["omnistat.collectors"] = collectors
+
+        if config_sections:
+            for section, options in config_sections.items():
+                config[section] = options
+
         return config
 
     def wait_for_server(self):
@@ -267,9 +324,10 @@ class OmnistatTestServer:
 
 
 # Fixture to manage server lifecycle
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="class")
 def server(request):
-    server = OmnistatTestServer(request.param)
+    collectors, config_sections = request.param
+    server = OmnistatTestServer(collectors, config_sections=config_sections)
     yield server
     server.stop()
 
@@ -303,19 +361,21 @@ def pytest_generate_tests(metafunc):
         argvalues = []
         ids = []
         for config in COLLECTOR_CONFIGS:
+            config_sections = config.get("config_sections")
+            marks = config.get("marks", [])
             for metric in config["metrics"]:
-                argvalues.append((config["collectors"], metric))
+                argvalues.append(pytest.param((config["collectors"], config_sections), metric, marks=marks))
                 collector_config = config["collectors"].copy()
                 if len(collector_config) > 1:
                     if "::" in collector_config[1]:
                         collector_config[1] = collector_config[1].split("::", 1)[1]
                 ids.append(f"{'+'.join(collector_config)}::{metric['name']}")
         # Parametrize server (indirect via fixture) and metric together without cross-product
-        metafunc.parametrize(("server", "desired_metric"), argvalues, ids=ids, scope="session", indirect=["server"])
+        metafunc.parametrize(("server", "desired_metric"), argvalues, ids=ids, scope="class", indirect=["server"])
 
 
 class TestCollectors:
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_collector_metrics(self, server, available_metrics, desired_metric):
         # Ensure the fixture supplied metrics are fetched
         assert available_metrics is not None, "Failed to fetch metrics from server"
@@ -323,7 +383,7 @@ class TestCollectors:
             desired_metric["name"] in available_metrics["metrics"]
         ), f"Missing metric {desired_metric['name']} with {server.collectors}"
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_collector_labels(self, server, available_metrics, desired_metric):
         assert available_metrics is not None, "Failed to fetch metrics from server"
 
@@ -333,7 +393,7 @@ class TestCollectors:
             for label in desired_metric["labels"]:
                 assert label in available_labels, f"Missing label '{label}' for '{name}'"
 
-    @pytest.mark.skipif(not test.config.rocm_host, reason="requires ROCm")
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
     def test_collector_values(self, server, available_metrics, desired_metric):
         assert available_metrics is not None, "Failed to fetch metrics from server"
         validate_expr = desired_metric["validate"]
@@ -353,3 +413,194 @@ class TestCollectors:
         threshold = float(num_str)
 
         assert ops[op_str](value, threshold), f"Invalid value for {name} (expecting {validate_expr}, received {value})"
+
+
+class TestHardwareCounters:
+    @requires_counters
+    @pytest.mark.skipif(consumer_gpu, reason="hardware counters not supported on RDNA")
+    def test_counters_with_workload(self):
+        config_sections = {
+            "omnistat.collectors.rocprofiler": {"profile": "default"},
+            "omnistat.collectors.rocprofiler.default": {
+                "sampling_mode": "constant",
+                "counters": '["GRBM_COUNT", "GRBM_GUI_ACTIVE", "SQ_INSTS_VALU"]',
+            },
+        }
+        server = OmnistatTestServer(["rocprofiler"], config_sections=config_sections)
+
+        try:
+            # Run GPU workload with the tool libraries from the environment, which
+            # must include the counter enablement library.
+            result = workloads.run("vector_add", [1000000])
+            assert result.returncode == 0, f"vector_add failed: {result.stderr}"
+
+            # Scrape metrics, keyed by (card, counter_name)
+            metrics = {}
+            for metric in server.get():
+                for sample in metric.samples:
+                    card = sample.labels.get("card", "")
+                    name = sample.labels.get("name", "")
+                    if metric.name == "omnistat_hardware_counter":
+                        metrics.setdefault(card, {})[name] = sample.value
+        finally:
+            server.stop()
+
+        # At least one GPU should have non-zero counters from the workload
+        assert len(metrics) > 0, "No hardware counter metrics found"
+        counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE", "SQ_INSTS_VALU"]
+        assert any(
+            all(metrics[card].get(c, 0) > 0 for c in counters) for card in metrics
+        ), f"No GPU had all counters > 0: {metrics}"
+
+
+@pytest.mark.rocprofiler
+class TestHardwareCounterConfigValidation:
+    """Verify rocprofiler_sdk config validation catches bad configs with sys.exit(4)."""
+
+    def _make_config(self, profile_opts=None, rocprofiler_opts=None):
+        config = configparser.ConfigParser()
+        config["omnistat.collectors"] = {"rocm_path": test_config.rocm_path}
+        if rocprofiler_opts:
+            config["omnistat.collectors.rocprofiler"] = rocprofiler_opts
+        if profile_opts is not None:
+            config["omnistat.collectors.rocprofiler.default"] = profile_opts
+        return config
+
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
+    def test_bad_json_counters(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"counters": "not valid json"})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
+    def test_missing_counters(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"sampling_mode": "constant"})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
+    def test_non_list_counters(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"counters": '"just_a_string"'})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
+    def test_invalid_sampling_mode(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"sampling_mode": "bogus", "counters": '["GRBM_COUNT"]'})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
+    def test_constant_mode_multiple_counter_sets(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(
+            profile_opts={"sampling_mode": "constant", "counters": '[["GRBM_COUNT"], ["GRBM_GUI_ACTIVE"]]'}
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
+    def test_deprecated_metrics_option(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(
+            rocprofiler_opts={"metrics": '["GRBM_COUNT"]'},
+            profile_opts={"sampling_mode": "constant"},
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+    @pytest.mark.skipif(not test_config.rocm_host, reason="requires ROCm")
+    def test_gpu_id_mode_single_counter_set(self):
+        from omnistat.collector_rocprofiler_sdk import rocprofiler_sdk
+
+        config = self._make_config(profile_opts={"sampling_mode": "gpu-id", "counters": '[["GRBM_COUNT"]]'})
+        with pytest.raises(SystemExit) as exc_info:
+            rocprofiler_sdk(config=config)
+        assert exc_info.value.code == 4
+
+
+class TestHostUserModeIO:
+    """Verify per-process I/O metrics in user mode by spawning a subprocess that does I/O."""
+
+    def test_user_mode_proc_io(self):
+        import subprocess
+        import sys
+
+        config_sections = {
+            "omnistat.collectors.host": {
+                "cpu_load_sampling_interval": "0.02",
+                "enable_proc_io_stats": "True",
+                "proc_io_cmds_exclude": "flux-, systemd",
+            },
+            "omnistat.internal": {
+                "mode": "user",
+                "interval_secs": "5",
+                "push_interval_secs": "Unknown",
+            },
+        }
+        server = OmnistatTestServer(
+            ["host_metrics", "omnistat.collectors.host::enable_proc_io_stats"],
+            config_sections=config_sections,
+        )
+
+        # Spawn a long-running subprocess that does I/O — its PID won't be in the init-time filter.
+        # When running as root (e.g. in CI containers), the collector filters out root-owned processes.
+        # In that case, run the subprocess as "ubuntu" if available so it passes the root-process filter.
+        io_script = "import time\nf=open('/dev/null','w')\nwhile True:\n f.write('x'*1024)\n time.sleep(0.01)"
+        use_su = False
+        if os.geteuid() == 0:
+            try:
+                import pwd
+
+                pwd.getpwnam("ubuntu")
+                use_su = True
+            except KeyError:
+                pass
+
+        if use_su:
+            io_proc = subprocess.Popen(["su", "-", "ubuntu", "-c", f'{sys.executable} -c "{io_script}"'])
+        else:
+            io_proc = subprocess.Popen([sys.executable, "-c", io_script])
+
+        try:
+            time.sleep(0.5)
+            metrics = {}
+            for metric in server.get():
+                for sample in metric.samples:
+                    metrics.setdefault(metric.name, []).append(sample)
+
+            assert (
+                "omnistat_host_io_read_total_bytes" in metrics
+            ), f"Missing io_read_total_bytes, got: {list(metrics.keys())}"
+            assert (
+                "omnistat_host_io_write_total_bytes" in metrics
+            ), f"Missing io_write_total_bytes, got: {list(metrics.keys())}"
+
+            # Verify expected labels and at least one process with non-zero I/O
+            for metric_name in ("omnistat_host_io_read_total_bytes", "omnistat_host_io_write_total_bytes"):
+                samples = metrics[metric_name]
+                for sample in samples:
+                    assert "pid" in sample.labels, f"Missing 'pid' label for {metric_name}"
+                    assert "cmd" in sample.labels, f"Missing 'cmd' label for {metric_name}"
+                values = [s.value for s in samples]
+                assert any(v > 0 for v in values), f"Expected non-zero {metric_name}, got: {values}"
+        finally:
+            io_proc.terminate()
+            io_proc.wait()
+            server.stop()

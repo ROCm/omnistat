@@ -35,6 +35,8 @@ import logging
 import os
 import platform
 import pwd
+import random
+import re
 import signal
 import sys
 import threading
@@ -77,6 +79,15 @@ def generate_metrics_stream(dataVM, endpoint_streams):
         yield from stream
 
 
+def counted_stream(generator, counter):
+    """Wrap a byte generator to count total bytes yielded."""
+    total = 0
+    for chunk in generator:
+        total += len(chunk)
+        yield chunk
+    counter["data_bytes"] = total
+
+
 def push_to_victoria_metrics(dataVM, endpoint_streams, victoria_url, timer=None):
     start_time = time.perf_counter()
     timestamp_msecs = int(datetime.now(timezone.utc).timestamp() * 1000.0)
@@ -84,10 +95,11 @@ def push_to_victoria_metrics(dataVM, endpoint_streams, victoria_url, timer=None)
     logging.info("Pushing local node telemetry to VictoriaMetrics endpoint -> %s" % victoria_url)
     headers = {"Content-Type": "text/plain"}
 
+    byte_counter = {}
     try:
         response = requests.post(
             victoria_url + "/api/v1/import/prometheus",
-            data=generate_metrics_stream(dataVM, endpoint_streams),
+            data=counted_stream(generate_metrics_stream(dataVM, endpoint_streams), byte_counter),
             headers=headers,
         )
     except requests.ConnectionError:
@@ -121,13 +133,14 @@ def push_to_victoria_metrics(dataVM, endpoint_streams, victoria_url, timer=None)
             return
 
         if response.status_code != 200:
-            logging.warning(f"[WARN] Unexpected return code from VM endpoint: {endpoint} = {response.status_code}")
+            logging.warning(f"[WARN] Unexpected return code from VM endpoint: {vm_endpoint} = {response.status_code}")
 
     duration = time.perf_counter() - start_time
 
     if timer is not None:
         timer["duration_secs"] = duration
         timer["timestamp_msecs"] = timestamp_msecs
+        timer["data_bytes"] = byte_counter.get("data_bytes", 0)
 
     return
 
@@ -257,7 +270,6 @@ class Standalone:
         num_fom_samples = 0
         sample_duration = 0
         num_pushes = 0
-        push_check_duration = 0.0
         push_frequency_secs = self.__pushFrequencyMins * 60
         push_time_accumulation = 0.0
         interval_microsecs = int(interval_secs * 1000000)
@@ -266,6 +278,8 @@ class Standalone:
         push_thread = None
         bg_thread_timer = {}
         fom_check_duration = 0.0
+        # Randomize initial push offset to de-sychronize data pushes
+        push_check_duration = random.uniform(0, push_frequency_secs)
 
         # ---
         # main sampling loop
@@ -291,12 +305,19 @@ class Standalone:
                         logging.info("Previous metric push is still running - blocking till complete.")
                         push_thread.join()
                         logging.info("Resuming after previous metric push complete.")
-                    # log previous bg thread timing
+                    # log previous bg thread timing and data size
                     if bg_thread_timer:
                         entry = "%s{%s} %s %i" % (
                             "omnistat_perf_push_background_seconds",
                             self.__labelDefaults,
                             bg_thread_timer["duration_secs"],
+                            bg_thread_timer["timestamp_msecs"],
+                        )
+                        self.__dataVM.append(entry)
+                        entry = "%s{%s} %s %i" % (
+                            "omnistat_perf_push_data_bytes",
+                            self.__labelDefaults,
+                            bg_thread_timer["data_bytes"],
                             bg_thread_timer["timestamp_msecs"],
                         )
                         self.__dataVM.append(entry)
@@ -438,6 +459,11 @@ def parse_args():
 def terminate():
     """Endpoint that can be used to terminate execution"""
     logging.info("Received shutdown request")
+    max_offset = request.args.get("max_offset", 0, type=float)
+    if max_offset > 0:
+        delay = random.uniform(0, max_offset)
+        logging.info("Shutdown delay: %.2f secs (max_offset=%.2f)" % (delay, max_offset))
+        time.sleep(delay)
     terminateFlagEvent.set()
 
     # spin loop till notice recieved that last data was pushed
@@ -448,7 +474,7 @@ def terminate():
     wait_interval = max(1, interval / 2.0)
     max_wait_secs = 120
     elapsed = 0.0
-    while not dataDeliveredEvent.isSet():
+    while not dataDeliveredEvent.is_set():
         logging.debug("waiting for data delivery event...(%.2f secs)" % wait_interval)
         time.sleep(wait_interval)
         elapsed += wait_interval
@@ -579,10 +605,12 @@ def main():
     # Handle SIGTERM gracefully
     signal.signal(signal.SIGTERM, lambda signum, frame: terminateFlagEvent.set())
 
+    allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
+    allowed_ips = re.split(r",\s*", allowed_ips)
+
     # Enforce network restrictions
     @app.before_request
     def restrict_ips():
-        allowed_ips = config["omnistat.collectors"].get("allowed_ips", "127.0.0.1")
         if "0.0.0.0" in allowed_ips:
             return
         elif request.remote_addr not in allowed_ips:

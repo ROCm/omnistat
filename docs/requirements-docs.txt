@@ -1,7 +1,8 @@
 sphinx
-myst-parser
-recommonmark
+rocm-docs-core>=1.41.0
+# Needed for docs_theme = "rtd" in conf.py; rocm-docs-core stays installed
+# either way since it supplies sphinx-design, myst-parser and the toc.
+sphinx-rtd-theme>=3.0
 pygments
 sphinxmark
-sphinx-rtd-theme
 #pillow==9.5.0

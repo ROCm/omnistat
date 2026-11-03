@@ -1,8 +1,8 @@
 [project]
 name = "omnistat"
-dynamic = ["version", "dependencies", "optional-dependencies"]
+dynamic = ["version", "dependencies"]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [project.scripts]
 omnistat-monitor = "omnistat.node_monitoring:main"
@@ -11,20 +11,27 @@ omnistat-annotate = "omnistat.annotate:main"
 omnistat-query = "omnistat.query:main"
 omnistat-rms-env = "omnistat.rms_env:main"
 omnistat-standalone = "omnistat.standalone:main"
+omnistat-inspect = "omnistat.inspect.cli:main"
+omnistat-build-extras = "omnistat.build_extensions:main"
 
 [build-system]
-requires = ["setuptools>=61", "wheel", "setuptools-git-versioning>=2.0,<3", "cmake-build-extension", "cmake", "nanobind"]
+requires = ["setuptools>=61", "wheel", "setuptools-git-versioning>=2.0,<3", "cmake-build-extension", "cmake", "nanobind<3.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["omnistat", "omnistat.contrib"]
+packages = ["omnistat", "omnistat.contrib", "omnistat.inspect", "omnistat.inspect.backend", "omnistat.inspect.job"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
-optional-dependencies = { query = { file = ["requirements-query.txt"] } }
 
 [tool.setuptools.package-data]
-"omnistat" = ["config/omnistat.default","collector_definitions.json"]
+"omnistat" = [
+    "config/omnistat.default",
+    "collector_definitions.json",
+    "rocprofiler-sdk/**/*.cpp",
+    "rocprofiler-sdk/**/*.hpp",
+    "rocprofiler-sdk/**/CMakeLists.txt",
+]
 
 [tool.setuptools-git-versioning]
 enabled = true
@@ -38,6 +45,12 @@ filterwarnings = [
     "ignore::DeprecationWarning::", # ignore third-party deprecation warnings
     "default::DeprecationWarning:omnistat.*:",
 ]
+markers = [
+    "rocprofiler: requires rocprofiler SDK libraries (ROCP_TOOL_LIBRARIES)",
+    "tsdb: requires VictoriaMetrics or Prometheus TSDB",
+    "docker: requires Docker and containerized SLURM cluster",
+    "rocmsmi: requires the ROCm SMI runtime (unavailable on MI450 and later)",
+]
 
 [tool.black]
 line-length = 120
@@ -47,3 +60,12 @@ include = '\.py$'
 profile = "black"
 src_paths = ["omnistat", "test"]
 known_local_folder = ["omnistat", "test"]
+
+[tool.coverage.run]
+source = ["omnistat"]
+parallel = true
+concurrency = ["multiprocessing"]
+
+[tool.coverage.report]
+include = ["omnistat/collector_*.py"]
+omit = ["omnistat/collector_smi_process.py", "omnistat/collector_rocprofiler.py"]

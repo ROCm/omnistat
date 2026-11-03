@@ -77,7 +77,7 @@ def download_dashboard(grafana_url, headers, dashboard_uid, dashboard_name, save
     print(f"Dashboard {dashboard_name} successfully downloaded to {file_path}")
 
 
-def upload_dashboard(grafana_url, headers, dashboard_path, dashboard_id, folder_id):
+def upload_dashboard(grafana_url, headers, dashboard_path, folder_uid):
     url = f"{grafana_url}/api/dashboards/db"
     headers["Content-Type"] = "application/json"
 
@@ -86,21 +86,19 @@ def upload_dashboard(grafana_url, headers, dashboard_path, dashboard_id, folder_
     with open(dashboard_path, "r", encoding="utf-8") as f:
         dashboard_data = json.load(f)
 
-    dashboard_data["id"] = dashboard_id
-
     payload = {
         "dashboard": dashboard_data,
-        "folderId": folder_id,
+        "folderUid": folder_uid,
         "overwrite": True,
     }
 
     response = requests.post(url, headers=headers, json=payload)
     if response.status_code != 200:
-        print(f"Failed to upload dashboard {name} (dashboard {dashboard_id}, folder {folder_id})")
+        print(f"Failed to upload dashboard {name} (folder UID '{folder_uid}')")
         print(f".. Status: {response.status_code}, {response.text}")
         return
 
-    print(f"Dashboard {name} uploaded successfully (dashboard ID {dashboard_id}, folder ID {folder_id})")
+    print(f"Dashboard {name} uploaded successfully (folder UID '{folder_uid}')")
 
 
 def get_dashboard_info(grafana_url, headers):
@@ -167,16 +165,12 @@ if __name__ == "__main__":
 
         for uid, path in local_dashboard_info.items():
             # By default, new dashboards not present in the remote Grafana
-            # server need a null dashboard ID and are added to the root folder
-            # (always ID 0).
-            dashboard_id = None
-            folder_id = 0
+            # server are added to the root folder (empty UID).
+            folder_uid = ""
 
             # If dashboard exists in the remote Grafana server, upload it to
-            # using the same dashboard ID and folder ID as the existing dashboard.
-            if uid in remote_dashboard_info and "id" in remote_dashboard_info[uid]:
-                dashboard_id = remote_dashboard_info[uid]["id"]
-                if "folderId" in remote_dashboard_info[uid]:
-                    folder_id = remote_dashboard_info[uid]["folderId"]
+            # the same folder as the existing dashboard.
+            if uid in remote_dashboard_info:
+                folder_uid = remote_dashboard_info[uid].get("folderUid", "")
 
-            upload_dashboard(grafana_url, headers, path, dashboard_id, folder_id)
+            upload_dashboard(grafana_url, headers, path, folder_uid)

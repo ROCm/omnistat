@@ -28,7 +28,7 @@
 setup_env() {
     # setup local env
     module try-load cray-python/3.11.5
-    module try-load rocm/6.4.1
+    module try-load rocm/7.2.0
     module use /sw/frontier/amdsw/modulefiles
     if [[ -n ${OMNISTAT_WRAPPER_VERSION} ]];then
 	module try-load omnistat/${OMNISTAT_WRAPPER_VERSION}

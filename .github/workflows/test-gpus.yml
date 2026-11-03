@@ -6,10 +6,23 @@ on:
     - cron: "0 */6 * * *"    # every 6 hours
 
   pull_request:
-    branches: [ main, dev ]      
+    branches: [ main, dev ]
+
+  push:
+    branches: [main, dev]
+
+permissions:
+  contents: read
 
 jobs:
   gpu-collectors:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    defaults:
+      run:
+        shell: bash --login {0}
     runs-on: [self-hosted, instinct]
     strategy:
       matrix:
@@ -27,7 +40,9 @@ jobs:
               exit 1
            fi
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Create virtual environment
         run: |
@@ -36,26 +51,103 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r test/requirements.txt
+          pip install "nanobind<3.0"
+          cmake -S omnistat/rocprofiler-sdk/ -B build/
+          cmake --build build/
+          cmake --install build/ --prefix .
+
+      - name: Build kernel trace and counter libraries
+        run: |
+          cmake -B build -S omnistat/rocprofiler-sdk -DBUILD_KERNEL_TRACE_LIB=ON -DBUILD_COUNT_LIB=ON
+          cmake --build build
+
+      - name: Build test workloads
+        run: make -C test/workloads OFFLOAD_ARCH="gfx90a gfx942"
 
       - name: Collector tests
+        env:
+          # Trailing colon is required: rocprofiler-sdk drops the last entry when
+          # parsing this variable, so the counter library would not be loaded.
+          ROCP_TOOL_LIBRARIES: "${{ github.workspace }}/build/libomnistat_trace.so:${{ github.workspace }}/build/libomnistat_count.so:"
         run: |
           source omnistat_venv/bin/activate
-          srun -N 1 -J omnistat -p $CI_QUEUE -t 00:10:00 pytest -v --junitxml=results.xml test/test_collectors.py
+          srun -N 1 -J omnistat -p $CI_QUEUE -t 00:10:00 \
+            pytest -v --require-rocmsmi --cov=omnistat --cov-report=xml --junitxml=results.xml test/test_collectors.py test/test_endpoint_collectors.py test/test_external_collector.py test/test_pm_counters.py  test/test_rms.py test/test_unit_network.py test/test_unit_trace.py
 
 ##       - name: Test Report
 ##         uses: dorny/test-reporter@v2
 ##         if: ${{ !cancelled() }}
 ##         with:
 ##           name: GPU Collectors
-##           reporter: jest-junit 
+##           reporter: jest-junit
 ##           path: results.xml
 
+      # skip for dependabot (read-only token)
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v5
-        if: ${{ !cancelled() }}	
+        uses: mikepenz/action-junit-report@6ef3fdcfcd5f0b5d14df3e659ef19b8c6820f93d # v6.6.1
+        if: ${{ !cancelled() && github.actor != 'dependabot[bot]' }}
         with:
           include_passed: 'true'
           report_paths: 'results.xml'
           check_name: "Collector Tests (${{ matrix.hardware }})"
           comment: 'true'
 
+      - name: Generate Coverage Summary
+        if: ${{ !cancelled() }}
+        run: |
+          source omnistat_venv/bin/activate
+          coverage report
+          TOTAL=$(coverage report --format=total)
+          echo "$TOTAL" > coverage-total.txt
+          echo "**Coverage (${{ matrix.hardware }}):** ${TOTAL}%" > coverage-summary.md
+          coverage report --fail-under=75 > /dev/null
+
+      # skip for dependabot (read-only token)
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        if: github.event_name == 'pull_request' && !cancelled() && github.actor != 'dependabot[bot]'
+        with:
+          header: "coverage-${{ matrix.hardware }}"
+          path: coverage-summary.md
+
+      - name: Upload Coverage Data
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: coverage-${{ matrix.hardware }}
+          path: coverage-total.txt
+
+  coverage-badge:
+    permissions:
+      contents: write
+    needs: gpu-collectors
+    runs-on: ubuntu-latest
+    if: always() && !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout badges branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: badges
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: coverage-*
+          merge-multiple: false
+
+      - name: Update coverage badge
+        run: |
+          MIN=$(cat coverage-*/coverage-total.txt | sort -n | head -1)
+          if [ $(echo "$MIN >= 75" | bc) -eq 1 ]; then
+            COLOR="green"
+          else
+            COLOR="red"
+          fi
+          cat > coverage.json <<EOF
+          {"schemaVersion":1,"label":"coverage","message":"${MIN}%","color":"${COLOR}"}
+          EOF
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add coverage.json
+          git diff --cached --quiet || git commit -m "update coverage: ${MIN}%"
+          git push

@@ -1,13 +1,8 @@
-# ORNL
-
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
+# ORNL Frontier
 
 This section provides instructions for running user-mode Omnistat on ORNL's
-Frontier supercomputer with pre-installed versions from AMD Research.
+Frontier supercomputer with pre-installed versions from AMD Research. For
+ORNL's Lux, see the [Lux instructions](site.lux.md) instead.
 
 **Prerequisites**:
 - User account on Frontier
@@ -33,7 +28,7 @@ for teams running their own Python stack who may wish to avoid any pollution
 with the application's Python environment. A SLURM job script example highlighting
 use of the wrapper utility before and after executing a GPU application is highlighted below:
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: Example Frontier SLURM job using wrapper, highlighting changes needed to run Omnistat
    :emphasize-lines: 9-11,17-19
@@ -66,7 +61,7 @@ By default, Omnistat databases are stored in Lustre, under the
 directory. It's possible to override the default path using the
 `OMNISTAT_VICTORIA_DATADIR` environment variable as highlighted in the following example.
 
-```eval_rst
+```{eval-rst}
 .. code-block:: bash
    :caption: Storing data under /tmp and copying it after running
    :emphasize-lines: 11,21
@@ -104,16 +99,14 @@ local filesystems like `/tmp`. Data can't be stored directly under Frontier's
 
 After job completion, transfer the archived Omnistat data to your local machine
 for analysis using the Docker environment described in the [user-mode
-guide](installation/user-mode.md#exploring-results-locally).
+guide](user-mode/analysis.md#exploring-results-locally).
 
-## Additional Metrics
-
-Frontier exposes an additional site‑specific collector beyond the standard set
-documented in the main [metrics](metrics) overview.
+## Additional Features
 
 ### Vendor Counters
 
-The vendor collector ingests additional telemetry made
+Frontier exposes an additional site‑specific collector beyond the standard set
+documented in the main [metrics](metrics) overview. The vendor collector ingests additional telemetry made
 possible by site‑specific platform integrations. On Frontier, this collector leverages the HPE
 Cray `pm_counters` interface and translates raw counter files into metrics
 that distinguish cumulative energy and instantaneous power samples for
@@ -135,3 +128,58 @@ may differ from the ordering used by ROCm.
 | :------------------------------------- | :---------- |
 | `omnistat_vendor_accel_energy_joules`  | Cumulative accelerator (GPU) energy (J) for each device. Labels: `vendor`, `accel`. |
 | `omnistat_vendor_accel_power_watts`    | Instantaneous accelerator (GPU) power (W) for each device. Labels: `vendor`, `accel`. |
+
+### Tracing
+
+[Kernel tracing](advanced-profiling.md#tracing) is available on Frontier starting
+with Omnistat **1.12.0**, and RCCL communication tracing starting with
+**1.16.0**. Both work by loading a tracing library (`libomnistat_trace.so`) into
+the application's runtime environment to intercept GPU kernel dispatches and
+RCCL calls. Pre-built tracing libraries are currently provided for ROCm 6.4.0
+through 7.2.0.
+
+To enable tracing:
+1. Create a custom configuration file with `enable_kernel_trace = True`,
+   `enable_rccl_trace = True`, or both, using
+   the default
+   [Frontier configuration file](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.ornl)
+   as a starting point.
+2. Set `OMNISTAT_CONFIG` to point to your custom file in the job script.
+3. Set `ROCP_TOOL_LIBRARIES` to the pre-built tracing library matching the
+   ROCm version used to build your application. Pre-built libraries are
+   available under
+   `${OMNISTAT_DIR}/build-trace-rocm-<version>/`.
+   This variable must be set before launching the application.
+
+```{eval-rst}
+.. code-block:: bash
+   :caption: Example Frontier SLURM job with tracing enabled
+   :emphasize-lines: 14,18
+
+   #!/bin/bash
+   #SBATCH -A <project_id>
+   #SBATCH -J omnistat
+   #SBATCH -N 2
+   #SBATCH -t 01:00:00
+   #SBATCH -S 0
+
+   # Load ROCm (must match the version used to build your application)
+   ml rocm/7.2.0
+
+   # Setup and launch Omnistat (wrapper version)
+   ml use /sw/frontier/amdsw/modulefiles
+   ml omnistat-wrapper
+   export OMNISTAT_CONFIG=/path/to/omnistat.config
+   ${OMNISTAT_WRAPPER} usermode --start --interval 1.0
+
+   # Enable Omnistat tracing
+   export ROCP_TOOL_LIBRARIES=${OMNISTAT_DIR}/build-trace-rocm-${CRAY_ROCM_VERSION}/libomnistat_trace.so
+
+   # Your GPU application here
+   srun ./your_application
+
+   # Tear down Omnistat
+   ${OMNISTAT_WRAPPER} usermode --stopexporters
+   ${OMNISTAT_WRAPPER} query --job ${SLURM_JOB_ID} --interval 1.0
+   ${OMNISTAT_WRAPPER} usermode --stopserver
+```

@@ -1,10 +1,20 @@
 # Metrics Available
 
-```eval_rst
-.. toctree::
-   :glob:
-   :maxdepth: 4
-```
+<style>
+/* Give every metric table on this page a shared fixed first-column width so
+   adjacent tables line up on the same boundary instead of each auto-sizing to
+   its own longest metric name. 24rem fits the longest name on the page
+   (omnistat_host_cpu_aggregate_core_utilization) without wrapping. Kept inline
+   here rather than in static/omnistat.css so the rule stays scoped to this page. */
+#metrics-available table.table {
+    table-layout: fixed;
+    width: 100%;
+}
+#metrics-available table.table th:first-child,
+#metrics-available table.table td:first-child {
+    width: 24rem;
+}
+</style>
 
 Omnistat supports multiple embedded data collectors to aggregate a large
 collection of metrics from a variety of system sources.  Many of the available
@@ -20,6 +30,14 @@ Note that Omnistat metrics generally fall into one of the two following types:
 - **GPU-level metrics**: These are reported for each individual GPU on a node
   and include a `card` label to distinguish between them. These metric types are denoted
   with a *GPU Metric* heading.
+
+In addition, an optional [External](#external) data collector is available to
+ingest additional site-specific metrics not included directly in Omnistat.
+
+Two of the collectors below, [Hardware Counters](#hardware-counters) and
+[Tracing](#tracing), require additional setup beyond a runtime configuration
+flag. That setup, along with their configuration options, is
+covered in [Advanced Profiling](./advanced-profiling.md).
 
 <hr style="border: 1px solid black;">
 
@@ -39,11 +57,12 @@ health and performance.
 
 | GPU Metric                        | Description                          |
 | :-------------------------------- | :----------------------------------- |
-| `rocm_version_info`               | GPU model and versioning information for GPU driver and VBIOS. Labels: `driver_ver`, `vbios`, `type`, `schema`. |
+| `rocm_version_info`               | GPU model and versioning information for GPU driver and VBIOS. Labels: `driver_ver`, `vbios`, `type`, `serial`. |
 | `rocm_utilization_percentage`     | GPU utilization (%). |
 | `rocm_vram_used_percentage`       | Memory utilization (%). |
 | `rocm_vram_total_bytes`           | Total GPU memory (bytes). |
 | `rocm_average_socket_power_watts` | Average socket power (W). |
+| `rocm_energy_joules`              | Cumulative energy consumption (J). Data is accumulated since last GPU driver load. |
 | `rocm_sclk_clock_mhz`             | GPU clock speed (MHz). |
 | `rocm_mclk_clock_mhz`             | Memory clock speed (MHz). |
 | `rocm_temperature_celsius`        | GPU temperature (°C). Labels: `location`. |
@@ -63,32 +82,6 @@ to individual users or applications.
 | :---------------------- | :----------------------------------- |
 | `rmsjob_info`           | Resource manager info metric tracking running jobs. When a job is running, the `jobid` label is different than the empty string. Labels: `jobid`, `user`, `partition`, `nodes`, `batchflag`, `jobstep`, `type`. |
 
-
-### Annotations
-
-The resource manager collector optionally allows users to add application-level context to Omnistat metrics using the `omnistat-annotate` tool. This is useful for marking specific events or phases within an application, such as the start and end of a computation, making it
-easier to correlate performance data with application behavior.  To demonstrate creation of high-level markers from within a job script, the following snippet highlights annotation of repeated runs of an application with different command-line arguments (where the argument size included as text for the annotation).
-
-```eval_rst
-.. code-block:: bash
-   :caption: Example use of high-level annotations in a job script
-
-    for SIZE in 102400 358400 768000; do
-        ${OMNISTAT_DIR}/omnistat-annotate --mode start --text  "Size=${SIZE}"
-        ./my_app --size ${SIZE}
-        ${OMNISTAT_DIR}/omnistat-annotate --mode stop
-        sleep 5
-    done
-```
-
-**Collector**: `enable_rms`
-<br/>
-**Collector options**: `enable_annotations`
-
-| Node Metric             | Description                          |
-| :---------------------- | :----------------------------------- |
-| `rmsjob_annotations`    | User-provided annotations. Labels: `jobid`, `marker`. |
-
 <hr style="border: 1px solid black;">
 
 ## Host
@@ -101,17 +94,17 @@ memory utilization statistics along with general I/O metrics.
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
 | `omnistat_host_boot_time_seconds` | Node boot time (seconds since epoch). |
-| `omnistat_mem_total_bytes`| Total host memory available (bytes). |
-| `omnistat_mem_available_bytes` | Currently available host memory (bytes). This is typically the amount of memory available for allocation to new processes.|
-| `omnistat_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it is generally smaller than `omnistat_mem_available_bytes` due to caching. |
+| `omnistat_host_mem_total_bytes`| Total host memory available (bytes). |
+| `omnistat_host_mem_available_bytes` | Currently available host memory (bytes). This is typically the amount of memory available for allocation to new processes.|
+| `omnistat_host_mem_free_bytes` | Free host memory available (bytes). This represents the amount of physical RAM that is currently unused - it is generally smaller than `omnistat_host_mem_available_bytes` due to caching. |
 | `omnistat_host_cpu_num_physical_cores` | Number of physical CPU cores. |
 | `omnistat_host_cpu_num_logical_cores` | Number of logical CPU cores. |
 | `omnistat_host_cpu_aggregate_core_utilization` | Instantaneous number of busy CPU cores. Typical range varies from 0 (no load) to num_logical_cores (max load). |
 | `omnistat_host_cpu_load1` | 1-minute CPU load average. This is identical to 1-minute load reported by `uptime`. |
-| `omnistat_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
-| `omnistat_io_write_local_total_bytes` | Total bock-level data written to **local** physical disk (bytes). |
+| `omnistat_host_io_read_local_total_bytes` | Total block-level data read from **local** physical disks (bytes).|
+| `omnistat_host_io_write_local_total_bytes` | Total block-level data written to **local** physical disk (bytes). |
 
-### Process-based I/O 
+### Process-based I/O
 
 **Collector**: `enable_host_metrics`
 <br/>
@@ -128,8 +121,8 @@ execution where Omnistat is running under the same user ID as the application.
 
 | Node Metric             | Description                          |
 | :---------------------- | :----------------------------------- |
-| `omnistat_io_read_total_bytes` | Total data read by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
-| `omnistat_io_write_total_bytes` | Total data written by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
+| `omnistat_host_io_read_total_bytes` | Total data read by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
+| `omnistat_host_io_write_total_bytes` | Total data written by visible processes (bytes). This metric tracks I/O at the syscall level and includes both local and network I/O. Labels: `pid`, `cmd`.|
 
 <hr style="border: 1px solid black;">
 
@@ -234,51 +227,14 @@ It is **not** supported by the ROCm SMI collector (`enable_rocm_smi`).
 The ROCprofiler data collector provides access to low-level GPU hardware
 counters for in-depth performance analysis. Counters are collected by sampling
 the GPUs at the device level with minimal impact on application performance.
-The collection is configured through the `profile` option in the configuration
-file.
 
-Each profile defines a sampling mode and a set of counters to be collected:
-- `sampling_mode`: This option controls how counter sets are distributed
-  across the available GPUs:
-    - `constant`: Assigns one set of counters to all GPUs.
-    - `gpu-id`: Cyclically assigns sets of counters to GPU IDs in all nodes.
-       The number of sets of counters must not exceed the number of GPUs per
-       node.
-    - `periodic`: Rotates all GPUs through multiple counter sets, changing the
-      active counter set after every sample. When this mode is enabled, counter
-      values are reset at each sampling interval and not accumulated.
-- `counters`: This option accepts one or more sets of counters formatted as a
-  flat or nested JSON list. For a complete list of supported counters, see the
-  [ROCm documentation](https://rocm.docs.amd.com/en/latest/conceptual/gpu-arch/mi300-mi200-performance-counters.html).
-
-```eval_rst
-.. code-block:: ini
-   :caption: Example profile to collect free-running and active cycles on all GPUs
-
-    [omnistat.collectors.rocprofiler.cycles]
-    sampling_mode = constant
-    counters = ["GRBM_COUNT", "GRBM_GUI_ACTIVE"]
-  ```
-
-```eval_rst
-.. code-block:: ini
-   :caption: Example profile to collect HBM reads and writes from different GPU IDs
-
-    [omnistat.collectors.rocprofiler.hbm]
-    sampling_mode = gpu-id
-    counters = [["FETCH_SIZE"], ["WRITE_SIZE"]]
-  ```
-
-The ROCprofiler data collector requires [building the hardware counters
-extension](./installation/extensions.md#hardware-counters).
-
-To ensure all performance counters are collected correctly, the collector has
-the following requirements depending on how Omnistat is executed:
-- *System mode*: Run Omnistat with the `CAP_PERFMON` capability enabled.
-- *User mode*: Set the `HSA_TOOLS_LIB` environment variable in the application's runtime environment.
-  ```shell
-  export HSA_TOOLS_LIB=/opt/rocm/lib/librocprofiler64.so
-  ```
+This collector requires building the hardware counters extension, as described
+under Optional component(s) for {ref}`system-mode <optional-components>` or
+{ref}`user-mode <user-optional-components>`, along with performance monitoring
+privileges and a counter profile that selects which counters to collect. Which counters are available and how they are distributed across the
+GPUs of a node is controlled by the `profile` option. See [Advanced
+Profiling](./advanced-profiling.md#hardware-counters) for setup and
+configuration details.
 
 **Collector**: `enable_rocprofiler`
 <br/>
@@ -290,23 +246,27 @@ the following requirements depending on how Omnistat is executed:
 
 <hr style="border: 1px solid black;">
 
-## Kernel Tracing
+## Tracing
 
-The kernel tracing data collector traces individual GPU kernel dispatches,
-recording kernel names, execution durations, and GPU IDs. It produces
-per-kernel time series metrics that enable detailed analysis of GPU workload
+Omnistat provides two GPU tracing streams from a single library: kernel
+dispatches, recording kernel names and execution durations, and RCCL
+communication, recording the collective calls an application makes and the
+communicators it creates.
+
+The library must be built as described under {ref}`Optional component(s)
+<user-optional-components>` and loaded into the application being monitored.
+Each stream is traced when its collector is enabled. See
+[Advanced Profiling](./advanced-profiling.md#tracing) for setup and
+configuration details.
+
+### Kernel Dispatches
+
+Per-kernel time series that enable detailed analysis of GPU workload
 composition over time.
 
-The collector requires [building the kernel tracing
-library](./installation/extensions.md#kernel-tracing). To intercept kernel
-dispatches, the `ROCP_TOOL_LIBRARIES` environment variable must be set in the
-GPU application's runtime environment pointing to the built library:
-
-```shell
-export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
-```
-
 **Collector**: `enable_kernel_trace`
+<br/>
+**Availability**: user-mode only
 
 | GPU Metric | Description |
 | :--- | :--- |
@@ -315,16 +275,61 @@ export ROCP_TOOL_LIBRARIES=/path/to/build-trace/libomnistat_trace.so
 
 | Node Metric | Description |
 | :--- | :--- |
-| `omnistat_kernel_dropped_dispatches` | Cumulative number of dispatches excluded from metrics collection because their timestamps fell outside the valid time range. This is an Omnistat bookkeeping metric and does not affect GPU execution. |
+| `omnistat_kernel_late_records` | Cumulative number of dispatch records that could not be recorded because their time bin was outside the range the collector still accepts. A rising value usually means records are arriving later than the collector's hold window allows. This is an Omnistat bookkeeping metric and does not affect GPU execution. |
+
+### RCCL Communication
+
+Communication activity from [RCCL](https://github.com/ROCm/rccl), the collective
+communication library used by distributed workloads. Only the calls themselves
+are recorded, not the GPU execution time of the resulting kernels. Communicator
+teardown is not tracked.
+
+**Collector**: `enable_rccl_trace`
+<br/>
+**Availability**: user-mode only
+
+| GPU Metric | Description |
+| :--- | :--- |
+| `omnistat_rccl_collective_count` | Cumulative number of RCCL communication calls. Labels: `collective`, `datatype`, `size_bucket`, `comm_size`. |
+| `omnistat_rccl_collective_total_bytes` | Cumulative logical message bytes (element count multiplied by datatype size) passed to RCCL collective calls. Labels: `collective`, `datatype`, `size_bucket`, `comm_size`. |
+| `omnistat_rccl_comm_created_count` | Cumulative number of communicators created, sliced by communicator size. Labels: `nranks`. |
+| `omnistat_rccl_comm_init_total_duration_ns` | Cumulative wall-clock time spent inside communicator creation calls (ns). Because creation synchronizes across ranks, this is dominated by waiting for the last rank to arrive, so it reflects rank startup skew more than RCCL setup cost. |
+
+| Node Metric | Description |
+| :--- | :--- |
+| `omnistat_rccl_late_records` | Cumulative number of RCCL records that could not be recorded because their time bin was outside the range the collector still accepts. A rising value usually means records are arriving later than the collector's hold window allows. The count is reported per node rather than per `card`. |
+
+Label values are:
+
+- `collective`: RCCL operation without the `nccl` prefix, one of `AllReduce`,
+  `AllGather`, `Broadcast`, `Reduce`, `ReduceScatter`, `Send`, or `Recv`. These
+  are the only communication calls intercepted, along with communicator
+  creation. Other entry points, including `ncclAllToAll` and `ncclAllToAllv`,
+  are not traced. Frameworks that implement all-to-all as groups of `ncclSend`
+  and `ncclRecv` are captured, but appear as independent `Send` and `Recv`
+  records.
+- `datatype`: element type of the message, such as `float32` or `bfloat16`.
+  Unrecognized RCCL datatypes appear as `dtypeN` for the raw enum value `N`, and
+  are counted as zero bytes in the smallest size bucket.
+- `size_bucket`: upper bound of the message size, from `4K` through `4G`, or
+  `inf` for anything larger.
+- `comm_size` and `nranks`: number of ranks in the communicator, or `unknown`
+  when it cannot be determined. `comm_size` labels collectives, `nranks` labels
+  communicator creation.
 
 <hr style="border: 1px solid black;">
 
 ## Network
 
 The network data collector enables metrics providing information about data
-transfers for each network interface detected in the host platform. Currently
-supported network types include Ethernet, Infiniband, and
-Slingshot.
+transfers for each network interface detected in the host platform. Every
+interface carries a `device_class` label naming the type it was detected as:
+
+- `net`: Ethernet and other standard IP interfaces.
+- `infiniband`: InfiniBand.
+- `cxi`: HPE Slingshot.
+- `ionic`: AMD Pensando AI NICs (e.g. Pollara).
+- `bnxt_re`: Broadcom RoCE NICs (e.g. Thor).
 
 **Collector**: `enable_network`
 
@@ -332,3 +337,222 @@ Slingshot.
 | :-------------------------- | :----------------------------------- |
 | `omnistat_network_tx_bytes` | Total bytes transmitted by network interface. Labels: `device_class`, `interface`. |
 | `omnistat_network_rx_bytes` | Total bytes received by network interface. Labels: `device_class`, `interface`. |
+
+RoCE NICs that report via sysfs `hw_counters` (`ionic`, `bnxt_re`) expose
+additional throughput and fabric-health metrics. Availability depends on the
+counters the driver publishes.
+
+The ECN and CNP metrics are the two ends of the same DCQCN feedback loop: a
+receiver counts ECN-marked packets and answers with a CNP, which the sender
+counts as a request to lower its send rate. Both count packets *received*, but
+they report congestion in opposite traffic directions.
+
+| Node Metric                 | Network Type | Description                          |
+| :-------------------------- | :----------- | :----------------------------------- |
+| `omnistat_network_tx_packets` | `ionic`, `bnxt_re` | Total packets transmitted by network interface. |
+| `omnistat_network_rx_packets` | `ionic`, `bnxt_re` | Total packets received by network interface. |
+| `omnistat_network_rx_out_of_sequence_packets` | `ionic`, `bnxt_re` | Total packets received out of sequence by network interface; typically driven by in-fabric packet loss. |
+| `omnistat_network_tx_retransmitted_packets` | `ionic` | Total packets retransmitted by network interface; a fabric packet-loss/congestion indicator. |
+| `omnistat_network_rx_discarded_packets` | `bnxt_re` | Total packets dropped on receive by network interface; a packet-loss indicator. |
+| `omnistat_network_tx_discarded_packets` | `bnxt_re` | Total packets dropped on transmit by network interface; a packet-loss indicator. |
+| `omnistat_network_rx_ecn_marked_packets` | `ionic`, `bnxt_re` | Total packets received carrying the ECN congestion mark; a pre-loss indicator of congestion on **inbound** traffic. |
+| `omnistat_network_rx_cnp_packets` | `ionic`, `bnxt_re` | Total congestion notification packets (CNPs) received, each requesting a lower send rate; an indicator of congestion on **outbound** traffic. |
+
+Counters on `ionic` devices are slow to read, so they are sampled in the
+background and can be up to one sampling interval old. The `ionic` interval
+defaults to half the collection interval, but never below 1 second, and can be
+set in seconds with the `ionic_sampling_interval` option in the
+`[omnistat.collectors.network]` section.
+
+<hr style="border: 1px solid black;">
+
+## External
+
+The external data collector provides a mechanism to incorporate custom,
+site-specific metrics into Omnistat by executing a user-provided script at each
+collection interval. The script is expected to write metrics to stdout in
+[Prometheus text exposition
+format](https://prometheus.io/docs/instrumenting/exposition_formats/#prometheus-text-format)
+(one metric per line). Metric names and labels are not fixed in advance --
+they are discovered dynamically from the script output at runtime.
+
+All metrics produced by the external script are automatically tagged with an
+`omnistat_external="1"` label to distinguish them from native Omnistat metrics.
+Any metric that is **not** present in the script output on a given invocation
+will be automatically removed from Omnistat tracking so metrics can be dynamically added/deleted via this method.
+
+**Collector**: `enable_external`
+<br/>
+**Collector options**: `script`, `timeout_secs`
+
+### Configuration
+
+The external collector is enabled by setting `enable_external = True` in the
+`[omnistat.collectors]` section. Collector options are configured in a
+separate `[omnistat.collectors.external]` section where `script` specifies
+the path to the executable and `timeout_secs` (default: 10 seconds) controls how
+long Omnistat will wait for the script to complete before discarding its
+output.
+
+```{eval-rst}
+.. code-block:: ini
+   :caption: Example configuration
+
+    [omnistat.collectors]
+    enable_external = True
+
+    [omnistat.collectors.external]
+    script = /path/to/my_metrics.sh
+    timeout_secs = 10
+```
+
+### Script output format
+
+The script must print metrics to stdout using the following format:
+
+```
+metric_name value
+metric_name{label1="val1",label2="val2"} value
+```
+
+Lines beginning with `#` and empty lines are ignored.
+
+### Example
+
+The following example script emits free disk space metrics for multiple
+filesystems, using a label to distinguish between them.
+
+```{eval-rst}
+.. code-block:: bash
+   :caption: my_metrics.sh
+
+    #!/usr/bin/env bash
+    # Emit free space (bytes) for monitored filesystems
+    for fs in /home /scratch; do
+        free_bytes=$(df --output=avail -B1 "${fs}" | tail -1)
+        echo "site_disk_free_bytes{fs=\"${fs}\"} ${free_bytes}"
+    done
+```
+
+Running the script produces output that Omnistat parses directly:
+
+```{eval-rst}
+.. code-block:: console
+
+    $ ./my_metrics.sh
+    site_disk_free_bytes{fs="/home"} 524288000000
+    site_disk_free_bytes{fs="/scratch"} 1932735283200
+```
+<hr style="border: 1px solid black;">
+
+## User-supplied
+
+In addition to the collection mechanisms highlighted above, Omnistat has several options for
+incorporating user-supplied data for overlay with existing telemetry data.  The following
+subsections highlight available options including *annotations* and *figures of merit*.
+
+### Annotations
+
+Omnistat allows users to add application-level context to telemetry data using the
+`omnistat-annotate` tool. Annotations are managed by the [resource manager](#resource-manager)
+collector and can be used to mark specific events or phases within an application, such as the start
+and end of a computation, making it easier to correlate performance data with application behavior.
+To demonstrate creation of high-level markers from within a job script, the following snippet
+highlights annotation of repeated runs of an application with different command-line arguments (where
+the argument size is included as text for the annotation).
+
+```{eval-rst}
+.. code-block:: bash
+   :caption: Example use of high-level annotations in a job script
+
+    for SIZE in 102400 358400 768000; do
+        ${OMNISTAT_DIR}/omnistat-annotate --mode start --text  "Size=${SIZE}"
+        ./my_app --size ${SIZE}
+        ${OMNISTAT_DIR}/omnistat-annotate --mode stop
+        sleep 5
+    done
+```
+
+**Collector**: `enable_rms`
+<br/>
+**Collector options**: `enable_annotations`
+
+| Node Metric             | Description                          |
+| :---------------------- | :----------------------------------- |
+| `rmsjob_annotations`    | User-provided annotations. Labels: `jobid`, `marker`. |
+
+### Figure of Merit
+
+Many iterative applications have a natural notion of progress (e.g., time per iteration, GFLOPS
+achieved, number of samples processed, number of epochs completed) that can be used to quantify
+application performance. Omnistat user-mode supports collection of these figures of merit (FOM)
+allowing users to inject custom application performance metrics into the telemetry data stream while
+an application is running.  By correlating FOM values with system telemetry, users can gain insights
+into how specific application performance relates to observed hardware behavior, including power and
+energy consumption.
+
+To support this feature, Omnistat exposes a `/fom` REST endpoint that accepts a JSON payload with a
+user-supplied FOM name and value; the timestamp is encoded automatically at time of receipt.  The
+following highlights a CLI example using `curl` to report a GFLOPS measurement:
+
+```{eval-rst}
+.. code-block:: bash
+   :caption: Example FOM submission using curl
+
+    curl -X POST http://localhost:8001/fom \
+      -H "Content-Type: application/json" \
+      -d '{"name": "gflops", "value": 511.264069}'
+```
+
+For C++ applications, a more efficient approach is to use a header-only HTTP
+client such as [cpp-httplib](https://github.com/yhirose/cpp-httplib) to issue
+the POST request directly from within the application code:
+
+```{eval-rst}
+.. code-block:: cpp
+   :caption: Example FOM submission from C++ using cpp-httplib
+
+    #include "httplib.h"
+    #include <iostream>
+    #include <sstream>
+
+    // Initialize connection to local Omnistat server
+    httplib::Client cli("http://localhost:8001");
+
+    // application FOM value (e.g., GFLOPS for current iteration)
+    double step_gflops = 134.45;
+
+    // build payload to send FOM to Omnistat endpoint
+    std::ostringstream data;
+    data << "{\"name\":\"step_gflops\",\"value\":" << step_gflops << "}";
+
+    auto res = cli.Post("/fom", data.str(), "application/json");
+    if (!res || res->status < 200 || res->status >= 300) {
+        std::cerr << "FOM POST failed\n";
+    }
+```
+
+Python applications can use the `requests` library to report FOM values natively:
+
+```{eval-rst}
+.. code-block:: python
+   :caption: Example FOM submission from Python using requests
+
+    import requests
+
+    # application FOM value (e.g., GFLOPS for current iteration)
+    step_gflops = 134.45
+
+    # build payload and send FOM to Omnistat endpoint
+    payload = {"name": "step_gflops", "value": step_gflops}
+    res = requests.post("http://localhost:8001/fom", json=payload)
+    if not res.ok:
+        print(f"FOM POST failed: {res.status_code}")
+```
+
+**Availability**: user-mode only
+
+| Node Metric             | Description                          |
+| :---------------------- | :----------------------------------- |
+| `omnistat_fom`          | Application-supplied figure of merit value. Labels: `instance`, `name`. |
+
