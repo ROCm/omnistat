@@ -62,7 +62,9 @@ def parse_args():
     parser.add_argument("--log", type=str, default=None)
     parser.add_argument("--vm-endpoint", type=str, default=None, help="hostname of VictoriaMetrics server")
     parser.add_argument("--vm-port", type=int, default=9090, help="port of VictoriaMetrics server")
-    parser.add_argument("--pushinterval", type=float, default=5.0, help="state metric push interval in minutes (default=5)")
+    parser.add_argument(
+        "--pushinterval", type=float, default=5.0, help="state metric push interval in minutes (default=5)"
+    )
     return parser.parse_args()
 
 
@@ -77,6 +79,37 @@ def figureOfMerit():
         if analyzer is not None:
             analyzer.ingest_fom(name, value, timestamp_msecs)
         return jsonify({"status": "ok"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/sample", methods=["POST"])
+def sampleBatch():
+    """Receive a self-describing telemetry batch.
+
+    Body is optimizer_signals.make_batch():
+
+        {"source": "collector", "host": "k004-004",
+         "timestamp_msecs": 1793746202123,
+         "samples": [
+           {"kind":"utilization","name":"gpu_busy","device":4,"value":94.4},
+           {"kind":"fom","name":"wallclock_secs_per_step","value":0.2302,
+            "direction":"lower"}
+         ]}
+
+    Unlike /fom this carries a device dimension and arbitrary signal kinds, so
+    an optimizer can be driven by utilization or hardware counters while still
+    using FOM to measure the performance cost.
+    """
+    try:
+        batch = request.get_json()
+        if not isinstance(batch, dict) or "samples" not in batch:
+            return jsonify({"error": "body must be a sample batch with a 'samples' list"}), 400
+        batch.setdefault("timestamp_msecs", int(datetime.now(timezone.utc).timestamp() * 1000.0))
+        analyzer = app.config.get("ENERGY_ANALYZER")
+        if analyzer is not None:
+            analyzer.ingest_batch(batch)
+        return jsonify({"status": "ok", "n": len(batch.get("samples", []))}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -113,6 +146,7 @@ def make_state_push_thread(vm_url, push_interval_secs, threshold):
     Returns (state_callback, perf_drop_callback) for EnergyAnalyzer.
     """
     import requests as _requests
+
     push_url = vm_url + "/api/v1/import/prometheus"
     headers = {"Content-Type": "text/plain"}
     hostname = platform.node().split(".", 1)[0]
@@ -146,7 +180,7 @@ def make_state_push_thread(vm_url, push_interval_secs, threshold):
             cached_lines.append('omnistat_optimize{instance="%s",mode="energy"} %d %d' % (hostname, state_int, ts))
             if drop_pct is not None:
                 cached_lines.append(
-                    'omnistat_optimize_perf_percentage{instance=\"%s\",threshold=\"%s\"} %.4f %d'
+                    'omnistat_optimize_perf_percentage{instance="%s",threshold="%s"} %.4f %d'
                     % (hostname, threshold_str, drop_pct, ts)
                 )
             if elapsed >= push_interval_secs:
@@ -156,7 +190,9 @@ def make_state_push_thread(vm_url, push_interval_secs, threshold):
                 try:
                     resp = _requests.post(push_url, data=payload.encode(), headers=headers, timeout=5)
                     if resp.status_code != 204:
-                        logging.warning("[optimizer] VM state push returned HTTP %d: %s" % (resp.status_code, resp.text))
+                        logging.warning(
+                            "[optimizer] VM state push returned HTTP %d: %s" % (resp.status_code, resp.text)
+                        )
                     else:
                         logging.debug("[optimizer] State pushed: %s(%d)" % (state_str, state_int))
                 except Exception as e:
@@ -193,7 +229,9 @@ def main():
             threshold = config["omnistat.optimize"].getfloat("max_performance_drop", 5.0)
             state_callback, perf_drop_callback = make_state_push_thread(vm_url, push_interval_secs, threshold)
             logging.info("[optimizer] State metric will be pushed to %s every %.1f min" % (vm_url, args.pushinterval))
-        analyzer = EnergyAnalyzer(config, host_list, collector_port, on_state_change=state_callback, on_perf_drop=perf_drop_callback)
+        analyzer = EnergyAnalyzer(
+            config, host_list, collector_port, on_state_change=state_callback, on_perf_drop=perf_drop_callback
+        )
         app.config["COMMAND_CONTROLLER"] = controller
         app.config["ENERGY_ANALYZER"] = analyzer
         logging.info("[optimizer] Initialized. hosts=%s  port=%d" % (host_list, args.port))

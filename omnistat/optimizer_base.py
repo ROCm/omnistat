@@ -39,6 +39,8 @@
 
 from abc import ABC, abstractmethod
 
+from omnistat import optimizer_signals as sig
+
 
 class BaseOptimizer(ABC):
     """Interface that every optimizer plugin must implement.
@@ -53,13 +55,26 @@ class BaseOptimizer(ABC):
                       performance, ``"lower"`` if smaller is better.
         fom_units     str or None — optional human-readable label for FOM
                       units (e.g. ``"GFLOPS"``, ``"seconds"``).
+
+    Two ingest paths exist:
+
+        ingest_fom(name, value, ts)   original scalar FOM path.  Returns an int
+                                      frequency for *all* GPUs, or None.
+
+        ingest(batch)                 self-describing sample batch (see
+                                      optimizer_signals).  Returns a list of
+                                      clock decisions, each optionally carrying
+                                      a ``gpu_index`` for per-GPU control.
+
+    A plugin implements whichever it needs.  The default ``ingest()`` below
+    extracts FOM samples and forwards them to ``ingest_fom()``, so plugins
+    written against the original interface keep working unchanged.
     """
 
     @abstractmethod
     def __init__(self, config, sclk_min, sclk_max, fom_direction="higher", fom_units=None):
         """Initialize the optimizer from configuration and frequency bounds."""
 
-    @abstractmethod
     def ingest_fom(self, name, value, timestamp_msecs):
         """Process a single FOM sample.
 
@@ -71,7 +86,32 @@ class BaseOptimizer(ABC):
         Returns:
             int or None: Target GPU clock frequency in MHz if a change is
             needed, or ``None`` if no adjustment is required.
+
+        Optimizers driven by something other than FOM (utilization, counters)
+        may leave this unimplemented and override ``ingest()`` instead.
         """
+        return None
+
+    def ingest(self, batch):
+        """Process a self-describing sample batch.
+
+        Args:
+            batch (dict): see ``optimizer_signals.make_batch``.
+
+        Returns:
+            list: clock decisions from ``optimizer_signals.clock_decision``.
+            An empty list means no change.  A decision without ``gpu_index``
+            applies to all GPUs.
+
+        The default implementation forwards FOM samples to ``ingest_fom()`` so
+        scalar-FOM plugins need no changes.  Override for per-device control or
+        to consume utilization / counter samples.
+        """
+        decisions = []
+        for s in sig.select(batch, sig.KIND_FOM):
+            out = self.ingest_fom(s.get("name"), s.get("value"), batch.get("timestamp_msecs"))
+            decisions.extend(sig.normalize_decisions(out))
+        return decisions
 
     @abstractmethod
     def reset(self):

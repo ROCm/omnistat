@@ -41,6 +41,7 @@ from collections import deque
 
 import requests
 
+from omnistat import optimizer_signals as sig
 from omnistat import utils
 
 
@@ -55,9 +56,7 @@ def _resolve_sclk_range(config):
     if arch_setting == "auto":
         arch = utils.detect_gpu_arch()
         if arch is None:
-            raise ValueError(
-                "[omnistat.optimize] sclk_frequencies=auto but could not detect GPU arch via rocminfo"
-            )
+            raise ValueError("[omnistat.optimize] sclk_frequencies=auto but could not detect GPU arch via rocminfo")
         logging.info("[optimize] Auto-detected GPU architecture: %s" % arch)
     else:
         arch = arch_setting
@@ -108,21 +107,22 @@ class EnergyAnalyzer:
         # FOM metadata from config
         fom_direction = config[section].get("fom_direction", "higher").strip().lower()
         if fom_direction not in ("higher", "lower"):
-            raise ValueError(
-                "[omnistat.optimize] fom_direction must be 'higher' or 'lower', got: '%s'" % fom_direction
-            )
+            raise ValueError("[omnistat.optimize] fom_direction must be 'higher' or 'lower', got: '%s'" % fom_direction)
         fom_units = config[section].get("fom_units", None)
         if fom_units is not None:
             fom_units = fom_units.strip() or None
 
         # Load and instantiate the optimizer plugin
-        optimizer_class_path = config[section].get(
-            "optimizer_class", "omnistat.optimizer_stepdown.StepDownOptimizer"
-        ).strip()
+        optimizer_class_path = (
+            config[section].get("optimizer_class", "omnistat.optimizer_stepdown.StepDownOptimizer").strip()
+        )
         OptimizerClass = _load_optimizer_class(optimizer_class_path)
         self._optimizer = OptimizerClass(
-            config, sclk_min, sclk_max,
-            fom_direction=fom_direction, fom_units=fom_units,
+            config,
+            sclk_min,
+            sclk_max,
+            fom_direction=fom_direction,
+            fom_units=fom_units,
         )
 
         # FOM history: bounded by approximate byte budget
@@ -148,7 +148,10 @@ class EnergyAnalyzer:
             "[energy] Initialized. arch=%s  optimizer=%s  hosts=%d"
             % (self._arch, optimizer_class_path, len(self._hosts))
         )
-        logging.info("[energy] Resetting GPUs to max clock (%d MHz) at startup (will retry until all nodes respond)." % self._sclk_max)
+        logging.info(
+            "[energy] Resetting GPUs to max clock (%d MHz) at startup (will retry until all nodes respond)."
+            % self._sclk_max
+        )
         self._startup_reset_with_retry()
 
         # Push initial state
@@ -163,41 +166,59 @@ class EnergyAnalyzer:
                 logging.warning("[energy] Initial state push failed: %s" % e)
 
     def ingest_fom(self, name, value, timestamp_msecs):
-        """Receive a new FOM sample from the /fom endpoint (thread-safe).
+        """Receive a FOM sample from the /fom endpoint (thread-safe).
 
-        Args:
-            name (str): FOM metric name
-            value (float|int): FOM value
-            timestamp_msecs (int): Unix timestamp in milliseconds
+        Thin adapter over ingest_batch() so the original app-push path and the
+        existing Cholla patch keep working unchanged.
         """
         try:
-            fom_value = float(value)
+            float(value)
         except (TypeError, ValueError):
             logging.warning("[energy] Ignoring non-numeric FOM value: %s" % value)
             return
+        self.ingest_batch(sig.batch_from_legacy_fom(name, value, timestamp_msecs))
+
+    def ingest_batch(self, batch):
+        """Receive a self-describing sample batch (thread-safe).
+
+        See optimizer_signals.make_batch().  Samples may carry FOM, per-device
+        utilization, counters, etc; the optimizer selects what it understands.
+        Returned decisions may be per-GPU.
+        """
+        # FOM tracks performance impact even when decisions come from elsewhere
+        fom_samples = sig.select(batch, sig.KIND_FOM)
 
         with self._lock:
-            self._fom_history.append(fom_value)
+            for s in fom_samples:
+                try:
+                    self._fom_history.append(float(s["value"]))
+                except (TypeError, ValueError, KeyError):
+                    continue
 
             if not self._startup_reset_done:
                 return
 
             prev_state = self._optimizer.state
-            prev_state_int = self._optimizer.state_int
 
-            new_freq = self._optimizer.ingest_fom(name, fom_value, timestamp_msecs)
+            try:
+                decisions = sig.normalize_decisions(self._optimizer.ingest(batch))
+            except Exception as e:
+                logging.error("[energy] optimizer.ingest() raised: %s" % e)
+                return
 
             # Fire state-change callback if state transitioned
             cur_state = self._optimizer.state
-            cur_state_int = self._optimizer.state_int
             if cur_state != prev_state and self._on_state_change is not None:
                 try:
-                    self._on_state_change(cur_state, cur_state_int, self._optimizer.current_freq)
+                    self._on_state_change(cur_state, self._optimizer.state_int, self._optimizer.current_freq)
                 except Exception as e:
                     logging.warning("[energy] on_state_change callback failed: %s" % e)
 
             # Fire perf-drop callback from optimizer status
-            status = self._optimizer.get_status()
+            try:
+                status = self._optimizer.get_status()
+            except Exception:
+                status = {}
             drop_pct = status.get("last_drop_pct")
             if drop_pct is not None and self._on_perf_drop is not None:
                 try:
@@ -205,9 +226,9 @@ class EnergyAnalyzer:
                 except Exception as e:
                     logging.warning("[energy] on_perf_drop callback failed: %s" % e)
 
-        # Dispatch clock command outside the lock if optimizer requested a change
-        if new_freq is not None:
-            self._send_clock_command(new_freq)
+        # Dispatch outside the lock
+        if decisions:
+            self._send_clock_commands(decisions)
 
     def reset(self):
         """Reset the optimizer back to IDLE and restore max clock frequency (thread-safe)."""
@@ -265,7 +286,9 @@ class EnergyAnalyzer:
                         if response.status_code == 200:
                             logging.info("[energy] Startup reset accepted by %s (attempt %d)" % (host, attempt))
                         else:
-                            logging.warning("[energy] Startup reset: %s returned HTTP %d" % (host, response.status_code))
+                            logging.warning(
+                                "[energy] Startup reset: %s returned HTTP %d" % (host, response.status_code)
+                            )
                             still_pending.append(host)
                     except requests.exceptions.RequestException:
                         still_pending.append(host)
@@ -274,7 +297,10 @@ class EnergyAnalyzer:
                     logging.info("[energy] Startup reset complete — all hosts at max clock (%d MHz)." % freq)
                     self._startup_reset_done = True
                     return
-                logging.info("[energy] Startup reset: waiting for %d host(s), retrying in %ds..." % (len(pending), retry_interval))
+                logging.info(
+                    "[energy] Startup reset: waiting for %d host(s), retrying in %ds..."
+                    % (len(pending), retry_interval)
+                )
                 time.sleep(retry_interval)
             logging.error("[energy] Startup reset failed after %d attempts for hosts: %s" % (max_attempts, pending))
             self._startup_reset_done = True
@@ -283,33 +309,46 @@ class EnergyAnalyzer:
         t.start()
 
     def _send_clock_command(self, freq_mhz):
-        """Dispatch a clock command to all job hosts in a background daemon thread."""
+        """Dispatch one all-GPU clock command (legacy scalar path)."""
+        self._send_clock_commands([sig.clock_decision(int(freq_mhz))])
+
+    def _send_clock_commands(self, decisions):
+        """Dispatch clock decisions to all job hosts in a background thread.
+
+        Each decision is a dict accepted verbatim by CommandController.
+        apply_command(), which already supports an optional ``gpu_index`` --
+        omitting it applies to every GPU, preserving the original behaviour.
+        """
         hosts = list(self._hosts)
         port = self._port
-        payload = {"clock": "sclk", "type": "max", "value": int(freq_mhz)}
+        decisions = [d for d in decisions if d]
 
+        if not decisions:
+            return
         if not hosts:
-            logging.warning("[energy] _send_clock_command: no job hosts available — clock command NOT sent (freq=%d MHz)" % freq_mhz)
+            logging.warning("[energy] no job hosts available — %d clock decision(s) NOT sent" % len(decisions))
             return
 
+        summary = ", ".join(
+            "%s=%dMHz" % ("gpu%d" % d["gpu_index"] if "gpu_index" in d else "all", d["value"]) for d in decisions
+        )
         logging.info(
-            "[energy] Dispatching clock command to %d host(s): %s — payload=%s"
-            % (len(hosts), hosts, payload)
+            "[energy] Dispatching %d clock decision(s) to %d host(s): %s" % (len(decisions), len(hosts), summary)
         )
 
         def _dispatch():
             for host in hosts:
                 url = "http://%s:%d/command" % (host, port)
-                try:
-                    response = requests.post(url, json=payload, timeout=10)
-                    if response.status_code == 200:
-                        logging.info("[energy] Clock command accepted by %s" % host)
-                    else:
-                        logging.warning(
-                            "[energy] Clock command to %s returned HTTP %d" % (host, response.status_code)
-                        )
-                except requests.exceptions.RequestException as e:
-                    logging.error("[energy] Failed to send clock command to %s: %s" % (host, e))
+                for payload in decisions:
+                    try:
+                        response = requests.post(url, json=payload, timeout=10)
+                        if response.status_code != 200:
+                            logging.warning(
+                                "[energy] Clock command to %s returned HTTP %d (payload=%s)"
+                                % (host, response.status_code, payload)
+                            )
+                    except requests.exceptions.RequestException as e:
+                        logging.error("[energy] Failed to send clock command to %s: %s" % (host, e))
 
         t = threading.Thread(target=_dispatch, daemon=True)
         t.start()

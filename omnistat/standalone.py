@@ -48,6 +48,7 @@ import requests
 from flask import Flask, abort, jsonify, request
 from prometheus_client import REGISTRY, Gauge
 
+from omnistat import optimizer_signals as sig
 from omnistat import utils
 from omnistat.monitor import Monitor
 from omnistat import omni_util
@@ -171,6 +172,12 @@ class Standalone:
         self.__victoriaURL = f"http://{args.endpoint}:{args.port}"
 
         self.__fomCheckFrequencySecs = config["omnistat.usermode"].getint("fom_check_frequency_secs", 10)
+
+        # Utilization push rate to the optimizer, decoupled from --interval
+        if config.has_section("omnistat.optimize"):
+            self.__optimizerSampleSecs = config["omnistat.optimize"].getfloat("optimizer_sample_secs", 1.0)
+        else:
+            self.__optimizerSampleSecs = 1.0
         if self.__fomCheckFrequencySecs < 5:
             logging.error("")
             logging.error(
@@ -263,6 +270,43 @@ class Standalone:
                     entry = "%s{%s} %s %i" % (sample.name, labels, sample.value, timestamp_millisecs)
                     self.__dataVM.append(entry)
 
+    def pushUtilizationSample(self, timestamp_millisecs):
+        """Forward per-GPU utilization to the optimizer. No-op without --optimizer-endpoint."""
+        endpoint = app.config.get("OPTIMIZER_ENDPOINT")
+        if not endpoint:
+            return
+
+        samples = []
+        for metric in REGISTRY.collect():
+            if metric.name != "rocm_utilization_percentage":
+                continue
+            for sample in metric.samples:
+                card = sample.labels.get("card") if sample.labels else None
+                if card is None:
+                    continue
+                samples.append(
+                    sig.make_sample(
+                        sig.KIND_UTILIZATION, "gpu_busy", sample.value,
+                        device=int(card), units="percent",
+                    )
+                )
+        if not samples:
+            return
+
+        batch = sig.make_batch(
+            samples, source="collector",
+            host=platform.node().split(".", 1)[0],
+            timestamp_msecs=timestamp_millisecs,
+        )
+
+        def _forward():
+            try:
+                requests.post("http://%s/sample" % endpoint, json=batch, timeout=5)
+            except Exception as e:
+                logging.debug("[sample] forward to optimizer failed: %s" % e)
+
+        threading.Thread(target=_forward, daemon=True).start()
+
     def polling(self, monitor, interval_secs):
         """main polling function"""
 
@@ -275,6 +319,7 @@ class Standalone:
         interval_microsecs = int(interval_secs * 1000000)
         mem_mb_base = utils.getMemoryUsageMB()
         base_start_time = time.perf_counter()
+        last_optimizer_push = 0.0
         push_thread = None
         bg_thread_timer = {}
         fom_check_duration = 0.0
@@ -293,6 +338,11 @@ class Standalone:
 
                 for endpoint in self.__endpoints:
                     endpoint.updateMetrics()
+
+                # throttled push of per-GPU utilization to the optimizer
+                if (start_time - last_optimizer_push) >= self.__optimizerSampleSecs:
+                    last_optimizer_push = start_time
+                    self.pushUtilizationSample(timestamp_msecs)
 
                 num_samples += 1
                 sample_duration += time.perf_counter() - start_time
