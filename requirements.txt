@@ -12,4 +12,6 @@ matplotlib>=3.7.2
 numpy>=2.0.0
 pandas>=2.2.0
 prometheus-api-client>=0.5.4
-reportlab>=4.0.5
+# reportlab 5.1 raised its runtime floor to Python 3.10 but still advertises >=3.9
+reportlab>=4.0.5; python_version >= "3.10"
+reportlab>=4.0.5,<5.1; python_version < "3.10"
