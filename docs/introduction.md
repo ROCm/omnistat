@@ -1,8 +1,15 @@
-# Overview
+# What is Omnistat?
 
-## What's Omnistat
+Omnistat provides utilities for cluster administrators and application developers to aggregate scale-out system metrics via low-overhead sampling across all hosts in a cluster, or a subset of hosts associated with a specific user job.
 
-Omnistat provides utilities for cluster administrators and application developers to aggregate scale-out system metrics via low-overhead sampling across all hosts in a cluster, or a subset of hosts associated with a specific user job. At its core, Omnistat collects key telemetry from AMD Instinct™ accelerators on a per-GPU basis. Relevant target metrics include:
+```{figure} images/omnistat_intro.png
+---
+width: 950px
+alt: Grafana dashboard showing per-GPU utilization gauges and utilization heatmaps across a job.
+---
+```
+
+Omnistat collects key telemetry from AMD Instinct™ GPUs on a per-GPU basis. The core target metrics include:
 
 * GPU utilization
 * High-bandwidth memory (HBM) usage
@@ -15,7 +22,7 @@ Omnistat provides utilities for cluster administrators and application developer
   * GPU type
   * GPU vBIOS version
 
-**Additional optional metrics:**
+Optional metrics include:
 
 * Reliability, Availability, Serviceability (RAS) information (error counts per GPU block)
 * GPU power caps
@@ -24,15 +31,15 @@ Omnistat provides utilities for cluster administrators and application developer
 * Host resource utilization (CPU, memory, and I/O)
 
 
-To enable scalable collection of these metrics, Omnistat provides a python-based [Prometheus](https://prometheus.io) client that supplies instantaneous metric values on-demand for periodic polling by a companion Prometheus server (or a [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics) server).
+To enable scalable collection of these metrics, Omnistat provides a python-based [Prometheus](https://prometheus.io) client that supplies instantaneous metric values on-demand for periodic polling by a companion Prometheus server or a [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics) server.
 
 (user-vs-system)=
-## User-mode vs system-level monitoring
+## System mode vs user mode
 
 Omnistat supports two deployment modes, depending on whether the user has administrative rights:
 
-1. __System-wide monitoring__: requires administrative rights and is typically used to monitor all GPU hosts within a given cluster in a 24x7 mode of operation. Use this approach to support system-wide telemetry collection for all user workloads and optionally, provide job-level insights for systems running the [SLURM](https://slurm.schedmd.com), [Flux](https://flux-framework.org), or [PBS](https://altair.com/pbs-professional) workload managers.
-1. __User-mode monitoring__: doesn't require administrative rights and can be run entirely within user-space. This case is typically exercised by end application users running on production clusters under the auspices of a resource manager who want to gather telemetry data within a single job allocation. Frequently, this approach is performed entirely within a command-line `ssh` environment but Omnistat includes support for downloading data after a job for visualization with a dockerized Grafana environment. Alternatively, standalone query utilities can be used to summarize collected metrics at the conclusion of a job. Resource managers supported by user-mode Omnistat include [SLURM](https://github.com/SchedMD/slurm), [Flux](https://flux-framework.org), and [PBS](https://altair.com/pbs-professional).
+1. __System mode__ provides system-wide monitoring and requires administrative rights. It is typically used to monitor all GPU hosts within a given cluster in a 24x7 mode of operation. Use this mode to support system-wide telemetry collection for all user workloads and, optionally, to provide job-level insights for systems running the [SLURM](https://slurm.schedmd.com), [Flux](https://flux-framework.org), or [PBS](https://altair.com/pbs-professional) workload managers.
+2. __User mode__ provides user-specific monitoring and doesn't require administrative rights. It can be run entirely within a user space. It is typically used by end users on production clusters to collect telemetry data for a single job allocation managed by a resource manager. Frequently, such monitoring is performed entirely within a command-line `ssh` environment but Omnistat includes support for downloading data for visualization with a dockerized Grafana environment. Alternatively, standalone query utilities can be used to summarize collected metrics at the conclusion of a job. Resource managers supported by the Omnistat user mode include [SLURM](https://github.com/SchedMD/slurm), [Flux](https://flux-framework.org), and [PBS](https://altair.com/pbs-professional).
 
 The following diagrams show the data collector layout and lifecycle for each mode.
 
@@ -52,16 +59,16 @@ width: 800px
 User-mode monitoring
 ```
 
-In the __system-wide monitoring__ case, a system administrator enables data collectors permanently on all relevant hosts within the cluster and configures a Prometheus server to periodically poll these nodes (e.g. at 1 minute or 5 minute intervals). The Prometheus server typically runs on the cluster head node (or separate administrative host) and doesn't require GPU resources locally. For real-time and historical queries, the system administrator also enables a Grafana instance that queries the Prometheus datastore to provide a variety of visualizations with collected data. Example visualization panels are shown in the [Grafana](./system-mode/grafana.md) section.
+In the __system mode__, a system administrator enables data collectors permanently on all relevant hosts within the cluster and configures a Prometheus server to periodically poll these nodes (e.g. at 1 minute or 5 minute intervals). The Prometheus server typically runs on the cluster head node (or separate administrative host) and doesn't require GPU resources locally. For real-time and historical queries, the system administrator also enables a Grafana instance that queries the Prometheus datastore to provide a variety of visualizations with collected data. Example visualization panels are shown in the [Grafana](./system-mode/grafana.md) section.
 
-In the __user-mode__ case, Omnistat data collectors and a companion VictoriaMetrics server are deployed temporarily on hosts assigned to a user's job. At the end of the job, Omnistat can query cached telemetry to summarize GPU utilization or visualize it offline. An example command-line summary:
+In the __user mode__ , Omnistat data collectors and a companion VictoriaMetrics server are deployed temporarily on hosts assigned to a user's job. At the end of the job, Omnistat can query cached telemetry to summarize GPU utilization or visualize it offline. An example command-line summary:
 
 (query_report_card)=
 ```{eval-rst}
 .. _report_card:
 
 .. code-block:: none
-   :caption: Example telemetry summary report card in user-mode.
+   :caption: Example telemetry summary report card in user mode.
 
     ----------------------------------------
     Omnistat Report Card for Job # 44092
@@ -88,7 +95,7 @@ In the __user-mode__ case, Omnistat data collectors and a companion VictoriaMetr
 
 ## Software dependencies
 
-The basic minimum dependencies to enable data collection via Omnistat tools in user-mode are as follows:
+The basic minimum dependencies to enable data collection via Omnistat tools in user mode are as follows:
 
 * [ROCm](https://rocm.docs.amd.com/en/latest) (v{__ROCM_MIN_VERSION__} or newer )
 * Python dependencies (see top-level [requirements.txt](https://github.com/ROCm/omnistat/blob/main/requirements.txt))

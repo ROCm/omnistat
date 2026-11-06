@@ -6,6 +6,7 @@ subtrees:
   - caption: Introduction
     entries:
       - file: introduction
+        title: What is Omnistat?
       - file: metrics
       - file: advanced-profiling
         title: Advanced Profiling
