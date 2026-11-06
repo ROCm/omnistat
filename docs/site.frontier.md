@@ -1,7 +1,6 @@
 # ORNL Frontier
 
-This section provides instructions for running user-mode Omnistat on ORNL's
-Frontier supercomputer with pre-installed versions from AMD Research. For
+This section provides instructions for running user-mode Omnistat on Oak Ridge National Laboratory's (ORNL) Frontier supercomputer with pre-installed versions from AMD Research. For
 ORNL's Lux, see the [Lux instructions](site.lux.md) instead.
 
 **Prerequisites**:
@@ -24,7 +23,7 @@ execution, stop data collection, and generate a performance report.
 <p></p>
 
 The version of Omnistat installed on Frontier also includes a convenience wrapper
-for teams running their own Python stack who may wish to avoid any pollution
+for teams running their own Python stack who might want to avoid any pollution
 with the application's Python environment. A SLURM job script example highlighting
 use of the wrapper utility before and after executing a GPU application is highlighted below:
 
@@ -95,23 +94,23 @@ local filesystems like `/tmp`. Data can't be stored directly under Frontier's
 `$HOME`, but it can be moved there after running.
 ```
 
-## Data Analysis
+## Data analysis
 
 After job completion, transfer the archived Omnistat data to your local machine
 for analysis using the Docker environment described in the [user-mode
 guide](user-mode/analysis.md#exploring-results-locally).
 
-## Additional Features
+## Additional features
 
-### Vendor Counters
+### Vendor counters
 
 Frontier exposes an additional site‑specific collector beyond the standard set
 documented in the main [metrics](metrics) overview. The vendor collector ingests additional telemetry made
-possible by site‑specific platform integrations. On Frontier, this collector leverages the HPE
+possible by site‑specific platform integrations. On Frontier, this collector uses the HPE
 Cray `pm_counters` interface and translates raw counter files into metrics
 that distinguish cumulative energy and instantaneous power samples for
 different node-level components. Note that GPU metrics are indexed by an `accel` label and this index
-may differ from the ordering used by ROCm.
+might differ from the ordering used by ROCm.
 
 **Collector**: `enable_vendor_counters`
 

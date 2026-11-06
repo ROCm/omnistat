@@ -1,7 +1,6 @@
 # ORNL Lux
 
-This section provides instructions for running user-mode Omnistat on ORNL's
-Lux supercomputer with pre-installed versions from AMD Research. For ORNL's
+This section provides instructions for running user-mode Omnistat on Oak Ridge National Laboratory's (ORNL) Lux supercomputer with pre-installed versions from AMD Research. For ORNL's
 Frontier, see the [Frontier instructions](site.frontier.md) instead.
 
 **Prerequisites**:
@@ -18,7 +17,7 @@ explicitly. Submissions without both `-p batch` and a `--gpus-per-node` (or
 equivalent `--gpus`/`--gpus-per-task`) request are rejected at submit time.
 
 The version of Omnistat installed on Lux includes a convenience wrapper for
-teams running their own Python stack who may wish to avoid any pollution with
+teams running their own Python stack who might want to avoid any pollution with
 the application's Python environment. A SLURM job script example highlighting
 use of the wrapper utility before and after executing a GPU application is
 highlighted below:
@@ -100,13 +99,13 @@ local filesystems like `/tmp`. Data can't be stored directly under Lux's
 `$HOME`, but it can be moved there after running.
 ```
 
-## Data Analysis
+## Data analysis
 
 After job completion, transfer the archived Omnistat data to your local machine
 for analysis using the Docker environment described in the [user-mode
 guide](user-mode/analysis.md#exploring-results-locally).
 
-## Additional Features
+## Additional features
 
 Beyond the metrics collected by default, Omnistat offers two [advanced
 profiling](advanced-profiling.md) capabilities on Lux: sampling of GPU [hardware
@@ -117,7 +116,7 @@ are disabled in the default runtime configuration but can be overridden using th
 environment variable and a custom config file based on the default [Lux configuration
 file](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.lux).
 
-### Hardware Counters
+### Hardware counters
 
 Hardware counters are sampled device-wide on each GPU at the Omnistat sampling interval. In
 user-mode, sampling requires a counter enablement library (`libomnistat_count.so`) loaded into the

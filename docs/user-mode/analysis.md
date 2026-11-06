@@ -2,8 +2,8 @@
 
 ## Exploring results locally
 
-To explore results previously gathered via Omnistat user-mode execution, we provide
-a Docker environment that will automatically launch the required data exploration services
+To explore results previously gathered via Omnistat user-mode execution, Omnistat provides
+a Docker environment that automatically launches the required data exploration services
 locally. This containerized environment includes Victoria Metrics to read and query
 the stored data, and Grafana as a visualization platform to display time series and
 other metrics. The following steps outline the general process to visualize user-mode results locally:
@@ -58,7 +58,7 @@ other metrics. The following steps outline the general process to visualize user
 
 4. Access Grafana dashboard at [http://localhost:3000](http://localhost:3000).
 
-**Teardown**: when finished with local data exploration, you can press `Ctrl+C` to stop the Docker environment.  To completely remove the containers, issue:
+**Teardown**: when finished with local data exploration, you can press `Ctrl+C` to stop the Docker environment. To completely remove the containers, issue:
 
 ```shell-session
 [user@login]$ docker compose down
@@ -108,7 +108,7 @@ to support visualization of multiple jobs.
    and `data-1` will be visible in the local Grafana dashboard at
    [http://localhost:3000](http://localhost:3000).
 
-Note that it is also possible to copy new databases to the same `MULTIDIR` directory at a later
+Note that it's also possible to copy new databases to the same `MULTIDIR` directory at a later
 time. To merge a new database, simply stop the Docker Compose environment and
 start it again with the same `docker compose up`. Only newly copied
 directories will be loaded into the merged database.
@@ -134,17 +134,17 @@ following table.
 
 | File                            | Collector                    | Description                                               |
 | :------------------------------ | :--------------------------: | :-------------------------------------------------------- |
-| `omnistat-rocm.gpu.csv`         | `rocm_smi` or `amd_smi`      | GPU-level utilization and telemetry.                      |
-| `omnistat-network.csv`          | `network`                    | Network interface rx/tx bytes.                            |
-| `omnistat-host.csv`             | `host_metrics`               | Host CPU, memory, and local I/O metrics.                  |
-| `omnistat-host-proc-io.csv`     | `host_metrics`               | Per-process I/O (includes network I/O).                   |
-| `omnistat-host-proc-io-inventory.csv` | `host_metrics`         | PID inventory with per-process start/end times and total bytes read/written. |
-| `omnistat-rocprofiler.gpu.csv`  | `rocprofiler`                | GPU hardware performance counters.                        |
-| `omnistat-fom.csv`              | `fom`                        | Figures of merit.                                         |
-| `omnistat-vendor.csv`           | `vendor_counters`            | Node-level vendor PM counters (energy, power).            |
-| `omnistat-vendor.gpu.csv`       | `vendor_counters`            | Per-GPU vendor PM counters (accelerator energy, power).   |
-| `omnistat-xgmi.gpu.csv`         | `xgmi`                       | GPU-to-GPU xGMI interconnect read/write data.             |
-| `omnistat-kernel-trace.gpu.csv` | `kernel_trace`               | Per-kernel dispatch counts and execution durations.       |
+| `omnistat-rocm.gpu.csv`         | `rocm_smi` or `amd_smi`      | GPU-level utilization and telemetry.                     |
+| `omnistat-network.csv`          | `network`                    | Network interface rx/tx bytes.                           |
+| `omnistat-host.csv`             | `host_metrics`               | Host CPU, memory, and local I/O metrics.                 |
+| `omnistat-host-proc-io.csv`     | `host_metrics`               | Per-process I/O (includes network I/O).                  |
+| `omnistat-host-proc-io-inventory.csv` | `host_metrics`         | PID inventory with per-process start and end times and total bytes read or written. |
+| `omnistat-rocprofiler.gpu.csv`  | `rocprofiler`                | GPU hardware performance counters.                       |
+| `omnistat-fom.csv`              | `fom`                        | Figures of merit.                                        |
+| `omnistat-vendor.csv`           | `vendor_counters`            | Node-level vendor PM counters (energy, power).           |
+| `omnistat-vendor.gpu.csv`       | `vendor_counters`            | Per-GPU vendor PM counters (accelerator energy, power).  |
+| `omnistat-xgmi.gpu.csv`         | `xgmi`                       | GPU-to-GPU xGMI interconnect read and write data.            |
+| `omnistat-kernel-trace.gpu.csv` | `kernel_trace`               | Per-kernel dispatch counts and execution durations.      |
 
 Exported data can be easily loaded as a data frame using tools like Pandas for
 further processing.

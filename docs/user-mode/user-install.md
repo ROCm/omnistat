@@ -1,7 +1,7 @@
 # User-mode installation
 
 As mentioned in the project {ref}`overview <user-vs-system>`, Omnistat has two primary modes of
-operation and this section highlights installation of the **user-mode** variant which does not
+operation and this section highlights installation of the **user-mode** variant which doesn't
 require elevated credentials and targets temporary data collection directly within a user's batch
 job under a supported resource manager (e.g. SLURM, or Flux).
 
@@ -12,20 +12,20 @@ The following assumptions are made throughout the rest of this user-mode install
 __Assumptions__:
 * [ROCm](https://rocm.docs.amd.com/en/latest/) v{__ROCM_MIN_VERSION__} or newer is pre-installed
   on all GPU hosts.
-* Installer has access to a distributed file-system; if no distributed
-  file-system is present, installation steps need to be repeated across all nodes.
+* Installer has access to a distributed filesystem; if no distributed
+  filesystem is present, installation steps need to be repeated across all nodes.
 
 <!-- if-release:start -->
 Installation steps depend on whether you want to install Omnistat from a released wheel package
 (recommended), or prefer to use a development version using git. Both options are highlighted below
-for a basic installation that enables standard GPU and host-level telemetry.  Depending on your
-local environment, you may also wish to augment the examples that follow to install Omnistat within
+for a basic installation that enables standard GPU and host-level telemetry. Depending on your
+local environment, you might also want to augment the examples that follow to install Omnistat within
 a dedicated Python virtual environment (e.g. using `venv` or `conda`). 
 <!-- if-release:end -->
 <!-- if-norelease:start -->
 The steps below install a development version of Omnistat using git for a basic installation that
-enables standard GPU and host-level telemetry.  Depending on your local environment, you may also
-wish to augment the examples that follow to install Omnistat within a dedicated Python virtual
+enables standard GPU and host-level telemetry. Depending on your local environment, you might also
+want to augment the examples that follow to install Omnistat within a dedicated Python virtual
 environment (e.g. using `venv` or `conda`).
 <!-- if-norelease:end -->
 
@@ -36,7 +36,7 @@ environment (e.g. using `venv` or `conda`).
 :::{tab-item} Install latest release using pip
 :sync: release
 
-Install the latest released version of Omnistat from AMD's ROCm package repository:
+Install the latest released version of Omnistat from the AMD ROCm package repository:
 
 ```bash
 $ pip install --extra-index-url https://stable.repo.amd.com/rocm/extras/omnistat/whl-next/ omnistat
@@ -63,7 +63,7 @@ $ pip install -r requirements.txt
 Beyond the standard data collector, Omnistat provides **optional** components that unlock
 additional telemetry: a GPU hardware counter collector and a tracing library, both
 built on ROCProfiler-SDK. These steps are optional and only required to enable support for
-hardware counter or tracing collection — the standard install above already enables
+hardware counter or tracing collection: the standard install above already enables
 GPU and host-level monitoring. These components are compiled from C++ sources and require a
 local build step.
 
@@ -136,15 +136,15 @@ The resulting libraries are located at `build-count/libomnistat_count.so` and
 both [hardware counters](../advanced-profiling.md#hardware-counters) and
 [tracing](../advanced-profiling.md#tracing).
 
-## Victoria Metrics Server
+## Victoria Metrics server
 
-Download a **single-node** VictoriaMetrics server. Assuming a `victoria-metrics` server is not
+Download a **single-node** VictoriaMetrics server. Assuming a `victoria-metrics` server isn't
 already present on the system, download and extract a [precompiled
 binary](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/latest) from upstream. This
 binary can generally be stored in any directory accessible by the user, but the path to the binary
 will need to be known during the next section when configuring user-mode execution. Note that
-VictoriaMetrics provides a larger number of binary releases and we typically use the
-`victoria-metrics-linux-amd64` variant on x86_64 clusters.
+VictoriaMetrics provides a larger number of binary releases; the
+`victoria-metrics-linux-amd64` variant is typical on x86_64 clusters.
 
 ## Configuring user-mode Omnistat
 
