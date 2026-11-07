@@ -293,7 +293,7 @@ teardown is not tracked.
 | `omnistat_rccl_collective_count` | Cumulative number of RCCL communication calls. Labels: `collective`, `datatype`, `size_bucket`, `comm_size`. |
 | `omnistat_rccl_collective_total_bytes` | Cumulative logical message bytes (element count multiplied by datatype size) passed to RCCL collective calls. Labels: `collective`, `datatype`, `size_bucket`, `comm_size`. |
 | `omnistat_rccl_comm_created_count` | Cumulative number of communicators created, sliced by communicator size. Labels: `nranks`. |
-| `omnistat_rccl_comm_init_total_duration_ns` | Cumulative wall-clock time spent inside communicator creation calls (ns). Because creation synchronizes across ranks, this is dominated by waiting for the last rank to arrive, so it reflects rank startup skew more than RCCL setup cost. |
+| `omnistat_rccl_comm_init_total_duration_ns` | Cumulative wall-clock time spent inside communicator creation calls (ns), sliced by communicator size. Because creation synchronizes across ranks, this is dominated by waiting for the last rank to arrive, so it reflects rank startup skew more than RCCL setup cost. Labels: `nranks`. |
 
 | Node Metric | Description |
 | :--- | :--- |
