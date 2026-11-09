@@ -173,6 +173,8 @@ class Standalone:
 
         self.__fomCheckFrequencySecs = config["omnistat.usermode"].getint("fom_check_frequency_secs", 10)
 
+        self.__utilAccum = {}
+
         # Utilization push rate to the optimizer, decoupled from --interval
         if config.has_section("omnistat.optimize"):
             self.__optimizerSampleSecs = config["omnistat.optimize"].getfloat("optimizer_sample_secs", 1.0)
@@ -270,13 +272,14 @@ class Standalone:
                     entry = "%s{%s} %s %i" % (sample.name, labels, sample.value, timestamp_millisecs)
                     self.__dataVM.append(entry)
 
-    def pushUtilizationSample(self, timestamp_millisecs):
-        """Forward per-GPU utilization to the optimizer. No-op without --optimizer-endpoint."""
-        endpoint = app.config.get("OPTIMIZER_ENDPOINT")
-        if not endpoint:
-            return
+    def accumulateUtilization(self):
+        """Accumulate per-GPU busy between optimizer pushes.
 
-        samples = []
+        Instantaneous busy swings 0<->100 between barriers, so a spot reading at
+        push time is far noisier than the collector's sampling rate supports.
+        """
+        if not app.config.get("OPTIMIZER_ENDPOINT"):
+            return
         for metric in REGISTRY.collect():
             if metric.name != "rocm_utilization_percentage":
                 continue
@@ -284,12 +287,26 @@ class Standalone:
                 card = sample.labels.get("card") if sample.labels else None
                 if card is None:
                     continue
+                acc = self.__utilAccum.setdefault(int(card), [0.0, 0])
+                acc[0] += sample.value
+                acc[1] += 1
+
+    def pushUtilizationSample(self, timestamp_millisecs):
+        """Forward interval-mean per-GPU utilization. No-op without --optimizer-endpoint."""
+        endpoint = app.config.get("OPTIMIZER_ENDPOINT")
+        if not endpoint:
+            return
+
+        samples = []
+        for card, (total, n) in sorted(self.__utilAccum.items()):
+            if n > 0:
                 samples.append(
                     sig.make_sample(
-                        sig.KIND_UTILIZATION, "gpu_busy", sample.value,
-                        device=int(card), units="percent",
+                        sig.KIND_UTILIZATION, "gpu_busy", total / n,
+                        device=card, units="percent",
                     )
                 )
+        self.__utilAccum = {}
         if not samples:
             return
 
@@ -338,6 +355,8 @@ class Standalone:
 
                 for endpoint in self.__endpoints:
                     endpoint.updateMetrics()
+
+                self.accumulateUtilization()
 
                 # throttled push of per-GPU utilization to the optimizer
                 if (start_time - last_optimizer_push) >= self.__optimizerSampleSecs:

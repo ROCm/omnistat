@@ -37,9 +37,39 @@
 # ``optimizer_class`` setting in [omnistat.optimize] to your class's
 # fully-qualified Python path.
 
+import logging
+
 from abc import ABC, abstractmethod
 
 from omnistat import optimizer_signals as sig
+
+
+# Canonical state -> integer encoding, published as the omnistat_optimize
+# metric. Prometheus gauges hold numbers only, so the human-readable state has
+# to be encoded to be plottable -- but that encoding belongs here, once, not in
+# every plugin. It used to live in each optimizer module and they disagreed:
+# optimizer_stepdown mapped CONVERGED to 1 while optimizer_utilization mapped
+# CONTROLLING to 1, so the same metric value meant different things depending
+# on which plugin was loaded. Values below preserve what the two maps agreed
+# on; CONVERGED moved 1 -> 6 to resolve the collision.
+STATE_INT = {
+    "IDLE": 0,
+    "CONTROLLING": 1,
+    "WARMING_UP": 2,
+    "OBSERVING_BASELINE": 3,
+    "STEPPING_DOWN": 4,
+    "BACKED_OFF": 5,
+    "CONVERGED": 6,
+}
+STATE_INT_UNKNOWN = -1
+
+
+def register_state(name, value):
+    """Add a plugin-specific state. Raises on a value already in use."""
+    clash = [k for k, v in STATE_INT.items() if v == value and k != name]
+    if clash:
+        raise ValueError("state value %d already used by %s" % (value, clash[0]))
+    STATE_INT[name] = value
 
 
 class BaseOptimizer(ABC):
@@ -135,9 +165,22 @@ class BaseOptimizer(ABC):
         """Current state as a human-readable string (e.g. ``'IDLE'``)."""
 
     @property
-    @abstractmethod
     def state_int(self):
-        """Integer encoding of the current state for Prometheus metrics."""
+        """Integer encoding of ``state``, for Prometheus.
+
+        Derived, not implemented by plugins: a plugin supplies ``state`` as a
+        string and the framework encodes it. Override only to publish a state
+        outside the shared registry, and prefer ``register_state()`` to adding
+        a private map -- that is what caused the two encodings to disagree.
+        """
+        value = STATE_INT.get(self.state)
+        if value is None:
+            logging.warning(
+                "[optimizer] state %r is not in STATE_INT; publishing %d. "
+                "Use register_state() to give it a value." % (self.state, STATE_INT_UNKNOWN)
+            )
+            return STATE_INT_UNKNOWN
+        return value
 
     @property
     @abstractmethod

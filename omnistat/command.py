@@ -34,11 +34,14 @@
 # REGISTRY.collect() loop in standalone.py without any polling-loop changes.
 
 import logging
+import re
 import subprocess
 import time
 from datetime import datetime, timezone
 
 from prometheus_client import Gauge
+
+from omnistat import gpu_indexing
 
 # from omnistat.annotate import omnistat_annotate
 
@@ -52,6 +55,18 @@ _clock_gauge = Gauge(
 
 _VALID_CLOCKS = {"sclk", "mclk"}
 _VALID_LIMITS = {"min", "max"}
+
+# Set when a clock command is issued but the hardware does not adopt it.
+# On MI250 (job 499903) requesting an sclk max-limit of exactly 500 MHz -- the
+# bottom DPM level, equal to the min limit -- was rejected silently: the helper
+# exited 0, printed only a CSV header, and the GPUs stayed at 1040-1205 MHz.
+# An optimizer that scores an uncapped window as if it were capped draws
+# exactly the wrong conclusion, so surface the mismatch.
+_clock_reject_gauge = Gauge(
+    "omnistat_optimize_clock_rejected",
+    "1 when the last clock command for this GPU was not adopted by the hardware",
+    ["clock", "limit", "gpu"],
+)
 
 
 class CommandController:
@@ -67,11 +82,39 @@ class CommandController:
         if not self._clock_cmd:
             raise ValueError("[omnistat.optimize] clock_cmd is required but not set.")
 
+        # Commands arrive carrying the HIP_VISIBLE_DEVICES index Omnistat labels
+        # metrics with. If clock_cmd ultimately feeds amd-smi, that index must be
+        # translated -- the two enumerations disagree, so an untranslated command
+        # throttles a different GPU than the one the optimizer measured.
+        self._indexing = config[section].get("clock_cmd_indexing", "hip").strip().lower()
+        self._gpu_map = {}
+        if self._indexing == "amdsmi":
+            rocm_path = "/opt/rocm"
+            if config.has_section("omnistat.collectors"):
+                rocm_path = config["omnistat.collectors"].get("rocm_path", rocm_path)
+            self._gpu_map = gpu_indexing.hip_to_amdsmi(rocm_path=rocm_path)
+            if self._gpu_map:
+                logging.info("[CommandController] hip->amdsmi gpu map: %s" % dict(sorted(self._gpu_map.items())))
+            else:
+                logging.error(
+                    "[CommandController] clock_cmd_indexing=amdsmi but the mapping could not be "
+                    "determined; commands will NOT be translated and may target the wrong GPU."
+                )
+        elif self._indexing != "hip":
+            raise ValueError("[omnistat.optimize] clock_cmd_indexing must be 'hip' or 'amdsmi'")
+
         # self._annotate = omnistat_annotate()
-        logging.info(
-            "[CommandController] Initialized. clock_cmd=%s"
-            % self._clock_cmd
-        )
+        logging.info("[CommandController] Initialized. clock_cmd=%s indexing=%s" % (self._clock_cmd, self._indexing))
+
+    def _translate_gpu(self, gpu_index):
+        """HIP index -> whatever clock_cmd expects."""
+        if gpu_index is None or not self._gpu_map:
+            return gpu_index
+        mapped = self._gpu_map.get(int(gpu_index))
+        if mapped is None:
+            logging.warning("[CommandController] no mapping for hip gpu %s; passing through" % gpu_index)
+            return gpu_index
+        return mapped
 
     def apply_command(self, cmd_dict):
         """Validate and execute a clock-frequency command.
@@ -114,10 +157,18 @@ class CommandController:
         gpu_targets = [gpu_index] if gpu_index is not None else [None]
 
         results = []
+        rejected = []
         for gpu in gpu_targets:
-            self._run_clock_command(clock, limit, value, gpu)
+            # gauge stays labelled by the HIP index users see in metrics;
+            # only the command itself gets the translated index
+            tgt = self._translate_gpu(gpu)
+            self._run_clock_command(clock, limit, value, tgt)
             gpu_label = str(gpu) if gpu is not None else "all"
             _clock_gauge.labels(clock=clock, limit=limit, gpu=gpu_label).set(value)
+            ok = self._verify_clock(clock, limit, value, tgt)
+            _clock_reject_gauge.labels(clock=clock, limit=limit, gpu=gpu_label).set(0 if ok else 1)
+            if not ok:
+                rejected.append(gpu_label)
             results.append(gpu_label)
 
         annotation_text = "omnistat-optimize: %s %s -> %d MHz (gpu: %s)" % (
@@ -128,8 +179,54 @@ class CommandController:
         )
         # self._annotate.start(annotation_text)
         logging.info("[CommandController] Applied: %s" % annotation_text)
+        if rejected:
+            logging.error(
+                "[CommandController] NOT ADOPTED by hardware: %s %s -> %d MHz on gpu(s) %s "
+                "(command exited 0). Treat these as uncapped." % (clock, limit, value, ", ".join(rejected))
+            )
 
-        return {"status": "ok", "clock": clock, "type": limit, "value": value, "gpus": results}
+        return {
+            "status": "ok" if not rejected else "partial",
+            "clock": clock,
+            "type": limit,
+            "value": value,
+            "gpus": results,
+            "rejected": rejected,
+        }
+
+    def _verify_clock(self, clock, limit, value, gpu_index):
+        """Read the limit back; True if adopted, True if undeterminable.
+
+        Only ever reports a rejection actually observed -- an unparseable
+        readback returns True rather than inventing a failure. Readback uses
+        `rocm-smi`, which enumerates in kfd/HIP order, so it is keyed by the
+        *untranslated* index; `clock_cmd` may use a different enumeration.
+        """
+        if clock != "sclk" or limit != "max" or gpu_index is None:
+            return True
+        hip = None
+        if self._gpu_map:
+            for h, s in self._gpu_map.items():
+                if s == gpu_index:
+                    hip = h
+                    break
+        if hip is None:
+            hip = gpu_index
+        try:
+            res = subprocess.run(
+                ["rocm-smi", "-d", str(hip), "--showsclkrange"],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return True
+        m = re.findall(r"(\d+)\s*Mhz\s*$", res.stdout, re.IGNORECASE | re.MULTILINE)
+        if not m:
+            return True
+        applied = max(int(x) for x in m)
+        # tolerance absorbs rounding to a hardware step
+        return applied <= value + 100
 
     def _run_clock_command(self, clock, limit, value, gpu_index):
         """Execute the system clock command as a subprocess.
@@ -153,9 +250,7 @@ class CommandController:
             if result.stderr.strip():
                 logging.info("[CommandController] stderr: %s" % result.stderr.strip())
             if result.returncode != 0:
-                logging.error(
-                    "[CommandController] Command failed (rc=%d)" % result.returncode
-                )
+                logging.error("[CommandController] Command failed (rc=%d)" % result.returncode)
         except subprocess.TimeoutExpired:
             logging.error("[CommandController] Command timed out: %s" % cmd)
         except FileNotFoundError:

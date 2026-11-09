@@ -46,15 +46,6 @@ _STATE_OBSERVING_BASELINE = "OBSERVING_BASELINE"
 _STATE_STEPPING_DOWN = "STEPPING_DOWN"
 _STATE_CONVERGED = "CONVERGED"
 
-# Integer values published to VictoriaMetrics for the omnistat_optimize metric
-_STATE_INT = {
-    _STATE_IDLE: 0,
-    _STATE_CONVERGED: 1,
-    _STATE_WARMING_UP: 2,
-    _STATE_OBSERVING_BASELINE: 3,
-    _STATE_STEPPING_DOWN: 4,
-}
-
 
 class StepDownOptimizer(BaseOptimizer):
 
@@ -87,18 +78,22 @@ class StepDownOptimizer(BaseOptimizer):
         logging.info(
             "[stepdown] Initialized. sclk=[%d..%d]  step_major=%d  num_levels=%d  "
             "warmup=%.0fs  min_observe=%d  max_drop=%.1f%%  fom_direction=%s  fom_units=%s"
-            % (sclk_min, sclk_max, self._clock_step_major, self._num_levels,
-               self._min_warmup_time_sec, self._min_observe_samples,
-               self._max_performance_drop, fom_direction, fom_units)
+            % (
+                sclk_min,
+                sclk_max,
+                self._clock_step_major,
+                self._num_levels,
+                self._min_warmup_time_sec,
+                self._min_observe_samples,
+                self._max_performance_drop,
+                fom_direction,
+                fom_units,
+            )
         )
 
     @property
     def state(self):
         return self._state
-
-    @property
-    def state_int(self):
-        return _STATE_INT[self._state]
 
     @property
     def current_freq(self):
@@ -144,8 +139,7 @@ class StepDownOptimizer(BaseOptimizer):
             "samples_at_current_freq": len(self._samples_at_current_freq),
             "last_drop_pct": self._last_drop_pct,
             "warmup_elapsed_sec": (
-                round(time.monotonic() - self._warmup_start_time, 1)
-                if self._state == _STATE_WARMING_UP else None
+                round(time.monotonic() - self._warmup_start_time, 1) if self._state == _STATE_WARMING_UP else None
             ),
         }
 
@@ -177,10 +171,7 @@ class StepDownOptimizer(BaseOptimizer):
             elapsed = time.monotonic() - self._warmup_start_time
             if elapsed < self._min_warmup_time_sec:
                 return None
-            logging.info(
-                "[stepdown] Warmup complete (%.1f sec) — entering OBSERVING_BASELINE."
-                % elapsed
-            )
+            logging.info("[stepdown] Warmup complete (%.1f sec) — entering OBSERVING_BASELINE." % elapsed)
             self._samples_at_current_freq = []
             self._state = _STATE_OBSERVING_BASELINE
             return None
@@ -232,8 +223,7 @@ class StepDownOptimizer(BaseOptimizer):
                     else:
                         logging.info(
                             "[stepdown] Level %d/%d boundary at %d MHz — starting level %d with step=%d MHz from %d MHz"
-                            % (self._current_level, self._num_levels, self._current_freq,
-                               next_level, next_step, revert_freq)
+                            % (self._current_level, self._num_levels, self._current_freq, next_level, next_step, revert_freq)
                         )
                         self._current_level = next_level
                         self._current_step = next_step
@@ -272,8 +262,10 @@ class StepDownOptimizer(BaseOptimizer):
         """Step down by current_step.  Returns the new target frequency."""
         self._previous_freq = self._current_freq
         self._current_freq -= self._current_step
-        logging.info("[stepdown] Stepping down to %d MHz (level %d/%d, step=%d MHz)."
-                     % (self._current_freq, self._current_level, self._num_levels, self._current_step))
+        logging.info(
+            "[stepdown] Stepping down to %d MHz (level %d/%d, step=%d MHz)."
+            % (self._current_freq, self._current_level, self._num_levels, self._current_step)
+        )
         self._samples_at_current_freq = []
         self._state = _STATE_STEPPING_DOWN
         return self._current_freq
