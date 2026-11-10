@@ -3,33 +3,43 @@
 # listed directly beneath it.
 root: index
 subtrees:
-  - caption: Introduction
-    entries:
+  - entries:
+      - file: release-notes.md
+        title: Release notes
       - file: introduction
         title: What is Omnistat?
-      - file: metrics
-      - file: advanced-profiling
-        title: Advanced Profiling
-  - caption: System-mode
+  - caption: Install
     entries:
       - file: system-mode/system-install
-        title: Installation
-      - file: system-mode/grafana
-        title: Grafana Integration      
-  - caption: User-mode
-    entries:
+        title: System mode Installation
       - file: user-mode/user-install
-        title: Installation
+        title: User mode Installation
+  - caption: Conceptual
+    entries:
+      - file: metrics
+        title: Omnistat metrics
+      - file: advanced-profiling
+        title: Advanced Profiling
+  - caption: How-to 
+    entries:
+      - file: system-mode/grafana
+        title: Grafana Integration in system mode     
       - file: user-mode/jobs
+        title: Running jobs in user mode
       - file: user-mode/analysis
-        title: Analysis
-  - caption: Miscellaneous
+        title: Analyzing results collected in user mode
+      - file: site.frontier
+        title: Running in user mode on ORNL Frontier
+      - file: site.lux
+        title: Running in user mode on ORNL Lux
+      - file: site.tuo
+        title: Running in user mode on LLNL Tuolumne
+  - caption: Reference
     entries:
       - file: agents
+        title: AI Agent skills
       - file: developer/developers
-      - file: license
-  - caption: Site-Specific Instructions
+        title: Developer Guide
+  - caption: About
     entries:
-      - file: site.frontier
-      - file: site.lux
-      - file: site.tuo
+      - file: license

@@ -43,7 +43,7 @@ In addition, developers can also override the default `__init__` method shown ab
 Note: developers are free to implement other supporting routines to assist in their data collection needs, but are required to implement the two named methods above.
 
 ## Example collector addition
-To demonstrate the high-level steps for this process, this section walks thru the steps needed to create an additional collection mechanism within Omnistat to track a node-level metric. For this example, assume the developer has already cloned the Omnistat repository locally and has all necessary Python dependencies installed per the {ref}`Installation <system-install>`  discussion.
+To demonstrate the high-level steps for this process, this section walks through the steps needed to create an additional collection mechanism within Omnistat to track a node-level metric. For this example, assume the developer has already cloned the Omnistat repository locally and has all necessary Python dependencies installed per the {ref}`Installation <system-install>`  discussion.
 
 The specific goal of this example is to extend Omnistat with a new collector that provides a gauge metric called `node_uptime_secs`. This metric will derive information from the `/proc/uptime` file to track node uptime in seconds. In addition, since it's common to include [labels](https://prometheus.io/docs/practices/naming/#labels) with Prometheus metrics, a label is included on the `node_uptime_secs` metric that tracks the local running Linux kernel version.
 
@@ -171,4 +171,4 @@ As a final test while the `omnistat-monitor` client is still running interactive
    node_uptime_secs{kernel="5.14.0-503.38.1.el9_5.x86_64"} 948415.84
 ```
 
-The new metric reports the latest node uptime along with the locally running kernel version embedded as a label. Wahoo, we did a thing.
+The new metric reports the latest node uptime along with the locally running kernel version embedded as a label.

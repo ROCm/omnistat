@@ -1,4 +1,4 @@
-# LLNL
+# LLNL Tuolumne
 
 This section provides instructions for running user-mode Omnistat on Lawrence Livermore National Laboratory's (LLNL) Tuolumne supercomputer with pre-installed versions from AMD Research.
 
@@ -9,7 +9,7 @@ This section provides instructions for running user-mode Omnistat on Lawrence Li
 
 ## Running jobs on Tuolumne
 
-Omnistat is preinstalled on Tuolumne so users only need to setup their module environment appropriately and add
+Omnistat is preinstalled on Tuolumne so users only need to set up their module environment appropriately and add
 several commands to their Flux job scripts. There are two primary options for setup, highlighted below with example Flux job scripts.
 
 ### Standard usage
@@ -86,7 +86,7 @@ If all runs well, the `omnistat-query` command above will include a short summar
 
 ### Wrapper usage
 
-The `omnistat` module used in the previous example relies on the system provided `cray-python` module along with extending the python environment to resolve necessary dependencies. Teams maintaining and deploying their own custom Python stack for application execution might want to avoid any environment pollution and the local install also includes a convenience wrapper named `omnistat-wrapper`. This wrapper variant can be used as an alternative to run desired Omnistat commands in a sandbox without changing the remaining execution environment. 
+The `omnistat` module used in the previous example relies on the system provided `cray-python` module along with extending the python environment to resolve necessary dependencies. Teams maintaining and deploying their own custom Python stack for application execution might want to avoid any environment pollution. The local install also includes a convenience wrapper named `omnistat-wrapper`. This wrapper variant can be used as an alternative to run desired Omnistat commands in a sandbox without changing the remaining execution environment. 
 
  The following Flux job script example highlights use of the wrapper utility before and after executing a GPU application:
 

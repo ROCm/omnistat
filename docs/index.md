@@ -7,27 +7,26 @@ Omnistat operates in two primary modes: **system mode** for permanent, cluster-w
 ::::{grid} 1 2 2 2
 :gutter: 3
 
-:::{grid-item-card} Introduction
+:::{grid-item-card} Conceptual
 
-- [What is omnistat?](introduction.md)
-- [Supported metrics](metrics.md)
-- [Advanced profiling](advanced-profiling.md) with hardware counters and tracing.
+- [Omnistat metrics](metrics.md)
+- [Advanced profiling](advanced-profiling.md)
 :::
 
-:::{grid-item-card} Installation
+:::{grid-item-card} Install
 
-- [System mode installation](system-install.md)
-- [User mode installation](user-install.md)
+- [System mode installation](system-mode/system-install.md)
+- [User mode installation](user-mode/user-install.md)
 :::
 
 :::{grid-item-card} How to
 
-- [Grafana integration in system mode](grafana.md) 
-- [Running jobs in user mode](jobs.md)
+- [Grafana integration in system mode](system-mode/grafana.md) 
+- [Running jobs in user mode](user-mode/jobs.md)
+- [Analyzing results collected in user mode](user-mode/analysis.md)
 - [Running in user mode on ORNL Frontier](site.frontier.md)
 - [Running in user mode on ORNL Lux](site.lux.md)
-- [Running in user mode on ORNL Lux](site.lux.md)
-- [Running in user mode on LLNL](site.tuo.md)
+- [Running in user mode on LLNL Tuolumne](site.tuo.md)
 :::
 
 :::{grid-item-card} Reference

@@ -61,4 +61,4 @@ yellow need to be customized for the local installation path.
    mv data_prom data_prom.${jobid}
   ```
 
- In both examples above, the `omnistat-query` utility is used at the end of the job to query collected telemetry (prior to shutting down the server) for the assigned jobid. This should embed an ascii summary for the job similar to the [report card](query_report_card) example mentioned in the Overview directly within the recorded job output.
+ In both examples above, the `omnistat-query` utility is used at the end of the job to query collected telemetry (prior to shutting down the server) for the assigned jobid. This should embed an ASCII summary for the job similar to the [report card](query_report_card) example mentioned in the Overview directly within the recorded job output.

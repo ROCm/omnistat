@@ -112,7 +112,7 @@ memory utilization statistics along with general I/O metrics.
 
 The default I/O tracking mechanism above tracks node-local I/O to physical
 disks. Consequently, it doesn't have visibility to I/O directed at
-network-based file systems (e.g NFS, Lustre, Vast) that are
+network-based file systems (e.g., NFS, Lustre, Vast) that are
 common in large production clusters. To enable tracking of all I/O (**including
 network-based**), the host collector includes an optional mechanism to track I/O
 of individual processes at the syscall level. This requires access to scan
@@ -379,7 +379,7 @@ they're discovered dynamically from the script output at runtime.
 All metrics produced by the external script are automatically tagged with an
 `omnistat_external="1"` label to distinguish them from native Omnistat metrics.
 Any metric that is **not** present in the script output on a given invocation
-will be automatically removed from Omnistat tracking so metrics can be dynamically added or deleted via this method.
+will be automatically removed from Omnistat tracking, so metrics can be dynamically added or deleted via this method.
 
 **Collector**: `enable_external`
 <br/>

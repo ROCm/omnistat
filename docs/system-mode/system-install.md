@@ -274,7 +274,7 @@ Once the `omnistat-monitor` daemon is configured and running system-wide, instal
            - compute-03:8001
    ```
 
-Edit your server's prometheus.yml file using the snippet above as a guide and restart the Prometheus server to enable automatic data collection. Also ensure that the target hosts configured for the Omnistat data collection allow queries initiated from this Prometheus server as discussed in the [access restriction](#access-restriction-configuration) section.
+Edit your server's prometheus.yml file using the snippet above as a guide, and restart the Prometheus server to enable automatic data collection. Also ensure that the target hosts configured for the Omnistat data collection allow queries initiated from this Prometheus server as discussed in the [access restriction](#access-restriction-configuration) section.
 
 ```{note}
 You may want to adjust the Prometheus server default storage retention policy in order to retain telemetry data longer than the default (which is typically 15 days). Assuming you are using a distro-provided version of Prometheus, you can modify the systemd launch process to include a `--storage.tsdb.retention.time` option as shown in the snippet below:

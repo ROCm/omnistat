@@ -61,7 +61,7 @@ User-mode monitoring
 
 In the __system mode__, a system administrator enables data collectors permanently on all relevant hosts within the cluster and configures a Prometheus server to periodically poll these nodes (e.g. at 1 minute or 5 minute intervals). The Prometheus server typically runs on the cluster head node (or separate administrative host) and doesn't require GPU resources locally. For real-time and historical queries, the system administrator also enables a Grafana instance that queries the Prometheus datastore to provide a variety of visualizations with collected data. Example visualization panels are shown in the [Grafana](./system-mode/grafana.md) section.
 
-In the __user mode__ , Omnistat data collectors and a companion VictoriaMetrics server are deployed temporarily on hosts assigned to a user's job. At the end of the job, Omnistat can query cached telemetry to summarize GPU utilization or visualize it offline. An example command-line summary:
+In the __user mode__, Omnistat data collectors and a companion VictoriaMetrics server are deployed temporarily on hosts assigned to a user's job. At the end of the job, Omnistat can query cached telemetry to summarize GPU utilization or visualize it offline. An example command-line summary:
 
 (query_report_card)=
 ```{eval-rst}
@@ -97,10 +97,10 @@ In the __user mode__ , Omnistat data collectors and a companion VictoriaMetrics 
 
 The basic minimum dependencies to enable data collection via Omnistat tools in user mode are as follows:
 
-* [ROCm](https://rocm.docs.amd.com/en/latest) (v{__ROCM_MIN_VERSION__} or newer )
+* [ROCm](https://rocm.docs.amd.com/en/latest) (v{__ROCM_MIN_VERSION__} or newer)
 * Python dependencies (see top-level [requirements.txt](https://github.com/ROCm/omnistat/blob/main/requirements.txt))
 
-System administrators wishing to deploy a system-wide GPU monitoring capability with near real-time visualization will also need one or more servers to host two additional services:
+System administrators wishing to deploy Omnistat in system mode for a system-wide GPU monitoring capability with near real-time visualization will also need one or more servers to host two additional services:
 
 * [Grafana](https://github.com/grafana/grafana) - either local instance or can also use cloud-based infrastructure
 * [Prometheus server](https://prometheus.io/docs/prometheus/latest/getting_started/) - used to periodically poll and aggregate data from multiple compute nodes
@@ -108,7 +108,7 @@ System administrators wishing to deploy a system-wide GPU monitoring capability 
 
 ## Resource manager integration
 
-Omnistat can be _optionally_ configured to map telemetry tracking to specific job Ids when using the popular [SLURM](https://github.com/SchedMD/slurm) resource manager or the new [Flux](https://flux-framework.org) framework. This works by enabling a Prometheus info metric that tracks node-level job assignments and exposes the following metadata:
+Omnistat can be _optionally_ configured to map telemetry tracking to specific job IDs when using the popular [SLURM](https://github.com/SchedMD/slurm) resource manager or the new [Flux](https://flux-framework.org) framework. This works by enabling a Prometheus info metric that tracks node-level job assignments and exposes the following metadata:
 
 * job id
 * username

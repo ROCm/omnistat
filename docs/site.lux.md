@@ -9,7 +9,7 @@ Frontier, see the [Frontier instructions](site.frontier.md) instead.
 
 ## Running jobs on Lux
 
-Omnistat is preinstalled on Lux so users only need to setup their module
+Omnistat is preinstalled on Lux so users only need to set up their module
 environment appropriately and add several commands to their SLURM job scripts.
 
 Lux requires every job to name a partition and request accelerators
