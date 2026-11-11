@@ -1,4 +1,4 @@
-# Analyzing results
+# Analyzing results collected in user mode
 
 ## Exploring results locally
 

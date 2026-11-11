@@ -1,4 +1,4 @@
-# Agent support
+# AI agent skills
 
 In addition to the [Grafana](./system-mode/grafana.md) dashboards and command-line
 [report card](query_report_card) already available, Omnistat
