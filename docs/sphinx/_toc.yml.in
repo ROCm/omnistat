@@ -6,7 +6,7 @@ subtrees:
   - entries:
       - file: release-notes.md
         title: Release notes
-      - file: introduction
+      - file: what-is-omnistat
         title: What is Omnistat?
   - caption: Install
     entries:
@@ -23,21 +23,21 @@ subtrees:
   - caption: How-to 
     entries:
       - file: system-mode/grafana
-        title: Grafana Integration in system mode     
+        title: Grafana integration in system mode     
       - file: user-mode/jobs
         title: Running jobs in user mode
       - file: user-mode/analysis
         title: Analyzing results collected in user mode
       - file: site.frontier
-        title: Running in user mode on ORNL Frontier
+        title: Running jobs on ORNL Frontier
       - file: site.lux
-        title: Running in user mode on ORNL Lux
+        title: Running jobs on ORNL Lux
       - file: site.tuo
-        title: Running in user mode on LLNL Tuolumne
+        title: Running jobs on LLNL Tuolumne
   - caption: Reference
     entries:
       - file: agents
-        title: AI Agent skills
+        title: AI agent skills
       - file: developer/developers
         title: Developer Guide
   - caption: About
