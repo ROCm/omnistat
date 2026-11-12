@@ -1,4 +1,4 @@
-# Advanced Profiling
+# Advanced profiling
 
 Omnistat supports two optional data collectors that instrument the GPU directly
 to provide more detailed performance data than the standard telemetry
@@ -30,13 +30,13 @@ sections of the metrics reference.
 ## Hardware counters
 
 Omnistat samples hardware counters using ROCProfiler-SDK's *device counting*
-service. Unlike a traditional profiler, it does not attach to a specific
+service. Unlike a traditional profiler, it doesn't attach to a specific
 process or serialize kernel dispatches: it reads counter values from the GPU
 at each Omnistat sampling interval, so the overhead is that of a periodic
 register read rather than per-kernel instrumentation.
 
-The trade-off is that counters are a device-wide, time-sampled view. Values are
-not attributed to individual kernels, and on a shared node they reflect
+The trade-off is that counters are a device-wide, time-sampled view. Values aren't
+attributed to individual kernels, and on a shared node they reflect
 whatever work the GPU was doing at sampling time.
 
 ### Prerequisites
@@ -60,7 +60,7 @@ Reading GPU hardware counters requires performance monitoring privileges. The
 kernel grants these through either the `CAP_PERFMON` capability (or the broader
 `CAP_SYS_ADMIN`), or a permissive value of `/proc/sys/kernel/perf_event_paranoid`.
 Omnistat checks for both at collector startup and warns when neither is
-satisfied, in which case some or all counter values may be unavailable.
+satisfied, in which case some or all counter values might be unavailable.
 
 #### System-mode
 
@@ -81,10 +81,10 @@ drop-in:
 (counter-enablement-usage)=
 #### User-mode
 
-Without administrative rights, `CAP_PERFMON` is not an option, and
+Without administrative rights, `CAP_PERFMON` isn't an option, and
 `/proc/sys/kernel/perf_event_paranoid` must instead be `2` or less. Some
 distributions ship a default of `4`, in which case a site administrator has to
-lower it (typically via a `sysctl.d` drop-in); it cannot be changed from within
+lower it (typically via a `sysctl.d` drop-in); it can't be changed from within
 a job.
 
 User-mode collection additionally requires the counter enablement library
@@ -93,7 +93,7 @@ ROCProfiler-SDK only makes a process's GPU queues visible to counter collection
 when that process has registered a counting service, and this library does
 exactly that and nothing else: it registers the service and never starts it, so
 it collects no data of its own. It also leaves the application's queues in
-place rather than replacing them, so any CU masks or queue priorities the
+place rather than replacing them, so any compute unit (CU) masks or queue priorities the
 application set are preserved.
 
 Point `ROCP_TOOL_LIBRARIES` at the library in the environment of the
@@ -124,7 +124,7 @@ sites offering several ROCm installations need one build per installation.
 (counter-profiles)=
 ### Counter profiles
 
-Which counters are collected, and how they are distributed across the GPUs in a
+Which counters are collected, and how they're distributed across the GPUs in a
 node, is described by a *profile*. The `profile` option in the
 `[omnistat.collectors.rocprofiler]` section names a profile, and the matching
 `[omnistat.collectors.rocprofiler.<profile>]` section defines it. When no
@@ -141,10 +141,10 @@ A profile section accepts two options:
   available on a given architecture, see the [ROCm
   documentation](https://rocm.docs.amd.com/en/latest/reference/gpu-arch/mi300-mi200-performance-counters.html#mi300-and-mi200-series-performance-counters).
 
-Profile problems are fatal rather than degraded: a profile section that is
-missing or omits `counters`, a `counters` value that is not valid JSON, an
-unrecognized `sampling_mode`, a set count that does not match the mode, or a
-counter name the GPU does not support all cause Omnistat to log an error and
+Profile problems are fatal rather than degraded: a profile section that's
+missing or omits `counters`, a `counters` value that isn't valid JSON, an
+unrecognized `sampling_mode`, a set count that doesn't match the mode, or a
+counter name the GPU doesn't support all cause Omnistat to log an error and
 exit with status 4, leaving the node with no telemetry at all.
 
 Multiple profiles can be defined in the same configuration file; only the one
@@ -174,7 +174,7 @@ collecting all of them everywhere. It requires at least as many GPUs per node
 as counter sets.
 
 `periodic` trades temporal resolution for coverage in the same way, and is the
-option when a workload is not symmetric across GPUs. Note that in this mode
+option when a workload isn't symmetric across GPUs. Note that in this mode
 counter values are reset at each sampling interval rather than accumulated.
 
 #### Examples
@@ -305,9 +305,9 @@ alongside `ROCP_TOOL_LIBRARIES`. The defaults are appropriate for most runs.
 | `OMNISTAT_TRACE_DISABLE_RCCL`  | `0`                | Set to `1` to force RCCL tracing off.                              |
 
 The three numeric variables expect a positive integer. A value of `0`, or one
-that is not a number, is reported as invalid and the default is used instead, so
+that isn't a number, is reported as invalid and the default is used instead, so
 setting `OMNISTAT_TRACE_MAX_INTERVAL` or `OMNISTAT_TRACE_BUFFER_SIZE` to `0`
-does not disable flushing or buffering. Parsing is otherwise lenient: trailing
+doesn't disable flushing or buffering. Parsing is otherwise lenient: trailing
 characters are ignored, so a value like `10s` is accepted as `10` without
 comment.
 

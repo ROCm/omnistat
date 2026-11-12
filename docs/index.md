@@ -1,51 +1,46 @@
-# Omnistat Documentation
+# ROCm Omnistat documentation
 
-Welcome to the documentation area for **Omnistat**, a set of Python utilities and data
-collectors to support scale-out cluster telemetry targeting AMD Instinct(tm) MI accelerators.
-Omnistat operates in two primary modes: permanent, cluster-wide collection managed by a
-system administrator, and temporary collection scoped to a single user's batch job.
-Collected telemetry can be visualized in Grafana, exported for custom analysis, or explored
-interactively by an AI coding agent.
+ROCm Omnistat is a set of Python utilities and data
+collectors to support scale-out cluster telemetry targeting AMD Instinct™ GPUs.
+Omnistat operates in two primary modes: **system mode** for permanent, cluster-wide collection managed by a system administrator, and **user mode** for temporary collection scoped to a single user's batch job. Collected telemetry can be visualized in Grafana, exported for custom analysis, or explored interactively by an AI coding agent.
 
-```{figure} images/omnistat_intro.png
----
-width: 950px
-alt: Grafana dashboard showing per-GPU utilization gauges and utilization heatmaps across a job.
----
-```
+The ROCm Omnistat public repository is located within the rocm-systems repo at [ROCm/omnistat](https://github.com/ROCm/omnistat).
 
 ::::{grid} 1 2 2 2
 :gutter: 3
 
-:::{grid-item-card} Introduction
-:link: introduction
-:link-type: doc
+:::{grid-item-card} Conceptual
 
-Project overview, supported [metrics](metrics.md), and [advanced
-profiling](advanced-profiling.md) with hardware counters and tracing.
+- [Omnistat metrics](metrics.md)
+- [Advanced profiling](advanced-profiling.md)
 :::
 
-:::{grid-item-card} System-mode
-:link: system-mode/system-install
-:link-type: doc
+:::{grid-item-card} Install
 
-Cluster-wide deployment by a system administrator, plus [Grafana
-integration](system-mode/grafana.md) for visualization.
+- [System-mode installation](system-mode/system-install.md)
+- [User-mode installation](user-mode/user-install.md)
 :::
 
-:::{grid-item-card} User-mode
-:link: user-mode/user-install
-:link-type: doc
+:::{grid-item-card} How to
 
-Per-job collection without elevated credentials, including [job
-execution](user-mode/jobs.md) and [analysis](user-mode/analysis.md).
+- [Grafana integration in system mode](system-mode/grafana.md) 
+- [Running jobs in user mode](user-mode/jobs.md)
+- [Analyzing results collected in user mode](user-mode/analysis.md)
+- [Running jobs on ORNL Frontier](site.frontier.md)
+- [Running jobs on ORNL Lux](site.lux.md)
+- [Running jobs on LLNL Tuolumne](site.tuo.md)
 :::
 
-:::{grid-item-card} Miscellaneous
+:::{grid-item-card} Reference
 
-[Agent skills](agents.md) for exploring collected telemetry with an AI coding
-agent, and the [developer guide](developer/developers.md) for adding new data
-collection mechanisms.
+- [AI agent skills](agents.md) 
+- [Developer guide](developer/developers.md) 
 :::
 
 ::::
+
+To contribute to the documentation, see
+[Contributing to ROCm](https://rocm.docs.amd.com/en/latest/contribute/contributing.html).
+
+You can find licensing information on the
+[Licensing](https://rocm.docs.amd.com/en/latest/about/license.html) page.
