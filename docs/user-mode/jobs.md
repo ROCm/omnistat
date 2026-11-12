@@ -1,4 +1,4 @@
-# Running jobs
+# Running jobs in user mode
 
 To enable user-mode data collection for a specific job, add logic within your job script to start and stop the collection mechanism before and after running your desired application(s). Omnistat includes an `omnistat-usermode` utility to help automate this process and the examples below highlight the steps for simple SLURM and Flux job scripts. Note that the lines highlighted in
 yellow need to be customized for the local installation path.
