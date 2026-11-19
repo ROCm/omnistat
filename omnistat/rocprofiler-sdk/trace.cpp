@@ -330,11 +330,16 @@ bool Tracer::endpoint_absent(httplib::Client& client, const std::string& path,
 }
 
 void Tracer::flush_loop() {
+    // The kernel buffer is flushed on a fixed cadence. RCCL size requests wake
+    // this loop in between and must not shift that cadence, so the next tick is
+    // held as an absolute deadline rather than re-derived from each wake.
+    auto deadline = std::chrono::steady_clock::now() + periodic_flush_interval_;
+
     while (true) {
         std::unique_lock<std::mutex> lock(flush_mutex_);
 
-        // Wake on the timer, a stop, or an RCCL size request.
-        flush_cv_.wait_for(lock, periodic_flush_interval_, [this] {
+        // Wake on the tick, a stop, or an RCCL size request.
+        flush_cv_.wait_until(lock, deadline, [this] {
             return stop_requested_.load() || rccl_flush_requested_.load();
         });
         if (stop_requested_.load()) {
@@ -348,20 +353,27 @@ void Tracer::flush_loop() {
             std::chrono::steady_clock::duration(kernel_last_flush_time_.load()));
         const bool flushed_recently = (now - last) < periodic_flush_interval_;
 
-        // The kernel buffer also flushes on its own watermark, so skip this
-        // one when a flush happened recently.
-        if (kernel_enabled_ && !flushed_recently) {
-            auto flush_status = rocprofiler_flush_buffer(kernel_buffer_);
+        if (now >= deadline) {
+            // Measured from the last delivery -- possibly one the buffer's
+            // watermark made on its own -- so deliveries stay at most one
+            // interval apart. Both anchors precede `now`, so this advances.
+            deadline = (flushed_recently ? last : now) + periodic_flush_interval_;
 
-            // Ignore BUFFER_BUSY errors as the buffer might be in use
-            if (flush_status != ROCPROFILER_STATUS_SUCCESS &&
-                flush_status != ROCPROFILER_STATUS_ERROR_BUFFER_BUSY) {
-                log::message("kernel buffer flush failed ({})",
-                             rocprofiler_get_status_string(flush_status));
+            // The kernel buffer also flushes on its own watermark, so skip this
+            // one when a flush happened recently.
+            if (kernel_enabled_ && !flushed_recently) {
+                auto flush_status = rocprofiler_flush_buffer(kernel_buffer_);
+
+                // Ignore BUFFER_BUSY errors as the buffer might be in use
+                if (flush_status != ROCPROFILER_STATUS_SUCCESS &&
+                    flush_status != ROCPROFILER_STATUS_ERROR_BUFFER_BUSY) {
+                    log::message("kernel buffer flush failed ({})",
+                                 rocprofiler_get_status_string(flush_status));
+                }
             }
         }
 
-        // Drained on every wake, timer or size trigger, and never debounced.
+        // Drained on every wake, deadline or size trigger, and never debounced.
         if (rccl_enabled_) {
             std::string rccl_data;
             size_t rccl_records = 0;

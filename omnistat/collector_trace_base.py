@@ -42,7 +42,7 @@ from omnistat.collector_endpoint_base import EndpointCollector
 
 
 class BinnedTraceCollector(EndpointCollector):
-    def __init__(self, interval: float, window_ms: int = 15_000):
+    def __init__(self, interval: float, window_ms: int = 20_000):
         self._interval_ms = max(1, int(interval * 1_000))
         self._window_ms = window_ms
 

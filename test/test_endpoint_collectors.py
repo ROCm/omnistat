@@ -231,7 +231,7 @@ class TestKernelTraceCollector:
         assert result is not None
         assert result.returncode == 0
 
-        # Mid-run scrape with flush=False: all bins are within the 15s hold
+        # Mid-run scrape with flush=False: all bins are within the hold
         # window, so nothing should be released yet
         assert metrics1 == {}
 
