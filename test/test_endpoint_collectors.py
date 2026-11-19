@@ -71,6 +71,12 @@ class StandaloneTestServer:
         self._address = "127.0.0.1"
         self._timeout = 5
 
+        # Standalone calls formatMetrics() inline on the polling thread, so
+        # its body never overlaps updateMetrics(). This server scrapes from
+        # the test thread while its own update loop runs; serialize them to
+        # match what standalone gets for free.
+        self._collector_lock = threading.Lock()
+
         self._stop_event = threading.Event()
         self._thread = threading.Thread(target=self._update_loop, daemon=True)
         self._thread.start()
@@ -83,7 +89,8 @@ class StandaloneTestServer:
 
     def _update_loop(self):
         while not self._stop_event.is_set():
-            self.collector.updateMetrics()
+            with self._collector_lock:
+                self.collector.updateMetrics()
             self._stop_event.wait(self.interval)
 
     def _wait_for_server(self):
@@ -99,7 +106,10 @@ class StandaloneTestServer:
 
     def get_metrics(self, flush=False):
         """Return {name: {frozenset(labels): [values]}}."""
-        lines = list(self.collector.formatMetrics(self.label_defaults, flush=flush))
+        # Held across the list() so the generator is fully drained before the
+        # update loop can touch the collector again.
+        with self._collector_lock:
+            lines = list(self.collector.formatMetrics(self.label_defaults, flush=flush))
         text = b"".join(lines).decode()
         results = {}
         for family in text_string_to_metric_families(text):
