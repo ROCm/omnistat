@@ -20,6 +20,10 @@ exclude_patterns = [
     'schemas/**',
 ]
 
+# options for latex output
+latex_engine = "lualatex"
+latex_show_urls = "footnote"
+
 # for PDF output on Read the Docs
 project = "ROCm Omnistat Documentation"
 author = "Advanced Micro Devices, Inc."
@@ -50,7 +54,12 @@ html_theme_options.update(
     }
 )
 
-external_projects_current_project = "rocmvalidationsuite"
+external_projects_current_project = "omnistat"
+
+# Named omnistat.css rather than custom.css on purpose: html_static_path is
+# copied over the theme's own static files, and rocm_docs_theme ships a
+# static/custom.css of its own, which a same-named file here silently replaces.
+html_css_files = ["omnistat.css"]
 
 # Temporary setting for local build. REMOVE before checking in
 external_projects_remote_repository=""
