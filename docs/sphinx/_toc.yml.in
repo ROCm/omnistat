@@ -30,7 +30,7 @@ subtrees:
         title: Analyzing results
   - caption: How-to
     entries:
-       - file: site.frontier
+      - file: site.frontier
         title: Running jobs on ORNL Frontier
       - file: site.lux
         title: Running jobs on ORNL Lux
