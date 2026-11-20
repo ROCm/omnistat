@@ -9,23 +9,28 @@ The ROCm Omnistat public repository is located within the rocm-systems repo at [
 ::::{grid} 1 2 2 2
 :gutter: 3
 
-:::{grid-item-card} Conceptual
+:::{grid-item-card} Introduction
 
+- [What is Omnistat?](what-is-omnistat.md)
 - [Omnistat metrics](metrics.md)
-- [Advanced profiling](advanced-profiling.md)
+- [Advanced Profiling](advanced-profiling.md)
 :::
 
-:::{grid-item-card} Install
+:::{grid-item-card} System mode
 
-- [System-mode installation](system-mode/system-install.md)
-- [User-mode installation](user-mode/user-install.md)
+- [Installation](system-mode/system-install.md)
+- [Grafana integration in system mode](system-mode/grafana.md)
 :::
 
-:::{grid-item-card} How to
+:::{grid-item-card} User mode
 
-- [Grafana integration in system mode](system-mode/grafana.md) 
-- [Running jobs in user mode](user-mode/jobs.md)
-- [Analyzing results collected in user mode](user-mode/analysis.md)
+- [User mode Installation](user-mode/user-install.md)
+- [Running jobs](user-mode/jobs.md)
+- [Analyzing results](user-mode/analysis.md)
+:::
+
+:::{grid-item-card} How-to
+
 - [Running jobs on ORNL Frontier](site.frontier.md)
 - [Running jobs on ORNL Lux](site.lux.md)
 - [Running jobs on LLNL Tuolumne](site.tuo.md)
@@ -33,8 +38,8 @@ The ROCm Omnistat public repository is located within the rocm-systems repo at [
 
 :::{grid-item-card} Reference
 
-- [AI agent skills](agents.md) 
-- [Developer guide](developer/developers.md) 
+- [AI agent skills](agents.md)
+- [Developer Guide](developer/developers.md)
 :::
 
 ::::
