@@ -1,6 +1,6 @@
-# Running Jobs
+# Running jobs in user mode
 
-To enable user-mode data collection for a specific job, add logic within your job script to start and stop the collection mechanism before and after running your desired application(s).  Omnistat includes an `omnistat-usermode` utility to help automate this process and the examples below highlight the steps for simple SLURM and Flux job scripts.  Note that the lines highlighted in
+To enable user-mode data collection for a specific job, add logic within your job script to start and stop the collection mechanism before and after running your desired application(s). Omnistat includes an `omnistat-usermode` utility to help automate this process and the examples below highlight the steps for simple SLURM and Flux job scripts. Note that the lines highlighted in
 yellow need to be customized for the local installation path.
 
 
@@ -61,4 +61,4 @@ yellow need to be customized for the local installation path.
    mv data_prom data_prom.${jobid}
   ```
 
- In both examples above, the `omnistat-query` utility is used at the end of the job to query collected telemetry (prior to shutting down the server) for the assigned jobid. This should embed an ascii summary for the job similar to the [report card](query_report_card) example mentioned in the Overview directly within the recorded job output.
+ In both examples above, the `omnistat-query` utility is used at the end of the job to query collected telemetry (prior to shutting down the server) for the assigned jobid. This should embed an ASCII summary for the job similar to the [report card](query_report_card) example mentioned in the Overview directly within the recorded job output.
