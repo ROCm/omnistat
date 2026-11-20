@@ -6,29 +6,31 @@ subtrees:
   - entries:
       - file: release-notes.md
         title: Release notes
+  - caption: Introduction
+    entries:
       - file: what-is-omnistat
         title: What is Omnistat?
-  - caption: Install
-    entries:
-      - file: system-mode/system-install
-        title: System mode Installation
-      - file: user-mode/user-install
-        title: User mode Installation
-  - caption: Conceptual
-    entries:
       - file: metrics
         title: Omnistat metrics
       - file: advanced-profiling
-        title: Advanced Profiling
-  - caption: How-to 
+        title: Advanced Profiling       
+  - caption: System mode
     entries:
+      - file: system-mode/system-install
+        title: Installation
       - file: system-mode/grafana
-        title: Grafana integration in system mode     
+        title: Grafana integration in system mode   
+  - caption: User mode
+    entries:
+      - file: user-mode/user-install
+        title: User mode Installation
       - file: user-mode/jobs
-        title: Running jobs in user mode
+        title: Running jobs
       - file: user-mode/analysis
-        title: Analyzing results collected in user mode
-      - file: site.frontier
+        title: Analyzing results
+  - caption: How-to
+    entries:
+       - file: site.frontier
         title: Running jobs on ORNL Frontier
       - file: site.lux
         title: Running jobs on ORNL Lux
