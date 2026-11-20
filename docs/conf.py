@@ -23,6 +23,11 @@ exclude_patterns = [
 # options for latex output
 latex_engine = "lualatex"
 latex_show_urls = "footnote"
+latex_elements = {
+    "sphinxsetup": "verbatimwrapslines=true, verbatimforcewraps=true",
+}
+
+
 
 # for PDF output on Read the Docs
 project = "ROCm Omnistat Documentation"
