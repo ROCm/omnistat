@@ -1,4 +1,4 @@
-# Grafana integration in system mode
+# Grafana integration
 
 Dashboards allow cluster telemetry data to be visualized interactively in near
 real-time. Omnistat provides several sample [Grafana](https://grafana.com/)

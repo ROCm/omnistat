@@ -19,11 +19,11 @@ subtrees:
       - file: system-mode/system-install
         title: Installation
       - file: system-mode/grafana
-        title: Grafana integration in system mode   
+        title: Grafana integration   
   - caption: User mode
     entries:
       - file: user-mode/user-install
-        title: User mode Installation
+        title: Installation
       - file: user-mode/jobs
         title: Running jobs
       - file: user-mode/analysis

@@ -19,12 +19,12 @@ The ROCm Omnistat public repository is located within the rocm-systems repo at [
 :::{grid-item-card} System mode
 
 - [Installation](system-mode/system-install.md)
-- [Grafana integration in system mode](system-mode/grafana.md)
+- [Grafana integration](system-mode/grafana.md)
 :::
 
 :::{grid-item-card} User mode
 
-- [User mode Installation](user-mode/user-install.md)
+- [Installation](user-mode/user-install.md)
 - [Running jobs](user-mode/jobs.md)
 - [Analyzing results](user-mode/analysis.md)
 :::

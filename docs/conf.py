@@ -40,6 +40,8 @@ html_title = left_nav_title
 html_static_path = ["static"]
 extensions = ["rocm_docs"]
 myst_heading_anchors = 4
+numfig = True
+numfig_format = {"figure": "Figure %s"}
 html_theme = "rocm_docs_theme"
 html_theme_options = {
     "flavor": "rocm-extras",
