@@ -97,7 +97,7 @@ In the __user mode__, Omnistat data collectors and a companion VictoriaMetrics s
 
 The basic minimum dependencies to enable data collection via Omnistat tools in user mode are as follows:
 
-* [ROCm](https://rocm.docs.amd.com/en/latest) (v{__ROCM_MIN_VERSION__} or newer)
+* [ROCm](https://rocm.docs.amd.com/en/latest) (v{__ROCM_MIN_VERSION__} or later)
 * Python dependencies (see top-level [requirements.txt](https://github.com/ROCm/omnistat/blob/main/requirements.txt))
 
 System administrators wishing to deploy Omnistat in system mode for a system-wide GPU monitoring capability with near real-time visualization will also need one or more servers to host two additional services:
