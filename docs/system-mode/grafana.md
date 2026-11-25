@@ -133,7 +133,7 @@ To configure a dashboard:
 In addition to the pre-configured Grafana panels highlighted above, additional utilities are
 provided to generate a custom Grafana dashboard that renders a physical rack-layout
 view for visualizing a subset of Omnistat metrics. Each rack is drawn as a vertical column with
-compute servers color-coded by metric value (e.g., temperature, utilization, power) and users can
+compute servers color-coded by metric value (for example, temperature, utilization, or power) and users can
 specify rack sizes, locations, and include additional switch locations to match their local installation.
 
 
@@ -150,7 +150,7 @@ The top-level fields are:
 | `cluster_id` | Short identifier used in the dashboard title and UID |
 | `display_name` | Human-readable name shown in the dashboard header |
 | `omnistat_port` | Omnistat exporter port (default: 8000) |
-| `grafana_url` | Base URL of the Grafana instance (e.g., `https://grafana.mycluster.org`) |
+| `grafana_url` | Base URL of the Grafana instance (for example, `https://grafana.mycluster.org`) |
 | `node_dashboard_path` | URL path to a per-node dashboard; `{instance}` is replaced at render time |
 | `metrics` | List of Prometheus metrics to visualize, each with `name`, `label`, `unit`, `min`, `max`, `color`, and `show_values` |
 | `racks` | List of rack definitions |

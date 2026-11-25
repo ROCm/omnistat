@@ -186,9 +186,9 @@ It might take a few back-and-forth turns rather than a single reply, and you can
 steer it as you go:
 
 - **Control the length.** The default write-up can be detailed; ask for a
-  shorter form when you just want the headline, e.g. *"keep it to the top 10
+  shorter form when you just want the headline, for example: *"keep it to the top 10
   findings"* or *"max 15 lines."*
 - **Follow up and visualize.** Drill in with further questions, or ask the
   agent to chart a metric over time; it can export the underlying time series
-  and render a plot, e.g. *"plot GPU temperature for frontier04313 across the
+  and render a plot, for example: *"plot GPU temperature for frontier04313 across the
   run."*

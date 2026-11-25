@@ -4,7 +4,7 @@ Omnistat supports two optional data collectors that instrument the GPU directly
 to provide more detailed performance data than the standard telemetry
 collectors:
 
-* **[Hardware counters](#hardware-counters)** sample low-level GPU performance counters (e.g. cache
+* **[Hardware counters](#hardware-counters)** sample low-level GPU performance counters (for example, cache
   traffic, cycles, memory requests, floating-point instructions) at the device level.
 * **[Tracing](#tracing)** records individual GPU work as the application issues
   it: every kernel dispatch, with its name and execution duration, and every
@@ -19,7 +19,7 @@ metric names is provided in the [Hardware
 Counters](metrics.md#hardware-counters) and [Tracing](metrics.md#tracing)
 sections of the metrics reference.
 
-|                                    | Hardware counters                                 | Tracing                               |
+| Features                           | Hardware counters                                 | Tracing                               |
 | :--------------------------------- | :------------------------------------------------ | :------------------------------------ |
 | Collector option                   | `enable_rocprofiler`                               | `enable_kernel_trace`, `enable_rccl_trace` |
 | Availability and build step        | {ref}`System-mode <optional-components>` and {ref}`user-mode <user-optional-components>` | {ref}`User-mode <user-optional-components>` only |
@@ -165,15 +165,15 @@ across time.
 | `gpu-id`        | two or more            | Sets are assigned cyclically to GPU IDs, so different GPUs collect different counters.      |
 | `periodic`      | one or more            | All GPUs rotate through the sets, advancing to the next set after every sample.              |
 
-`constant` gives a complete picture on every GPU, but only for as many counters
+- `constant` gives a complete picture on every GPU, but only for as many counters
 as fit in hardware at once.
 
-`gpu-id` trades spatial uniformity for coverage: with a symmetric workload
+- `gpu-id` trades spatial uniformity for coverage: with a symmetric workload
 across GPUs, sampling different counters on different GPUs approximates
 collecting all of them everywhere. It requires at least as many GPUs per node
 as counter sets.
 
-`periodic` trades temporal resolution for coverage in the same way, and is the
+- `periodic` trades temporal resolution for coverage in the same way, and is the
 option when a workload isn't symmetric across GPUs. Note that in this mode
 counter values are reset at each sampling interval rather than accumulated.
 

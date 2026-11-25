@@ -7,6 +7,7 @@ Omnistat provides utilities for cluster administrators and application developer
 width: 950px
 alt: Grafana dashboard showing per-GPU utilization gauges and utilization heatmaps across a job.
 ---
+Sample Omnistat dashboard
 ```
 
 Omnistat collects key telemetry from AMD Instinct™ GPUs on a per-GPU basis. The core target metrics include:
@@ -59,7 +60,7 @@ width: 800px
 User-mode monitoring
 ```
 
-In the __system mode__, a system administrator enables data collectors permanently on all relevant hosts within the cluster and configures a Prometheus server to periodically poll these nodes (e.g. at 1 minute or 5 minute intervals). The Prometheus server typically runs on the cluster head node (or separate administrative host) and doesn't require GPU resources locally. For real-time and historical queries, the system administrator also enables a Grafana instance that queries the Prometheus datastore to provide a variety of visualizations with collected data. Example visualization panels are shown in the [Grafana](./system-mode/grafana.md) section.
+In the __system mode__, a system administrator enables data collectors permanently on all relevant hosts within the cluster and configures a Prometheus server to periodically poll these nodes (for example, at 1-minute or 5-minute intervals). The Prometheus server typically runs on the cluster head node (or separate administrative host) and doesn't require GPU resources locally. For real-time and historical queries, the system administrator also enables a Grafana instance that queries the Prometheus datastore to provide a variety of visualizations with collected data. Example visualization panels are shown in the [Grafana](./system-mode/grafana.md) section.
 
 In the __user mode__, Omnistat data collectors and a companion VictoriaMetrics server are deployed temporarily on hosts assigned to a user's job. At the end of the job, Omnistat can query cached telemetry to summarize GPU utilization or visualize it offline. An example command-line summary:
 
@@ -102,8 +103,8 @@ The basic minimum dependencies to enable data collection via Omnistat tools in u
 
 System administrators wishing to deploy Omnistat in system mode for a system-wide GPU monitoring capability with near real-time visualization will also need one or more servers to host two additional services:
 
-* [Grafana](https://github.com/grafana/grafana) - either local instance or can also use cloud-based infrastructure
-* [Prometheus server](https://prometheus.io/docs/prometheus/latest/getting_started/) - used to periodically poll and aggregate data from multiple compute nodes
+* [Grafana](https://github.com/grafana/grafana): either a local or cloud-based instance
+* [Prometheus server](https://prometheus.io/docs/prometheus/latest/getting_started/): periodically polls and aggregates data from multiple compute nodes
 
 
 ## Resource manager integration

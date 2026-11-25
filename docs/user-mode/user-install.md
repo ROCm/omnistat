@@ -3,14 +3,14 @@
 As mentioned in the project {ref}`overview <user-vs-system>`, Omnistat has two primary modes of
 operation and this section highlights installation of the **user-mode** variant which doesn't
 require elevated credentials and targets temporary data collection directly within a user's batch
-job under a supported resource manager (e.g. SLURM, or Flux).
+job under a supported resource manager (for example, SLURM or Flux).
 
 In user-mode executions, Omnistat data collectors and a companion VictoriaMetrics server are
 deployed temporarily on hosts assigned to a user's job, as highlighted in {numref}`fig-user-mode`.
 The following assumptions are made throughout the rest of this user-mode installation discussion:
 
 __Assumptions__:
-* [ROCm](https://rocm.docs.amd.com/en/latest/) v{__ROCM_MIN_VERSION__} or newer is pre-installed
+* [ROCm](https://rocm.docs.amd.com/en/latest/) v{__ROCM_MIN_VERSION__} or later is pre-installed
   on all GPU hosts.
 * Installer has access to a distributed filesystem; if no distributed
   filesystem is present, installation steps need to be repeated across all nodes.
@@ -20,13 +20,13 @@ Installation steps depend on whether you want to install Omnistat from a release
 (recommended), or prefer to use a development version using git. Both options are highlighted below
 for a basic installation that enables standard GPU and host-level telemetry. Depending on your
 local environment, you might also want to augment the examples that follow to install Omnistat within
-a dedicated Python virtual environment (e.g. using `venv` or `conda`). 
+a dedicated Python virtual environment (for example, using `venv` or `conda`). 
 <!-- if-release:end -->
 <!-- if-norelease:start -->
 The steps below install a development version of Omnistat using git for a basic installation that
 enables standard GPU and host-level telemetry. Depending on your local environment, you might also
 want to augment the examples that follow to install Omnistat within a dedicated Python virtual
-environment (e.g. using `venv` or `conda`).
+environment (for example, using `venv` or `conda`).
 <!-- if-norelease:end -->
 
 ## Standard Omnistat install

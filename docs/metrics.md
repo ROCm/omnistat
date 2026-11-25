@@ -19,7 +19,7 @@
 Omnistat supports multiple embedded data collectors to aggregate a large
 collection of metrics from a variety of system sources. Many of the available
 data collectors are optional and can be enabled via runtime configuration
-settings (e.g. via [omnistat.default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default)). The sections and tables that follow serve to outline major data
+settings (for example, via [omnistat.default](https://github.com/ROCm/omnistat/blob/main/omnistat/config/omnistat.default)). The sections and tables that follow serve to outline major data
 collector variants, their associated runtime configuration control options, and
 a comprehensive list of specific metric names defined for each collector.
 
@@ -112,7 +112,7 @@ memory utilization statistics along with general I/O metrics.
 
 The default I/O tracking mechanism above tracks node-local I/O to physical
 disks. Consequently, it doesn't have visibility to I/O directed at
-network-based file systems (e.g., NFS, Lustre, Vast) that are
+network-based file systems (for example, NFS, Lustre, or Vast) that are
 common in large production clusters. To enable tracking of all I/O (**including
 network-based**), the host collector includes an optional mechanism to track I/O
 of individual processes at the syscall level. This requires access to scan
@@ -158,16 +158,15 @@ available for tracking:
 | `rocm_ras_pcie_bif_uncorrectable_count`  | Uncorrectable errors in the PCIe Bifurcation block. |
 | `rocm_ras_hdp_uncorrectable_count`       | Uncorrectable errors in the Host Data Path block. |
 | `rocm_ras_xgmi_wafl_uncorrectable_count` | Uncorrectable errors in the External Global Memory Interconnect block. |
-| `rocm_ras_umc_deferred_count`            | Deferred[^deferred] errors in the Unified Memory Controller block. |
-| `rocm_ras_sdma_deferred_count`           | Deferred[^deferred] errors in the System Direct Memory Access block. |
-| `rocm_ras_gfx_deferred_count`            | Deferred[^deferred] errors in the Graphics Processing Unit block. |
-| `rocm_ras_mmhub_deferred_count`          | Deferred[^deferred] errors in the Multi Media Hub block. |
-| `rocm_ras_pcie_bif_deferred_count`       | Deferred[^deferred] errors in the PCIe Bifurcation block. |
-| `rocm_ras_hdp_deferred_count`            | Deferred[^deferred] errors in the Host Data Path block. |
-| `rocm_ras_xgmi_wafl_deferred_count`      | Deferred[^deferred] errors in the External Global Memory Interconnect block. |
+| `rocm_ras_umc_deferred_count`            | Deferred\* errors in the Unified Memory Controller block. |
+| `rocm_ras_sdma_deferred_count`           | Deferred\* errors in the System Direct Memory Access block. |
+| `rocm_ras_gfx_deferred_count`            | Deferred\* errors in the Graphics Processing Unit block. |
+| `rocm_ras_mmhub_deferred_count`          | Deferred\* errors in the Multi Media Hub block. |
+| `rocm_ras_pcie_bif_deferred_count`       | Deferred\* errors in the PCIe Bifurcation block. |
+| `rocm_ras_hdp_deferred_count`            | Deferred\* errors in the Host Data Path block. |
+| `rocm_ras_xgmi_wafl_deferred_count`      | Deferred\* errors in the External Global Memory Interconnect block. |
 
-[^deferred]: Deferred RAS ECC counts are only available with `enable_amd_smi`,
-  and not with `enable_rocm_smi`.
+> \*Note: Deferred RAS ECC counts are only available with `enable_amd_smi`, and not with `enable_rocm_smi`.
 
 <hr style="border: 1px solid black;">
 
@@ -328,8 +327,8 @@ interface carries a `device_class` label naming the type it was detected as:
 - `net`: Ethernet and other standard IP interfaces.
 - `infiniband`: InfiniBand.
 - `cxi`: HPE (Hewlett Packard Enterprise) Slingshot.
-- `ionic`: AMD Pensando AI NICs (e.g. Pollara).
-- `bnxt_re`: Broadcom RoCE NICs (e.g. Thor).
+- `ionic`: AMD Pensando AI NICs (for example, Pollara).
+- `bnxt_re`: Broadcom RoCE NICs (for example, Thor).
 
 **Collector**: `enable_network`
 
@@ -483,7 +482,7 @@ the argument size is included as text for the annotation).
 
 ### Figure of merit
 
-Many iterative applications have a natural notion of progress (e.g., time per iteration, GFLOPS
+Many iterative applications have a natural notion of progress (for example, time per iteration, GFLOPS
 achieved, number of samples processed, number of epochs completed) that can be used to quantify
 application performance. Omnistat user-mode supports collection of these figures of merit (FOM)
 allowing users to inject custom application performance metrics into the telemetry data stream while

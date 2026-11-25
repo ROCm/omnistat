@@ -25,7 +25,7 @@ The following assumptions are made throughout the rest of this system-wide insta
 
 __Assumptions__:
 * Installer has `sudo` or elevated credentials to install software system-wide, enable systemd services, and optionally modify the local SLURM configuration
-* [ROCm](https://rocm.docs.amd.com/en/latest/) v{__ROCM_MIN_VERSION__} or newer is pre-installed on all GPU hosts
+* [ROCm](https://rocm.docs.amd.com/en/latest/) v{__ROCM_MIN_VERSION__} or later is pre-installed on all GPU hosts
 * Installer has provisioned a dedicated user (eg. `omnidc`) across all desired compute nodes of their system
 * Installer has identified a location to host a Prometheus server (if not present already) that has network access to all compute nodes.
 
@@ -34,13 +34,13 @@ Different installation options exist depending on whether you want to install Om
 released wheel package (recommended), or prefer to use a development version using git.
 Both options are highlighted below for a basic installation that enables standard GPU and host-level
 telemetry. Depending on your local environment, you might also want to augment the examples that follow
-to install Omnistat within a dedicated Python virtual environment (e.g. using `venv` or `conda`). 
+to install Omnistat within a dedicated Python virtual environment (for example, using `venv` or `conda`). 
 <!-- if-release:end -->
 <!-- if-norelease:start -->
 The steps below install a development version of Omnistat using git for a basic installation that
 enables standard GPU and host-level telemetry. Depending on your local environment, you might also
 want to augment the examples that follow to install Omnistat within a dedicated Python virtual
-environment (e.g. using `venv` or `conda`).
+environment (for example, using `venv` or `conda`).
 <!-- if-norelease:end -->
 
 (system-install)= 
@@ -82,7 +82,7 @@ locally, the main additional option to confirm after installation is the locatio
 install. The default configuration assumes a standard install path of `/opt/rocm` - if that matches
 your local setup, no additional change is necessary. If, however, your environment supports multiple
 ROCm installs in versioned paths, the version used by Omnistat data collection can be changed via
-the _rocm_path_ setting, e.g.
+the _rocm_path_ setting, for example:
 
 ```
 rocm_path = /opt/rocm-7.14.0
@@ -156,7 +156,7 @@ Now that the software is installed under a dedicated user and basic functionalit
    :emphasize-lines: 8-11
 ```
 
-Using elevated credentials, install the omnistat.service file across all desired compute nodes (e.g. `/etc/systemd/system/omnistat.service` and enable using systemd (`systemctl enable omnistat`).
+Using elevated credentials, install the omnistat.service file across all desired compute nodes (for example, `/etc/systemd/system/omnistat.service` and enable using systemd (`systemctl enable omnistat`).
 
 ### Access restriction configuration
 
@@ -370,71 +370,72 @@ An optional info metric capability exists within Omnistat to allow collected tel
 
 1. To enable resource manager tracking on the Omnistat client side, edit the chosen runtime config file and update the `[omnistat.collectors]` and `[omnistat.collectors.rms]` sections to have the following settings highlighted in yellow.
 
-```{eval-rst}
-.. code-block:: ini
-   :caption: omnistat.default
-   :emphasize-lines: 4,7-8
+   ```{eval-rst}
+   .. code-block:: ini
+      :caption: omnistat.default
+      :emphasize-lines: 4,7-8
 
-   [omnistat.collectors]
-   port = 8001
-   enable_amd_smi = True
-   enable_rms = True
+      [omnistat.collectors]
+      port = 8001
+      enable_amd_smi = True
+      enable_rms = True
 
-   [omnistat.collectors.rms]
-   job_detection_mode = file-based
-   job_detection_file = /tmp/omni_rmsjobinfo
-```
-The settings above enable the resource manager collector and configures Omnistat to query the `/tmp/omni_rmsjobinfo` file to derive dynamic job information. This file can be generated using the `omnistat-rms-env` utility from within an actively running job, or during prolog execution. The resulting file contains a simple JSON format as follows:
+      [omnistat.collectors.rms]
+      job_detection_mode = file-based
+      job_detection_file = /tmp/omni_rmsjobinfo
+   ```
 
-```{eval-rst}
-.. code-block:: json
-   :caption: /tmp/omni_rmsjobinfo
+   The settings above enable the resource manager collector and configures Omnistat to query the `/tmp/omni_rmsjobinfo` file to derive dynamic job information. This file can be generated using the `omnistat-rms-env` utility from within an actively running job, or during prolog execution. The resulting file contains a simple JSON format as follows:
 
-    {
-        "RMS_TYPE": "slurm",
-        "RMS_JOB_ID": "74129",
-        "RMS_JOB_USER": "auser",
-        "RMS_JOB_PARTITION": "devel",
-        "RMS_JOB_NUM_NODES": "2",
-        "RMS_JOB_BATCHMODE": 1,
-        "RMS_STEP_ID": -1
-    }
-```
+   ```{eval-rst}
+   .. code-block:: json
+      :caption: /tmp/omni_rmsjobinfo
+
+       {
+           "RMS_TYPE": "slurm",
+           "RMS_JOB_ID": "74129",
+           "RMS_JOB_USER": "auser",
+           "RMS_JOB_PARTITION": "devel",
+           "RMS_JOB_NUM_NODES": "2",
+           "RMS_JOB_BATCHMODE": 1,
+           "RMS_STEP_ID": -1
+       }
+   ```
 
 2. SLURM configuration update(s)
 
-The second step to enable resource manager integration is to augment the prolog/epilog scripts configured for your local SLURM environment to create and tear-down the `/tmp/omni_rmsjobinfo` file. Below are example snippets that can be added to the scripts. Note that in these examples, the assumption is a local `slurm.conf` configuration where Prolog and Epilog are enabled as follows:
+   The second step to enable resource manager integration is to augment the prolog/epilog scripts configured for your local SLURM environment to create and tear-down the `/tmp/omni_rmsjobinfo` file. Below are example snippets that can be added to the scripts. Note that in these examples, the assumption is a local `slurm.conf` configuration where Prolog and Epilog are enabled as follows:
 
 
-```
-Prolog=/etc/slurm/slurm.prolog
-Epilog=/etc/slurm/slurm.epilog
-```
+   ```
+   Prolog=/etc/slurm/slurm.prolog
+   Epilog=/etc/slurm/slurm.epilog
+   ```
 
-```{eval-rst}
-.. code-block:: bash
-   :caption: /etc/slurm/slurm.prolog snippet
+   ```{eval-rst}
+   .. code-block:: bash
+      :caption: /etc/slurm/slurm.prolog snippet
 
-    # cache job data for omnistat
-    OMNISTAT_DIR="/home/omnidc/omnistat"
-    OMNISTAT_USER=omnidc
-    if [ -e ${OMNISTAT_DIR}/omnistat-rms-env ];then
-        su ${OMNISTAT_USER} -c ${OMNISTAT_DIR}/omnistat-rms-env    
-    fi
-```
+       # cache job data for omnistat
+       OMNISTAT_DIR="/home/omnidc/omnistat"
+       OMNISTAT_USER=omnidc
+       if [ -e ${OMNISTAT_DIR}/omnistat-rms-env ];then
+           su ${OMNISTAT_USER} -c ${OMNISTAT_DIR}/omnistat-rms-env    
+       fi
+   ```
 
-```{eval-rst}
-.. code-block:: bash
-   :caption: /etc/slurm/slurm.epilog snippet
+   ```{eval-rst}
+   .. code-block:: bash
+      :caption: /etc/slurm/slurm.epilog snippet
 
-    # remove cached job info to indicate end of job
-    if [ -e "/tmp/omni_rmsjobinfo" ];then
-        rm -f /tmp/omni_rmsjobinfo
-    fi
-```
+       # remove cached job info to indicate end of job
+       if [ -e "/tmp/omni_rmsjobinfo" ];then
+           rm -f /tmp/omni_rmsjobinfo
+       fi
+   ```
 
-```{note}
-To make sure the cached job data file is created immediately upon allocation of a user job (instead of the first `srun` invocation), be sure to include the following setting in your local SLURM configuration:
-```text
-PrologFlags=Alloc
-```
+   ```{note}
+   To make sure the cached job data file is created immediately upon allocation of a user job (instead of the first `srun` invocation), be sure to include the following setting in your local SLURM configuration:
+   ```text
+   PrologFlags=Alloc
+   ```

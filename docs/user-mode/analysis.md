@@ -1,5 +1,7 @@
 # Analyzing results collected in user mode
 
+Omnistat provides several ways to explore, visualize, and analyze collected data.
+
 ## Exploring results locally
 
 To explore results previously gathered via Omnistat user-mode execution, Omnistat provides
