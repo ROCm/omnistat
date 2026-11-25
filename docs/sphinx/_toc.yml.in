@@ -28,7 +28,7 @@ subtrees:
         title: Running jobs
       - file: user-mode/analysis
         title: Analyzing results
-  - caption: How-to
+  - caption: How to
     entries:
       - file: site.frontier
         title: Running jobs on ORNL Frontier
