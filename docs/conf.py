@@ -186,7 +186,7 @@ else:
     html_theme_options = {
         "flavor": "generic",
         "header_title": "Omnistat",
-        "header_link": "https://rocm.github.io/omnistat/",
+        "header_link": "https://rocm.docs.amd.com/projects/omnistat/en/latest/",
         "link_main_doc": False,
         "analytics": {"google_analytics_id": google_analytics_id},
         # Pin the top-bar links explicitly (flavor defaults vary by version).
