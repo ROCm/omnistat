@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0; url=https://rocm.docs.amd.com/projects/omnistat/en/latest/">
+  <link rel="canonical" href="https://rocm.docs.amd.com/projects/omnistat/en/latest/">
+  <title>Omnistat documentation — redirecting</title>
+  <script>
+    (function () {
+      var base = "https://rocm.docs.amd.com/projects/omnistat/en/latest/";
+      var redirects = {
+        "404.html": "",
+        "introduction.html": "what-is-omnistat.html",
+        "grafana.html": "system-mode/grafana.html",
+        "installation": "",
+        "installation/": "",
+        "installation.html": "",
+        "installation/index.html": "",
+        "installation/system-install.html": "system-mode/system-install.html",
+        "installation/user-mode.html": "user-mode/user-install.html",
+        "installation/extensions.html": "user-mode/user-install.html",
+        "ornl.html": "site.frontier.html",
+        "sites.html": ""
+      };
+      var path = window.location.pathname.replace(/^\/omnistat(?:\/|$)/i, "").replace(/^\/+/, "");
+      if (Object.prototype.hasOwnProperty.call(redirects, path)) {
+        path = redirects[path];
+      }
+      window.location.replace(base + path + window.location.search + window.location.hash);
+    })();
+  </script>
+</head>
+<body>
+  <p>The Omnistat documentation has moved.
+     If you are not redirected automatically,
+     <a href="https://rocm.docs.amd.com/projects/omnistat/en/latest/">click here</a>.
+  </p>
+</body>
+</html>

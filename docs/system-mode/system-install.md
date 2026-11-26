@@ -340,7 +340,7 @@ Note that this recipe assumes existence of a dedicated non-root user to run the 
 
     [Unit]
     Description=Prometheus exporter for HPC/GPU oriented metrics
-    Documentation=https://rocm.github.io/omnistat/
+    Documentation=https://rocm.docs.amd.com/projects/omnistat/en/latest/
     Requires=network-online.target
     After=network-online.target
 

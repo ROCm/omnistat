@@ -8,7 +8,7 @@ authors:
   - family-names: Schulz
     given-names: Karl W.
 repository-code: "https://github.com/ROCm/omnistat"
-url: "https://rocm.github.io/omnistat/"
+url: "https://rocm.docs.amd.com/projects/omnistat/en/latest/"
 license: MIT
 preferred-citation:
   type: conference-paper

@@ -1,4 +1,4 @@
-[![Documentation](https://github.com/ROCm/omnistat/actions/workflows/docs.yml/badge.svg)](https://rocm.github.io/omnistat/)
+[![Documentation](https://github.com/ROCm/omnistat/actions/workflows/docs.yml/badge.svg)](https://rocm.docs.amd.com/projects/omnistat/en/latest/)
 [![System mode](https://github.com/ROCm/omnistat/actions/workflows/test.yml/badge.svg)](https://github.com/ROCm/omnistat/actions/workflows/test.yml)
 [![User mode - Push](https://github.com/ROCm/omnistat/actions/workflows/test-user-push.yml/badge.svg)](https://github.com/ROCm/omnistat/actions/workflows/test-user-push.yml)
 [![GPU collectors](https://github.com/ROCm/omnistat/actions/workflows/test-gpus.yml/badge.svg)](https://github.com/ROCm/omnistat/actions/workflows/test-gpus.yml)
@@ -52,7 +52,7 @@ basis with SLURM entirely in user-space.
 
 
 For more information on available features and installation steps
-please refer to the online [documentation](https://rocm.github.io/omnistat/).
+please refer to the online [documentation](https://rocm.docs.amd.com/projects/omnistat/en/latest/).
 
 ## Citation
 
