@@ -12,22 +12,7 @@ version_number = "1.16.0"
 # Minimum supported ROCm version, substituted into docs as {__ROCM_MIN_VERSION__}.
 rocm_min_version = "6.3.0"
 
-left_nav_title = f"ROCm Omnistat 1.16.0 Documentation"
-
-exclude_patterns = [
-    'conceptual/**',
-    'how to/**',
-    'schemas/**',
-]
-
-# options for latex output
-latex_engine = "lualatex"
-latex_show_urls = "footnote"
-latex_elements = {
-    "sphinxsetup": "verbatimwrapslines=true, verbatimforcewraps=true",
-}
-
-
+left_nav_title = f"ROCm Omnistat {version_number} Documentation"
 
 # for PDF output on Read the Docs
 project = "ROCm Omnistat Documentation"
@@ -38,16 +23,21 @@ release = version_number
 
 html_title = left_nav_title
 html_static_path = ["static"]
+# Named omnistat.css rather than custom.css on purpose: html_static_path is
+# copied over the theme's own static files, and rocm_docs_theme ships a
+# static/custom.css of its own, which a same-named file here silently replaces.
+html_css_files = ["omnistat.css"]
 extensions = ["rocm_docs"]
 myst_heading_anchors = 4
 numfig = True
 numfig_format = {"figure": "Figure %s"}
+
 html_theme = "rocm_docs_theme"
 html_theme_options = {
     "flavor": "rocm-extras",
-    "header_title": f"ROCm™ Omnistat 1.16.0",
-    "header_link": f"https://rocm.docs.amd.com/projects/omnistat/en/docs-1.16.0/",
-    "version_list_link": f"https://rocm.docs.amd.com/projects/omnistat/en/docs-1.16.0/versions.html",
+    "header_title": f"ROCm™ Omnistat {version_number}",
+    "header_link": "https://rocm.docs.amd.com/projects/omnistat/en/latest/",
+    "version_list_link": "https://rocm.docs.amd.com/projects/omnistat/en/latest/versions.html",
     "link_main_doc": True,
 }
 
@@ -62,17 +52,10 @@ html_theme_options.update(
 )
 
 external_projects_current_project = "omnistat"
-
-# Named omnistat.css rather than custom.css on purpose: html_static_path is
-# copied over the theme's own static files, and rocm_docs_theme ships a
-# static/custom.css of its own, which a same-named file here silently replaces.
-html_css_files = ["omnistat.css"]
-
-# Temporary setting for local build. REMOVE before checking in
-external_projects_remote_repository=""
+external_projects_remote_repository = ""
+external_projects = []
 
 external_toc_path = "./sphinx/_toc.yml"
-external_projects = []
 
 # ---------------------------------------------------------------------------
 # Public wheel availability toggle.
