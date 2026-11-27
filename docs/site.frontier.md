@@ -4,8 +4,8 @@ This section provides instructions for running user-mode Omnistat on Oak Ridge N
 ORNL's Lux, see the [Lux instructions](site.lux.md) instead.
 
 **Prerequisites**:
-- User account on `Frontier <https://docs.olcf.ornl.gov/systems/frontier_user_guide.html>`_
-- Familiarity with `SLURM job submission <https://docs.olcf.ornl.gov/systems/frontier_user_guide.html>`_
+- User account on [Frontier](https://docs.olcf.ornl.gov/systems/frontier_user_guide.html)
+- Familiarity with [SLURM job submission](https://docs.olcf.ornl.gov/systems/frontier_user_guide.html#running-jobs)
 
 ## Running jobs on Frontier
 
