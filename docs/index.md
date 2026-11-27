@@ -4,7 +4,7 @@ ROCm Omnistat is a set of Python utilities and data
 collectors to support scale-out cluster telemetry targeting AMD Instinct™ GPUs.
 Omnistat operates in two primary modes: **system mode** for permanent, cluster-wide collection managed by a system administrator, and **user mode** for temporary collection scoped to a single user's batch job. Collected telemetry can be visualized in Grafana, exported for custom analysis, or explored interactively by an AI coding agent.
 
-The ROCm Omnistat public repository is located within the rocm-systems repo at [ROCm/omnistat](https://github.com/ROCm/omnistat).
+The ROCm Omnistat public repository is located at [ROCm/omnistat](https://github.com/ROCm/omnistat).
 
 ::::{grid} 1 2 2 2
 :gutter: 3
@@ -13,7 +13,7 @@ The ROCm Omnistat public repository is located within the rocm-systems repo at [
 
 - [What is Omnistat?](what-is-omnistat.md)
 - [Omnistat metrics](metrics.md)
-- [Advanced Profiling](advanced-profiling.md)
+- [Advanced profiling](advanced-profiling.md)
 :::
 
 :::{grid-item-card} System mode
@@ -39,7 +39,7 @@ The ROCm Omnistat public repository is located within the rocm-systems repo at [
 :::{grid-item-card} Reference
 
 - [AI agent skills](agents.md)
-- [Developer Guide](developer/developers.md)
+- [Developer guide](developer/developers.md)
 :::
 
 ::::
